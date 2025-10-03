@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Pipeline Tour - Cleansheet</title>
+    <link rel="icon" type="image/png" href="assets/high-resolution-logo-files/white-on-transparent.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+    <style>
+        /* Cleansheet Design System - Corporate Professional */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-neutral-background);
+        }
+
+        /* Header - Removed */
+        .tour-header {
+            display: none;
+        }
+
+        /* Back to Home Button */
+        .back-home-btn {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            background-color: rgba(26, 26, 26, 0.95);
+        }
+
+        .back-home-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            background-color: rgba(26, 26, 26, 0.98);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Pipeline Network Diagram */
+        .pipeline-network {
+            background: var(--color-dark);
+            padding: 16px;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .network-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 200px;
+            display: none; /* Hidden on mobile by default */
+        }
+
+        .network-node {
+            position: absolute;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            touch-action: manipulation;
+            background: var(--color-primary-blue);
+            color: white;
+            border: 2px solid var(--color-primary-blue);
+        }
+
+        .network-node:active {
+            transform: scale(0.95);
+        }
+
+        .network-node.active {
+            background: var(--color-accent-blue) !important;
+            color: white !important;
+            border-color: var(--color-accent-blue) !important;
+            box-shadow: 0 0 0 6px rgba(0, 76, 153, 0.5), 0 0 20px rgba(0, 102, 204, 0.6);
+            transform: scale(1.25);
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        /* SVG for connection lines */
+        .network-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .network-line {
+            stroke: #ffffff;
+            stroke-width: 1;
+            fill: none;
+            opacity: 0.4;
+        }
+
+        /* Mobile Stage Selector */
+        .stage-selector {
+            display: none;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            background: white;
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .mobile-nav-btn {
+            background: var(--color-dark);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mobile-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .mobile-nav-btn:not(:disabled):active {
+            transform: scale(0.95);
+            background: var(--color-neutral-text);
+        }
+
+        .mobile-stage-info {
+            flex: 1;
+            text-align: center;
+        }
+
+        .mobile-stage-number {
+            font-size: 11px;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .mobile-stage-title {
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            color: var(--color-dark);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* Navigation - Hidden */
+        .navigation {
+            display: none;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            background: white;
+            padding: 12px 24px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .progress-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e5e7;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary-blue), var(--color-accent-blue));
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px;
+            flex: 1;
+        }
+
+        /* Stage Card */
+        .stage-card {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--color-primary-blue);
+            animation: slideIn 0.3s ease;
+        }
+
+        .stage-card.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stage Header */
+        .stage-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f5f5f7;
+        }
+
+        .stage-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--color-primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-family-ui);
+            font-size: 18px;
+            font-weight: 700;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .stage-title-group h2 {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 2px;
+        }
+
+        .stage-title-group p {
+            font-family: var(--font-family-body);
+            font-size: 12px;
+            color: var(--color-neutral-text-light);
+            line-height: 1.4;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card {
+            background: var(--color-neutral-background-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--color-primary-blue);
+            transition: all 0.2s;
+        }
+
+        .feature-card:active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h4 {
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 4px;
+        }
+
+        .feature-card p {
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+            line-height: 1.4;
+        }
+
+        /* Content Box */
+        .content-box {
+            background: #f9fafb;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .content-box h3 {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 10px;
+        }
+
+        .content-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .content-box li {
+            font-family: var(--font-family-body);
+            padding: 5px 0;
+            color: var(--color-neutral-text);
+            font-size: 12px;
+        }
+
+        /* Step List */
+        .step-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: start;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--color-primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-family-ui);
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .step-content strong {
+            font-family: var(--font-family-ui);
+            color: var(--color-dark);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+
+        .step-content span {
+            font-family: var(--font-family-body);
+            color: var(--color-neutral-text-light);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        /* Format Grid */
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .format-card {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+        }
+
+        .format-card .icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .format-card strong {
+            font-family: var(--font-family-ui);
+            display: block;
+            color: var(--color-dark);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .format-card small {
+            font-family: var(--font-family-body);
+            color: var(--color-neutral-text-light);
+            font-size: 10px;
+            line-height: 1.3;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .comparison-side {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+        }
+
+        .comparison-side h3 {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .comparison-side ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        .comparison-side li {
+            padding: 4px 0 !important;
+            font-size: 11px !important;
+            line-height: 1.4 !important;
+        }
+
+        /* Mockup */
+        .mockup {
+            background: var(--color-dark);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+        }
+
+        .mockup-title {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .mockup-subtitle {
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            color: #cccccc;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .read-more-btn {
+            background: var(--color-primary-blue);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: none;
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .read-more-btn:active {
+            background: #005555;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .action-btn {
+            background: #2d2d30;
+            border: 1px solid #404040;
+            color: #cccccc;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .action-btn:active {
+            background: #404040;
+        }
+
+        /* Completion Message - Hidden */
+        .completion-message {
+            display: none;
+        }
+
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .pipeline-network {
+                padding: 24px;
+            }
+
+            .network-container {
+                display: block;
+                min-height: 280px;
+            }
+
+            .network-node {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            .network-node:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(196, 214, 0, 0.3);
+            }
+
+            .mobile-nav {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .container {
+                padding: 16px 24px;
+            }
+
+            .stage-card {
+                padding: 20px;
+                margin-bottom: 16px;
+            }
+
+            .stage-header {
+                margin-bottom: 16px;
+            }
+
+            .stage-number {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+                margin-right: 16px;
+            }
+
+            .stage-title-group h2 {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .stage-title-group p {
+                font-size: 13px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+
+            .feature-card {
+                padding: 14px;
+                border-left-width: 4px;
+            }
+
+            .feature-card h4 {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+
+            .feature-card p {
+                font-size: 12px;
+            }
+
+            .content-box {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .content-box h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .content-box li {
+                font-size: 13px;
+            }
+
+            .step-list {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .step-item {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .step-number {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .step-content strong {
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+
+            .step-content span {
+                font-size: 12px;
+            }
+
+            .format-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            .format-card {
+                padding: 16px;
+            }
+
+            .format-card .icon {
+                font-size: 32px;
+                margin-bottom: 8px;
+            }
+
+            .format-card strong {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            .format-card small {
+                font-size: 11px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-bottom: 16px;
+            }
+
+            .comparison-side {
+                padding: 16px;
+            }
+
+            .comparison-side h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .comparison-side li {
+                font-size: 12px !important;
+            }
+
+            .mockup {
+                padding: 16px;
+            }
+
+            .mockup-title {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+
+            .mockup-subtitle {
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+
+            .read-more-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .action-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 12px 0;
+            }
+
+            .action-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+
+            .feature-card:hover {
+                background: white;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            .read-more-btn:hover {
+                background: #005555;
+            }
+
+            .action-btn:hover {
+                background: #404040;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-home-btn">← Home</a>
+    <!-- Header -->
+    <div class="tour-header">
+        <h1 id="tourTitle">ML Content Pipeline Tour</h1>
+    </div>
+
+    <!-- Pipeline Network Diagram (Desktop only) -->
+    <div class="pipeline-network">
+        <div class="network-container" id="networkContainer">
+            <svg class="network-svg" id="networkSvg"></svg>
+            <!-- Nodes will be dynamically positioned here -->
+        </div>
+    </div>
+
+    <!-- Mobile Stage Selector (Hidden) -->
+    <div class="stage-selector">
+        <label>Choose Stage:</label>
+        <div class="pill-grid" id="stagePills"></div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <button class="mobile-nav-btn" id="mobilePrevBtn" onclick="previousStage()">
+            <span>←</span>
+            <span>Back</span>
+        </button>
+        <div class="mobile-stage-info">
+            <div class="mobile-stage-number" id="mobileStageNumber">Stage 1 of 7</div>
+            <div class="mobile-stage-title" id="mobileStageTitle">Reviewed Corpus</div>
+        </div>
+        <button class="mobile-nav-btn" id="mobileNextBtn" onclick="nextStage()">
+            <span>Next</span>
+            <span>→</span>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <div class="navigation-container">
+            <button class="nav-btn secondary" id="prevBtn" onclick="previousStage()" disabled>← Previous</button>
+            <span class="stage-indicator" id="stageIndicator">Stage 1 of 6</span>
+            <button class="nav-btn primary" id="nextBtn" onclick="nextStage()">Next →</button>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="stagesContainer">
+        <!-- Stages will be dynamically generated here -->
+    </div>
+
+    <script>
+        // Embedded pipeline data
+        const pipelineData = {"pipeline":{"title":"","description":"Experience how content transforms from static display to dynamic, personalized learning through our AI-powered pipeline","totalStages":6},"stages":[{"stageNumber":1,"title":"Reviewed Corpus","description":"Our foundation: published content that has passed through the complete CMS review process, including SME validation, user testing, and quality assurance.","features":[{"title":"Published Content","description":"Educational materials that have been approved and deployed"},{"title":"Metadata Index","description":"Rich metadata including topics, difficulty, and learning objectives"},{"title":"Classification Tags","description":"Structured categorization for easy discovery and recommendation"},{"title":"4-Level Summaries","description":"Executive, overview, detailed, and abstract summaries for different audiences"}],"comparison":{"before":{"title":"Current State: Static Display","mockup":{"title":"Cloud Infrastructure Penetration Testing","subtitle":"Securing cloud-native architectures through systematic testing","link":"https://www.cleansheet.info/blog/cloud-infrastructure-penetration-testing"}},"after":{"title":"Pipeline Input","items":["📄 HTML content with structured markup","🏷️ Topic tags: Security, Cloud, Testing","📊 Metadata: Difficulty level, duration","📝 4-level summaries for different contexts"]}}},{"stageNumber":2,"title":"ML Processing","description":"Intelligent analysis and processing of content to understand context, extract key concepts, and prepare for multi-format delivery.","features":[{"title":"Content Analyzer","description":"AI-powered semantic analysis to understand topics and difficulty"},{"title":"Format Adapter","description":"Prepares content for different screen sizes and interaction modes"},{"title":"Language Processor","description":"NLP processing for summarization and question generation"},{"title":"Audio Generator","description":"Text-to-speech processing for accessibility and mobile use"}],"processingSteps":["Semantic analysis extracts key concepts and relationships","Content structure analyzed for mobile/tablet optimization","Question-answer pairs generated for interactive chat","Audio narration generated with natural speech patterns"]},{"stageNumber":3,"title":"Dynamic Generation","description":"Multi-format content creation optimized for different devices, languages, and consumption preferences.","features":[{"title":"Mobile Format","description":"Condensed, touch-friendly layouts with progressive disclosure"},{"title":"Tablet Format","description":"Enhanced layouts with rich media and interactive elements"},{"title":"International Language","description":"Multi-language content adaptation preserving technical accuracy"},{"title":"Audio Synthesis","description":"High-quality narration with appropriate pacing and emphasis"}],"formatAdaptations":[{"icon":"📱","title":"Mobile","description":"Bite-sized sections, swipe navigation"},{"icon":"💻","title":"Tablet","description":"Rich layouts, interactive demos"},{"icon":"🌍","title":"Multilingual","description":"Localized content, cultural adaptation"},{"icon":"🎧","title":"Audio","description":"Natural narration, podcast format"}]},{"stageNumber":4,"title":"Interactive Systems","description":"Natural language interfaces that transform static content into conversational learning experiences.","features":[{"title":"Natural Language Learner","description":"AI tutor that adapts explanations to learner's current knowledge"},{"title":"Natural Language Coach","description":"Coaching interface that guides skill development and project work"},{"title":"Expert System","description":"Advanced Q&A system for technical deep-dive discussions"}],"interactiveCapabilities":[{"icon":"💬","type":"Chat Interface","example":"Can you explain this concept in simpler terms?"},{"icon":"🎯","type":"Virtual Coach","example":"Based on your profile, here's how to apply this skill..."},{"icon":"🧠","type":"Expert System","example":"Here are the edge cases you should consider..."}]},{"stageNumber":5,"title":"RAG Integration","description":"Vector embeddings and semantic search enhance LLM responses with precise, contextually relevant information.","features":[{"title":"Vector Store","description":"High-dimensional representations of content for semantic similarity"},{"title":"Embeddings","description":"Dense vector representations capturing meaning and relationships"},{"title":"LLM Interface","description":"Large language model integration for natural conversation"}],"ragProcess":[{"step":1,"title":"Query Processing","description":"User question converted to vector representation"},{"step":2,"title":"Similarity Search","description":"Most relevant content sections identified"},{"step":3,"title":"Context Enhancement","description":"LLM provided with precise context for accurate response"},{"step":4,"title":"Response Generation","description":"Factually accurate, contextually appropriate answer"}]},{"stageNumber":6,"title":"Delivery: Northstar Vision","description":"The final result: dynamic, interactive content delivered across all platforms with personalized learning experiences.","features":[{"title":"Mobile App","description":"Native mobile experience with offline capabilities"},{"title":"Tablet App","description":"Rich tablet interface with advanced interactive features"},{"title":"Web Portal","description":"Full-featured web application with collaboration tools"},{"title":"Audio Stream","description":"Podcast-style content for learning on the go"}],"comparison":{"before":{"title":"Before: Static Content","mockup":{"title":"Cloud Infrastructure Penetration Testing","subtitle":"Securing cloud-native architectures through systematic testing","link":"https://www.cleansheet.info/blog/cloud-infrastructure-penetration-testing"},"note":"One-size-fits-all presentation"},"after":{"title":"After: Interactive Learning","mockup":{"title":"Cloud Infrastructure Penetration Testing","subtitle":"Securing cloud-native architectures through systematic testing","link":"https://www.cleansheet.info/blog/cloud-infrastructure-penetration-testing"},"actionButtons":["📄 Summarize","💬 Chat","🎧 Listen","📱 Send to Mobile","➕ Add to my Plan","🌍 Translate","🤖 Virtual Coach","👨‍🏫 Live Coach"],"note":"Personalized, multi-modal learning experience"}},"completionMessage":{"icon":"🎉","title":"Transformation Complete!","description":"Static educational content has evolved into a dynamic, personalized learning platform that adapts to each user's needs, preferences, and learning style."}}]};
+
+        let currentStage = 1;
+        const totalStages = 7; // Updated to include feedback loop stage
+
+        // Network diagram data
+        const networkNodes = [
+            { id: '1. Corpus', stage: 1, x: 8, y: 50 },
+            { id: '2. ML Processing', stage: 2, x: 24, y: 30 },
+            { id: '3. Generation', stage: 3, x: 42, y: 50 },
+            { id: '4. Interactive', stage: 4, x: 60, y: 30 },
+            { id: '5. RAG', stage: 5, x: 60, y: 70 },
+            { id: '6. Delivery', stage: 6, x: 78, y: 50 },
+            { id: '7. Feedback Loop', stage: 7, x: 42, y: 15 }
+        ];
+
+        const networkConnections = [
+            { from: 1, to: 2, curved: false },
+            { from: 2, to: 3, curved: false },
+            { from: 3, to: 4, curved: true },
+            { from: 3, to: 5, curved: true },
+            { from: 4, to: 6, curved: true },
+            { from: 5, to: 6, curved: true },
+            { from: 6, to: 7, curveDown: true },  // Curve downward below RAG
+            { from: 7, to: 2, feedback: true }  // Feedback loop back to ML Processing (solid line)
+        ];
+
+        // Initialize
+        function init() {
+            document.getElementById('tourTitle').textContent = pipelineData.pipeline.title;
+
+            initializeStagePills();
+            renderAllStages();
+
+            // Only create network diagram if on desktop
+            if (window.innerWidth >= 768) {
+                createNetworkDiagram();
+            }
+
+            updateDisplay();
+
+            // Set first stage active
+            const firstPill = document.querySelector('.stage-pill');
+            if (firstPill) {
+                firstPill.classList.add('active');
+            }
+        }
+
+        function initializeStagePills() {
+            const pillContainer = document.getElementById('stagePills');
+
+            // Include all 7 stages (6 from pipelineData + feedback loop)
+            const allStages = [
+                ...pipelineData.stages,
+                {
+                    stageNumber: 7,
+                    title: "Continuous Improvement"
+                }
+            ];
+
+            allStages.forEach((stage) => {
+                const pill = document.createElement('div');
+                pill.className = 'stage-pill';
+                pill.textContent = `${stage.stageNumber}. ${stage.title}`;
+                pill.dataset.stage = stage.stageNumber;
+                pill.addEventListener('click', () => {
+                    document.querySelectorAll('.stage-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    currentStage = stage.stageNumber;
+                    updateDisplay();
+                });
+                pillContainer.appendChild(pill);
+            });
+        }
+
+        function createNetworkDiagram() {
+            const container = document.getElementById('networkContainer');
+            const svg = document.getElementById('networkSvg');
+
+            svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+            networkNodes.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'network-node';
+                nodeEl.textContent = node.id;
+                nodeEl.style.left = `${node.x}%`;
+                nodeEl.style.top = `${node.y}%`;
+                nodeEl.style.transform = 'translate(-50%, -50%)';
+                nodeEl.addEventListener('click', () => selectStageFromNetwork(node.stage));
+                container.appendChild(nodeEl);
+            });
+
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    drawNetworkConnections();
+                    highlightActiveNode();
+                }, 100);
+            });
+
+            // Backup: If connections don't draw (container dimensions not ready), retry on window load
+            window.addEventListener('load', () => {
+                const svg = document.getElementById('networkSvg');
+                if (svg && svg.childElementCount === 0) {
+                    // No paths drawn yet, try again
+                    drawNetworkConnections();
+                    highlightActiveNode();
+                }
+            });
+
+            // Final fallback: Check after 2 seconds and force mobile view if map failed to load
+            setTimeout(() => {
+                const svg = document.getElementById('networkSvg');
+                if (svg && svg.childElementCount === 0 && window.innerWidth >= 768) {
+                    // Map failed to load on desktop, hide it and show mobile nav
+                    document.querySelector('.pipeline-network').style.display = 'none';
+                    document.querySelector('.mobile-nav').style.display = 'flex';
+                }
+            }, 2000);
+        }
+
+        function drawNetworkConnections() {
+            const svg = document.getElementById('networkSvg');
+            const container = document.getElementById('networkContainer');
+            const containerRect = container.getBoundingClientRect();
+
+            if (containerRect.width === 0 || containerRect.height === 0) {
+                // Container not ready, schedule retry
+                setTimeout(() => {
+                    const retryRect = container.getBoundingClientRect();
+                    if (retryRect.width > 0 && retryRect.height > 0) {
+                        drawNetworkConnections();
+                        highlightActiveNode();
+                    }
+                }, 500);
+                return;
+            }
+
+            networkConnections.forEach((conn) => {
+                const fromNode = networkNodes.find(n => n.stage === conn.from);
+                const toNode = networkNodes.find(n => n.stage === conn.to);
+
+                if (fromNode && toNode) {
+                    const x1 = (fromNode.x / 100) * containerRect.width;
+                    const y1 = (fromNode.y / 100) * containerRect.height;
+                    const x2 = (toNode.x / 100) * containerRect.width;
+                    const y2 = (toNode.y / 100) * containerRect.height;
+
+                    const midX = (x1 + x2) / 2;
+                    const midY = (y1 + y2) / 2;
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const curve = dist * 0.15;
+                    const perpX = -dy / dist * curve;
+                    const perpY = dx / dist * curve;
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2}`;
+                    path.setAttribute('d', pathData);
+                    path.setAttribute('class', 'network-line');
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        function selectStageFromNetwork(stage) {
+            currentStage = stage;
+            updateDisplay();
+            highlightActiveNode();
+
+            // Update mobile pills
+            document.querySelectorAll('.stage-pill').forEach(pill => {
+                pill.classList.remove('active');
+                if (parseInt(pill.dataset.stage) === stage) {
+                    pill.classList.add('active');
+                }
+            });
+        }
+
+        function highlightActiveNode() {
+            document.querySelectorAll('.network-node').forEach((node, index) => {
+                node.classList.remove('active');
+                if (index + 1 === currentStage) {
+                    node.classList.add('active');
+                }
+            });
+        }
+
+        function renderAllStages() {
+            const container = document.getElementById('stagesContainer');
+
+            // Add feedback loop stage data
+            const feedbackStage = {
+                stageNumber: 7,
+                title: "Continuous Improvement",
+                description: "Human quality feedback and anonymized usage analytics drive ongoing tuning, ensuring the pipeline learns and improves over time.",
+                features: [
+                    {
+                        title: "Human Quality Feedback",
+                        description: "Expert reviewers rate content quality, accuracy, and effectiveness"
+                    },
+                    {
+                        title: "Anonymized Usage Analytics",
+                        description: "Privacy-preserving analysis of engagement, completion, and learning patterns"
+                    },
+                    {
+                        title: "Model Retraining",
+                        description: "ML models continuously improve based on validated feedback signals"
+                    },
+                    {
+                        title: "Content Optimization",
+                        description: "Iterative refinement of formats, pacing, and delivery methods"
+                    }
+                ],
+                feedbackLoop: [
+                    {
+                        step: 1,
+                        title: "Quality Ratings",
+                        description: "Users and coaches provide feedback on content helpfulness and clarity"
+                    },
+                    {
+                        step: 2,
+                        title: "Anonymous Patterns",
+                        description: "Aggregated metrics show which formats and styles work best"
+                    },
+                    {
+                        step: 3,
+                        title: "Model Tuning",
+                        description: "ML pipeline adjusts based on validated improvement signals"
+                    },
+                    {
+                        step: 4,
+                        title: "A/B Testing",
+                        description: "New approaches tested with privacy-first experimentation"
+                    }
+                ],
+                privacyCommitment: {
+                    title: "Privacy-First Analytics",
+                    items: [
+                        "✓ All usage data is anonymized before analysis",
+                        "✓ No individual user tracking or profiling",
+                        "✓ Aggregate patterns only, never personal behavior",
+                        "✓ Opt-in quality feedback, always voluntary",
+                        "✓ Full transparency in how data improves the platform"
+                    ]
+                }
+            };
+
+            const allStages = [...pipelineData.stages, feedbackStage];
+
+            allStages.forEach((stage, index) => {
+                const stageCard = document.createElement('div');
+                stageCard.className = `stage-card ${index === 0 ? 'active' : ''}`;
+                stageCard.id = `stage-${stage.stageNumber}`;
+
+                let stageHTML = `
+                    <div class="stage-header">
+                        <div class="stage-number">${stage.stageNumber}</div>
+                        <div class="stage-title-group">
+                            <h2>${stage.title}</h2>
+                            <p>${stage.description}</p>
+                        </div>
+                    </div>
+
+                    <div class="features-grid">
+                        ${stage.features.map(feature => `
+                            <div class="feature-card">
+                                <h4>${feature.title}</h4>
+                                <p>${feature.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                // Stage-specific content
+                if (stage.comparison) {
+                    stageHTML += renderComparison(stage.comparison);
+                }
+
+                if (stage.processingSteps) {
+                    stageHTML += `
+                        <div class="content-box">
+                            <h3>Processing Steps</h3>
+                            <ul>
+                                ${stage.processingSteps.map(step => `<li>✓ ${step}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                if (stage.formatAdaptations) {
+                    stageHTML += `
+                        <div class="content-box">
+                            <h3>Format Adaptations</h3>
+                            <div class="format-grid">
+                                ${stage.formatAdaptations.map(format => `
+                                    <div class="format-card">
+                                        <div class="icon">${format.icon}</div>
+                                        <strong>${format.title}</strong>
+                                        <small>${format.description}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (stage.interactiveCapabilities) {
+                    stageHTML += `
+                        <div class="content-box">
+                            <h3>Interactive Capabilities</h3>
+                            <div class="step-list">
+                                ${stage.interactiveCapabilities.map(cap => `
+                                    <div class="step-item">
+                                        <div class="step-number">${cap.icon}</div>
+                                        <div class="step-content">
+                                            <strong>${cap.type}:</strong>
+                                            <span>"${cap.example}"</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (stage.ragProcess) {
+                    stageHTML += `
+                        <div class="content-box">
+                            <h3>RAG Enhancement Process</h3>
+                            <div class="step-list">
+                                ${stage.ragProcess.map(step => `
+                                    <div class="step-item">
+                                        <div class="step-number">${step.step}</div>
+                                        <div class="step-content">
+                                            <strong>${step.title}:</strong>
+                                            <span>${step.description}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (stage.feedbackLoop) {
+                    stageHTML += `
+                        <div class="content-box">
+                            <h3>Feedback Loop Process</h3>
+                            <div class="step-list">
+                                ${stage.feedbackLoop.map(step => `
+                                    <div class="step-item">
+                                        <div class="step-number">${step.step}</div>
+                                        <div class="step-content">
+                                            <strong>${step.title}:</strong>
+                                            <span>${step.description}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (stage.privacyCommitment) {
+                    stageHTML += `
+                        <div class="content-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+                            <h3>${stage.privacyCommitment.title}</h3>
+                            <ul>
+                                ${stage.privacyCommitment.items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                if (stage.completionMessage) {
+                    stageHTML += `
+                        <div class="completion-message">
+                            <div class="icon">${stage.completionMessage.icon}</div>
+                            <h3>${stage.completionMessage.title}</h3>
+                            <p>${stage.completionMessage.description}</p>
+                        </div>
+                    `;
+                }
+
+                stageCard.innerHTML = stageHTML;
+                container.appendChild(stageCard);
+            });
+        }
+
+        function renderComparison(comparison) {
+            let html = '<div class="comparison-grid">';
+
+            // Before side
+            html += `
+                <div class="comparison-side">
+                    <h3>${comparison.before.title}</h3>
+                    <div class="mockup">
+                        <div class="mockup-title">${comparison.before.mockup.title}</div>
+                        <div class="mockup-subtitle">${comparison.before.mockup.subtitle}</div>
+                        <div style="text-align: right; margin-top: 16px;">
+                            <a href="${comparison.before.mockup.link}" target="_blank" class="read-more-btn">Read More</a>
+                        </div>
+                    </div>
+                    ${comparison.before.note ? `<p style="text-align: center; color: #666; font-style: italic; margin-top: 12px;">${comparison.before.note}</p>` : ''}
+                </div>
+            `;
+
+            // After side
+            if (comparison.after.items) {
+                html += `
+                    <div class="comparison-side">
+                        <h3>${comparison.after.title}</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            ${comparison.after.items.map(item => `<li style="padding: 8px 0; font-size: 14px;">${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (comparison.after.mockup) {
+                html += `
+                    <div class="comparison-side">
+                        <h3>${comparison.after.title}</h3>
+                        <div class="mockup">
+                            <div class="mockup-title">${comparison.after.mockup.title}</div>
+                            <div class="mockup-subtitle">${comparison.after.mockup.subtitle}</div>
+                            ${comparison.after.actionButtons ? `
+                                <div class="action-buttons">
+                                    ${comparison.after.actionButtons.map(btn => `<div class="action-btn">${btn}</div>`).join('')}
+                                </div>
+                            ` : ''}
+                            <div style="text-align: right; margin-top: 16px;">
+                                <a href="${comparison.after.mockup.link}" target="_blank" class="read-more-btn">Read More</a>
+                            </div>
+                        </div>
+                        ${comparison.after.note ? `<p style="text-align: center; color: #666; font-style: italic; margin-top: 12px;">${comparison.after.note}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function updateDisplay() {
+            // Update stage visibility
+            document.querySelectorAll('.stage-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById(`stage-${currentStage}`).classList.add('active');
+
+            // Update progress bar
+            const percentage = (currentStage / totalStages) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+
+            // Update indicator
+            document.getElementById('stageIndicator').textContent = `Stage ${currentStage} of ${totalStages}`;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentStage === 1;
+            document.getElementById('nextBtn').disabled = currentStage === totalStages;
+
+            if (currentStage === totalStages) {
+                document.getElementById('nextBtn').textContent = 'Complete ✓';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Next →';
+            }
+
+            // Update mobile navigation
+            const mobilePrevBtn = document.getElementById('mobilePrevBtn');
+            const mobileNextBtn = document.getElementById('mobileNextBtn');
+            const mobileStageNumber = document.getElementById('mobileStageNumber');
+            const mobileStageTitle = document.getElementById('mobileStageTitle');
+
+            if (mobilePrevBtn) mobilePrevBtn.disabled = currentStage === 1;
+            if (mobileNextBtn) mobileNextBtn.disabled = currentStage === totalStages;
+
+            if (mobileStageNumber) {
+                mobileStageNumber.textContent = `Stage ${currentStage} of ${totalStages}`;
+            }
+
+            if (mobileStageTitle) {
+                const stageData = [...pipelineData.stages, {
+                    stageNumber: 7,
+                    title: "Continuous Improvement"
+                }];
+                const currentStageData = stageData.find(s => s.stageNumber === currentStage);
+                if (currentStageData) {
+                    mobileStageTitle.textContent = currentStageData.title;
+                }
+            }
+
+            // Update network node highlight
+            if (window.innerWidth >= 768) {
+                highlightActiveNode();
+            }
+
+            // Update mobile pills
+            document.querySelectorAll('.stage-pill').forEach(pill => {
+                pill.classList.remove('active');
+                if (parseInt(pill.dataset.stage) === currentStage) {
+                    pill.classList.add('active');
+                }
+            });
+        }
+
+        function nextStage() {
+            if (currentStage < totalStages) {
+                currentStage++;
+                updateDisplay();
+            }
+        }
+
+        function previousStage() {
+            if (currentStage > 1) {
+                currentStage--;
+                updateDisplay();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' && currentStage < totalStages) {
+                nextStage();
+            } else if (e.key === 'ArrowLeft' && currentStage > 1) {
+                previousStage();
+            }
+        });
+
+        // Initialize on load - matches career-progression-navigator pattern for Wix compatibility
+        function loadData() {
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Job Role Decoder - Cleansheet</title>
+    <link rel="icon" type="image/png" href="assets/high-resolution-logo-files/white-on-transparent.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+    <style>
+        /* Cleansheet Design System - Corporate Professional */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            min-height: 100vh;
+            background: var(--color-neutral-background);
+            overflow-x: hidden;
+        }
+
+        /* Back to Home Button */
+        .back-home-btn {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            background-color: rgba(26, 26, 26, 0.95);
+        }
+
+        .back-home-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            background-color: rgba(26, 26, 26, 0.98);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Role Network Diagram - Hidden on mobile */
+        .role-network {
+            background: var(--color-dark);
+            padding: 16px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: none;
+        }
+
+        .network-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .network-node {
+            position: absolute;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            touch-action: manipulation;
+            font-family: var(--font-family-ui);
+        }
+
+        .network-node.technical {
+            background: var(--color-primary-blue);
+            color: white;
+            border: 2px solid var(--color-primary-blue);
+        }
+
+        .network-node.business {
+            background: #d3d3d3;
+            color: #333333;
+            border: 2px solid #d3d3d3;
+        }
+
+        .network-node:active {
+            transform: scale(0.95);
+        }
+
+        .network-node.active {
+            background: var(--color-accent-blue) !important;
+            color: white !important;
+            border-color: var(--color-accent-blue) !important;
+            box-shadow: 0 0 0 6px rgba(0, 76, 153, 0.5), 0 0 20px rgba(0, 102, 204, 0.6);
+            transform: scale(1.25);
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        .network-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .network-line {
+            stroke: #ffffff;
+            stroke-width: 1;
+            fill: none;
+            opacity: 0.4;
+        }
+
+        /* Mobile Role Selector */
+        .role-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .role-selector label {
+            display: block;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 16px;
+            max-width: 100vw;
+        }
+
+        /* Collapsible Sections */
+        .section {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            padding: 12px 16px;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-family-ui);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-count {
+            background: var(--color-primary-blue);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .section-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .section-inner {
+            padding: 12px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid var(--color-dark);
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            color: var(--color-dark);
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+            background: var(--color-neutral-background);
+        }
+
+        .action-btn.clear {
+            border-color: var(--color-neutral-text-light);
+            color: var(--color-neutral-text-light);
+        }
+
+        /* Mini action buttons in header */
+        .action-btn-mini {
+            padding: 4px 8px;
+            border: 1px solid var(--color-dark);
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            color: var(--color-dark);
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .action-btn-mini:active {
+            transform: scale(0.95);
+            background: var(--color-neutral-background);
+        }
+
+        .action-btn-mini.clear {
+            border-color: var(--color-neutral-text-light);
+            color: var(--color-neutral-text-light);
+        }
+
+        /* Pill Grid - Larger touch targets */
+        .pill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pill {
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--color-neutral-border);
+            background: white;
+            color: var(--color-dark);
+            touch-action: manipulation;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .pill:active {
+            transform: scale(0.95);
+        }
+
+        .pill.active {
+            background: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Sector Cards */
+        .sector-card {
+            background: white;
+            border: 2px solid var(--color-neutral-border);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .sector-card:active {
+            transform: scale(0.98);
+        }
+
+        .sector-card.selected {
+            border-color: var(--color-primary-blue);
+            border-width: 3px;
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .sector-card-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .sector-abbr {
+            font-family: var(--font-family-ui);
+            font-weight: 700;
+            color: var(--color-primary-blue);
+            font-size: 13px;
+        }
+
+        .sector-name {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+            font-size: 12px;
+        }
+
+        .sector-desc {
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .sector-examples {
+            font-size: 10px;
+            color: var(--color-neutral-text-muted);
+            font-style: italic;
+        }
+
+        /* Word Cloud Section */
+        .word-cloud-section {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            min-height: 400px;
+        }
+
+        .word-cloud-header {
+            text-align: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--color-primary-blue);
+        }
+
+        .word-cloud-header h3 {
+            font-family: var(--font-family-ui);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .word-cloud-subtitle {
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+            margin-top: 4px;
+        }
+
+        .word-cloud-legend {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .word-cloud-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+        }
+
+        .word-cloud-legend .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            min-height: 300px;
+            line-height: 1.4;
+        }
+
+        .cloud-word {
+            display: inline-block;
+            padding: 6px 10px;
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+            cursor: default;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border-radius: 6px;
+        }
+
+        .cloud-word:active {
+            transform: scale(1.05);
+        }
+
+        /* Mobile-optimized font sizes with rotation */
+        .cloud-word.size-1 { font-size: 10px; opacity: 0.7; transform: rotate(-12deg); }
+        .cloud-word.size-2 { font-size: 12px; opacity: 0.75; transform: rotate(8deg); }
+        .cloud-word.size-3 { font-size: 14px; opacity: 0.8; transform: rotate(-6deg); }
+        .cloud-word.size-4 { font-size: 16px; opacity: 0.85; transform: rotate(10deg); }
+        .cloud-word.size-5 { font-size: 18px; opacity: 0.9; transform: rotate(-8deg); }
+        .cloud-word.size-6 { font-size: 20px; opacity: 1; transform: rotate(5deg); }
+
+        .cloud-word.size-1:active { transform: rotate(-12deg) scale(1.05); }
+        .cloud-word.size-2:active { transform: rotate(8deg) scale(1.05); }
+        .cloud-word.size-3:active { transform: rotate(-6deg) scale(1.05); }
+        .cloud-word.size-4:active { transform: rotate(10deg) scale(1.05); }
+        .cloud-word.size-5:active { transform: rotate(-8deg) scale(1.05); }
+        .cloud-word.size-6:active { transform: rotate(5deg) scale(1.05); }
+
+        /* Seniority color coding */
+        .cloud-word.seniority-entry {
+            color: #2E7D32;
+            background: rgba(46, 125, 50, 0.08);
+        }
+        .cloud-word.seniority-mid {
+            color: #1565C0;
+            background: rgba(21, 101, 192, 0.08);
+        }
+        .cloud-word.seniority-senior {
+            color: #E65100;
+            background: rgba(230, 81, 0, 0.08);
+        }
+        .cloud-word.seniority-lead {
+            color: #6A1B9A;
+            background: rgba(106, 27, 154, 0.08);
+        }
+        .cloud-word.seniority-executive {
+            color: #B71C1C;
+            background: rgba(183, 28, 28, 0.08);
+        }
+
+        .no-selection {
+            text-align: center;
+            padding: 80px 24px;
+            color: #6e6e73;
+            font-size: 13px;
+        }
+
+        .no-selection h4 {
+            font-family: var(--font-family-ui);
+            font-size: 15px;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+        }
+
+        .no-selection-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        /* Legend */
+        .legend {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .legend-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6e6e73;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+
+        /* Footer */
+        .footer {
+            margin-top: 24px;
+            padding: 20px 16px;
+            text-align: center;
+            font-size: 11px;
+            color: #6e6e73;
+            background: white;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6e6e73;
+            font-size: 13px;
+        }
+
+        /* Sticky word cloud on scroll */
+        .word-cloud-section.sticky {
+            position: sticky;
+            top: 68px;
+            z-index: 50;
+        }
+
+        /* Desktop Layout */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding-top: 16px;
+            }
+
+            /* Show network map on desktop */
+            .role-network {
+                display: block;
+                padding: 24px;
+            }
+
+            .network-container {
+                min-height: 280px;
+            }
+
+            /* Hide mobile role selector on desktop */
+            .role-selector {
+                display: none;
+            }
+
+            /* Seniority legend - horizontal layout */
+            .legend {
+                margin-bottom: 16px;
+            }
+
+            .legend-items {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+            }
+
+
+            /* Smaller buttons on desktop */
+            .action-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .pill {
+                padding: 8px 12px;
+                font-size: 12px;
+                min-height: auto;
+            }
+
+            /* Grid layout: Sectors left, Word cloud right */
+            .content-grid {
+                display: grid;
+                grid-template-columns: 350px 1fr;
+                gap: 24px;
+                align-items: stretch;
+                height: calc(100vh - 380px);
+            }
+
+            .sections-column {
+                order: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Sectors on the left */
+            #sectorsSection {
+                order: 1;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 0;
+            }
+
+            #sectorsSection .section-header {
+                padding: 12px 16px;
+            }
+
+            #sectorsSection .section-content {
+                flex: 1;
+                overflow-y: auto;
+            }
+
+            #sectorsSection .section-inner {
+                padding: 12px;
+            }
+
+            /* Word cloud on the right */
+            .word-cloud-section {
+                order: 2;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Desktop font sizes - smaller and more angled */
+            .cloud-word.size-1 { font-size: 11px; transform: rotate(-15deg); }
+            .cloud-word.size-2 { font-size: 14px; transform: rotate(12deg); }
+            .cloud-word.size-3 { font-size: 18px; transform: rotate(-9deg); }
+            .cloud-word.size-4 { font-size: 22px; transform: rotate(14deg); }
+            .cloud-word.size-5 { font-size: 26px; transform: rotate(-11deg); }
+            .cloud-word.size-6 { font-size: 32px; transform: rotate(8deg); }
+
+            .cloud-word:hover {
+                transform-origin: center;
+            }
+
+            .cloud-word.size-1:hover { transform: rotate(-15deg) scale(1.15); }
+            .cloud-word.size-2:hover { transform: rotate(12deg) scale(1.15); }
+            .cloud-word.size-3:hover { transform: rotate(-9deg) scale(1.15); }
+            .cloud-word.size-4:hover { transform: rotate(14deg) scale(1.15); }
+            .cloud-word.size-5:hover { transform: rotate(-11deg) scale(1.15); }
+            .cloud-word.size-6:hover { transform: rotate(8deg) scale(1.15); }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-home-btn">← Home</a>
+    <!-- Role Network Map -->
+    <div class="role-network">
+        <div class="network-container" id="networkContainer">
+            <svg class="network-svg" id="networkSvg"></svg>
+        </div>
+    </div>
+
+    <!-- Mobile Role Selector -->
+    <div class="role-selector">
+        <label>Select a Role:</label>
+        <div class="pill-grid" id="mobileRoleGrid"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Desktop Grid Wrapper -->
+        <div class="content-grid">
+            <!-- Left Column: Sectors -->
+            <div class="sections-column">
+                <!-- Sectors Section -->
+                <div class="section expanded" id="sectorsSection">
+                    <div class="section-header">
+                        <h2>
+                            Industry Sectors
+                            <span class="section-count" id="sectorCountBadge">0</span>
+                        </h2>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="action-btn-mini" id="selectAllSectors">All</button>
+                            <button class="action-btn-mini clear" id="clearSectors">Clear</button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-inner" id="sectorList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Word Cloud -->
+            <div class="word-cloud-section" id="wordCloudSection">
+                <div id="wordCloudContent">
+                    <div class="no-selection">
+                        <div class="no-selection-icon">💼</div>
+                        <h4>Select a role and sectors</h4>
+                        <p>Job titles will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 Cleansheet LLC</p>
+        <p style="margin-top: 4px;">Career Development Tools</p>
+    </div>
+
+    <script>
+        // Embedded job data
+        const careerData = {
+            "sectorNames": {
+                "ISV": "Independent Software Vendor",
+                "IHV": "Independent Hardware Vendor",
+                "ISP": "Internet Service Provider",
+                "CSP": "Cloud Service Provider",
+                "MSP": "Managed Service Provider",
+                "VAR": "Value Added Reseller",
+                "Distributor": "Distributor",
+                "Telco": "Telecommunications"
+            },
+            "sectorDescriptions": {
+                "ISV": {
+                    "description": "Companies that develop and sell software products",
+                    "examples": ["Microsoft", "Adobe", "Salesforce"]
+                },
+                "IHV": {
+                    "description": "Manufacturers of computer hardware and components",
+                    "examples": ["Dell", "HP", "Cisco"]
+                },
+                "ISP": {
+                    "description": "Providers of internet connectivity and services",
+                    "examples": ["Comcast", "AT&T", "Verizon"]
+                },
+                "CSP": {
+                    "description": "Cloud computing infrastructure and platform providers",
+                    "examples": ["AWS", "Azure", "Google Cloud"]
+                },
+                "MSP": {
+                    "description": "Outsourced IT management and support services",
+                    "examples": ["CDW", "Insight", "SHI"]
+                },
+                "VAR": {
+                    "description": "Resellers who customize and integrate solutions",
+                    "examples": ["Presidio", "World Wide Technology", "Softchoice"]
+                },
+                "Distributor": {
+                    "description": "Wholesale suppliers of technology products",
+                    "examples": ["Ingram Micro", "Tech Data", "Arrow"]
+                },
+                "Telco": {
+                    "description": "Telecommunications and network service providers",
+                    "examples": ["T-Mobile", "Sprint", "CenturyLink"]
+                }
+            },
+            "jobData": {
+                "Project Manager": {
+                    "ISV": ["Software Project Manager", "Product Development PM", "Agile Project Manager"],
+                    "IHV": ["Hardware Project Manager", "Product Engineering PM", "Manufacturing PM"],
+                    "ISP": ["Network Project Manager", "Infrastructure PM", "Service Delivery PM"],
+                    "CSP": ["Cloud Platform PM", "Service Delivery PM", "Infrastructure PM"],
+                    "MSP": ["Client Project Manager", "Implementation PM", "Service Delivery PM"],
+                    "VAR": ["Solution Project Manager", "Implementation PM", "Customer Project Manager"],
+                    "Distributor": ["Channel Project Manager", "Vendor Relationship PM", "Supply Chain PM"],
+                    "Telco": ["Network Deployment PM", "Service Launch PM", "Infrastructure PM"]
+                },
+                "AI/ML Engineer": {
+                    "ISV": ["ML Engineer", "AI Software Engineer", "Data Scientist"],
+                    "IHV": ["AI Hardware Engineer", "ML Chip Designer", "Edge AI Engineer"],
+                    "ISP": ["Network Analytics Engineer", "Traffic Optimization ML Engineer", "Predictive Analytics Engineer"],
+                    "CSP": ["ML Platform Engineer", "AI Services Engineer", "MLOps Engineer"],
+                    "MSP": ["AI Solutions Engineer", "ML Consultant", "Data Science Consultant"],
+                    "VAR": ["AI Solutions Architect", "ML Pre-sales Engineer", "Data Science Specialist"],
+                    "Distributor": ["AI Technology Specialist", "ML Solutions Engineer", "Data Analytics Consultant"],
+                    "Telco": ["Network AI Engineer", "Predictive Analytics Engineer", "ML Operations Engineer"]
+                },
+                "Data Analyst": {
+                    "ISV": ["Junior Data Analyst", "Product Data Analyst", "Business Intelligence Analyst", "Senior Customer Analytics Specialist"],
+                    "IHV": ["Associate Analyst", "Market Research Analyst", "Product Performance Analyst", "Senior Supply Chain Analyst"],
+                    "ISP": ["Junior Analyst", "Network Performance Analyst", "Customer Usage Analyst", "Senior Traffic Analyst"],
+                    "CSP": ["Associate Data Analyst", "Cloud Metrics Analyst", "Usage Analytics Specialist", "Senior Performance Analyst"],
+                    "MSP": ["Junior Data Analyst", "Client Data Analyst", "Service Performance Analyst", "Senior Business Intelligence Analyst"],
+                    "VAR": ["Associate Analyst", "Sales Data Analyst", "Market Intelligence Analyst", "Senior Customer Analytics Specialist"],
+                    "Distributor": ["Junior Analyst", "Market Data Analyst", "Demand Planning Analyst", "Senior Channel Analytics Specialist"],
+                    "Telco": ["Associate Data Analyst", "Network Data Analyst", "Customer Analytics Specialist", "Senior Revenue Assurance Analyst"]
+                },
+                "Citizen Developer": {
+                    "ISV": ["Business Analyst Developer", "Low-Code Developer", "Workflow Automation Specialist"],
+                    "IHV": ["Process Automation Specialist", "Business Application Developer", "Workflow Designer"],
+                    "ISP": ["Service Automation Developer", "Process Improvement Specialist", "Business Systems Developer"],
+                    "CSP": ["Self-Service Platform Developer", "Automation Specialist", "Business Process Developer"],
+                    "MSP": ["Client Solutions Developer", "Process Automation Specialist", "Business Application Developer"],
+                    "VAR": ["Solution Configuration Specialist", "Business Process Developer", "Workflow Automation Specialist"],
+                    "Distributor": ["Business Process Specialist", "Automation Developer", "Self-Service Solutions Developer"],
+                    "Telco": ["Service Automation Specialist", "Process Optimization Developer", "Business Systems Specialist"]
+                },
+                "Cloud Operations": {
+                    "ISV": ["DevOps Engineer", "Site Reliability Engineer", "Platform Operations Engineer"],
+                    "IHV": ["Manufacturing Cloud Engineer", "IoT Platform Engineer", "Edge Computing Specialist"],
+                    "ISP": ["Network Cloud Engineer", "Service Operations Engineer", "Infrastructure Automation Engineer"],
+                    "CSP": ["Cloud Infrastructure Engineer", "Platform Operations Engineer", "Site Reliability Engineer"],
+                    "MSP": ["Cloud Services Engineer", "Infrastructure Operations Engineer", "Multi-Cloud Specialist"],
+                    "VAR": ["Cloud Solutions Engineer", "Infrastructure Specialist", "Cloud Operations Consultant"],
+                    "Distributor": ["Cloud Technology Specialist", "Infrastructure Solutions Engineer", "Cloud Platform Specialist"],
+                    "Telco": ["Telco Cloud Engineer", "Network Function Virtualization Engineer", "Cloud Infrastructure Specialist"]
+                },
+                "Cloud Computing": {
+                    "ISV": ["Cloud Software Architect", "SaaS Platform Engineer", "Cloud Integration Specialist"],
+                    "IHV": ["Cloud Hardware Specialist", "Hybrid Cloud Engineer", "Edge Cloud Specialist"],
+                    "ISP": ["Cloud Infrastructure Specialist", "Hybrid Network Engineer", "Multi-Cloud Architect"],
+                    "CSP": ["Cloud Solutions Architect", "Platform Engineer", "Cloud Security Specialist"],
+                    "MSP": ["Cloud Services Architect", "Multi-Cloud Consultant", "Cloud Migration Specialist"],
+                    "VAR": ["Cloud Solutions Architect", "Cloud Consultant", "Multi-Cloud Specialist"],
+                    "Distributor": ["Cloud Solutions Specialist", "Cloud Technology Consultant", "Platform Solutions Engineer"],
+                    "Telco": ["Telco Cloud Architect", "Network Cloud Specialist", "Edge Computing Engineer"]
+                },
+                "Network Operations": {
+                    "ISV": ["Network Infrastructure Engineer", "Application Network Specialist", "Software-Defined Networking Engineer"],
+                    "IHV": ["Network Hardware Engineer", "Switching/Routing Specialist", "Network Test Engineer"],
+                    "ISP": ["Network Operations Engineer", "NOC Engineer", "Network Performance Engineer"],
+                    "CSP": ["Cloud Network Engineer", "Virtual Network Specialist", "Network Security Engineer"],
+                    "MSP": ["Network Services Engineer", "Managed Network Specialist", "Network Security Consultant"],
+                    "VAR": ["Network Solutions Engineer", "Infrastructure Consultant", "Network Design Specialist"],
+                    "Distributor": ["Network Technology Specialist", "Infrastructure Solutions Engineer", "Network Products Specialist"],
+                    "Telco": ["Network Operations Engineer", "NOC Engineer", "Network Planning Engineer"]
+                },
+                "Security Operations": {
+                    "ISV": ["Application Security Engineer", "DevSecOps Engineer", "Product Security Specialist"],
+                    "IHV": ["Hardware Security Engineer", "Embedded Security Specialist", "IoT Security Engineer"],
+                    "ISP": ["Network Security Engineer", "SOC Analyst", "Cyber Threat Analyst"],
+                    "CSP": ["Cloud Security Engineer", "Security Architect", "Compliance Specialist"],
+                    "MSP": ["Security Services Engineer", "MSSP Analyst", "Security Consultant"],
+                    "VAR": ["Security Solutions Engineer", "Cybersecurity Consultant", "Security Specialist"],
+                    "Distributor": ["Security Technology Specialist", "Cybersecurity Solutions Engineer", "Security Products Specialist"],
+                    "Telco": ["Telecom Security Engineer", "SOC Analyst", "Security Operations Specialist"]
+                },
+                "Full Stack Developer": {
+                    "ISV": ["Junior Developer", "Full Stack Software Engineer", "Application Developer", "Senior Web Developer"],
+                    "IHV": ["Associate Developer", "Firmware/Software Developer", "Embedded Systems Developer", "Senior Full Stack IoT Developer"],
+                    "ISP": ["Junior Web Developer", "Web Services Developer", "Portal Developer", "Senior API Developer"],
+                    "CSP": ["Associate Developer", "Cloud Application Developer", "Platform Developer", "Senior Microservices Developer"],
+                    "MSP": ["Junior Solutions Developer", "Solutions Developer", "Custom Application Developer", "Senior Integration Developer"],
+                    "VAR": ["Associate Developer", "Solutions Developer", "Application Consultant", "Custom Development Specialist"],
+                    "Distributor": ["Junior Developer", "Technology Solutions Developer", "Integration Specialist", "Senior Custom Applications Developer"],
+                    "Telco": ["Junior Developer", "Service Platform Developer", "API Developer", "Senior Digital Services Developer"]
+                },
+                "General Manager": {
+                    "ISV": ["Business Unit GM", "Product Line GM", "Regional GM"],
+                    "IHV": ["Product Division GM", "Regional GM", "Business Line GM"],
+                    "ISP": ["Regional GM", "Service Line GM", "Operations GM"],
+                    "CSP": ["Business Unit GM", "Regional GM", "Service Line GM"],
+                    "MSP": ["Practice GM", "Regional GM", "Service Line GM"],
+                    "VAR": ["Regional GM", "Business Line GM", "Vertical Market GM"],
+                    "Distributor": ["Regional GM", "Business Unit GM", "Channel GM"],
+                    "Telco": ["Regional GM", "Service GM", "Operations GM"]
+                },
+                "Product Manager": {
+                    "ISV": ["Software Product Manager", "Platform PM", "Technical Product Manager"],
+                    "IHV": ["Hardware Product Manager", "Product Line Manager", "Technical PM"],
+                    "ISP": ["Service Product Manager", "Platform PM", "Customer Experience PM"],
+                    "CSP": ["Cloud Product Manager", "Platform PM", "Technical Product Manager"],
+                    "MSP": ["Service Product Manager", "Solution PM", "Offering Manager"],
+                    "VAR": ["Solution Product Manager", "Vertical Market PM", "Technical PM"],
+                    "Distributor": ["Product Line Manager", "Technology PM", "Solutions PM"],
+                    "Telco": ["Service Product Manager", "Platform PM", "Digital Services PM"]
+                },
+                "Program Manager": {
+                    "ISV": ["Software Program Manager", "Portfolio Manager", "Release Program Manager"],
+                    "IHV": ["Hardware Program Manager", "Product Portfolio Manager", "Engineering Program Manager"],
+                    "ISP": ["Infrastructure Program Manager", "Service Program Manager", "Network Program Manager"],
+                    "CSP": ["Cloud Program Manager", "Platform Program Manager", "Infrastructure Program Manager"],
+                    "MSP": ["Service Program Manager", "Client Program Manager", "Delivery Program Manager"],
+                    "VAR": ["Solution Program Manager", "Partner Program Manager", "Go-to-Market Program Manager"],
+                    "Distributor": ["Channel Program Manager", "Vendor Program Manager", "Portfolio Manager"],
+                    "Telco": ["Network Program Manager", "Service Program Manager", "Technology Program Manager"]
+                },
+                "Business Development Manager/Sales": {
+                    "ISV": ["Inside Sales Representative", "Sales Development Representative", "Strategic Sales Manager", "Enterprise Sales Director", "Channel Sales Manager"],
+                    "IHV": ["Inside Sales Associate", "Sales Representative", "OEM Sales Manager", "Channel Sales Director", "Strategic Accounts Manager"],
+                    "ISP": ["Sales Associate", "Inside Sales Representative", "Enterprise Sales Manager", "Channel Sales Director", "Business Development Director"],
+                    "CSP": ["Inside Sales Representative", "Cloud Sales Associate", "Cloud Sales Manager", "Enterprise Account Director", "Channel Development Manager"],
+                    "MSP": ["Inside Sales Representative", "Business Development Representative", "Sales Director", "Business Development Manager", "Client Acquisition Manager"],
+                    "VAR": ["Inside Sales Associate", "Sales Representative", "Sales Manager", "Channel Account Manager", "Business Development Director"],
+                    "Distributor": ["Inside Sales Representative", "Channel Sales Associate", "Channel Sales Manager", "Vendor Business Manager", "Strategic Accounts Director"],
+                    "Telco": ["Inside Sales Representative", "Sales Associate", "Enterprise Sales Director", "Business Sales Manager", "Strategic Accounts Manager"]
+                },
+                "Technical Account Manager/Presales": {
+                    "ISV": ["Associate Solutions Engineer", "Solutions Engineer", "Technical Sales Engineer", "Senior Solutions Architect", "Customer Success Engineer"],
+                    "IHV": ["Junior Field Engineer", "Field Application Engineer", "Solutions Architect", "Technical Sales Specialist"],
+                    "ISP": ["Associate Solutions Engineer", "Solutions Engineer", "Network Architect", "Technical Sales Manager"],
+                    "CSP": ["Associate Cloud Engineer", "Cloud Solutions Architect", "Technical Account Manager", "Senior Solutions Architect", "Customer Solutions Engineer"],
+                    "MSP": ["Junior Solutions Engineer", "Solutions Architect", "Technical Consultant", "Pre-sales Engineer"],
+                    "VAR": ["Associate Solutions Engineer", "Solutions Architect", "Technical Sales Engineer", "Pre-sales Consultant"],
+                    "Distributor": ["Technical Support Specialist", "Technical Solutions Manager", "Solutions Architect", "Pre-sales Engineer"],
+                    "Telco": ["Associate Solutions Engineer", "Solutions Engineer", "Technical Sales Specialist", "Network Solutions Architect"]
+                }
+            }
+        };
+
+        let jobData = careerData.jobData;
+        let sectorNames = careerData.sectorNames;
+        let sectorDescriptions = careerData.sectorDescriptions;
+        let selectedRole = null;
+        let selectedSectors = [];
+
+        // Network map nodes - exact same positions as career-progression-navigator
+        const networkNodes = [
+            { id: 'Full Stack Developer', x: 10, y: 85, type: 'technical' },
+            { id: 'Citizen Developer', x: 30, y: 50, type: 'technical' },
+            { id: 'Cloud Operations', x: 30, y: 70, type: 'technical' },
+            { id: 'Network Operations', x: 45, y: 70, type: 'technical' },
+            { id: 'Project Manager', x: 52, y: 30, type: 'technical' },
+            { id: 'Data Analyst', x: 58, y: 60, type: 'technical' },
+            { id: 'Cloud Computing', x: 30, y: 95, type: 'technical' },
+            { id: 'Security Operations', x: 45, y: 95, type: 'technical' },
+            { id: 'AI/ML Engineer', x: 58, y: 80, type: 'technical' },
+            { id: 'Product Manager', x: 44, y: 10, type: 'business' },
+            { id: 'General Manager', x: 76, y: 30, type: 'business' },
+            { id: 'Business Development Manager/Sales', x: 76, y: 50, type: 'business' },
+            { id: 'Program Manager', x: 60, y: 10, type: 'business' },
+            { id: 'Trade', x: 28, y: 10, type: 'business' }
+        ];
+
+        const networkConnections = [
+            ['Citizen Developer', 'Project Manager'],
+            ['Citizen Developer', 'Data Analyst'],
+            ['Citizen Developer', 'Cloud Operations'],
+            ['Citizen Developer', 'Network Operations'],
+            ['Cloud Operations', 'Full Stack Developer'],
+            ['Cloud Operations', 'Cloud Computing'],
+            ['Network Operations', 'Security Operations'],
+            ['Network Operations', 'Data Analyst'],
+            ['Data Analyst', 'AI/ML Engineer'],
+            ['Data Analyst', 'Project Manager'],
+            ['Project Manager', 'Program Manager'],
+            ['Trade', 'Project Manager'],
+            ['Trade', 'Product Manager'],
+            ['Trade', 'Citizen Developer'],
+            ['Product Manager', 'Business Development Manager/Sales'],
+            ['Business Development Manager/Sales', 'General Manager'],
+            ['Program Manager', 'General Manager']
+        ];
+
+        // Initialize on page load
+        function loadData() {
+            initializeNetworkMap();
+            initializeMobileRoles();
+            initializeSectors();
+            setDefaultSelections();
+        }
+
+        function initializeNetworkMap() {
+            const container = document.getElementById('networkContainer');
+            const svg = document.getElementById('networkSvg');
+
+            svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+            // Create nodes
+            networkNodes.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = `network-node ${node.type}`;
+                nodeEl.textContent = node.id;
+                nodeEl.style.left = `${node.x}%`;
+                nodeEl.style.top = `${node.y}%`;
+                nodeEl.style.transform = 'translate(-50%, -50%)';
+                nodeEl.dataset.role = node.id;
+
+                // All nodes are clickable
+                nodeEl.addEventListener('click', () => selectRole(node.id));
+                nodeEl.style.cursor = 'pointer';
+
+                container.appendChild(nodeEl);
+            });
+
+            // Draw connection lines
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    drawNetworkConnections();
+                }, 100);
+            });
+        }
+
+        function drawNetworkConnections() {
+            const svg = document.getElementById('networkSvg');
+            const container = document.getElementById('networkContainer');
+            const containerRect = container.getBoundingClientRect();
+
+            if (containerRect.width === 0 || containerRect.height === 0) {
+                setTimeout(() => {
+                    const retryRect = container.getBoundingClientRect();
+                    if (retryRect.width > 0 && retryRect.height > 0) {
+                        drawNetworkConnections();
+                    }
+                }, 500);
+                return;
+            }
+
+            networkConnections.forEach(([from, to]) => {
+                const fromNode = networkNodes.find(n => n.id === from);
+                const toNode = networkNodes.find(n => n.id === to);
+
+                if (fromNode && toNode) {
+                    let x1 = (fromNode.x / 100) * containerRect.width;
+                    let y1 = (fromNode.y / 100) * containerRect.height;
+                    const x2 = (toNode.x / 100) * containerRect.width;
+                    const y2 = (toNode.y / 100) * containerRect.height;
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    let pathData;
+
+                    // Special case: Trade → Project Manager
+                    if (from === 'Trade' && to === 'Project Manager') {
+                        const midX = (x1 + x2) / 2;
+                        const controlY = y1 + containerRect.height * 0.15;
+                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
+                    }
+                    // Special case: Trade → Product Manager
+                    else if (from === 'Trade' && to === 'Product Manager') {
+                        const midX = (x1 + x2) / 2;
+                        const controlY = Math.min(y1, y2) - containerRect.height * 0.08;
+                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
+                    }
+                    // Special case: Citizen Developer → Project Manager
+                    else if (from === 'Citizen Developer' && to === 'Project Manager') {
+                        y1 = y1 - containerRect.height * 0.08;
+                        const x2Modified = x2 - containerRect.width * 0.04;
+                        const midX = (x1 + x2Modified) / 2;
+                        const controlY = Math.min(y1, y2) - containerRect.height * 0.06;
+                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2Modified} ${y2}`;
+                    }
+                    // Special case: Citizen Developer → Data Analyst
+                    else if (from === 'Citizen Developer' && to === 'Data Analyst') {
+                        const midX = (x1 + x2) / 2;
+                        const controlY = Math.min(y1, y2) - containerRect.height * 0.15;
+                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
+                    }
+                    // Special case: Data Analyst → Project Manager
+                    else if (from === 'Data Analyst' && to === 'Project Manager') {
+                        y1 = y1 - containerRect.height * 0.06;
+                        const midX = (x1 + x2) / 2;
+                        const controlY = Math.min(y1, y2) - containerRect.height * 0.03;
+                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
+                    }
+                    // Special case: Trade → Citizen Developer
+                    else if (from === 'Trade' && to === 'Citizen Developer') {
+                        y1 = y1 + containerRect.height * 0.03;
+                        const y2Modified = y2 - containerRect.height * 0.03;
+                        const midX = (x1 + x2) / 2;
+                        const midY = (y1 + y2Modified) / 2;
+                        const dx = x2 - x1;
+                        const dy = y2Modified - y1;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const curve = dist * 0.15;
+                        const perpX = -dy / dist * curve;
+                        const perpY = dx / dist * curve;
+                        pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2Modified}`;
+                    } else {
+                        // Standard curved connection
+                        const midX = (x1 + x2) / 2;
+                        const midY = (y1 + y2) / 2;
+                        const dx = x2 - x1;
+                        const dy = y2 - y1;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const curve = dist * 0.15;
+                        const perpX = -dy / dist * curve;
+                        const perpY = dx / dist * curve;
+                        pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2}`;
+                    }
+
+                    path.setAttribute('d', pathData);
+                    path.setAttribute('class', 'network-line');
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        function initializeMobileRoles() {
+            const mobileGrid = document.getElementById('mobileRoleGrid');
+
+            Object.keys(jobData).forEach(role => {
+                const pill = document.createElement('div');
+                pill.className = 'pill';
+                pill.textContent = role;
+                pill.dataset.role = role;
+                pill.addEventListener('click', () => selectRole(role));
+                mobileGrid.appendChild(pill);
+            });
+        }
+
+        function initializeSectors() {
+            const sectorList = document.getElementById('sectorList');
+
+            Object.keys(sectorNames).forEach(sector => {
+                const sectorInfo = sectorDescriptions[sector];
+                const card = document.createElement('div');
+                card.className = 'sector-card';
+                card.dataset.sector = sector;
+                card.innerHTML = `
+                    <div class="sector-card-header">
+                        <span class="sector-abbr">${sector}</span>
+                        <span class="sector-name">${sectorNames[sector]}</span>
+                    </div>
+                    <div class="sector-desc">${sectorInfo.description}</div>
+                    <div class="sector-examples">Ex: ${sectorInfo.examples.join(', ')}</div>
+                `;
+                card.addEventListener('click', () => toggleSector(sector));
+                sectorList.appendChild(card);
+            });
+        }
+
+        function selectRole(role) {
+            // Clear all previous selections
+            document.querySelectorAll('.network-node, #mobileRoleGrid .pill').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Select new role
+            selectedRole = role;
+
+            // Update UI
+            document.querySelectorAll(`[data-role="${role}"]`).forEach(el => {
+                el.classList.add('active');
+            });
+
+            updateWordCloud();
+        }
+
+        function toggleSector(sector) {
+            const cards = document.querySelectorAll(`.sector-card[data-sector="${sector}"]`);
+
+            if (selectedSectors.includes(sector)) {
+                selectedSectors = selectedSectors.filter(s => s !== sector);
+                cards.forEach(card => card.classList.remove('selected'));
+            } else {
+                selectedSectors.push(sector);
+                cards.forEach(card => card.classList.add('selected'));
+            }
+
+            updateBadge('sectorCountBadge', selectedSectors.length);
+            updateWordCloud();
+        }
+
+        function updateBadge(badgeId, count) {
+            const badge = document.getElementById(badgeId);
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-block' : 'none';
+        }
+
+        function selectAllSectors() {
+            selectedSectors = Object.keys(sectorNames);
+            document.querySelectorAll('.sector-card').forEach(card => {
+                card.classList.add('selected');
+            });
+            updateBadge('sectorCountBadge', selectedSectors.length);
+            updateWordCloud();
+        }
+
+        function clearSectors() {
+            document.querySelectorAll('.sector-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            selectedSectors = [];
+            updateBadge('sectorCountBadge', 0);
+            updateWordCloud();
+        }
+
+        function getSeniorityLevel(title) {
+            const titleLower = title.toLowerCase();
+
+            // Executive level - Directors, GMs, VPs, C-suite
+            if (titleLower.includes('director') ||
+                titleLower.includes(' gm') || titleLower.endsWith(' gm') ||
+                titleLower.includes('general manager') ||
+                titleLower.includes('vp') || titleLower.includes('vice president') ||
+                titleLower.includes('cto') || titleLower.includes('cio') ||
+                titleLower.includes('ceo') || titleLower.includes('chief')) {
+                return 'executive';
+            }
+
+            // Lead/Principal level - Architects, Distinguished, Staff, Principal
+            if (titleLower.includes('architect') ||
+                titleLower.includes('principal') ||
+                titleLower.includes('distinguished') ||
+                titleLower.includes('staff engineer')) {
+                return 'lead';
+            }
+
+            // Senior level - Senior prefix, Sr., Lead (non-architect)
+            if (titleLower.includes('senior') ||
+                titleLower.includes('sr.') || titleLower.includes('sr ') ||
+                (titleLower.includes('lead ') && !titleLower.includes('architect'))) {
+                return 'senior';
+            }
+
+            // Entry level - Junior, Associate, Entry, Analyst (base level)
+            if (titleLower.includes('junior') || titleLower.includes('jr.') ||
+                titleLower.includes('jr ') || titleLower.includes('associate') ||
+                titleLower.includes('entry') ||
+                (titleLower.includes('analyst') && !titleLower.includes('senior') && !titleLower.includes('lead'))) {
+                return 'entry';
+            }
+
+            // Mid level - Engineers, Managers, Developers, Specialists, Consultants without modifiers
+            return 'mid';
+        }
+
+        function getSeniorityLabel(seniority) {
+            const labels = {
+                'entry': 'Entry Level',
+                'mid': 'Mid Level',
+                'senior': 'Senior Level',
+                'lead': 'Lead/Principal',
+                'executive': 'Executive'
+            };
+            return labels[seniority] || 'Mid Level';
+        }
+
+        function updateWordCloud() {
+            const contentEl = document.getElementById('wordCloudContent');
+
+            if (!selectedRole || selectedSectors.length === 0) {
+                contentEl.innerHTML = `
+                    <div class="no-selection">
+                        <div class="no-selection-icon">💼</div>
+                        <h4>Select a role and sectors</h4>
+                        <p>Job titles will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Collect all job titles with their frequency across selected sectors
+            const titleFrequency = {};
+            const roleData = jobData[selectedRole];
+            selectedSectors.forEach(sector => {
+                const titles = roleData[sector] || [];
+                titles.forEach(title => {
+                    titleFrequency[title] = (titleFrequency[title] || 0) + 1;
+                });
+            });
+
+            let html = `
+                <div class="word-cloud-header">
+                    <h3>${selectedRole}</h3>
+                    <div class="word-cloud-subtitle">${selectedSectors.length} Sector${selectedSectors.length > 1 ? 's' : ''} • ${Object.keys(titleFrequency).length} unique job titles</div>
+                    <div class="word-cloud-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2E7D32;"></div>
+                            <span>Entry</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #1565C0;"></div>
+                            <span>Mid</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #E65100;"></div>
+                            <span>Senior</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #6A1B9A;"></div>
+                            <span>Lead</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #B71C1C;"></div>
+                            <span>Executive</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-cloud">
+            `;
+
+            // Create word cloud entries
+            const titles = Object.keys(titleFrequency);
+            const maxFreq = Math.max(...Object.values(titleFrequency));
+
+            titles.forEach(title => {
+                const freq = titleFrequency[title];
+                const size = Math.ceil((freq / maxFreq) * 6);
+                const seniority = getSeniorityLevel(title);
+                html += `<span class="cloud-word size-${size} seniority-${seniority}" title="${title} - ${getSeniorityLabel(seniority)}">${title}</span>`;
+            });
+
+            html += '</div>';
+            contentEl.innerHTML = html;
+
+            // Scroll to word cloud (mobile only)
+            if (window.innerWidth < 768) {
+                document.getElementById('wordCloudSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Set default selections
+        function setDefaultSelections() {
+            // Select default role
+            selectRole('Project Manager');
+
+            // Select default sectors
+            const defaultSectors = ['CSP', 'MSP', 'VAR'];
+            defaultSectors.forEach(sector => {
+                if (sectorNames[sector]) {
+                    toggleSector(sector);
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('selectAllSectors').addEventListener('click', selectAllSectors);
+        document.getElementById('clearSectors').addEventListener('click', clearSectors);
+
+        // Load data and initialize on page load
+        loadData();
+    </script>
+</body>
+</html>
+
