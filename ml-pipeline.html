@@ -36,6 +36,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: auto;
+        }
+
         body {
             font-family: var(--font-family-body);
             font-weight: 300;
@@ -863,10 +867,22 @@
 
         // Initialize
         function init() {
+            // Ensure page starts at top - multiple calls to handle async content loading
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+
             document.getElementById('tourTitle').textContent = pipelineData.pipeline.title;
 
             initializeStagePills();
             renderAllStages();
+
+            // Force scroll to top after rendering
+            requestAnimationFrame(() => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            });
 
             // Only create network diagram if on desktop
             if (window.innerWidth >= 768) {
@@ -1363,6 +1379,11 @@
             }
         });
 
+        // Prevent auto-scroll on page load
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         // Initialize on load - matches career-progression-navigator pattern for Wix compatibility
         function loadData() {
             if (document.readyState === 'loading') {
@@ -1373,6 +1394,13 @@
         }
 
         loadData();
+
+        // Additional scroll prevention after full page load
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        });
     </script>
 </body>
 </html>

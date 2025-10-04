@@ -12,7 +12,7 @@ from datetime import datetime
 # Paths
 SCRIPT_DIR = Path(__file__).parent
 CORPUS_DIR = SCRIPT_DIR / "corpus"
-METADATA_PATH = SCRIPT_DIR.parent.parent.parent / "corpora" / "metadata.csv"
+METADATA_PATH = SCRIPT_DIR / "meta" / "meta.csv"
 OUTPUT_PATH = CORPUS_DIR / "index.html"
 
 def load_metadata():
@@ -38,7 +38,15 @@ def load_metadata():
             except:
                 row['keywords'] = []
 
+            try:
+                row['career_paths'] = json.loads(row.get('Career_Paths', '[]'))
+            except:
+                row['career_paths'] = []
+
             articles.append(row)
+
+    # Reverse the list so most recently appended articles appear first
+    articles.reverse()
 
     return articles
 
@@ -49,7 +57,18 @@ def extract_all_tags(articles):
         tags.update(article.get('tags', []))
     return sorted(tags)
 
-def generate_html(articles, all_tags):
+def extract_all_career_paths(articles):
+    """Extract unique career paths from all articles"""
+    paths = set()
+    for article in articles:
+        try:
+            career_paths = json.loads(article.get('Career_Paths', '[]'))
+            paths.update(career_paths)
+        except:
+            pass
+    return sorted(paths)
+
+def generate_html(articles, all_tags, all_career_paths):
     """Generate the complete HTML file"""
 
     # Escape for JSON embedding
@@ -64,12 +83,27 @@ def generate_html(articles, all_tags):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cleansheet Library - Technical Content Corpus</title>
-    <link rel="icon" type="image/png" href="../assets/High%20Resolution%20Logo%20Files/White%20on%20transparent.png">
+    <link rel="icon" type="image/png" href="../assets/high-resolution-logo-files/white-on-transparent.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {{
+            /* Corporate Professional Color Palette */
+            --primary-blue: #0066CC;
+            --accent-blue: #004C99;
+            --dark: #1a1a1a;
+            --neutral-text: #333333;
+            --neutral-text-light: #666666;
+            --neutral-text-muted: #999999;
+            --neutral-bg: #f5f5f7;
+            --neutral-bg-secondary: #f8f8f8;
+            --neutral-border: #e5e5e7;
+            --neutral-white: #ffffff;
+            --header-title: #e0e0e0;
+        }}
+
         * {{
             margin: 0;
             padding: 0;
@@ -81,15 +115,31 @@ def generate_html(articles, all_tags):
             font-weight: 300;
             display: flex;
             height: 100vh;
-            background: #f5f5f7;
+            background: var(--neutral-bg);
             overflow: hidden;
+        }}
+
+        /* Fixed Position Logo */
+        .fixed-logo {{
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            height: 42px;
+            width: auto;
+            z-index: 500;
+        }}
+
+        @media (max-width: 768px) {{
+            .fixed-logo {{
+                height: 28px;
+            }}
         }}
 
         /* Left Navigation */
         .left-nav {{
             width: 320px;
-            background: #1b2838;
-            color: white;
+            background: var(--dark);
+            color: var(--neutral-white);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
@@ -99,21 +149,13 @@ def generate_html(articles, all_tags):
         .nav-header {{
             padding: 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }}
-
-        .nav-header-text {{
-            flex: 1;
         }}
 
         .nav-header h1 {{
             font-family: 'Questrial', sans-serif;
             font-size: 20px;
             margin-bottom: 8px;
-            color: #c4d600;
+            color: var(--neutral-white);
         }}
 
         .nav-header p {{
@@ -121,34 +163,25 @@ def generate_html(articles, all_tags):
             color: rgba(255,255,255,0.7);
         }}
 
-        .nav-header-logo {{
-            height: 50px;
-            width: auto;
-        }}
-
-        @media (max-width: 768px) {{
-            .nav-header-logo {{
-                height: 35px;
-            }}
-        }}
 
         .back-home-link {{
             display: inline-block;
             margin-top: 12px;
             padding: 8px 16px;
-            background: rgba(196, 214, 0, 0.2);
-            color: #c4d600;
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--neutral-white);
             text-decoration: none;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
             transition: all 0.2s;
-            border: 1px solid rgba(196, 214, 0, 0.3);
+            border: 1px solid var(--neutral-white);
         }}
 
         .back-home-link:hover {{
-            background: rgba(196, 214, 0, 0.3);
-            border-color: rgba(196, 214, 0, 0.5);
+            background: rgba(26, 26, 26, 0.9);
+            border-color: var(--neutral-white);
         }}
 
         /* Search */
@@ -163,8 +196,10 @@ def generate_html(articles, all_tags):
             border: none;
             border-radius: 6px;
             background: rgba(255,255,255,0.1);
-            color: white;
+            color: var(--neutral-white);
             font-size: 14px;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 300;
         }}
 
         .search-input::placeholder {{
@@ -172,7 +207,7 @@ def generate_html(articles, all_tags):
         }}
 
         .search-input:focus {{
-            outline: 2px solid #c4d600;
+            outline: 2px solid var(--primary-blue);
             background: rgba(255,255,255,0.15);
         }}
 
@@ -183,9 +218,10 @@ def generate_html(articles, all_tags):
         }}
 
         .expertise-section h3 {{
+            font-family: 'Questrial', sans-serif;
             font-size: 14px;
             margin-bottom: 12px;
-            color: rgba(255,255,255,0.9);
+            color: var(--neutral-white);
         }}
 
         .expertise-levels {{
@@ -193,7 +229,7 @@ def generate_html(articles, all_tags):
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 10px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.7);
         }}
 
         .slider-container {{
@@ -204,7 +240,7 @@ def generate_html(articles, all_tags):
         .range-slider {{
             width: 100%;
             height: 4px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3);
             border-radius: 2px;
             position: relative;
         }}
@@ -212,7 +248,7 @@ def generate_html(articles, all_tags):
         .range-track {{
             position: absolute;
             height: 4px;
-            background: #c4d600;
+            background: var(--primary-blue);
             border-radius: 2px;
             top: 10px;
         }}
@@ -235,20 +271,20 @@ def generate_html(articles, all_tags):
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #c4d600;
+            background: var(--neutral-white);
             cursor: pointer;
             pointer-events: all;
-            border: 2px solid #1b2838;
+            border: 2px solid var(--primary-blue);
         }}
 
         .range-input::-moz-range-thumb {{
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #c4d600;
+            background: var(--neutral-white);
             cursor: pointer;
             pointer-events: all;
-            border: 2px solid #1b2838;
+            border: 2px solid var(--primary-blue);
         }}
 
         /* Tags Section */
@@ -259,9 +295,10 @@ def generate_html(articles, all_tags):
         }}
 
         .tags-section h3 {{
+            font-family: 'Questrial', sans-serif;
             font-size: 14px;
             margin-bottom: 12px;
-            color: rgba(255,255,255,0.9);
+            color: var(--neutral-white);
         }}
 
         .tag-pills {{
@@ -287,9 +324,9 @@ def generate_html(articles, all_tags):
         }}
 
         .tag-pill.active {{
-            background: #c4d600;
-            border-color: #c4d600;
-            color: #1b2838;
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: var(--neutral-white);
             font-weight: 600;
         }}
 
@@ -303,36 +340,40 @@ def generate_html(articles, all_tags):
 
         .results-header {{
             padding: 20px 24px;
-            background: white;
-            border-bottom: 1px solid #e5e5e7;
+            background: var(--neutral-white);
+            border-bottom: 1px solid var(--neutral-border);
         }}
 
         .results-header h2 {{
             font-family: 'Questrial', sans-serif;
             font-size: 24px;
-            color: #1b2838;
+            color: var(--neutral-text);
             margin-bottom: 8px;
         }}
 
         .results-count {{
             font-size: 14px;
-            color: #6e6e73;
+            color: var(--neutral-text-light);
         }}
 
         .results-list {{
             flex: 1;
             overflow-y: auto;
             padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            align-content: start;
         }}
 
         .article-card {{
-            background: white;
+            background: var(--neutral-white);
             border-radius: 8px;
             padding: 20px;
-            margin-bottom: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             cursor: pointer;
             transition: all 0.2s;
+            height: fit-content;
         }}
 
         .article-card:hover {{
@@ -341,21 +382,22 @@ def generate_html(articles, all_tags):
         }}
 
         .article-title {{
+            font-family: 'Questrial', sans-serif;
             font-size: 18px;
             font-weight: 600;
-            color: #1b2838;
+            color: var(--neutral-text);
             margin-bottom: 8px;
         }}
 
         .article-subtitle {{
             font-size: 14px;
-            color: #6e6e73;
+            color: var(--neutral-text-light);
             margin-bottom: 12px;
         }}
 
         .article-summary {{
             font-size: 13px;
-            color: #6e6e73;
+            color: var(--neutral-text-light);
             line-height: 1.5;
             margin-bottom: 12px;
         }}
@@ -364,7 +406,7 @@ def generate_html(articles, all_tags):
             display: flex;
             gap: 12px;
             font-size: 12px;
-            color: #86868b;
+            color: var(--neutral-text-muted);
         }}
 
         .article-tags {{
@@ -376,17 +418,18 @@ def generate_html(articles, all_tags):
 
         .article-tag {{
             padding: 4px 10px;
-            background: #f5f5f7;
+            background: var(--neutral-bg);
+            border: 1px solid var(--neutral-border);
             border-radius: 12px;
             font-size: 11px;
-            color: #1b2838;
+            color: var(--neutral-text);
         }}
 
         .expertise-badge {{
             display: inline-block;
             padding: 4px 8px;
-            background: #006666;
-            color: white;
+            background: var(--primary-blue);
+            color: var(--neutral-white);
             border-radius: 4px;
             font-size: 10px;
             font-weight: 600;
@@ -396,13 +439,13 @@ def generate_html(articles, all_tags):
         .no-results {{
             text-align: center;
             padding: 60px 20px;
-            color: #6e6e73;
+            color: var(--neutral-text-light);
         }}
 
         .loading {{
             text-align: center;
             padding: 60px 20px;
-            color: #6e6e73;
+            color: var(--neutral-text-light);
         }}
 
         /* Slideout Panel */
@@ -430,7 +473,7 @@ def generate_html(articles, all_tags):
             right: -60%;
             width: 60%;
             height: 100vh;
-            background: white;
+            background: var(--neutral-white);
             box-shadow: -4px 0 16px rgba(0,0,0,0.2);
             z-index: 1001;
             transition: right 0.3s ease;
@@ -444,7 +487,7 @@ def generate_html(articles, all_tags):
 
         .slideout-header {{
             padding: 20px 24px;
-            border-bottom: 1px solid #e5e5e7;
+            border-bottom: 1px solid var(--neutral-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -458,8 +501,9 @@ def generate_html(articles, all_tags):
         }}
 
         .slideout-header h2 {{
+            font-family: 'Questrial', sans-serif;
             font-size: 20px;
-            color: #1b2838;
+            color: var(--neutral-text);
             margin: 0;
         }}
 
@@ -471,40 +515,41 @@ def generate_html(articles, all_tags):
 
         .add-to-plan-button {{
             padding: 10px 20px;
-            background: #c4d600;
-            color: #1b2838;
+            background: var(--primary-blue);
+            color: var(--neutral-white);
             border: none;
             border-radius: 6px;
             font-size: 14px;
             font-weight: 600;
+            font-family: 'Barlow', sans-serif;
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.6;
             white-space: nowrap;
             transition: all 0.2s;
         }}
 
         .add-to-plan-button:hover {{
-            opacity: 0.8;
+            opacity: 0.7;
         }}
 
         .close-button {{
             width: 32px;
             height: 32px;
             border: none;
-            background: #f5f5f7;
+            background: var(--neutral-bg);
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            color: #1b2838;
+            color: var(--neutral-text);
             transition: all 0.2s;
             flex-shrink: 0;
         }}
 
         .close-button:hover {{
-            background: #e5e5e7;
+            background: var(--neutral-border);
         }}
 
         .slideout-content {{
@@ -523,12 +568,13 @@ def generate_html(articles, all_tags):
         /* Mobile Filter Toggle */
         .mobile-filter-toggle {{
             display: none;
-            background: #c4d600;
-            color: #1b2838;
+            background: var(--primary-blue);
+            color: var(--neutral-white);
             border: none;
             padding: 12px 20px;
             font-size: 14px;
             font-weight: 600;
+            font-family: 'Barlow', sans-serif;
             cursor: pointer;
             width: 100%;
             text-align: left;
@@ -587,9 +633,14 @@ def generate_html(articles, all_tags):
                 overflow: hidden;
             }}
 
+            .results-header {{
+                padding-right: 60px;
+            }}
+
             .results-list {{
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
+                grid-template-columns: 1fr;
             }}
 
             .slideout-panel {{
@@ -616,14 +667,13 @@ def generate_html(articles, all_tags):
     </style>
 </head>
 <body>
+    <img src="../assets/high-resolution-logo-files/black-on-transparent.png" alt="Cleansheet Logo" class="fixed-logo">
+
     <div class="left-nav">
         <div class="nav-header">
-            <div class="nav-header-text">
-                <h1>Cleansheet Library</h1>
-                <p>Technical Content Corpus</p>
-                <a href="../index.html" class="back-home-link">← Back to Home</a>
-            </div>
-            <img src="../assets/High%20Resolution%20Logo%20Files/White%20on%20transparent.png" alt="Cleansheet Logo" class="nav-header-logo">
+            <h1>Cleansheet Library</h1>
+            <p>Technical Content Corpus</p>
+            <a href="../index.html" class="back-home-link">← Back to Home</a>
         </div>
 
         <button class="mobile-filter-toggle" id="mobileFilterToggle">
@@ -655,6 +705,13 @@ def generate_html(articles, all_tags):
                     </div>
                     <input type="range" min="0" max="4" value="0" class="range-input" id="rangeMin">
                     <input type="range" min="0" max="4" value="4" class="range-input" id="rangeMax">
+                </div>
+            </div>
+
+            <div class="tags-section">
+                <h3>Filter by Career Path</h3>
+                <div class="tag-pills" id="careerPathPills">
+                    <!-- Career paths populated dynamically -->
                 </div>
             </div>
 
@@ -701,6 +758,7 @@ def generate_html(articles, all_tags):
         const allArticles = {articles_json};
         let filteredArticles = [];
         let activeTags = new Set();
+        let activeCareerPaths = new Set();
         let minLevel = 0;
         let maxLevel = 4;
         const levelMap = {{ 'Neophyte': 0, 'Novice': 1, 'Operator': 2, 'Expert': 3, 'Academic': 4 }};
@@ -709,7 +767,40 @@ def generate_html(articles, all_tags):
         // Initialize
         function init() {{
             console.log('Loaded articles:', allArticles.length);
+            extractAndDisplayCareerPaths();
             extractAndDisplayTags();
+            filterAndDisplayArticles();
+        }}
+
+        // Extract all unique career paths
+        function extractAndDisplayCareerPaths() {{
+            const pathSet = new Set();
+            allArticles.forEach(article => {{
+                try {{
+                    const paths = JSON.parse(article.Career_Paths || '[]');
+                    paths.forEach(path => pathSet.add(path));
+                }} catch (e) {{}}
+            }});
+
+            const careerPathPills = document.getElementById('careerPathPills');
+            Array.from(pathSet).sort().forEach(path => {{
+                const pill = document.createElement('div');
+                pill.className = 'tag-pill';
+                pill.textContent = path;
+                pill.onclick = () => toggleCareerPath(path, pill);
+                careerPathPills.appendChild(pill);
+            }});
+        }}
+
+        // Toggle career path filter
+        function toggleCareerPath(path, element) {{
+            if (activeCareerPaths.has(path)) {{
+                activeCareerPaths.delete(path);
+                element.classList.remove('active');
+            }} else {{
+                activeCareerPaths.add(path);
+                element.classList.add('active');
+            }}
             filterAndDisplayArticles();
         }}
 
@@ -751,6 +842,17 @@ def generate_html(articles, all_tags):
                 const articleLevels = article.levels.map(l => levelMap[l] || 0);
                 const hasMatchingLevel = articleLevels.some(l => l >= minLevel && l <= maxLevel);
                 if (!hasMatchingLevel && articleLevels.length > 0) return false;
+
+                // Career path filter
+                if (activeCareerPaths.size > 0) {{
+                    try {{
+                        const articlePaths = JSON.parse(article.Career_Paths || '[]');
+                        const hasMatchingPath = articlePaths.some(path => activeCareerPaths.has(path));
+                        if (!hasMatchingPath) return false;
+                    }} catch (e) {{
+                        return false;
+                    }}
+                }}
 
                 // Tag filter
                 if (activeTags.size > 0) {{
@@ -913,8 +1015,12 @@ def main():
     all_tags = extract_all_tags(articles)
     print(f"Found {len(all_tags)} unique tags")
 
+    print("Extracting career paths...")
+    all_career_paths = extract_all_career_paths(articles)
+    print(f"Found {len(all_career_paths)} unique career paths")
+
     print("Generating HTML...")
-    html = generate_html(articles, all_tags)
+    html = generate_html(articles, all_tags, all_career_paths)
 
     print(f"Writing to {OUTPUT_PATH}...")
     with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
@@ -923,6 +1029,7 @@ def main():
     print(f"Generated {OUTPUT_PATH}")
     print(f"  - {len(articles)} articles")
     print(f"  - {len(all_tags)} tags")
+    print(f"  - {len(all_career_paths)} career paths")
     print(f"  - File size: {len(html):,} bytes")
 
 if __name__ == "__main__":
