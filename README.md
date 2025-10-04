@@ -74,7 +74,8 @@ Cleansheet/
 - **Barlow Light (300)** - Body text
 
 **Iconography:**
-- Font Awesome 6.4.0 (Free)
+- Phosphor Icons (MIT License)
+- More professional and modern icon library with 6,000+ icons
 - Consistent 60px × 60px icon containers
 
 For complete design guidelines, see [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
@@ -125,7 +126,7 @@ For complete design guidelines, see [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
 - **CSS3** - Custom properties, Grid, Flexbox
 - **Vanilla JavaScript** - No framework dependencies
 - **Google Fonts** - Questrial & Barlow
-- **Font Awesome** - Icon library (v6.4.0)
+- **Phosphor Icons** - Professional icon library (6,000+ icons, MIT License)
 
 ### Content Generation
 - **Python 3** - Corpus index generation
@@ -443,7 +444,7 @@ For questions, issues, or feature requests:
 ## Acknowledgments
 
 - **Security and Compliance** - [2x4 www.dugganusa.com](https://2x4.dugganusa.com/)
-- **Font Awesome** - Icon library (v6.4.0)
+- **Phosphor Icons** - Icon library (6,000+ icons, MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces
 - **Azure** - Cloud infrastructure and ML services
 

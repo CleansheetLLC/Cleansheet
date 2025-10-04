@@ -216,11 +216,13 @@ body, p {
 ## Component Patterns
 
 ### Iconography
-**Library**: Font Awesome 6.4.0 (Free)
+**Library**: Phosphor Icons (MIT License)
 
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 ```
+
+**Why Phosphor**: More professional and modern than Font Awesome, with consistent geometric design, 6,000+ icons in multiple weights, and better suited for corporate/professional applications.
 
 #### Icon Containers
 ```css
@@ -246,12 +248,21 @@ body, p {
 ```
 
 #### Standard Icons
-- `fa-book-open` - Content, library
-- `fa-route` - Career paths, progression
-- `fa-compass` - Navigation, discovery
-- `fa-sitemap` - Architecture, pipeline
-- `fa-shield-alt` - Security, privacy
-- `fa-user-friends` - Coaching, mentorship
+- `ph-book-open` - Content, library
+- `ph-path` - Career paths, progression
+- `ph-compass` - Navigation, discovery
+- `ph-flow-arrow` - Architecture, pipeline
+- `ph-shield-check` - Security, privacy
+- `ph-users` - Coaching, mentorship
+- `ph-tags` - Tagging, organization
+- `ph-map-trifold` - Canvas, mapping
+
+**Usage Example**:
+```html
+<i class="ph ph-book-open"></i>
+```
+
+**Weights Available**: Regular (default), Thin, Light, Bold, Fill, Duotone
 
 ### Cards
 ```css
@@ -619,7 +630,7 @@ Cleansheet/
 - [ ] Images optimized (WebP preferred, PNG fallback)
 - [ ] CSS minified in production
 - [ ] JavaScript deferred when possible
-- [ ] External resources (Font Awesome, Google Fonts) loaded from CDN
+- [ ] External resources (Phosphor Icons, Google Fonts) loaded from CDN
 - [ ] No render-blocking resources in `<head>`
 
 ### Loading Strategy
@@ -680,7 +691,7 @@ Use feature detection for modern CSS:
 ## Maintenance
 
 ### Regular Updates
-1. **Font Awesome**: Check for updates quarterly
+1. **Phosphor Icons**: Check for updates quarterly
 2. **Google Fonts**: Monitor for font updates
 3. **Browser testing**: Test monthly on supported browsers
 4. **Accessibility audit**: Run annually with automated tools
@@ -701,7 +712,7 @@ Update this guide when:
 - **Logo**: `assets/high-resolution-logo-files/white-on-transparent.png`
 - **Favicon**: Same as logo
 - **Font CDN**: `https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap`
-- **Icons**: `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css`
+- **Icons**: `https://unpkg.com/@phosphor-icons/web`
 
 ### Common Colors (Hex)
 ```

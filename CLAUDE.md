@@ -66,10 +66,12 @@ To ensure fast, consistent rebranding across the platform:
 - Header Title: #e0e0e0 (light gray for contrast on dark background)
 
 **Iconography:**
-- Font Awesome 6.4.0 (free version)
+- Phosphor Icons (MIT License)
+- More professional and modern than Font Awesome
 - Color-coded icon backgrounds (primary blue, dark, accent blue)
 - Consistent rounded square containers (60px × 60px)
 - All icons use white color
+- 6,000+ icons with multiple weights available
 
 **Branding:**
 - Logo files located: `assets/high-resolution-logo-files/`
@@ -84,14 +86,15 @@ To ensure fast, consistent rebranding across the platform:
 
 ### Main Landing Page (`index.html`)
 - Hero section with tagline (no h2 title)
-- 6 feature cards with Font Awesome icons:
-  - Content Library (fa-book-open, primary blue)
-  - Career Paths (fa-route, dark)
-  - Role Translator (fa-compass, primary blue)
-  - Experience Tagger (fa-tags, accent blue)
-  - Coaching & Mentorship (fa-user-friends, dark)
-  - ML Pipeline Tour (fa-sitemap, dark)
-  - Privacy & Terms (fa-shield-alt, dark)
+- 6 feature cards with Phosphor icons:
+  - Content Library (ph-book-open, primary blue)
+  - Career Paths (ph-path, dark)
+  - Role Translator (ph-compass, primary blue)
+  - Experience Tagger (ph-tags, accent blue)
+  - Cleansheet Canvas (ph-map-trifold, coming soon)
+  - Coaching & Mentorship (ph-users, dark)
+  - ML Pipeline Tour (ph-flow-arrow, dark)
+  - Privacy & Terms (ph-shield-check, dark)
 - Coming Soon section (3-column grid, 2 rows, larger fonts: 16px body, 18px headings)
 - Footer with white external links
 
