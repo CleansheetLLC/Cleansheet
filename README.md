@@ -358,6 +358,15 @@ Contributions are welcome! This repository is open to community contributions wh
 
 ## Technical Architecture
 
+![Cleansheet Platform Architecture](architecture.png)
+
+### Infrastructure Overview
+
+**Azure-based deployment** featuring:
+- **Azure CDN** - Global content delivery with HTTPS/SSL termination
+- **Azure Storage** - Static website hosting from `$web` container
+- **Azure Application Insights** - Privacy-compliant analytics and telemetry
+
 ### Content Pipeline
 ```
 Corpus repositories → ML processing → Multi-channel delivery
