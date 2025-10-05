@@ -21,6 +21,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -344,6 +345,469 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Canvas Modal */
+        .canvas-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .canvas-modal.active {
+            display: flex;
+        }
+
+        .canvas-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-modal-header {
+            padding: 24px 32px;
+            border-bottom: 2px solid var(--color-neutral-border);
+            background: var(--color-dark);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .canvas-modal-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .canvas-modal-header h2 {
+            font-family: var(--font-family-ui);
+            font-size: 24px;
+            color: white;
+            margin: 0;
+        }
+
+        .persona-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .persona-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .persona-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .persona-btn.active {
+            background: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+        }
+
+        .canvas-modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .canvas-modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .canvas-modal-body {
+            flex: 1;
+            padding: 24px;
+            overflow: hidden;
+            background: var(--color-neutral-background);
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 24px;
+            transition: grid-template-columns 0.3s ease;
+            min-height: 0;
+            position: relative;
+        }
+
+        .canvas-modal-body.collapsed {
+            grid-template-columns: 1fr 0px;
+            gap: 0;
+        }
+
+        #canvas-mindmap {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: auto;
+            position: relative;
+        }
+
+        #canvas-mindmap svg {
+            display: block;
+            min-width: 100%;
+            min-height: 100%;
+        }
+
+        .canvas-right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .canvas-modal-body.collapsed .canvas-right-panel {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+
+        .panel-collapse-toggle {
+            position: absolute;
+            top: 50%;
+            right: 374px;
+            transform: translateY(-50%);
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px 0 0 8px;
+            padding: 12px 8px;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            color: var(--color-dark);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .canvas-modal-body.collapsed .panel-collapse-toggle {
+            right: 0;
+        }
+
+        .panel-collapse-toggle:hover {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
+
+        .calendar-widget, .ai-assistant-widget {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-widget {
+            flex-shrink: 0;
+            max-height: 280px;
+        }
+
+        .ai-assistant-widget {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 450px;
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--color-neutral-border);
+        }
+
+        .widget-header h3 {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .widget-header h3 i {
+            font-size: 18px;
+        }
+
+        .sync-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 2px solid var(--color-primary-blue);
+            color: var(--color-primary-blue);
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-btn:hover {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .calendar-events {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .calendar-event {
+            padding: 10px 12px;
+            background: var(--color-neutral-background);
+            border-radius: 6px;
+            border-left: 3px solid var(--color-primary-blue);
+        }
+
+        .event-time {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--color-primary-blue);
+            margin-bottom: 3px;
+        }
+
+        .event-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 2px;
+        }
+
+        .event-details {
+            font-size: 10px;
+            color: var(--color-neutral-text-light);
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-message {
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .ai-message.assistant {
+            background: var(--color-neutral-background);
+            color: var(--color-dark);
+            align-self: flex-start;
+            max-width: 85%;
+        }
+
+        .ai-message.user {
+            background: var(--color-primary-blue);
+            color: white;
+            align-self: flex-end;
+            max-width: 85%;
+        }
+
+        .ai-input-area {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-neutral-border);
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid var(--color-neutral-border);
+            border-radius: 8px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .ai-input:focus {
+            border-color: var(--color-primary-blue);
+        }
+
+        .ai-send-btn {
+            padding: 10px 16px;
+            background: var(--color-primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-send-btn:hover {
+            background: var(--color-accent-blue);
+        }
+
+        /* Mindmap Styles */
+        .mindmap-node rect {
+            stroke-width: 3;
+            cursor: pointer;
+            transition: all 0.3s;
+            rx: 8;
+            ry: 8;
+        }
+
+        .mindmap-node.root rect {
+            fill: var(--color-primary-blue);
+            stroke: var(--color-accent-blue);
+        }
+
+        .mindmap-node.child rect {
+            fill: white;
+            stroke: var(--color-primary-blue);
+        }
+
+        .mindmap-node.child rect.collapsed {
+            stroke: var(--color-neutral-border);
+            stroke-width: 2;
+        }
+
+        .mindmap-node.child rect.expanded {
+            fill: #e3f2fd;
+            stroke: var(--color-primary-blue);
+            stroke-width: 3;
+            filter: drop-shadow(0 2px 8px rgba(0, 102, 204, 0.3));
+        }
+
+        .mindmap-node.grandchild rect {
+            fill: #f5f5f7;
+            stroke: #bdbdbd;
+            stroke-width: 2;
+        }
+
+        .mindmap-node.root text {
+            fill: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .mindmap-node.child text {
+            fill: var(--color-dark);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mindmap-node.grandchild text {
+            fill: var(--color-neutral-text);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .mindmap-node text {
+            font-family: var(--font-family-ui);
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .mindmap-node.child:hover rect {
+            filter: drop-shadow(0 4px 12px rgba(0, 102, 204, 0.4));
+            transform: scale(1.05);
+        }
+
+        .mindmap-node.root:hover rect {
+            filter: drop-shadow(0 4px 12px rgba(0, 102, 204, 0.5));
+        }
+
+        .mindmap-node.grandchild:hover rect {
+            fill: #e0e0e0;
+        }
+
+        .mindmap-link {
+            fill: none;
+            stroke: var(--color-primary-blue);
+            stroke-width: 2;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 768px) {
+            .canvas-modal-content {
+                width: 95%;
+                height: 90vh;
+            }
+
+            .canvas-modal-header {
+                padding: 16px 20px;
+            }
+
+            .canvas-modal-header h2 {
+                font-size: 18px;
+            }
+
+            .canvas-modal-body {
+                padding: 16px;
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-right-panel {
+                display: none;
+            }
+
+            .mindmap-node.root text {
+                font-size: 14px;
+            }
+
+            .mindmap-node.child text {
+                font-size: 11px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -410,7 +874,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <span class="coming-soon-badge">Coming Soon</span>
                         </h3>
                         <p>All-in-one career experience management tool tracking opportunities, experiences, and matching roles to your skillsets.</p>
-                        <a href="#" class="feature-link primary" onclick="alert('Coming soon!'); return false;">Explore Canvas</a>
+                        <a href="#" class="feature-link primary" onclick="openCanvasModal(); return false;">Explore Canvas</a>
                     </div>
 
                     <div class="feature-card">
@@ -462,6 +926,932 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <a href="terms-of-service.html">Terms of Service</a>
         </p>
     </footer>
+
+    <!-- Canvas Modal -->
+    <div class="canvas-modal" id="canvasModal">
+        <div class="canvas-modal-content">
+            <div class="canvas-modal-header">
+                <div class="canvas-modal-header-top">
+                    <h2>Cleansheet Canvas - Interactive Mindmap</h2>
+                    <button class="canvas-modal-close" onclick="closeCanvasModal()">&times;</button>
+                </div>
+                <div class="persona-selector">
+                    <button class="persona-btn active" data-persona="retail-manager" onclick="switchPersona('retail-manager')">Retail Manager</button>
+                    <button class="persona-btn" data-persona="chemist" onclick="switchPersona('chemist')">Research Chemist</button>
+                    <button class="persona-btn" data-persona="new-graduate" onclick="switchPersona('new-graduate')">New Graduate</button>
+                    <button class="persona-btn" data-persona="data-analyst" onclick="switchPersona('data-analyst')">Data Analyst</button>
+                </div>
+            </div>
+            <div class="canvas-modal-body" id="canvasBody">
+                <div id="canvas-mindmap"></div>
+
+                <!-- Collapse Toggle Button -->
+                <button class="panel-collapse-toggle" onclick="toggleRightPanel()" id="collapseToggle">
+                    <i class="ph ph-caret-right"></i>
+                </button>
+
+                <!-- Right Panel -->
+                <div class="canvas-right-panel">
+                    <!-- Calendar Widget -->
+                    <div class="calendar-widget">
+                        <div class="widget-header">
+                            <h3><i class="ph ph-calendar"></i> Upcoming Events</h3>
+                            <button class="sync-btn" onclick="syncOutlook()">
+                                <i class="ph ph-microsoft-outlook-logo"></i>
+                                Sync Outlook
+                            </button>
+                        </div>
+                        <div class="calendar-events" id="calendarEvents">
+                            <div class="calendar-event">
+                                <div class="event-time">Today, 2:00 PM</div>
+                                <div class="event-title">Interview: Senior Developer</div>
+                                <div class="event-details">TechCorp - Final Round (Virtual)</div>
+                            </div>
+                            <div class="calendar-event">
+                                <div class="event-time">Tomorrow, 10:00 AM</div>
+                                <div class="event-title">Coffee Chat: Referral</div>
+                                <div class="event-details">Sarah Chen - Starbucks Downtown</div>
+                            </div>
+                            <div class="calendar-event">
+                                <div class="event-time">Wed, 3:30 PM</div>
+                                <div class="event-title">Application Deadline</div>
+                                <div class="event-details">Cloud Architect - Amazon AWS</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Assistant Widget -->
+                    <div class="ai-assistant-widget">
+                        <div class="widget-header">
+                            <h3><i class="ph ph-chats-circle"></i> Cleansheet AI Assistant</h3>
+                        </div>
+                        <div class="ai-chat-messages" id="aiMessages">
+                            <div class="ai-message assistant">
+                                Hi! I'm your Cleansheet AI assistant. I can help you with:
+                                <ul style="margin: 8px 0 0 20px; padding: 0;">
+                                    <li>Resume and cover letter tips</li>
+                                    <li>Interview preparation</li>
+                                    <li>Career path guidance</li>
+                                    <li>Job search strategies</li>
+                                </ul>
+                                What would you like to work on today?
+                            </div>
+                        </div>
+                        <div class="ai-input-area">
+                            <input type="text" class="ai-input" id="aiInput" placeholder="Ask me anything about your job search..." onkeypress="if(event.key==='Enter') sendAIMessage()">
+                            <button class="ai-send-btn" onclick="sendAIMessage()">
+                                <i class="ph ph-paper-plane-tilt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current persona
+        let currentPersona = 'retail-manager';
+
+        // Persona data from experience tagger with expandable content
+        const personaData = {
+            'retail-manager': {
+                name: 'Marcus Thompson',
+                goal: 'Transition from retail management into business analytics or operations management roles in tech companies',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        count: 5,
+                        children: [
+                            { name: 'Operations Manager\nAmazon (Seattle, $125K)' },
+                            { name: 'Business Analyst\nTarget HQ (Minneapolis, $95K)' },
+                            { name: 'Data Analyst\nWalmart eCommerce (Bentonville, $85K)' },
+                            { name: 'Supply Chain Analyst\nNike (Portland, $90K)' },
+                            { name: 'Ops Coordinator\nInstacart (San Francisco, $80K)' }
+                        ]
+                    },
+                    {
+                        name: 'Application Materials',
+                        count: 4,
+                        children: [
+                            { name: 'Resume v3.2 - Analytics Focus (updated 10/2)' },
+                            { name: 'Cover Letter - Amazon Ops Role' },
+                            { name: 'Cover Letter - Target Analytics Role' },
+                            { name: 'LinkedIn Profile - 85% Complete' }
+                        ]
+                    },
+                    {
+                        name: 'Career Experience',
+                        count: 5,
+                        children: [
+                            { name: 'Store Manager - Target #2847 (2019-Present)' },
+                            { name: 'Asst Store Manager - Target #1923 (2016-2019)' },
+                            { name: 'Dept Supervisor - Best Buy (2014-2016)' },
+                            { name: 'Sales Associate - Best Buy (2012-2014)' },
+                            { name: 'BA Business Admin - U of Minnesota (2012)' }
+                        ]
+                    },
+                    {
+                        name: 'Skills & Goals',
+                        count: 6,
+                        children: [
+                            { name: 'Goal: Business Analytics by Q2 2025' },
+                            { name: 'Excel: Advanced (Pivot, VLOOKUP)' },
+                            { name: 'Power BI: Intermediate' },
+                            { name: 'SQL: Learning (Codecademy 40% done)' },
+                            { name: 'Leadership: 10+ direct reports' },
+                            { name: 'P&L Ownership: $8M annual revenue' }
+                        ]
+                    },
+                    {
+                        name: 'Portfolio',
+                        count: 2,
+                        children: [
+                            { name: 'Power BI Sales Dashboard' },
+                            { name: 'Staff Scheduling Model (Excel VBA)' }
+                        ]
+                    },
+                    {
+                        name: 'Interview Prep',
+                        count: 3,
+                        children: [
+                            { name: 'Behavioral' },
+                            { name: 'Technical' },
+                            { name: 'Challenge' }
+                        ]
+                    }
+                ]
+            },
+            'chemist': {
+                name: 'Dr. Sarah Chen',
+                goal: 'Leverage analytical chemistry expertise to transition into data science and computational chemistry roles',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        count: 5,
+                        children: [
+                            { name: 'Sr Data Scientist\nPfizer R&D (Cambridge, $165K)' },
+                            { name: 'Computational Chemist\nModerna (Boston, $155K)' },
+                            { name: 'ML Engineer\nGenentech (South SF, $180K)' },
+                            { name: 'Cheminformatics Lead\nNovartis (Basel, $145K)' },
+                            { name: 'Research Scientist\nBioNTech (Mainz, €130K)' }
+                        ]
+                    },
+                    {
+                        name: 'Application Materials',
+                        count: 5,
+                        children: [
+                            { name: 'Resume v2.8 - Data Science Focus' },
+                            { name: 'Research Portfolio Website (GitHub Pages)' },
+                            { name: 'Cover Letter - Pfizer Data Science' },
+                            { name: 'Publication List (h-index: 12)' },
+                            { name: 'LinkedIn - Featured: 3 Publications' }
+                        ]
+                    },
+                    {
+                        name: 'Career Experience',
+                        count: 6,
+                        children: [
+                            { name: 'Sr Research Scientist - Moderna (2020-Present)' },
+                            { name: 'Research Scientist - Pfizer (2017-2020)' },
+                            { name: 'Postdoc - UConn Chemistry (2015-2017)' },
+                            { name: 'PhD Analytical Chemistry - UC Berkeley (2015)' },
+                            { name: 'Graduate Researcher - Lawrence Lab (2012-2015)' },
+                            { name: 'BS Chemistry - MIT (2010)' }
+                        ]
+                    },
+                    {
+                        name: 'Skills & Goals',
+                        count: 8,
+                        children: [
+                            { name: 'Goal: Lead Data Science Team by 2026' },
+                            { name: 'Python: Pandas, NumPy, Scikit-learn' },
+                            { name: 'R: Statistical modeling, ggplot2' },
+                            { name: 'Machine Learning: Regression, Classification' },
+                            { name: 'ChemInformatics: RDKit, OpenBabel' },
+                            { name: 'Mass Spec: LC-MS, GC-MS expert' },
+                            { name: 'GxP Compliance: FDA 21 CFR Part 11' },
+                            { name: 'Leadership: Mentored 4 PhD students' }
+                        ]
+                    },
+                    {
+                        name: 'Portfolio',
+                        count: 4,
+                        children: [
+                            { name: '12 Publications (h-index: 12)' },
+                            { name: 'Python QC Pipeline (GitHub: 85★)' },
+                            { name: 'R Shiny Dashboard' },
+                            { name: 'Conference Talks: ACS, ASMS' }
+                        ]
+                    },
+                    {
+                        name: 'Interview Prep',
+                        count: 3,
+                        children: [
+                            { name: 'Behavioral' },
+                            { name: 'Technical' },
+                            { name: 'Challenge' }
+                        ]
+                    }
+                ]
+            },
+            'new-graduate': {
+                name: 'Jamie Rodriguez',
+                goal: 'Launch career in software development or cloud engineering, building practical skills',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        count: 6,
+                        children: [
+                            { name: 'SWE New Grad\nGoogle (MTV, $140K + equity)' },
+                            { name: 'Cloud Engineer\nMicrosoft Azure (Redmond, $130K)' },
+                            { name: 'DevOps Engineer\nAWS (Seattle, $125K)' },
+                            { name: 'Full Stack Dev\nStripe (SF, $145K + equity)' },
+                            { name: 'Junior SWE\nCoinbase (Remote, $110K)' },
+                            { name: 'Platform Engineer\nRobinhood (Menlo Park, $135K)' }
+                        ]
+                    },
+                    {
+                        name: 'Application Materials',
+                        count: 4,
+                        children: [
+                            { name: 'Resume v4.1 - New Grad SWE' },
+                            { name: 'GitHub Portfolio: github.com/jrodriguez' },
+                            { name: 'Cover Letter Template (3 versions)' },
+                            { name: 'LinkedIn - Optimized w/ Robotics Win' }
+                        ]
+                    },
+                    {
+                        name: 'Career Experience',
+                        count: 6,
+                        children: [
+                            { name: 'SWE Intern - TechStart Inc (Summer 2024)' },
+                            { name: 'CS Teaching Assistant - UT Austin (2023-2024)' },
+                            { name: 'Robotics Team Lead - UT Longhorns (2022-2024)' },
+                            { name: 'Freelance Web Dev - 5 clients (2023)' },
+                            { name: 'Barista - Caffe Medici (2021-2023)' },
+                            { name: 'BS Computer Science - UT Austin (May 2024, 3.7 GPA)' }
+                        ]
+                    },
+                    {
+                        name: 'Skills & Goals',
+                        count: 7,
+                        children: [
+                            { name: 'Goal: Cloud Engineering at FAANG by 2025' },
+                            { name: 'Languages: Python, JavaScript, Go, C++' },
+                            { name: 'Cloud: AWS (Solutions Architect Associate)' },
+                            { name: 'Frontend: React, TypeScript, Next.js' },
+                            { name: 'Backend: Node.js, Express, PostgreSQL' },
+                            { name: 'DevOps: Docker, Kubernetes, CI/CD' },
+                            { name: 'Robotics: ROS, Computer Vision, ML' }
+                        ]
+                    },
+                    {
+                        name: 'Portfolio',
+                        count: 5,
+                        children: [
+                            { name: 'RoboCup 2024 Project' },
+                            { name: 'React SaaS Portal (GitHub: 150★)' },
+                            { name: 'YOLO Object Detection Model' },
+                            { name: 'AWS Serverless API' },
+                            { name: 'Open Source Contributions (25)' }
+                        ]
+                    },
+                    {
+                        name: 'Interview Prep',
+                        count: 3,
+                        children: [
+                            { name: 'Behavioral' },
+                            { name: 'Technical' },
+                            { name: 'Challenge' }
+                        ]
+                    }
+                ]
+            },
+            'data-analyst': {
+                name: 'Priya Patel',
+                goal: 'Advance from data analyst to senior data scientist or machine learning engineer role',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        count: 5,
+                        children: [
+                            { name: 'Sr Data Scientist\nMeta (Menlo Park, $210K)' },
+                            { name: 'ML Engineer\nNetflix (Los Gatos, $225K)' },
+                            { name: 'Data Scientist\nUber (SF, $195K)' },
+                            { name: 'Lead Analytics\nAirbnb (SF, $185K)' },
+                            { name: 'Sr ML Engineer\nLinkedIn (Sunnyvale, $200K)' }
+                        ]
+                    },
+                    {
+                        name: 'Application Materials',
+                        count: 5,
+                        children: [
+                            { name: 'Resume v5.3 - Sr Data Scientist' },
+                            { name: 'Portfolio Site: priyapatel.dev' },
+                            { name: 'Cover Letter - Meta DS Role' },
+                            { name: 'Case Study Deck: Churn Prediction' },
+                            { name: 'LinkedIn - Featured Projects (3)' }
+                        ]
+                    },
+                    {
+                        name: 'Career Experience',
+                        count: 6,
+                        children: [
+                            { name: 'Sr Data Analyst - Salesforce (2021-Present)' },
+                            { name: 'Data Analyst II - Lyft (2019-2021)' },
+                            { name: 'Data Analyst I - Lyft (2018-2019)' },
+                            { name: 'Business Analyst - Deloitte Consulting (2017-2018)' },
+                            { name: 'MS Statistics - Stanford University (2017)' },
+                            { name: 'BS Mathematics - UC Berkeley (2015)' }
+                        ]
+                    },
+                    {
+                        name: 'Skills & Goals',
+                        count: 9,
+                        children: [
+                            { name: 'Goal: Sr Data Scientist at FAANG by Q2 2025' },
+                            { name: 'Python: Pandas, NumPy, Scikit-learn, TensorFlow' },
+                            { name: 'SQL: Advanced (Window functions, CTEs)' },
+                            { name: 'ML: Classification, Regression, Clustering' },
+                            { name: 'Deep Learning: Neural Networks, CNNs' },
+                            { name: 'A/B Testing: Experimentation design & analysis' },
+                            { name: 'Visualization: Tableau, Looker, Matplotlib' },
+                            { name: 'Big Data: Spark, Hive, Airflow' },
+                            { name: 'Cloud: AWS (SageMaker, Redshift, S3)' }
+                        ]
+                    },
+                    {
+                        name: 'Portfolio',
+                        count: 4,
+                        children: [
+                            { name: 'Churn Prediction Model' },
+                            { name: 'Executive Dashboard (Tableau)' },
+                            { name: 'Recommender System' },
+                            { name: 'GitHub ML Projects (320★)' }
+                        ]
+                    },
+                    {
+                        name: 'Interview Prep',
+                        count: 3,
+                        children: [
+                            { name: 'Behavioral' },
+                            { name: 'Technical' },
+                            { name: 'Challenge' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // Right panel collapse state - start collapsed
+        let rightPanelCollapsed = true;
+
+        // Toggle right panel collapse
+        function toggleRightPanel() {
+            const body = document.getElementById('canvasBody');
+            const toggle = document.getElementById('collapseToggle');
+            const icon = toggle.querySelector('i');
+
+            rightPanelCollapsed = !rightPanelCollapsed;
+
+            if (rightPanelCollapsed) {
+                body.classList.add('collapsed');
+                icon.className = 'ph ph-caret-left';
+            } else {
+                body.classList.remove('collapsed');
+                icon.className = 'ph ph-caret-right';
+            }
+        }
+
+        // Canvas Modal Functions
+        function openCanvasModal() {
+            document.getElementById('canvasModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Initialize with collapsed panel
+            const body = document.getElementById('canvasBody');
+            const toggle = document.getElementById('collapseToggle');
+            const icon = toggle.querySelector('i');
+            body.classList.add('collapsed');
+            icon.className = 'ph ph-caret-left';
+
+            setTimeout(() => initializeMindmap(currentPersona), 100);
+        }
+
+        function closeCanvasModal() {
+            document.getElementById('canvasModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            // Clear the mindmap
+            d3.select('#canvas-mindmap').selectAll('*').remove();
+        }
+
+        function switchPersona(persona) {
+            currentPersona = persona;
+
+            // Update active button
+            document.querySelectorAll('.persona-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-persona="${persona}"]`).classList.add('active');
+
+            // Clear and redraw mindmap
+            d3.select('#canvas-mindmap').selectAll('*').remove();
+            initializeMindmap(persona);
+        }
+
+        // Close modal on background click
+        document.getElementById('canvasModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCanvasModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCanvasModal();
+            }
+        });
+
+        // AI Assistant Functions
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message
+            const messagesContainer = document.getElementById('aiMessages');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-message user';
+            userMsg.textContent = message;
+            messagesContainer.appendChild(userMsg);
+
+            // Clear input
+            input.value = '';
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Simulate AI response after a delay
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'ai-message assistant';
+                aiMsg.textContent = getAIResponse(message);
+                messagesContainer.appendChild(aiMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 800);
+        }
+
+        function getAIResponse(message) {
+            const msg = message.toLowerCase();
+
+            if (msg.includes('resume') || msg.includes('cv')) {
+                return "I can help you optimize your resume! Here are some tips:\n\n• Use action verbs (Led, Developed, Achieved)\n• Quantify your accomplishments with metrics\n• Tailor your resume to each job description\n• Keep it to 1-2 pages max\n\nWould you like me to review a specific section?";
+            } else if (msg.includes('interview')) {
+                return "Great question! For interview prep:\n\n• Research the company thoroughly\n• Practice STAR method responses\n• Prepare 3-5 questions to ask them\n• Review your resume and be ready to discuss each item\n• Do a mock interview with a friend\n\nWhat type of interview are you preparing for?";
+            } else if (msg.includes('cover letter')) {
+                return "Cover letter tips:\n\n• Keep it to 3-4 paragraphs\n• Show enthusiasm for the specific role\n• Connect your experience to their needs\n• Include a clear call to action\n• Proofread carefully!\n\nWant help with a specific section?";
+            } else if (msg.includes('career') || msg.includes('path')) {
+                return "I can help you explore career paths! Based on your profile, I see opportunities in:\n\n• Cloud Operations roles\n• DevOps Engineering\n• Site Reliability Engineering\n• Platform Engineering\n\nWhich area interests you most?";
+            } else if (msg.includes('job') || msg.includes('search')) {
+                return "Job search strategies that work:\n\n• Apply to 3-5 targeted roles per day\n• Network actively on LinkedIn\n• Leverage your alumni network\n• Follow up after applications\n• Track everything in your Canvas\n\nWhat part of the job search do you need help with?";
+            } else {
+                return "I'm here to help with your job search! I can assist with resumes, cover letters, interview prep, career guidance, and job search strategies. What would you like to work on?";
+            }
+        }
+
+        // Outlook Sync Function
+        function syncOutlook() {
+            const btn = event.target.closest('.sync-btn');
+            const originalHTML = btn.innerHTML;
+            const icon = btn.querySelector('i');
+
+            // Disable button during sync
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'not-allowed';
+
+            // Show syncing state with smooth animation
+            icon.className = 'ph ph-arrows-clockwise';
+            icon.style.animation = 'rotate-smooth 1.2s ease-in-out infinite';
+            btn.querySelector('i').nextSibling.textContent = ' Syncing...';
+
+            // Simulate sync
+            setTimeout(() => {
+                // Success state with checkmark
+                icon.className = 'ph ph-check-circle';
+                icon.style.animation = 'scale-in 0.3s ease-out';
+                icon.style.color = '#22c55e';
+                btn.querySelector('i').nextSibling.textContent = ' Synced!';
+
+                // Add a new synced event with fade-in animation
+                const eventsContainer = document.getElementById('calendarEvents');
+                const newEvent = document.createElement('div');
+                newEvent.className = 'calendar-event';
+                newEvent.style.borderLeftColor = '#22c55e';
+                newEvent.style.opacity = '0';
+                newEvent.style.transform = 'translateY(-10px)';
+                newEvent.style.transition = 'all 0.4s ease-out';
+                newEvent.innerHTML = `
+                    <div class="event-time">Next Mon, 1:00 PM</div>
+                    <div class="event-title">Phone Screen: Cloud Engineer</div>
+                    <div class="event-details">Microsoft Azure - Recruiter Call</div>
+                `;
+                eventsContainer.appendChild(newEvent);
+
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    newEvent.style.opacity = '1';
+                    newEvent.style.transform = 'translateY(0)';
+                }, 50);
+
+                // Reset button after 2.5 seconds
+                setTimeout(() => {
+                    icon.style.animation = 'none';
+                    icon.style.color = '';
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }, 2500);
+            }, 1200);
+        }
+
+        // Add professional animations for sync button
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes rotate-smooth {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            @keyframes scale-in {
+                0% { transform: scale(0.5); opacity: 0; }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Track expanded node
+        let expandedNode = null;
+
+        // D3 Mindmap Initialization - Tree Layout (Left to Right)
+        function initializeMindmap(persona) {
+            const container = document.getElementById('canvas-mindmap');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Reset expanded node
+            expandedNode = null;
+
+            // Get persona-specific data
+            const data = personaData[persona];
+
+            // Mindmap data structure - keep all children for D3 to see
+            const mindmapData = {
+                name: data.name + "'s Canvas",
+                goal: data.goal,
+                children: data.children // Keep full data structure
+            };
+
+            // Create SVG with expandable dimensions
+            const svg = d3.select('#canvas-mindmap')
+                .append('svg')
+                .attr('width', '100%')
+                .attr('height', '100%')
+                .style('min-width', width + 'px')
+                .style('min-height', height + 'px');
+
+            // Create a group for zoom/pan
+            const g = svg.append('g')
+                .attr('transform', `translate(80, 50)`);
+
+            // Create hierarchy - D3 will now see all children
+            const root = d3.hierarchy(mindmapData);
+            root.x0 = height / 2;
+            root.y0 = 0;
+
+            // Now collapse second-level children (hide grandchildren initially)
+            if (root.children) {
+                root.children.forEach(child => {
+                    if (child.children) {
+                        child._children = child.children;
+                        child.children = null;
+                    }
+                });
+            }
+
+            // Define constants for rectangles
+            const rootWidth = 140;
+            const rootHeight = 60;
+            const childWidth = 180;
+            const childHeight = 50;
+            const grandchildWidth = 250;
+            const grandchildHeight = 40;
+
+            // Create groups for links and nodes
+            const linkGroup = g.append('g').attr('class', 'links');
+            const nodeGroup = g.append('g').attr('class', 'nodes');
+
+            // Function to update the tree
+            function update(source) {
+                // Count visible nodes to calculate needed height
+                const visibleNodes = root.descendants();
+                const neededHeight = Math.max(height, visibleNodes.length * 60);
+                const neededWidth = Math.max(width, 1000);
+
+                // Update SVG size to accommodate all nodes
+                svg.style('min-width', neededWidth + 'px')
+                   .style('min-height', neededHeight + 'px');
+
+                // Create tree layout with FIXED node spacing using nodeSize
+                const treeLayout = d3.tree()
+                    .nodeSize([60, 220]) // [vertical spacing, horizontal spacing] - FIXED distances
+                    .separation((a, b) => {
+                        // More separation for grandchildren
+                        if (a.depth === 2 && b.depth === 2) {
+                            return a.parent === b.parent ? 1.0 : 1.3;
+                        }
+                        // Standard separation for other levels
+                        return a.parent === b.parent ? 1.0 : 1.5;
+                    });
+
+                const treeData = treeLayout(root);
+                const nodes = treeData.descendants();
+                const links = treeData.links();
+
+                // Update links
+                const link = linkGroup
+                    .selectAll('path')
+                    .data(links, d => d.target.id || (d.target.id = ++i));
+
+                // Enter new links
+                const linkEnter = link.enter()
+                    .insert('path', 'g')
+                    .attr('class', 'mindmap-link')
+                    .attr('d', d => {
+                        const o = {x: source.x0, y: source.y0};
+                        return diagonal(o, o);
+                    });
+
+                // Update existing links
+                const linkUpdate = linkEnter.merge(link);
+                linkUpdate.transition()
+                    .duration(500)
+                    .attr('d', d => diagonal(d.source, d.target));
+
+                // Remove old links
+                link.exit()
+                    .transition()
+                    .duration(500)
+                    .attr('d', d => {
+                        const o = {x: source.x, y: source.y};
+                        return diagonal(o, o);
+                    })
+                    .remove();
+
+                // Update nodes
+                const node = nodeGroup
+                    .selectAll('g')
+                    .data(nodes, d => d.id || (d.id = ++i));
+
+                // Enter new nodes
+                const nodeEnter = node.enter()
+                    .append('g')
+                    .attr('class', d => `mindmap-node ${d.depth === 0 ? 'root' : d.depth === 1 ? 'child' : 'grandchild'}`)
+                    .attr('transform', d => `translate(${source.y0}, ${source.x0})`);
+
+                // Add rectangles
+                nodeEnter.append('rect')
+                    .attr('width', d => d.depth === 0 ? rootWidth : d.depth === 1 ? childWidth : grandchildWidth)
+                    .attr('height', d => d.depth === 0 ? rootHeight : d.depth === 1 ? childHeight : grandchildHeight)
+                    .attr('x', d => d.depth === 0 ? -rootWidth/2 : d.depth === 1 ? -childWidth/2 : -grandchildWidth/2)
+                    .attr('y', d => d.depth === 0 ? -rootHeight/2 : d.depth === 1 ? -childHeight/2 : -grandchildHeight/2);
+
+                // Add text labels
+                nodeEnter.append('text')
+                    .attr('dy', '0.35em')
+                    .attr('x', 0)
+                    .each(function(d) {
+                        const text = d3.select(this);
+                        const label = d.data.name;
+                        const count = d.data.count;
+
+                        if (d.depth === 0) {
+                            text.text(label);
+                            const maxWidth = rootWidth - 20;
+                            wrapText(text, maxWidth, 3); // Max 3 lines for root
+                        } else if (d.depth === 1) {
+                            const maxWidth = childWidth - 50;
+                            text.text(label);
+                            wrapText(text, maxWidth, 2); // Max 2 lines for categories
+
+                            if (count > 0) {
+                                d3.select(this.parentNode)
+                                    .append('circle')
+                                    .attr('class', 'count-badge-circle')
+                                    .attr('cx', childWidth/2 - 20)
+                                    .attr('cy', -childHeight/2 + 15)
+                                    .attr('r', 12)
+                                    .attr('fill', '#e3f2fd');
+
+                                d3.select(this.parentNode)
+                                    .append('text')
+                                    .attr('class', 'count-badge-text')
+                                    .attr('x', childWidth/2 - 20)
+                                    .attr('y', -childHeight/2 + 15)
+                                    .attr('dy', '0.35em')
+                                    .attr('text-anchor', 'middle')
+                                    .attr('font-size', '11px')
+                                    .attr('font-weight', '600')
+                                    .attr('fill', '#1a1a1a')
+                                    .attr('pointer-events', 'none')
+                                    .text(count);
+                            }
+                        } else {
+                            // Grandchild nodes (third level) - truncate long text
+                            const maxWidth = grandchildWidth - 20;
+                            const maxChars = 50; // Character limit
+                            const truncatedLabel = label.length > maxChars ? label.substring(0, maxChars) + '...' : label;
+                            text.text(truncatedLabel);
+                            wrapText(text, maxWidth, 2); // Max 2 lines
+                        }
+                    });
+
+                // Click handler for second-level nodes
+                nodeEnter.on('click', function(event, d) {
+                    event.stopPropagation();
+                    if (d.depth === 1) {
+                        console.log('Clicked node:', d.data.name, 'Has _children:', !!d._children, 'Has children:', !!d.children);
+                        toggleNode(d);
+                    }
+                });
+
+                // Update existing nodes
+                const nodeUpdate = nodeEnter.merge(node);
+                nodeUpdate.transition()
+                    .duration(500)
+                    .attr('transform', d => `translate(${d.y}, ${d.x})`);
+
+                // Update cursor for all nodes based on whether they have children
+                nodeUpdate.style('cursor', d => {
+                    if (d.depth === 1 && (d.children || d._children)) {
+                        return 'pointer';
+                    }
+                    return 'default';
+                });
+
+                // Update rect styling for expanded/collapsed state
+                nodeUpdate.select('rect')
+                    .attr('class', d => {
+                        if (d.depth === 1) {
+                            return d.children ? 'expanded' : (d._children ? 'collapsed' : '');
+                        }
+                        return '';
+                    });
+
+                // Remove old nodes
+                node.exit()
+                    .transition()
+                    .duration(500)
+                    .attr('transform', d => `translate(${source.y}, ${source.x})`)
+                    .remove();
+
+                // Store old positions for transitions
+                nodes.forEach(d => {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+            }
+
+            // Link diagonal function
+            function diagonal(s, d) {
+                const sourceX = s.y + (s.depth === 0 ? rootWidth/2 : s.depth === 1 ? childWidth/2 : grandchildWidth/2);
+                const sourceY = s.x;
+                const targetX = d.y - (d.depth === 1 ? childWidth/2 : grandchildWidth/2);
+                const targetY = d.x;
+
+                const midX = (sourceX + targetX) / 2;
+                return `M ${sourceX} ${sourceY} C ${midX} ${sourceY}, ${midX} ${targetY}, ${targetX} ${targetY}`;
+            }
+
+            // Toggle node function - only one second-level node open at a time
+            function toggleNode(d) {
+                console.log('toggleNode called for:', d.data.name);
+                console.log('Before toggle - children:', d.children, '_children:', d._children);
+
+                if (!d._children && !d.children) {
+                    console.log('No children to toggle');
+                    return; // No children to toggle
+                }
+
+                // If this node is being opened
+                if (d._children) {
+                    console.log('Opening node, _children has', d._children.length, 'items');
+
+                    // Close any other open second-level nodes
+                    root.children.forEach(child => {
+                        if (child !== d && child.children) {
+                            console.log('Closing other node:', child.data.name);
+                            child._children = child.children;
+                            child.children = null;
+                        }
+                    });
+
+                    // Open this node
+                    d.children = d._children;
+                    d._children = null;
+                    expandedNode = d;
+                    console.log('After opening - children:', d.children);
+                } else {
+                    console.log('Closing node');
+                    // Close this node
+                    d._children = d.children;
+                    d.children = null;
+                    expandedNode = null;
+                }
+
+                console.log('Calling update()');
+                update(d);
+            }
+
+            // Text wrapping function with optional line limit
+            function wrapText(text, maxWidth, maxLines = 999) {
+                const textNode = text.node();
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.1;
+                const y = text.attr('y') || 0;
+                const dy = 0.35;
+
+                text.text(null);
+                let tspan = text.append('tspan')
+                    .attr('x', 0)
+                    .attr('y', y);
+
+                while (word = words.pop()) {
+                    // Stop if we've reached max lines
+                    if (lineNumber >= maxLines) {
+                        break;
+                    }
+
+                    line.push(word);
+                    tspan.text(line.join(' '));
+                    if (tspan.node().getComputedTextLength() > maxWidth) {
+                        line.pop();
+
+                        // If this would be the last line, add ellipsis
+                        if (lineNumber === maxLines - 1 && words.length > 0) {
+                            tspan.text(line.join(' ') + '...');
+                        } else {
+                            tspan.text(line.join(' '));
+                        }
+
+                        line = [word];
+                        lineNumber++;
+
+                        if (lineNumber < maxLines) {
+                            tspan = text.append('tspan')
+                                .attr('x', 0)
+                                .attr('y', y)
+                                .attr('dy', lineNumber * lineHeight + 'em')
+                                .text(word);
+                        }
+                    }
+                }
+
+                // Center multi-line text vertically
+                const spans = text.selectAll('tspan');
+                const numLines = spans.size();
+                if (numLines > 1) {
+                    spans.attr('dy', function(d, i) {
+                        return (i - (numLines - 1) / 2) * lineHeight + dy + 'em';
+                    });
+                } else {
+                    spans.attr('dy', dy + 'em');
+                }
+            }
+
+            // Initialize counter for node IDs
+            let i = 0;
+
+            // Initial render
+            update(root);
+
+            // Add zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.5, 2])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                });
+
+            svg.call(zoom);
+        }
+    </script>
 </body>
 </html>
 
