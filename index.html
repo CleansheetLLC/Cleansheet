@@ -1746,14 +1746,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-book-open"></i>
                         <span>Library</span>
                     </button>
-                    <button class="main-menu-item" onclick="setActiveMenu(this)">
-                        <i class="ph ph-chalkboard-teacher"></i>
-                        <span>Coaching</span>
-                    </button>
-                    <button class="main-menu-item" onclick="setActiveMenu(this)">
-                        <i class="ph ph-chart-line"></i>
-                        <span>Progress</span>
-                    </button>
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
                         <!-- Profile Circle -->
                         <div class="profile-circle">
@@ -1784,6 +1776,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <!-- Job Search Aggregation View -->
                 <div id="jobSearchView" style="display: none; padding: 24px; overflow-y: auto; background: var(--color-neutral-background); grid-column: 1 / -1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10;">
                     <!-- Job Search Content will be inserted here -->
+                </div>
+
+                <!-- Library View -->
+                <div id="libraryView" style="display: none; overflow-y: auto; background: var(--color-neutral-background); grid-column: 1 / -1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10;">
+                    <!-- Library Content will be inserted here -->
                 </div>
 
                 <!-- Home/Canvas View -->
@@ -1851,6 +1848,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <i class="ph ph-caret-right"></i>
                 </button>
                 </div> <!-- End homeView -->
+
+                <!-- Copyright Notice -->
+                <div style="position: absolute; bottom: 8px; right: 16px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text-muted); z-index: 5;">
+                    © 2025 Cleansheet LLC. All rights reserved.
+                </div>
             </div>
 
         <!-- Interview Prep Slideout (60% width) - Inside Canvas Modal -->
@@ -2564,16 +2566,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Show/hide appropriate view
             const homeView = document.getElementById('homeView');
             const jobSearchView = document.getElementById('jobSearchView');
+            const libraryView = document.getElementById('libraryView');
+
+            // Hide all views first
+            homeView.style.display = 'none';
+            jobSearchView.style.display = 'none';
+            libraryView.style.display = 'none';
 
             if (menuName === 'Job Search') {
-                homeView.style.display = 'none';
                 jobSearchView.style.display = 'block';
                 loadJobSearchView();
+            } else if (menuName === 'Library') {
+                libraryView.style.display = 'block';
+                loadLibraryView();
             } else if (menuName === 'Home') {
                 homeView.style.display = 'contents';
-                jobSearchView.style.display = 'none';
             } else {
-                // Other sections coming soon
+                // Reset to home if unimplemented section
+                homeView.style.display = 'contents';
+                document.querySelector('.main-menu-item').classList.add('active');
+                clickedItem.classList.remove('active');
                 alert(`${menuName} section coming soon! This is a demo of the Canvas interface navigation.`);
             }
         }
@@ -2712,6 +2724,194 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             if (confirm(`Delete alert for "${title}"?`)) {
                 alert('Alert deleted successfully.');
             }
+        }
+
+        // Library View Functions
+        let showRecommendedOnly = false;
+
+        function loadLibraryView() {
+            const container = document.getElementById('libraryView');
+
+            const sampleArticles = [
+                {
+                    title: 'Understanding CI/CD Pipelines',
+                    summary: 'Comprehensive guide to continuous integration and deployment workflows, covering best practices and tooling.',
+                    tags: ['DevOps', 'Automation', 'Testing'],
+                    level: 'Intermediate',
+                    readTime: '12 min',
+                    recommended: true
+                },
+                {
+                    title: 'Introduction to Docker Containers',
+                    summary: 'Learn the fundamentals of containerization with Docker, including images, volumes, and networking.',
+                    tags: ['Docker', 'Cloud', 'DevOps'],
+                    level: 'Beginner',
+                    readTime: '15 min',
+                    recommended: true
+                },
+                {
+                    title: 'Advanced SQL Query Optimization',
+                    summary: 'Deep dive into query performance tuning, indexing strategies, and execution plan analysis.',
+                    tags: ['Data Analysis', 'SQL', 'Performance'],
+                    level: 'Advanced',
+                    readTime: '20 min',
+                    recommended: false
+                },
+                {
+                    title: 'Project Management Fundamentals',
+                    summary: 'Essential project management concepts including scope, timeline, resource allocation, and stakeholder communication.',
+                    tags: ['Project Management', 'Professional Skills', 'Leadership'],
+                    level: 'Beginner',
+                    readTime: '10 min',
+                    recommended: true
+                },
+                {
+                    title: 'Kubernetes Deployment Strategies',
+                    summary: 'Explore rolling updates, blue-green deployments, and canary releases in Kubernetes environments.',
+                    tags: ['Kubernetes', 'Cloud', 'DevOps'],
+                    level: 'Advanced',
+                    readTime: '18 min',
+                    recommended: false
+                },
+                {
+                    title: 'Data Visualization Best Practices',
+                    summary: 'Learn to create effective charts and dashboards that communicate insights clearly to stakeholders.',
+                    tags: ['Data Analysis', 'Visualization', 'Career Development'],
+                    level: 'Intermediate',
+                    readTime: '14 min',
+                    recommended: true
+                }
+            ];
+
+            const filteredArticles = showRecommendedOnly ? sampleArticles.filter(a => a.recommended) : sampleArticles;
+
+            container.innerHTML = `
+                <div style="display: flex; height: 100%;">
+                    <!-- Left Sidebar -->
+                    <div style="width: 320px; background: var(--color-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0;">
+                        <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <h2 style="font-family: var(--font-family-ui); font-size: 20px; margin-bottom: 8px;">Cleansheet Library</h2>
+                            <p style="font-size: 12px; color: rgba(255,255,255,0.7);">Curated technical content</p>
+                        </div>
+
+                        <div style="padding: 20px; flex: 1; overflow-y: auto;">
+                            <!-- Search -->
+                            <input type="text" placeholder="Search articles..." style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; margin-bottom: 16px;">
+
+                            <!-- Recommended Toggle -->
+                            <label style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(0, 102, 204, 0.2); border-radius: 6px; cursor: pointer; margin-bottom: 16px;">
+                                <input type="checkbox" ${showRecommendedOnly ? 'checked' : ''} onchange="toggleRecommended(this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600;">Recommended for You</span>
+                            </label>
+
+                            <!-- Stats -->
+                            <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; margin-bottom: 16px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 4px;">Showing</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600;">${filteredArticles.length} articles</div>
+                            </div>
+
+                            <!-- Filter Tags -->
+                            <div style="margin-top: 20px;">
+                                <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.7);">Topics</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    ${['DevOps', 'Cloud', 'Data Analysis', 'Project Management'].map(tag =>
+                                        `<div style="padding: 6px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 11px; cursor: pointer;">${tag}</div>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Area -->
+                    <div style="flex: 1; padding: 24px; overflow-y: auto;">
+                        <div style="max-width: 1200px; margin: 0 auto;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                                ${filteredArticles.map(article => renderLibraryArticleCard(article)).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLibraryArticleCard(article) {
+            return `
+                <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;">
+                    <!-- Header -->
+                    <div style="padding: 16px; border-bottom: 1px solid var(--color-neutral-border);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <span style="background: ${article.level === 'Beginner' ? '#4caf50' : article.level === 'Intermediate' ? '#ff9800' : '#f44336'}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${article.level}</span>
+                            ${article.recommended ? '<i class="ph ph-star-fill" style="color: #ff9800; font-size: 18px;"></i>' : ''}
+                        </div>
+                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; color: var(--color-dark); margin-bottom: 8px; line-height: 1.4;">${article.title}</h3>
+                        <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); line-height: 1.5; margin-bottom: 12px;">${article.summary}</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+                            ${article.tags.map(tag => `<span style="background: #e3f2fd; color: var(--color-primary-blue); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${tag}</span>`).join('')}
+                        </div>
+                        <div style="font-size: 11px; color: var(--color-neutral-text-muted); display: flex; align-items: center; gap: 4px;">
+                            <i class="ph ph-clock"></i> ${article.readTime}
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="padding: 12px; background: var(--color-neutral-background); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        <button onclick="listenToArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
+                            <i class="ph ph-play-circle" style="font-size: 18px;"></i>
+                            <span style="font-size: 10px; font-weight: 600;">Listen</span>
+                        </button>
+                        <button onclick="chatAboutArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
+                            <i class="ph ph-chat-circle-dots" style="font-size: 18px;"></i>
+                            <span style="font-size: 10px; font-weight: 600;">Chat</span>
+                        </button>
+                        <button onclick="translateArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
+                            <i class="ph ph-translate" style="font-size: 18px;"></i>
+                            <span style="font-size: 10px; font-weight: 600;">Translate</span>
+                        </button>
+                        <button onclick="addToMyLibrary('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
+                            <i class="ph ph-bookmark" style="font-size: 18px;"></i>
+                            <span style="font-size: 10px; font-weight: 600;">Add</span>
+                        </button>
+                        <button onclick="summarizeArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
+                            <i class="ph ph-note-pencil" style="font-size: 18px;"></i>
+                            <span style="font-size: 10px; font-weight: 600;">Summarize</span>
+                        </button>
+                        <button onclick="sendToMobile('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
+                            <i class="ph ph-device-mobile" style="font-size: 18px;"></i>
+                            <span style="font-size: 10px; font-weight: 600;">Mobile</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleRecommended(checked) {
+            showRecommendedOnly = checked;
+            loadLibraryView();
+        }
+
+        // Library action functions
+        function listenToArticle(title) {
+            alert(`Listen to: "${title}"\n\nThis will convert the article to audio using text-to-speech and play it for you. You can adjust speed, voice, and download the audio file.`);
+        }
+
+        function chatAboutArticle(title) {
+            alert(`Chat about: "${title}"\n\nOpen an AI-powered chat interface to discuss the article content, ask questions, and explore related concepts.`);
+        }
+
+        function translateArticle(title) {
+            alert(`Translate: "${title}"\n\nChoose from 50+ languages including Spanish, Mandarin, French, German, Japanese, and more. Translation is powered by advanced ML models.`);
+        }
+
+        function addToMyLibrary(title) {
+            alert(`Added to My Library: "${title}"\n\nThis article is now saved to your personal library for offline access and future reference.`);
+        }
+
+        function summarizeArticle(title) {
+            alert(`Summarize: "${title}"\n\nGenerate a concise summary highlighting key points, main concepts, and actionable takeaways in bullet-point format.`);
+        }
+
+        function sendToMobile(title) {
+            alert(`Send to Mobile: "${title}"\n\nThis article will be sent to your mobile device via the Cleansheet mobile app or email. You'll receive a notification when it's ready.`);
         }
 
         // Close modal on background click
