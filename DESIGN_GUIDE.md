@@ -216,13 +216,11 @@ body, p {
 ## Component Patterns
 
 ### Iconography
-**Library**: Phosphor Icons (MIT License)
+**Library**: Font Awesome 6.4.0 (Free)
 
 ```html
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 ```
-
-**Why Phosphor**: More professional and modern than Font Awesome, with consistent geometric design, 6,000+ icons in multiple weights, and better suited for corporate/professional applications.
 
 #### Icon Containers
 ```css
@@ -248,21 +246,12 @@ body, p {
 ```
 
 #### Standard Icons
-- `ph-book-open` - Content, library
-- `ph-path` - Career paths, progression
-- `ph-compass` - Navigation, discovery
-- `ph-flow-arrow` - Architecture, pipeline
-- `ph-shield-check` - Security, privacy
-- `ph-users` - Coaching, mentorship
-- `ph-tags` - Tagging, organization
-- `ph-map-trifold` - Canvas, mapping
-
-**Usage Example**:
-```html
-<i class="ph ph-book-open"></i>
-```
-
-**Weights Available**: Regular (default), Thin, Light, Bold, Fill, Duotone
+- `fa-book-open` - Content, library
+- `fa-route` - Career paths, progression
+- `fa-compass` - Navigation, discovery
+- `fa-sitemap` - Architecture, pipeline
+- `fa-shield-alt` - Security, privacy
+- `fa-user-friends` - Coaching, mentorship
 
 ### Cards
 ```css
@@ -364,6 +353,145 @@ body, p {
     font-weight: 600;
 }
 ```
+
+### D3 Network Navigation
+**Reference implementation**: `experience-tagger-d3.html`
+
+A force-directed network navigation component using D3.js for visualizing career path relationships.
+
+#### Dependencies
+```html
+<script src="https://d3js.org/d3.v7.min.js"></script>
+```
+
+#### Component Structure
+```html
+<div class="nav-section">
+    <div id="d3-nav-container"></div>
+</div>
+```
+
+#### Styling
+```css
+.nav-section {
+    background: var(--color-dark);
+    padding: 24px 16px;
+    border-bottom: 1px solid var(--color-neutral-border);
+}
+
+#d3-nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    height: 200px;  /* Compact height for header navigation */
+}
+
+/* Links between nodes */
+.nav-link {
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 1;
+    fill: none;
+}
+
+.nav-link.active {
+    stroke: var(--color-primary-blue);
+    stroke-width: 2;
+}
+
+/* Node rectangles */
+.nav-node rect {
+    stroke: none;  /* No outline by default */
+    cursor: pointer;
+    transition: all 0.3s;
+    rx: 6;  /* Rounded corners */
+    ry: 6;
+}
+
+/* Node types */
+.nav-node.primary rect {
+    fill: var(--color-primary-blue);
+}
+
+.nav-node.secondary rect {
+    fill: var(--color-accent-blue);
+}
+
+.nav-node.tertiary rect {
+    fill: #d3d3d3;  /* Non-clickable nodes */
+}
+
+/* Active/selected node */
+.nav-node.active rect {
+    fill: var(--color-accent-blue);
+    stroke: var(--color-primary-blue);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 8px var(--color-primary-blue));
+}
+
+/* Node labels */
+.nav-node text {
+    fill: white;
+    font-family: var(--font-family-ui);
+    font-size: 10px;
+    font-weight: 600;
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+.nav-node.tertiary text {
+    fill: #333333;  /* Dark text for gray nodes */
+}
+```
+
+#### Data Structure
+```javascript
+const navigationData = {
+    nodes: [
+        {
+            id: 'node1',
+            label: 'Display Name',
+            tier: 'primary',  // 'primary', 'secondary', or 'tertiary'
+            url: '#',  // Set to null for non-clickable nodes
+            x: 0.30,  // Position as percentage (0.0 - 1.0)
+            y: 0.50
+        }
+    ],
+    links: [
+        { source: 'node1', target: 'node2' }
+    ]
+};
+```
+
+#### Key Features
+- **Fixed positioning**: Nodes use percentage-based x/y coordinates for consistent layout
+- **Gentle forces**: Low force strength maintains initial positioning while preventing overlap
+- **Three-tier system**: Primary (clickable blue), Secondary (accent blue), Tertiary (gray, non-clickable)
+- **Hover effects**: Drop-shadow on hover for visual feedback
+- **Active states**: Selected nodes show blue outline and glow
+- **Responsive**: Adjusts to container width, compact 200px height for header navigation
+- **Draggable nodes**: Optional - can be disabled by removing drag behavior
+
+#### Rectangle Sizing
+```javascript
+// Primary tier: 100px × 30px
+// Secondary tier: 90px × 28px
+// Tertiary tier: 100px × 26px
+
+node.append('rect')
+    .attr('width', d => d.tier === 'primary' ? 100 : d.tier === 'secondary' ? 90 : 100)
+    .attr('height', d => d.tier === 'primary' ? 30 : d.tier === 'secondary' ? 28 : 26)
+    .attr('x', d => (d.tier === 'primary' ? -50 : d.tier === 'secondary' ? -45 : -50))
+    .attr('y', d => (d.tier === 'primary' ? -15 : d.tier === 'secondary' ? -14 : -13));
+```
+
+#### Best Practices
+1. **Limit nodes**: 10-15 nodes maximum for readability in compact space
+2. **Use percentages**: Position nodes using 0.0-1.0 range for responsive layout
+3. **Visual hierarchy**: Use tertiary tier for context-only nodes (non-interactive)
+4. **Contrast**: White text on blue nodes, dark text on gray nodes
+5. **Compact layout**: Keep y-values between 0.12 and 0.88 to avoid clipping
+6. **Clean design**: No outlines on default state, only show on active selection
 
 ---
 
@@ -630,7 +758,7 @@ Cleansheet/
 - [ ] Images optimized (WebP preferred, PNG fallback)
 - [ ] CSS minified in production
 - [ ] JavaScript deferred when possible
-- [ ] External resources (Phosphor Icons, Google Fonts) loaded from CDN
+- [ ] External resources (Font Awesome, Google Fonts) loaded from CDN
 - [ ] No render-blocking resources in `<head>`
 
 ### Loading Strategy
@@ -691,7 +819,7 @@ Use feature detection for modern CSS:
 ## Maintenance
 
 ### Regular Updates
-1. **Phosphor Icons**: Check for updates quarterly
+1. **Font Awesome**: Check for updates quarterly
 2. **Google Fonts**: Monitor for font updates
 3. **Browser testing**: Test monthly on supported browsers
 4. **Accessibility audit**: Run annually with automated tools
@@ -712,7 +840,7 @@ Update this guide when:
 - **Logo**: `assets/high-resolution-logo-files/white-on-transparent.png`
 - **Favicon**: Same as logo
 - **Font CDN**: `https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap`
-- **Icons**: `https://unpkg.com/@phosphor-icons/web`
+- **Icons**: `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css`
 
 ### Common Colors (Hex)
 ```

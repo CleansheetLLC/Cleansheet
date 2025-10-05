@@ -22,6 +22,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -60,10 +61,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: var(--color-neutral-background);
         }
 
-        /* Career Network Diagram - Hidden on mobile */
+        /* Career Network Diagram - D3 Implementation */
         .career-network {
             background: var(--color-dark);
-            padding: 16px;
+            padding: 24px 16px;
             border-bottom: 1px solid var(--color-neutral-border);
         }
 
@@ -71,63 +72,65 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             max-width: 1400px;
             margin: 0 auto;
             position: relative;
-            min-height: 200px;
-            display: none; /* Hidden on mobile by default */
+            height: 200px;
         }
 
-        .network-node {
-            position: absolute;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-            touch-action: manipulation;
-        }
-
-        .network-node.technical {
-            background: var(--color-primary-blue);
-            color: white;
-            border: 2px solid var(--color-primary-blue);
-        }
-
-        .network-node.business {
-            background: #d3d3d3;
-            color: #333333;
-            border: 2px solid #d3d3d3;
-        }
-
-        .network-node:active {
-            transform: scale(0.95);
-        }
-
-        .network-node.active {
-            background: var(--color-accent-blue) !important;
-            color: white !important;
-            border-color: var(--color-accent-blue) !important;
-            box-shadow: 0 0 0 6px rgba(0, 76, 153, 0.5), 0 0 20px rgba(0, 102, 204, 0.6);
-            transform: scale(1.25);
-            font-weight: 700;
-            z-index: 100;
-        }
-
-        /* SVG for connection lines */
-        .network-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .network-line {
-            stroke: #ffffff;
+        /* D3 Link Styles */
+        .nav-link {
+            stroke: rgba(255, 255, 255, 0.4);
             stroke-width: 1;
             fill: none;
-            opacity: 0.4;
+        }
+
+        .nav-link.active {
+            stroke: var(--color-primary-blue);
+            stroke-width: 2;
+        }
+
+        /* D3 Node Styles */
+        .nav-node rect {
+            stroke: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            rx: 6;
+            ry: 6;
+        }
+
+        .nav-node.primary rect {
+            fill: var(--color-primary-blue);
+        }
+
+        .nav-node.secondary rect {
+            fill: var(--color-accent-blue);
+        }
+
+        .nav-node.tertiary rect {
+            fill: #d3d3d3;
+        }
+
+        .nav-node.tertiary text {
+            fill: #333333;
+        }
+
+        .nav-node.active rect {
+            fill: var(--color-accent-blue);
+            stroke: var(--color-primary-blue);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px var(--color-primary-blue));
+        }
+
+        .nav-node text {
+            fill: white;
+            font-family: var(--font-family-ui);
+            font-size: 10px;
+            font-weight: 600;
+            text-anchor: middle;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .nav-node:hover rect {
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
         }
 
         /* Mobile Path Selector */
@@ -477,21 +480,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 padding: 24px;
             }
 
-            .network-container {
-                display: block;
-                min-height: 280px;
-            }
-
-            .network-node {
-                font-size: 12px;
-                padding: 8px 16px;
-            }
-
-            .network-node:hover {
-                transform: scale(1.05);
-                box-shadow: 0 4px 12px rgba(196, 214, 0, 0.3);
-            }
-
             .path-selector {
                 display: none;
             }
@@ -627,12 +615,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 <body>
     <a href="index.html" class="back-home-btn">← Home</a>
     <img src="assets/high-resolution-logo-files/white-on-transparent.png" alt="Cleansheet Logo" class="header-logo">
-    <!-- Career Network Diagram (Desktop only) -->
+    <!-- Career Network Diagram (D3) -->
     <div class="career-network">
-        <div class="network-container" id="networkContainer">
-            <svg class="network-svg" id="networkSvg"></svg>
-            <!-- Nodes will be dynamically positioned here -->
-        </div>
+        <div class="network-container" id="d3-nav-container"></div>
     </div>
 
     <!-- Mobile Path Selector -->
@@ -683,60 +668,46 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
     <script>
         let careerData = {"Citizen Developer":[{"year":1,"jobTitles":["Business Analyst","Process Improvement Specialist","Citizen Developer","Digital Solutions Coordinator"],"skills":"Low-Code/No-Code Platform Mastery, Business Process & Data, Basic Technical Literacy","certifications":["Microsoft Power Platform Fundamentals (PL-900)","Google AppSheet Associate Developer","Airtable Core Certification","Zapier Automation Expert"],"portfolio":["Employee onboarding app","Automated expense reporting system","Customer feedback dashboard","Inventory tracking system"],"hourlyMin":35,"hourlyMax":55},{"year":2,"jobTitles":["Senior Business Analyst","Digital Innovation Specialist","Citizen Developer Lead","Process Automation Manager"],"skills":"Advanced Platform Development, Business Intelligence & Analytics, Enterprise Integration & Governance","certifications":["Microsoft Power Platform App Maker Associate (PL-100)","Microsoft Power BI Data Analyst Associate (PL-300)","Salesforce Platform App Builder","ServiceNow Certified Application Developer"],"portfolio":["Enterprise-wide automation platform","Advanced Power BI analytics suite","Salesforce customization","Multi-platform integration"],"hourlyMin":55,"hourlyMax":85}],"Cloud Computing":[{"year":1,"jobTitles":["Cloud Associate","Junior Cloud Developer","Cloud Support Specialist","Technical Account Manager Associate"],"skills":"Core Cloud Services, Development & Scripting, Cloud Architecture Basics","certifications":["AWS Certified Cloud Practitioner","Microsoft Azure Fundamentals (AZ-900)","Google Cloud Digital Leader","CompTIA Cloud Essentials+"],"portfolio":["Multi-cloud personal lab","Python automation scripts","Simple web applications","Cost optimization analysis"],"hourlyMin":22,"hourlyMax":35},{"year":2,"jobTitles":["Cloud Developer","Solutions Developer","Cloud Application Engineer","Platform Developer"],"skills":"Cloud-Native Development, Data & Analytics, DevOps & Automation","certifications":["AWS Certified Developer - Associate","Microsoft Azure Developer Associate (AZ-204)","Google Professional Cloud Developer","HashiCorp Certified: Terraform Associate"],"portfolio":["Serverless applications","Microservices on Kubernetes","Real-time data pipelines","CI/CD implementation"],"hourlyMin":30,"hourlyMax":45},{"year":3,"jobTitles":["Cloud Solutions Architect","Senior Cloud Engineer","Cloud Consultant","Technical Solutions Architect"],"skills":"Advanced Architecture, Specialized Cloud Services, Security & Compliance","certifications":["AWS Certified Solutions Architect - Professional","Microsoft Azure Solutions Architect Expert (AZ-305)","Google Professional Cloud Architect","TOGAF 9 Certified"],"portfolio":["Enterprise-scale architecture","Cloud migration strategies","Zero-trust security","AI/ML platforms"],"hourlyMin":50,"hourlyMax":75},{"year":5,"jobTitles":["Principal Cloud Architect","Cloud Strategy Director","Enterprise Architect","Cloud Practice Lead"],"skills":"Strategic Leadership, Advanced Cloud Computing, Business & Operations","certifications":["Multiple Professional/Expert certifications","Enterprise Architecture certifications","PMP","ITIL 4 Strategic Leader"],"portfolio":["Large-scale transformations","Published frameworks","Cost optimization programs","Innovation labs"],"hourlyMin":70,"hourlyMax":100},{"year":7,"jobTitles":["Chief Technology Officer","VP of Cloud Strategy","Cloud Computing Director","Principal Consultant"],"skills":"Executive Leadership, Advanced Expertise, Consulting & Business","certifications":["Executive education","Board certifications","Expert-level technical certifications","Industry expertise"],"portfolio":["Enterprise transformations","Published books/research","Conference keynotes","Advisory positions"],"hourlyMin":100,"hourlyMax":175}],"Project Management":[{"year":1,"jobTitles":["Project Coordinator","Assistant Project Manager","Scrum Master","Agile Coach Associate"],"skills":"Project Management Fundamentals, Agile & Scrum Methodologies, Communication & Leadership","certifications":["CSM (Certified ScrumMaster)","PMI-ACP","Google Project Management Certificate","ITIL Foundation"],"portfolio":["Small to medium projects","Scrum Master experience","Stakeholder templates","Process improvements"],"hourlyMin":28,"hourlyMax":45},{"year":3,"jobTitles":["Senior Project Manager","Program Manager","Senior Scrum Master","Agile Delivery Manager"],"skills":"Advanced Project Management, Advanced Agile & Scaling, Strategic & Business Skills","certifications":["PMP","PSM","SAFe Program Consultant (SPC)","Prince2 Practitioner"],"portfolio":["Complex multi-million programs","Agile transformations","Cost optimization","Mentorship programs"],"hourlyMin":45,"hourlyMax":70}],"Cloud Operations":[{"year":1,"jobTitles":["Cloud Support Technician","DevOps Associate","Infrastructure Assistant","Cloud Administrator I"],"skills":"Core Cloud Platforms, Infrastructure & Monitoring, Automation & Scripting","certifications":["AWS Cloud Practitioner","Microsoft Azure Fundamentals (AZ-900)","Google Cloud Digital Leader","CompTIA Cloud+"],"portfolio":["Multi-cloud lab environment","PowerShell/Bash scripts","Monitoring dashboards","Infrastructure automation"],"hourlyMin":20,"hourlyMax":32},{"year":2,"jobTitles":["Cloud Administrator II","DevOps Engineer I","Site Reliability Engineer I","Platform Operations Analyst"],"skills":"Advanced Cloud Services, Infrastructure as Code, CI/CD & DevOps","certifications":["AWS Solutions Architect Associate","Azure Administrator Associate (AZ-104)","Google Cloud Associate Cloud Engineer","Terraform Associate"],"portfolio":["Infrastructure as Code templates","CI/CD pipelines","Container deployments","Cost optimization"],"hourlyMin":28,"hourlyMax":42},{"year":3,"jobTitles":["Senior DevOps Engineer","Cloud Solutions Engineer","Site Reliability Engineer II","Platform Engineer"],"skills":"Advanced Infrastructure, Observability & Performance, Security & Compliance","certifications":["AWS Solutions Architect Professional","Azure Solutions Architect Expert","Google Professional Cloud Architect","CKA"],"portfolio":["Production Kubernetes clusters","Multi-region DR","Advanced IaC","Container security"],"hourlyMin":40,"hourlyMax":60},{"year":5,"jobTitles":["Principal Cloud Engineer","DevOps Architect","Platform Engineering Manager","Cloud Solutions Architect"],"skills":"Leadership & Strategy, Advanced Platform Engineering, Business & Operations","certifications":["AWS Professional + Specialties","Azure Expert + Specializations","Google Professional + Specialties","CKAD"],"portfolio":["Enterprise platforms","Cost optimization programs","GitOps workflows","Developer experience platforms"],"hourlyMin":60,"hourlyMax":85},{"year":7,"jobTitles":["Principal Cloud Architect","Head of Platform Engineering","Cloud Practice Director","VP of Cloud Operations"],"skills":"Strategic Leadership, Advanced Expertise, Consulting & Business","certifications":["Multiple Professional/Expert certifications","Enterprise Architecture","Executive leadership","Industry-specific"],"portfolio":["Enterprise transformations","Industry publications","Conference speaking","Advisory positions"],"hourlyMin":85,"hourlyMax":140}],"Network Operations":[{"year":1,"jobTitles":["Network Technician I","NOC Analyst","Junior Network Administrator","Help Desk Network Specialist"],"skills":"Core Networking, Monitoring & Troubleshooting, Basic Automation","certifications":["CompTIA Network+","Cisco CCNA","CompTIA A+","Wireshark Certified Network Analyst"],"portfolio":["Home network lab","Network monitoring dashboard","Python automation scripts","Network documentation"],"hourlyMin":18,"hourlyMax":28},{"year":2,"jobTitles":["Network Administrator","NOC Engineer II","Network Support Specialist","Infrastructure Analyst"],"skills":"Advanced Networking, Advanced Monitoring, Network Automation","certifications":["Cisco CCNP Enterprise","Juniper JNCIA/JNCIS","F5 Certified BIG-IP Administrator","Python Institute PCAP"],"portfolio":["Advanced monitoring systems","Ansible network automation","Multi-vendor lab environments","Performance optimization"],"hourlyMin":25,"hourlyMax":38},{"year":3,"jobTitles":["Senior Network Engineer","Network Architect I","Site Reliability Engineer (Network)","Infrastructure Engineer II"],"skills":"Enterprise Networking, Advanced Technologies, DevOps & Automation","certifications":["Cisco CCNP Enterprise","VMware NSX Data Center","AWS Advanced Networking Specialty","Juniper JNCIP"],"portfolio":["Enterprise network design","SD-WAN deployment","Network automation frameworks","Container networking"],"hourlyMin":40,"hourlyMax":60},{"year":5,"jobTitles":["Principal Network Engineer","Network Solutions Architect","Lead Infrastructure Engineer","Network Operations Manager"],"skills":"Leadership & Strategy, Advanced Architecture, Emerging Technologies","certifications":["Cisco CCIE","VMware NSX Expert","AWS Solutions Architect Professional","Juniper JNCIE"],"portfolio":["Large-scale network architecture","Automation platforms","Cost optimization programs","Mentorship programs"],"hourlyMin":60,"hourlyMax":85},{"year":7,"jobTitles":["Principal Network Architect","Director of Network Operations","Chief Network Officer","Network Consulting Practice Lead"],"skills":"Strategic Leadership, Advanced Expertise, Consulting & Business","certifications":["Multiple expert certifications","Enterprise Architecture","Executive leadership","Professional consulting"],"portfolio":["Enterprise network transformations","Published research","Conference presentations","Advisory positions"],"hourlyMin":85,"hourlyMax":140}],"Security Operations":[{"year":1,"jobTitles":["SOC Analyst I","Security Technician","Incident Response Coordinator","Cyber Defense Analyst"],"skills":"Core Security Tools, Operating Systems, Scripting & Automation","certifications":["CompTIA Security+","CompTIA Network+","(ISC)² SSCP","SANS GIAC GSEC"],"portfolio":["Home security lab","Basic SIEM dashboard","PowerShell automation","Incident procedures"],"hourlyMin":22,"hourlyMax":35},{"year":2,"jobTitles":["SOC Analyst II","Security Operations Analyst","Threat Hunter I","Cyber Intelligence Analyst"],"skills":"Advanced Security Tools, Programming & Analysis, Incident Response","certifications":["GCIH","CySA+","GCFA","Cloud security certifications"],"portfolio":["Advanced SIEM implementation","Threat hunting playbooks","Python automation","Digital forensics cases"],"hourlyMin":25,"hourlyMax":38},{"year":3,"jobTitles":["Senior SOC Analyst","Threat Hunter II","Security Engineer I","Incident Response Specialist"],"skills":"Advanced Threat Detection, Security Engineering, Advanced Programming","certifications":["GCTI","GNFA","OSCP","AWS Security Specialty","CISSP"],"portfolio":["Advanced threat hunting platform","Custom security tools","Malware analysis","SOAR automation"],"hourlyMin":45,"hourlyMax":65},{"year":5,"jobTitles":["Lead Security Engineer","Principal SOC Analyst","Cyber Threat Intelligence Manager","Security Architect I"],"skills":"Leadership & Strategy, Advanced Technologies, Business Skills","certifications":["CISSP","SABSA","CISM","CISPA","Advanced cloud security"],"portfolio":["Enterprise SOC design","Security metrics frameworks","ML security analytics","Published research"],"hourlyMin":65,"hourlyMax":90},{"year":7,"jobTitles":["Principal Security Architect","CISO","Senior Security Consultant","Cyber Security Director"],"skills":"Strategic Leadership, Advanced Expertise, Consulting & Business","certifications":["CISSP with concentrations","SABSA","TOGAF","Industry-specific","Executive leadership"],"portfolio":["Enterprise security transformations","Published books/research","Conference speaking","Advisory positions"],"hourlyMin":90,"hourlyMax":150}],"Full Stack Developer":[{"year":1,"jobTitles":["Junior Full Stack Developer","Web Developer I","Frontend Developer","Backend Developer Associate"],"skills":"Core Programming & Web Technologies, Frontend Development Basics, Backend & Database Fundamentals","certifications":["W3S-JS","W3S-REACT","GIT-CERT","EXPRESS-JS"],"portfolio":["Personal portfolio website","Simple React applications","Basic REST API","Interactive web apps"],"hourlyMin":25,"hourlyMax":40},{"year":2,"jobTitles":["Full Stack Developer I","Web Application Developer","Software Developer","Frontend/Backend Developer"],"skills":"Advanced Frontend Development, Backend & API Development, Development Practices","certifications":["META-FRONTEND","META-REACT","RESTAPI-CERT","MONGODB-DEV","AGILE-CERT"],"portfolio":["Full-stack CRUD applications","React with complex state","RESTful APIs","Database-driven apps"],"hourlyMin":35,"hourlyMax":55},{"year":3,"jobTitles":["Senior Full Stack Developer","Lead Developer","Full Stack Engineer II","Technical Lead"],"skills":"Advanced Full Stack Architecture, DevOps & Infrastructure, Security & Best Practices","certifications":["APC-MS","IBM-FULLSTACK","MYSQL-DBA","POSTGRES-DBA","AWS-DEV","WEBSEC-CERT"],"portfolio":["Complex full-stack applications","Microservices architecture","Performance optimization","Cloud deployment"],"hourlyMin":55,"hourlyMax":80},{"year":5,"jobTitles":["Principal Full Stack Developer","Software Architect","Technical Lead","Engineering Manager"],"skills":"Leadership & Architecture, Advanced Technologies, Business & Strategy","certifications":["MS-FULLSTACK","MEAN-STACK","MERN-STACK","DOCKER-CERT","CKAD","TYPESCRIPT"],"portfolio":["Enterprise-scale applications","Multi-technology implementations","Kubernetes applications","Architecture documentation"],"hourlyMin":75,"hourlyMax":110},{"year":7,"jobTitles":["Director of Engineering","Chief Technology Officer","VP of Development","Principal Software Architect"],"skills":"Strategic Leadership, Advanced Technical Expertise, Business & Consulting","certifications":["HKUST-REACT","REDIS-CERT","CICD-JENKINS","GRAPHQL-CERT","PWA-CERT","SERVERLESS"],"portfolio":["Digital transformation case studies","Open-source frameworks","Technical thought leadership","Strategic partnerships"],"hourlyMin":120,"hourlyMax":200}],"AI/ML":[{"year":1,"jobTitles":["Junior Data Scientist","ML Engineer I","AI Associate","Research Assistant"],"skills":"Core Programming, Machine Learning Basics, Tools & Platforms","certifications":["Google AI for Everyone","AWS ML Foundations","Microsoft Azure AI Fundamentals","Python Institute PCAP"],"portfolio":["Supervised learning projects","Data analysis with visualizations","Kaggle competitions","Simple ML web apps"],"hourlyMin":25,"hourlyMax":40},{"year":2,"jobTitles":["ML Engineer II","Data Scientist","AI Specialist","Research Engineer"],"skills":"Advanced Machine Learning, Deep Learning Frameworks, MLOps Basics","certifications":["AWS ML Specialty","Google Professional ML Engineer","Microsoft Azure AI Engineer","Deep Learning Specialization"],"portfolio":["Deep learning projects","NLP applications","Computer vision","MLOps pipelines","A/B testing"],"hourlyMin":35,"hourlyMax":55},{"year":3,"jobTitles":["Senior ML Engineer","Principal Data Scientist","AI Research Engineer","ML Platform Engineer"],"skills":"Advanced AI/ML, MLOps & Engineering, Research & Innovation","certifications":["TensorFlow Developer","NVIDIA DLI","Kubernetes Administrator","MLflow Certified","Published papers"],"portfolio":["Production ML systems","State-of-the-art implementations","Large-scale data processing","Custom frameworks"],"hourlyMin":55,"hourlyMax":80},{"year":5,"jobTitles":["Principal ML Engineer","AI Platform Architect","Head of Machine Learning","ML Engineering Manager"],"skills":"Leadership & Strategy, Advanced ML Systems, Business & Product","certifications":["AWS Solutions Architect (ML focus)","Google Professional Cloud Architect","Azure Solutions Architect Expert","MBA/Leadership"],"portfolio":["Enterprise ML platforms","AI governance frameworks","Successful AI products","Industry conference presentations"],"hourlyMin":75,"hourlyMax":110},{"year":7,"jobTitles":["Chief AI Officer","VP of AI/ML","AI Practice Director","Principal AI Scientist"],"skills":"Strategic Leadership, Advanced AI Expertise, Consulting & Business","certifications":["Multiple professional certifications","Executive education","Board certifications","Industry expertise"],"portfolio":["Enterprise AI transformations","Published research (NeurIPS, ICML)","Conference speaking","Advisory positions"],"hourlyMin":120,"hourlyMax":200}],"Analytics":[{"year":1,"jobTitles":["Data Entry Specialist","Junior Business Analyst","Administrative Analyst","Excel Specialist"],"skills":"Microsoft Skills, Open Source Skills","certifications":["Microsoft Excel Expert","Microsoft SharePoint Associate","Google Data Analytics Certificate","Tableau Desktop Specialist"],"portfolio":["Public dashboards","Automated templates","Simple Python scripts","Git repositories"],"hourlyMin":18,"hourlyMax":28},{"year":2,"jobTitles":["Business Analyst","Data Analyst","SharePoint Administrator","Process Improvement Analyst"],"skills":"Microsoft Skills, Open Source Skills","certifications":["Microsoft Power BI Data Analyst Associate","Microsoft Power Platform Fundamentals","Tableau Desktop Certified Associate"],"portfolio":["Multi-source data integration","SharePoint solutions","Power BI reports","Python automation","R analysis"],"hourlyMin":25,"hourlyMax":38},{"year":3,"jobTitles":["Senior Business Analyst","Power BI Developer","Data Visualization Specialist","Business Intelligence Analyst"],"skills":"Microsoft Skills, Open Source Skills","certifications":["Microsoft Power BI Data Analyst Associate","Tableau Server Certified Associate","AWS Cloud Practitioner","Python PCAP"],"portfolio":["Enterprise Power BI solutions","End-to-end analytics pipelines","Machine learning projects","Dockerized environments"],"hourlyMin":35,"hourlyMax":55},{"year":5,"jobTitles":["Senior Power BI Developer","Business Intelligence Architect","Data Analytics Manager","Digital Transformation Specialist"],"skills":"Microsoft Skills, Open Source Skills","certifications":["Microsoft Power Platform Solution Architect Expert","AWS Data Analytics Specialty","Tableau Desktop Certified Professional"],"portfolio":["End-to-end Power Platform solutions","Cloud data architectures","ML model integration","Infrastructure-as-code"],"hourlyMin":50,"hourlyMax":75},{"year":7,"jobTitles":["Senior Solutions Architect","Lead Data Scientist","Digital Analytics Director","Independent Consultant"],"skills":"Microsoft & Open Source Skills","certifications":["Microsoft Azure Solutions Architect Expert","PMP","AWS ML Specialty","Google Professional ML Engineer","CAP"],"portfolio":["Enterprise implementations","Thought leadership content","Multi-platform solutions","Open-source tools","Client testimonials"],"hourlyMin":75,"hourlyMax":120}]};
-        let selectedPath = null;
+        // D3 Navigation data structure
+        const navigationData = {
+            nodes: [
+                // Technical roles (primary tier - clickable)
+                { id: 'fullstack', label: 'Full Stack Dev', tier: 'primary', path: 'Full Stack Developer', x: 0.08, y: 0.65 },
+                { id: 'citizen', label: 'Citizen Dev', tier: 'primary', path: 'Citizen Developer', x: 0.22, y: 0.45 },
+                { id: 'cloudops', label: 'Cloud Ops', tier: 'primary', path: 'Cloud Operations', x: 0.22, y: 0.75 },
+                { id: 'netops', label: 'Network Ops', tier: 'primary', path: 'Network Operations', x: 0.38, y: 0.75 },
+                { id: 'projectmgr', label: 'Project Manager', tier: 'primary', path: 'Project Management', x: 0.50, y: 0.35 },
+                { id: 'analyst', label: 'Data Analyst', tier: 'primary', path: 'Analytics', x: 0.60, y: 0.60 },
+                { id: 'cloudcompute', label: 'Cloud Computing', tier: 'primary', path: 'Cloud Computing', x: 0.30, y: 0.88 },
+                { id: 'secops', label: 'Security Ops', tier: 'primary', path: 'Security Operations', x: 0.46, y: 0.88 },
+                { id: 'aiml', label: 'AI/ML Engineer', tier: 'primary', path: 'AI/ML', x: 0.68, y: 0.75 },
 
-        // Network diagram data
-        const networkNodes = [
-            { id: 'Full Stack Developer', x: 10, y: 85, type: 'technical' },
-            { id: 'Citizen Developer', x: 30, y: 50, type: 'technical' },
-            { id: 'Cloud Operations', x: 30, y: 70, type: 'technical' },
-            { id: 'Network Operations', x: 45, y: 70, type: 'technical' },
-            { id: 'Project Manager', x: 52, y: 30, type: 'technical' },
-            { id: 'Data Analyst', x: 58, y: 60, type: 'technical' },
-            { id: 'Cloud Computing', x: 30, y: 95, type: 'technical' },
-            { id: 'Security Operations', x: 45, y: 95, type: 'technical' },
-            { id: 'AI/ML Engineer', x: 58, y: 80, type: 'technical' },
-            { id: 'Product Manager', x: 44, y: 10, type: 'business' },
-            { id: 'General Manager', x: 76, y: 30, type: 'business' },
-            { id: 'Bus. Dev Manager', x: 76, y: 50, type: 'business' },
-            { id: 'Program Manager', x: 60, y: 10, type: 'business' },
-            { id: 'Trade', x: 28, y: 10, type: 'business' }
-        ];
-
-        const networkConnections = [
-            ['Citizen Developer', 'Project Manager'],
-            ['Citizen Developer', 'Data Analyst'],
-            ['Citizen Developer', 'Cloud Operations'],
-            ['Citizen Developer', 'Network Operations'],
-            ['Cloud Operations', 'Full Stack Developer'],
-            ['Cloud Operations', 'Cloud Computing'],
-            ['Network Operations', 'Security Operations'],
-            ['Network Operations', 'Data Analyst'],
-            ['Data Analyst', 'AI/ML Engineer'],
-            ['Data Analyst', 'Project Manager'],
-            ['Project Manager', 'Program Manager'],
-            ['Trade', 'Project Manager'],
-            ['Trade', 'Product Manager'],
-            ['Trade', 'Citizen Developer'],
-            ['Product Manager', 'Bus. Dev Manager'],
-            ['Bus. Dev Manager', 'General Manager'],
-            ['Program Manager', 'General Manager']
-        ];
-
-        const nodeToPathMap = {
-            'Full Stack Developer': 'Full Stack Developer',
-            'Citizen Developer': 'Citizen Developer',
-            'Cloud Operations': 'Cloud Operations',
-            'Network Operations': 'Network Operations',
-            'Project Manager': 'Project Management',
-            'Data Analyst': 'Analytics',
-            'Cloud Computing': 'Cloud Computing',
-            'Security Operations': 'Security Operations',
-            'AI/ML Engineer': 'AI/ML',
-            'Product Manager': 'Product Manager',
-            'General Manager': 'General Manager',
-            'Bus. Dev Manager': 'Business Development Manager/Sales',
-            'Program Manager': 'Program Manager'
+                // Business roles (tertiary tier - non-clickable for visual context)
+                { id: 'productmgr', label: 'Product Manager', tier: 'tertiary', path: null, x: 0.38, y: 0.12 },
+                { id: 'generalmgr', label: 'General Manager', tier: 'tertiary', path: null, x: 0.82, y: 0.35 },
+                { id: 'busdev', label: 'Bus Dev Mgr', tier: 'tertiary', path: null, x: 0.82, y: 0.60 },
+                { id: 'programmgr', label: 'Program Manager', tier: 'tertiary', path: null, x: 0.62, y: 0.12 },
+                { id: 'trade', label: 'Trade', tier: 'tertiary', path: null, x: 0.20, y: 0.12 }
+            ],
+            links: [
+                { source: 'citizen', target: 'projectmgr' },
+                { source: 'citizen', target: 'analyst' },
+                { source: 'citizen', target: 'cloudops' },
+                { source: 'citizen', target: 'netops' },
+                { source: 'cloudops', target: 'fullstack' },
+                { source: 'cloudops', target: 'cloudcompute' },
+                { source: 'netops', target: 'secops' },
+                { source: 'netops', target: 'analyst' },
+                { source: 'analyst', target: 'aiml' },
+                { source: 'analyst', target: 'projectmgr' },
+                { source: 'projectmgr', target: 'programmgr' },
+                { source: 'trade', target: 'projectmgr' },
+                { source: 'trade', target: 'productmgr' },
+                { source: 'trade', target: 'citizen' },
+                { source: 'productmgr', target: 'busdev' },
+                { source: 'busdev', target: 'generalmgr' },
+                { source: 'programmgr', target: 'generalmgr' }
+            ]
         };
 
         function initializeMobileSelector() {
@@ -756,7 +727,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 });
                 pillContainer.appendChild(pill);
 
-                // Desktop pill (clone)
+                // Desktop pill
                 const desktopPill = document.createElement('div');
                 desktopPill.className = 'path-pill';
                 desktopPill.textContent = path;
@@ -765,14 +736,141 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     document.querySelectorAll('.path-pill').forEach(p => p.classList.remove('active'));
                     document.querySelectorAll('.path-pill[data-path="' + path + '"]').forEach(p => p.classList.add('active'));
                     selectPath(path);
-
-                    // Clear network node active states
-                    document.querySelectorAll('.network-node').forEach(node => {
-                        node.classList.remove('active');
-                    });
                 });
                 desktopPillContainer.appendChild(desktopPill);
             });
+        }
+
+        // Initialize D3 navigation
+        function initializeD3Navigation() {
+            const container = document.getElementById('d3-nav-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Create SVG
+            const svg = d3.select('#d3-nav-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height])
+                .attr('style', 'max-width: 100%; height: auto;');
+
+            // Position nodes based on initial x, y coordinates (percentage of container)
+            navigationData.nodes.forEach(node => {
+                node.x = node.x * width;
+                node.y = node.y * height;
+                node.fx = node.x; // Fix initial positions
+                node.fy = node.y;
+            });
+
+            // Create force simulation with gentle forces to maintain positioning
+            const simulation = d3.forceSimulation(navigationData.nodes)
+                .force('link', d3.forceLink(navigationData.links)
+                    .id(d => d.id)
+                    .distance(100)
+                    .strength(0.1))
+                .force('charge', d3.forceManyBody().strength(-50))
+                .force('collision', d3.forceCollide().radius(35))
+                .alphaDecay(0.05);
+
+            // Create links
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(navigationData.links)
+                .join('line')
+                .attr('class', 'nav-link');
+
+            // Create nodes
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(navigationData.nodes)
+                .join('g')
+                .attr('class', d => `nav-node ${d.tier}`)
+                .call(drag(simulation));
+
+            // Add rectangles
+            node.append('rect')
+                .attr('width', d => d.tier === 'primary' ? 100 : d.tier === 'secondary' ? 90 : 100)
+                .attr('height', d => d.tier === 'primary' ? 30 : d.tier === 'secondary' ? 28 : 26)
+                .attr('x', d => (d.tier === 'primary' ? -50 : d.tier === 'secondary' ? -45 : -50))
+                .attr('y', d => (d.tier === 'primary' ? -15 : d.tier === 'secondary' ? -14 : -13));
+
+            // Add labels
+            node.append('text')
+                .text(d => d.label)
+                .attr('dy', 4);
+
+            // Click handler - only for clickable nodes
+            node.on('click', function(event, d) {
+                // Only handle clicks for nodes with path
+                if (!d.path) {
+                    return;
+                }
+
+                // Remove active class from all nodes
+                node.classed('active', false);
+                link.classed('active', false);
+
+                // Add active class to clicked node
+                d3.select(this).classed('active', true);
+
+                // Highlight connected links
+                link.filter(l => l.source.id === d.id || l.target.id === d.id)
+                    .classed('active', true);
+
+                // Update pills
+                document.querySelectorAll('.path-pill').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.path-pill[data-path="' + d.path + '"]').forEach(p => p.classList.add('active'));
+
+                // Select the path
+                selectPath(d.path);
+
+                event.stopPropagation();
+            });
+
+            // Update cursor style for non-clickable nodes
+            node.style('cursor', d => d.path ? 'pointer' : 'default');
+
+            // Update positions on each tick
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag behavior
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended);
+            }
+
+            // Select Project Manager node by default
+            const defaultPath = 'Project Management';
+            const defaultNode = node.filter(d => d.path === defaultPath);
+            defaultNode.classed('active', true);
         }
 
         function loadData() {
@@ -786,9 +884,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function initializeApp() {
             initializeMobileSelector();
 
-            // Only create network diagram if on desktop
+            // Only create network diagram if on desktop or tablet
             if (window.innerWidth >= 768) {
-                createNetworkDiagram();
+                initializeD3Navigation();
             }
 
             // Set Project Management as default selection
@@ -797,198 +895,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 selectPath(defaultPath);
                 document.querySelectorAll('.path-pill[data-path="' + defaultPath + '"]').forEach(p => {
                     p.classList.add('active');
-                });
-
-                // Highlight the corresponding network node (Project Manager)
-                if (window.innerWidth >= 768) {
-                    document.querySelectorAll('.network-node').forEach(node => {
-                        if (node.textContent === 'Project Manager') {
-                            node.classList.add('active');
-                        }
-                    });
-                }
-            }
-        }
-
-        function createNetworkDiagram() {
-            const container = document.getElementById('networkContainer');
-            const svg = document.getElementById('networkSvg');
-
-            svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-            svg.innerHTML = `
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7"
-                            refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" class="network-arrow" />
-                    </marker>
-                </defs>
-            `;
-
-            // Non-clickable nodes
-            const nonClickableNodes = ['Trade', 'Product Manager', 'Program Manager', 'General Manager', 'Bus. Dev Manager'];
-
-            networkNodes.forEach(node => {
-                const nodeEl = document.createElement('div');
-                nodeEl.className = `network-node ${node.type}`;
-                nodeEl.textContent = node.id;
-                nodeEl.style.left = `${node.x}%`;
-                nodeEl.style.top = `${node.y}%`;
-                nodeEl.style.transform = 'translate(-50%, -50%)';
-
-                // Only add click handler for clickable nodes
-                if (!nonClickableNodes.includes(node.id)) {
-                    nodeEl.addEventListener('click', () => selectPathFromNetwork(node.id));
-                    nodeEl.style.cursor = 'pointer';
-                } else {
-                    nodeEl.style.cursor = 'default';
-                }
-
-                container.appendChild(nodeEl);
-            });
-
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    drawNetworkConnections();
-                }, 100);
-            });
-
-            // Backup: If connections don't draw (container dimensions not ready), retry on window load
-            window.addEventListener('load', () => {
-                const svg = document.getElementById('networkSvg');
-                if (svg && svg.childElementCount === 0) {
-                    // No paths drawn yet, try again
-                    drawNetworkConnections();
-                }
-            });
-
-            // Final fallback: Check after 2 seconds and force mobile view if map failed to load
-            setTimeout(() => {
-                const svg = document.getElementById('networkSvg');
-                if (svg && svg.childElementCount === 0 && window.innerWidth >= 768) {
-                    // Map failed to load on desktop, force hide it and show mobile selector
-                    document.querySelector('.career-network').style.display = 'none';
-                    document.querySelector('.path-selector').style.display = 'flex';
-                }
-            }, 2000);
-        }
-
-        function drawNetworkConnections() {
-            const svg = document.getElementById('networkSvg');
-            const container = document.getElementById('networkContainer');
-            const containerRect = container.getBoundingClientRect();
-
-            if (containerRect.width === 0 || containerRect.height === 0) {
-                // Container not ready, schedule retry
-                setTimeout(() => {
-                    const retryRect = container.getBoundingClientRect();
-                    if (retryRect.width > 0 && retryRect.height > 0) {
-                        drawNetworkConnections();
-                    }
-                }, 500);
-                return;
-            }
-
-            networkConnections.forEach(([from, to]) => {
-                const fromNode = networkNodes.find(n => n.id === from);
-                const toNode = networkNodes.find(n => n.id === to);
-
-                if (fromNode && toNode) {
-                    let x1 = (fromNode.x / 100) * containerRect.width;
-                    let y1 = (fromNode.y / 100) * containerRect.height;
-                    const x2 = (toNode.x / 100) * containerRect.width;
-                    const y2 = (toNode.y / 100) * containerRect.height;
-
-                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    let pathData;
-
-                    // Special case: Trade → Project Manager - loop down to avoid Product Manager
-                    if (from === 'Trade' && to === 'Project Manager') {
-                        const midX = (x1 + x2) / 2;
-                        const controlY = y1 + containerRect.height * 0.15; // Arc down 15%
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Trade → Product Manager - loop up
-                    else if (from === 'Trade' && to === 'Product Manager') {
-                        const midX = (x1 + x2) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.08; // Arc up 8%
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Citizen Developer → Project Manager - start from top, attach to left
-                    else if (from === 'Citizen Developer' && to === 'Project Manager') {
-                        y1 = y1 - containerRect.height * 0.08; // Start 8% above center
-                        const x2Modified = x2 - containerRect.width * 0.04; // Attach 4% left of center of Project Manager
-                        const midX = (x1 + x2Modified) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.06; // Arc up less (6% instead of 12%)
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2Modified} ${y2}`;
-                    }
-                    // Special case: Citizen Developer → Data Analyst - loop upward
-                    else if (from === 'Citizen Developer' && to === 'Data Analyst') {
-                        const midX = (x1 + x2) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.15; // Arc up 15% above
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Data Analyst → Project Manager - start from top
-                    else if (from === 'Data Analyst' && to === 'Project Manager') {
-                        y1 = y1 - containerRect.height * 0.06; // Start 6% above center (reduced from 8%)
-                        const midX = (x1 + x2) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.03; // Arc up slightly (reduced from 5%)
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Trade → Citizen Developer - from bottom to top
-                    else if (from === 'Trade' && to === 'Citizen Developer') {
-                        y1 = y1 + containerRect.height * 0.03; // Start from bottom of Trade
-                        const y2Modified = y2 - containerRect.height * 0.03; // End at top of Citizen Developer
-                        const midX = (x1 + x2) / 2;
-                        const midY = (y1 + y2Modified) / 2;
-                        const dx = x2 - x1;
-                        const dy = y2Modified - y1;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        const curve = dist * 0.15;
-                        const perpX = -dy / dist * curve;
-                        const perpY = dx / dist * curve;
-                        pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2Modified}`;
-                    } else {
-                        // Standard curved connection
-                        const midX = (x1 + x2) / 2;
-                        const midY = (y1 + y2) / 2;
-                        const dx = x2 - x1;
-                        const dy = y2 - y1;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        const curve = dist * 0.15;
-                        const perpX = -dy / dist * curve;
-                        const perpY = dx / dist * curve;
-                        pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2}`;
-                    }
-
-                    path.setAttribute('d', pathData);
-                    path.setAttribute('class', 'network-line');
-                    svg.appendChild(path);
-                }
-            });
-        }
-
-        function selectPathFromNetwork(nodeId) {
-            const matchingPath = nodeToPathMap[nodeId];
-
-            if (matchingPath && careerData[matchingPath]) {
-                selectPath(matchingPath);
-
-                // Update all pills (mobile and desktop)
-                document.querySelectorAll('.path-pill').forEach(pill => {
-                    pill.classList.remove('active');
-                });
-                document.querySelectorAll('.path-pill[data-path="' + matchingPath + '"]').forEach(pill => {
-                    pill.classList.add('active');
-                });
-
-                // Update network nodes
-                document.querySelectorAll('.network-node').forEach(node => {
-                    node.classList.remove('active');
-                    if (node.textContent === nodeId) {
-                        node.classList.add('active');
-                    }
                 });
             }
         }
@@ -1117,4 +1023,3 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     </script>
 </body>
 </html>
-

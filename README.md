@@ -29,6 +29,7 @@ Cleansheet is an enterprise-grade content curation and career development platfo
 Cleansheet/
 ├── index.html                    # Main landing page
 ├── career-paths.html             # Career progression navigator
+├── experience-tagger-d3.html     # D3 network navigation demo
 ├── role-translator.html          # Role discovery tool
 ├── ml-pipeline.html              # Pipeline visualization
 ├── privacy-policy.html           # Privacy policy
@@ -125,6 +126,7 @@ For complete design guidelines, see [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
 - **HTML5** - Semantic markup
 - **CSS3** - Custom properties, Grid, Flexbox
 - **Vanilla JavaScript** - No framework dependencies
+- **D3.js v7** - Data visualization and network diagrams
 - **Google Fonts** - Questrial & Barlow
 - **Phosphor Icons** - Professional icon library (6,000+ icons, MIT License)
 
@@ -165,6 +167,31 @@ Reads `corpus/metadata.csv` and generates complete static HTML (810KB).
 - Path selector pills for different specializations
 - Timeline visualization
 - Mobile-optimized interface
+
+### 2a. D3 Network Navigation Component
+
+**Reference:** `experience-tagger-d3.html`
+
+**Features:**
+- Force-directed network visualization using D3.js v7
+- Interactive career path relationships
+- Three-tier node system (primary/secondary/tertiary)
+- Compact 200px height for header navigation
+- Rectangular nodes with rounded corners
+- Fixed positioning with percentage-based coordinates
+- Hover effects and active state highlighting
+- Responsive layout with gentle force simulation
+- Clean design: no borders on default state, highlight on selection
+
+**Technical Details:**
+- Uses D3.js v7 for rendering
+- SVG-based visualization
+- Percentage-based node positioning (0.0-1.0 range)
+- Draggable nodes with fixed initial positions
+- Primary nodes (100×30px blue rectangles)
+- Tertiary nodes (100×26px gray rectangles, non-clickable)
+- 1px link weight, 2px when active
+- Drop-shadow glow on selected nodes
 
 ### 3. Role Translator
 

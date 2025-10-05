@@ -1,0 +1,352 @@
+        // D3 Navigation data structure
+        const navigationData = {
+            nodes: [
+                // Technical roles (primary tier - clickable)
+                { id: 'fullstack', label: 'Full Stack Dev', tier: 'primary', path: 'Full Stack Developer', x: 0.08, y: 0.65 },
+                { id: 'citizen', label: 'Citizen Dev', tier: 'primary', path: 'Citizen Developer', x: 0.22, y: 0.45 },
+                { id: 'cloudops', label: 'Cloud Ops', tier: 'primary', path: 'Cloud Operations', x: 0.22, y: 0.75 },
+                { id: 'netops', label: 'Network Ops', tier: 'primary', path: 'Network Operations', x: 0.38, y: 0.75 },
+                { id: 'projectmgr', label: 'Project Manager', tier: 'primary', path: 'Project Management', x: 0.50, y: 0.35 },
+                { id: 'analyst', label: 'Data Analyst', tier: 'primary', path: 'Analytics', x: 0.60, y: 0.60 },
+                { id: 'cloudcompute', label: 'Cloud Computing', tier: 'primary', path: 'Cloud Computing', x: 0.30, y: 0.88 },
+                { id: 'secops', label: 'Security Ops', tier: 'primary', path: 'Security Operations', x: 0.46, y: 0.88 },
+                { id: 'aiml', label: 'AI/ML Engineer', tier: 'primary', path: 'AI/ML', x: 0.68, y: 0.75 },
+
+                // Business roles (tertiary tier - non-clickable for visual context)
+                { id: 'productmgr', label: 'Product Manager', tier: 'tertiary', path: null, x: 0.38, y: 0.12 },
+                { id: 'generalmgr', label: 'General Manager', tier: 'tertiary', path: null, x: 0.82, y: 0.35 },
+                { id: 'busdev', label: 'Bus Dev Mgr', tier: 'tertiary', path: null, x: 0.82, y: 0.60 },
+                { id: 'programmgr', label: 'Program Manager', tier: 'tertiary', path: null, x: 0.62, y: 0.12 },
+                { id: 'trade', label: 'Trade', tier: 'tertiary', path: null, x: 0.20, y: 0.12 }
+            ],
+            links: [
+                { source: 'citizen', target: 'projectmgr' },
+                { source: 'citizen', target: 'analyst' },
+                { source: 'citizen', target: 'cloudops' },
+                { source: 'citizen', target: 'netops' },
+                { source: 'cloudops', target: 'fullstack' },
+                { source: 'cloudops', target: 'cloudcompute' },
+                { source: 'netops', target: 'secops' },
+                { source: 'netops', target: 'analyst' },
+                { source: 'analyst', target: 'aiml' },
+                { source: 'analyst', target: 'projectmgr' },
+                { source: 'projectmgr', target: 'programmgr' },
+                { source: 'trade', target: 'projectmgr' },
+                { source: 'trade', target: 'productmgr' },
+                { source: 'trade', target: 'citizen' },
+                { source: 'productmgr', target: 'busdev' },
+                { source: 'busdev', target: 'generalmgr' },
+                { source: 'programmgr', target: 'generalmgr' }
+            ]
+        };
+
+        function initializeMobileSelector() {
+            const pillContainer = document.getElementById('pathPills');
+            const desktopPillContainer = document.getElementById('desktopPathPills');
+
+            Object.keys(careerData).forEach(path => {
+                // Mobile pill
+                const pill = document.createElement('div');
+                pill.className = 'path-pill';
+                pill.textContent = path;
+                pill.dataset.path = path;
+                pill.addEventListener('click', () => {
+                    document.querySelectorAll('.path-pill').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('.path-pill[data-path="' + path + '"]').forEach(p => p.classList.add('active'));
+                    selectPath(path);
+                });
+                pillContainer.appendChild(pill);
+
+                // Desktop pill
+                const desktopPill = document.createElement('div');
+                desktopPill.className = 'path-pill';
+                desktopPill.textContent = path;
+                desktopPill.dataset.path = path;
+                desktopPill.addEventListener('click', () => {
+                    document.querySelectorAll('.path-pill').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('.path-pill[data-path="' + path + '"]').forEach(p => p.classList.add('active'));
+                    selectPath(path);
+                });
+                desktopPillContainer.appendChild(desktopPill);
+            });
+        }
+
+        // Initialize D3 navigation
+        function initializeD3Navigation() {
+            const container = document.getElementById('d3-nav-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Create SVG
+            const svg = d3.select('#d3-nav-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height])
+                .attr('style', 'max-width: 100%; height: auto;');
+
+            // Position nodes based on initial x, y coordinates (percentage of container)
+            navigationData.nodes.forEach(node => {
+                node.x = node.x * width;
+                node.y = node.y * height;
+                node.fx = node.x; // Fix initial positions
+                node.fy = node.y;
+            });
+
+            // Create force simulation with gentle forces to maintain positioning
+            const simulation = d3.forceSimulation(navigationData.nodes)
+                .force('link', d3.forceLink(navigationData.links)
+                    .id(d => d.id)
+                    .distance(100)
+                    .strength(0.1))
+                .force('charge', d3.forceManyBody().strength(-50))
+                .force('collision', d3.forceCollide().radius(35))
+                .alphaDecay(0.05);
+
+            // Create links
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(navigationData.links)
+                .join('line')
+                .attr('class', 'nav-link');
+
+            // Create nodes
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(navigationData.nodes)
+                .join('g')
+                .attr('class', d => `nav-node ${d.tier}`)
+                .call(drag(simulation));
+
+            // Add rectangles
+            node.append('rect')
+                .attr('width', d => d.tier === 'primary' ? 100 : d.tier === 'secondary' ? 90 : 100)
+                .attr('height', d => d.tier === 'primary' ? 30 : d.tier === 'secondary' ? 28 : 26)
+                .attr('x', d => (d.tier === 'primary' ? -50 : d.tier === 'secondary' ? -45 : -50))
+                .attr('y', d => (d.tier === 'primary' ? -15 : d.tier === 'secondary' ? -14 : -13));
+
+            // Add labels
+            node.append('text')
+                .text(d => d.label)
+                .attr('dy', 4);
+
+            // Click handler - only for clickable nodes
+            node.on('click', function(event, d) {
+                // Only handle clicks for nodes with path
+                if (!d.path) {
+                    return;
+                }
+
+                // Remove active class from all nodes
+                node.classed('active', false);
+                link.classed('active', false);
+
+                // Add active class to clicked node
+                d3.select(this).classed('active', true);
+
+                // Highlight connected links
+                link.filter(l => l.source.id === d.id || l.target.id === d.id)
+                    .classed('active', true);
+
+                // Update pills
+                document.querySelectorAll('.path-pill').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.path-pill[data-path="' + d.path + '"]').forEach(p => p.classList.add('active'));
+
+                // Select the path
+                selectPath(d.path);
+
+                event.stopPropagation();
+            });
+
+            // Update cursor style for non-clickable nodes
+            node.style('cursor', d => d.path ? 'pointer' : 'default');
+
+            // Update positions on each tick
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag behavior
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended);
+            }
+
+            // Select Project Manager node by default
+            const defaultPath = 'Project Management';
+            const defaultNode = node.filter(d => d.path === defaultPath);
+            defaultNode.classed('active', true);
+        }
+
+        function loadData() {
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', initializeApp);
+            } else {
+                initializeApp();
+            }
+        }
+
+        function initializeApp() {
+            initializeMobileSelector();
+
+            // Only create network diagram if on desktop or tablet
+            if (window.innerWidth >= 768) {
+                initializeD3Navigation();
+            }
+
+            // Set Project Management as default selection
+            const defaultPath = 'Project Management';
+            if (careerData[defaultPath]) {
+                selectPath(defaultPath);
+                document.querySelectorAll('.path-pill[data-path="' + defaultPath + '"]').forEach(p => {
+                    p.classList.add('active');
+                });
+            }
+        }
+
+        function selectPath(path) {
+            selectedPath = path;
+            updatePanel();
+        }
+
+        function updatePanel() {
+            const pathData = careerData[selectedPath] || [];
+
+            document.getElementById('pathTitle').textContent = `${selectedPath} Career Path`;
+            document.getElementById('pathDescription').textContent =
+                `Explore the progression from entry to executive level in ${selectedPath}`;
+
+            updateSummaryStats(pathData);
+            updateTimeline(pathData);
+        }
+
+        function updateSummaryStats(pathData) {
+            document.getElementById('levelCount').textContent = pathData.length;
+
+            if (pathData.length > 0) {
+                const minSalary = pathData[0].hourlyMin;
+                const maxSalary = pathData[pathData.length - 1].hourlyMax;
+                document.getElementById('salaryRange').textContent = `$${minSalary}-${maxSalary}/hr`;
+
+                const maxYear = pathData[pathData.length - 1].year;
+                document.getElementById('yearsToSenior').textContent = `${maxYear}+`;
+            } else {
+                document.getElementById('salaryRange').textContent = '$0-0/hr';
+                document.getElementById('yearsToSenior').textContent = '0+';
+            }
+        }
+
+        function formatSalary(min, max) {
+            return `$${min}-${max}/hr`;
+        }
+
+        function formatAnnualSalary(min, max) {
+            const annualMin = min * 40 * 52;
+            const annualMax = max * 40 * 52;
+            return `$${Math.round(annualMin/1000)}K-${Math.round(annualMax/1000)}K annually`;
+        }
+
+        function updateTimeline(pathData) {
+            const timelineContent = document.getElementById('timelineContent');
+            timelineContent.innerHTML = '';
+
+            pathData.forEach((level, index) => {
+                const levelCard = document.createElement('div');
+                levelCard.className = 'level-card';
+
+                levelCard.innerHTML = `
+                    <div class="level-dot"></div>
+
+                    <div class="level-header">
+                        <div class="level-info">
+                            <h3>Year ${level.year}</h3>
+                            <div class="subtitle">Experience Level ${index + 1}</div>
+                        </div>
+                        <div class="salary-info">
+                            <div class="hourly-rate">${formatSalary(level.hourlyMin, level.hourlyMax)}</div>
+                            <div class="annual-rate">${formatAnnualSalary(level.hourlyMin, level.hourlyMax)}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Common Job Titles
+                        </div>
+                        <div class="job-titles">
+                            ${level.jobTitles.map(title => `<div class="item-card">${title}</div>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Key Skills
+                        </div>
+                        <div class="skills-text">${level.skills}</div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            Recommended Certifications
+                        </div>
+                        <div class="certifications">
+                            ${level.certifications.map(cert => `
+                                <div class="item-card cert-item">
+                                    <div class="cert-dot"></div>
+                                    ${cert}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Portfolio Projects
+                        </div>
+                        <div class="portfolio">
+                            ${level.portfolio.map(project => `<div class="item-card">${project}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+
+                timelineContent.appendChild(levelCard);
+            });
+        }
+
+        loadData();

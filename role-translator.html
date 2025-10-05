@@ -22,6 +22,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -104,7 +105,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
         }
 
-        /* Role Network Diagram - Hidden on mobile */
+        /* D3 Network Navigation - Hidden on mobile */
         .role-network {
             background: var(--color-dark);
             padding: 16px;
@@ -112,66 +113,65 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             display: none;
         }
 
-        .network-container {
+        #d3-nav-container {
             max-width: 1400px;
             margin: 0 auto;
             position: relative;
             min-height: 200px;
+            height: 200px;
         }
 
-        .network-node {
-            position: absolute;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-            touch-action: manipulation;
-            font-family: var(--font-family-ui);
-        }
-
-        .network-node.technical {
-            background: var(--color-primary-blue);
-            color: white;
-            border: 2px solid var(--color-primary-blue);
-        }
-
-        .network-node.business {
-            background: #d3d3d3;
-            color: #333333;
-            border: 2px solid #d3d3d3;
-        }
-
-        .network-node:active {
-            transform: scale(0.95);
-        }
-
-        .network-node.active {
-            background: var(--color-accent-blue) !important;
-            color: white !important;
-            border-color: var(--color-accent-blue) !important;
-            box-shadow: 0 0 0 6px rgba(0, 76, 153, 0.5), 0 0 20px rgba(0, 102, 204, 0.6);
-            transform: scale(1.25);
-            font-weight: 700;
-            z-index: 100;
-        }
-
-        .network-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .network-line {
+        /* D3 Link Styles */
+        .nav-link {
             stroke: #ffffff;
             stroke-width: 1;
             fill: none;
             opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .nav-link.active {
+            stroke-width: 2;
+            opacity: 0.8;
+        }
+
+        /* D3 Node Styles */
+        .nav-node rect {
+            stroke: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-node.primary rect {
+            fill: var(--color-primary-blue);
+        }
+
+        .nav-node.tertiary rect {
+            fill: #d3d3d3;
+        }
+
+        .nav-node text {
+            fill: white;
+            font-family: var(--font-family-ui);
+            font-size: 10px;
+            font-weight: 600;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .nav-node.tertiary text {
+            fill: #333333;
+        }
+
+        .nav-node.active rect {
+            fill: var(--color-accent-blue);
+            stroke: var(--color-primary-blue);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px var(--color-primary-blue));
+        }
+
+        .nav-node.active text {
+            fill: white;
         }
 
         /* Mobile Role Selector */
@@ -723,9 +723,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <img src="assets/high-resolution-logo-files/white-on-transparent.png" alt="Cleansheet Logo" class="header-logo">
     <!-- Role Network Map -->
     <div class="role-network">
-        <div class="network-container" id="networkContainer">
-            <svg class="network-svg" id="networkSvg"></svg>
-        </div>
+        <div id="d3-nav-container"></div>
     </div>
 
     <!-- Mobile Role Selector -->
@@ -975,176 +973,194 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         let selectedRole = null;
         let selectedSectors = [];
 
-        // Network map nodes - exact same positions as career-progression-navigator
-        const networkNodes = [
-            { id: 'Full Stack Developer', x: 10, y: 85, type: 'technical' },
-            { id: 'Citizen Developer', x: 30, y: 50, type: 'technical' },
-            { id: 'Cloud Operations', x: 30, y: 70, type: 'technical' },
-            { id: 'Network Operations', x: 45, y: 70, type: 'technical' },
-            { id: 'Project Manager', x: 52, y: 30, type: 'technical' },
-            { id: 'Data Analyst', x: 58, y: 60, type: 'technical' },
-            { id: 'Cloud Computing', x: 30, y: 95, type: 'technical' },
-            { id: 'Security Operations', x: 45, y: 95, type: 'technical' },
-            { id: 'AI/ML Engineer', x: 58, y: 80, type: 'technical' },
-            { id: 'Product Manager', x: 44, y: 10, type: 'business' },
-            { id: 'General Manager', x: 76, y: 30, type: 'business' },
-            { id: 'Business Development Manager/Sales', x: 76, y: 50, type: 'business' },
-            { id: 'Program Manager', x: 60, y: 10, type: 'business' },
-            { id: 'Trade', x: 28, y: 10, type: 'business' }
-        ];
+        // D3 Navigation data structure
+        const navigationData = {
+            nodes: [
+                // Technical roles (primary tier - clickable)
+                { id: 'fullstack', label: 'Full Stack Dev', tier: 'primary', path: 'Full Stack Developer', x: 0.08, y: 0.65 },
+                { id: 'citizen', label: 'Citizen Dev', tier: 'primary', path: 'Citizen Developer', x: 0.22, y: 0.45 },
+                { id: 'cloudops', label: 'Cloud Ops', tier: 'primary', path: 'Cloud Operations', x: 0.22, y: 0.75 },
+                { id: 'netops', label: 'Network Ops', tier: 'primary', path: 'Network Operations', x: 0.38, y: 0.75 },
+                { id: 'projectmgr', label: 'Project Manager', tier: 'primary', path: 'Project Manager', x: 0.50, y: 0.35 },
+                { id: 'analyst', label: 'Data Analyst', tier: 'primary', path: 'Data Analyst', x: 0.60, y: 0.60 },
+                { id: 'cloudcompute', label: 'Cloud Computing', tier: 'primary', path: 'Cloud Computing', x: 0.30, y: 0.88 },
+                { id: 'secops', label: 'Security Ops', tier: 'primary', path: 'Security Operations', x: 0.46, y: 0.88 },
+                { id: 'aiml', label: 'AI/ML Engineer', tier: 'primary', path: 'AI/ML Engineer', x: 0.68, y: 0.75 },
 
-        const networkConnections = [
-            ['Citizen Developer', 'Project Manager'],
-            ['Citizen Developer', 'Data Analyst'],
-            ['Citizen Developer', 'Cloud Operations'],
-            ['Citizen Developer', 'Network Operations'],
-            ['Cloud Operations', 'Full Stack Developer'],
-            ['Cloud Operations', 'Cloud Computing'],
-            ['Network Operations', 'Security Operations'],
-            ['Network Operations', 'Data Analyst'],
-            ['Data Analyst', 'AI/ML Engineer'],
-            ['Data Analyst', 'Project Manager'],
-            ['Project Manager', 'Program Manager'],
-            ['Trade', 'Project Manager'],
-            ['Trade', 'Product Manager'],
-            ['Trade', 'Citizen Developer'],
-            ['Product Manager', 'Business Development Manager/Sales'],
-            ['Business Development Manager/Sales', 'General Manager'],
-            ['Program Manager', 'General Manager']
-        ];
+                // Business roles (tertiary tier - clickable for role translator)
+                { id: 'productmgr', label: 'Product Manager', tier: 'primary', path: 'Product Manager', x: 0.38, y: 0.12 },
+                { id: 'generalmgr', label: 'General Manager', tier: 'primary', path: 'General Manager', x: 0.82, y: 0.35 },
+                { id: 'busdev', label: 'Bus Dev Mgr', tier: 'primary', path: 'Business Development Manager/Sales', x: 0.82, y: 0.60 },
+                { id: 'programmgr', label: 'Program Manager', tier: 'primary', path: 'Program Manager', x: 0.62, y: 0.12 },
+                { id: 'tam', label: 'Technical AM', tier: 'primary', path: 'Technical Account Manager/Presales', x: 0.90, y: 0.75 },
+                { id: 'trade', label: 'Trade', tier: 'tertiary', path: null, x: 0.20, y: 0.12 }
+            ],
+            links: [
+                { source: 'citizen', target: 'projectmgr' },
+                { source: 'citizen', target: 'analyst' },
+                { source: 'citizen', target: 'cloudops' },
+                { source: 'citizen', target: 'netops' },
+                { source: 'cloudops', target: 'fullstack' },
+                { source: 'cloudops', target: 'cloudcompute' },
+                { source: 'netops', target: 'secops' },
+                { source: 'netops', target: 'analyst' },
+                { source: 'analyst', target: 'aiml' },
+                { source: 'analyst', target: 'projectmgr' },
+                { source: 'projectmgr', target: 'programmgr' },
+                { source: 'trade', target: 'projectmgr' },
+                { source: 'trade', target: 'productmgr' },
+                { source: 'trade', target: 'citizen' },
+                { source: 'productmgr', target: 'busdev' },
+                { source: 'busdev', target: 'generalmgr' },
+                { source: 'busdev', target: 'tam' },
+                { source: 'programmgr', target: 'generalmgr' }
+            ]
+        };
+
+        // Initialize D3 navigation
+        function initializeD3Navigation() {
+            const container = document.getElementById('d3-nav-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Create SVG
+            const svg = d3.select('#d3-nav-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height])
+                .attr('style', 'max-width: 100%; height: auto;');
+
+            // Position nodes based on initial x, y coordinates (percentage of container)
+            navigationData.nodes.forEach(node => {
+                node.x = node.x * width;
+                node.y = node.y * height;
+                node.fx = node.x; // Fix initial positions
+                node.fy = node.y;
+            });
+
+            // Create force simulation with gentle forces to maintain positioning
+            const simulation = d3.forceSimulation(navigationData.nodes)
+                .force('link', d3.forceLink(navigationData.links)
+                    .id(d => d.id)
+                    .distance(100)
+                    .strength(0.1))
+                .force('charge', d3.forceManyBody().strength(-50))
+                .force('collision', d3.forceCollide().radius(35))
+                .alphaDecay(0.05);
+
+            // Create links
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(navigationData.links)
+                .join('line')
+                .attr('class', 'nav-link');
+
+            // Create nodes
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(navigationData.nodes)
+                .join('g')
+                .attr('class', d => `nav-node ${d.tier}`)
+                .call(drag(simulation));
+
+            // Add rectangles
+            node.append('rect')
+                .attr('width', d => d.tier === 'primary' ? 100 : 100)
+                .attr('height', d => d.tier === 'primary' ? 30 : 26)
+                .attr('x', d => (d.tier === 'primary' ? -50 : -50))
+                .attr('y', d => (d.tier === 'primary' ? -15 : -13))
+                .attr('rx', 6)
+                .attr('ry', 6);
+
+            // Add labels
+            node.append('text')
+                .text(d => d.label)
+                .attr('dy', 4);
+
+            // Click handler - only for nodes with path
+            node.on('click', function(event, d) {
+                // Only handle clicks for nodes with path
+                if (!d.path) {
+                    return;
+                }
+
+                // Remove active class from all nodes
+                node.classed('active', false);
+                link.classed('active', false);
+
+                // Add active class to clicked node
+                d3.select(this).classed('active', true);
+
+                // Highlight connected links
+                link.filter(l => l.source.id === d.id || l.target.id === d.id)
+                    .classed('active', true);
+
+                // Update pills
+                document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll(`.pill[data-role="${d.path}"]`).forEach(p => p.classList.add('active'));
+
+                // Select the role
+                selectRole(d.path);
+
+                event.stopPropagation();
+            });
+
+            // Update cursor style for non-clickable nodes
+            node.style('cursor', d => d.path ? 'pointer' : 'default');
+
+            // Update positions on each tick
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag behavior
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended);
+            }
+
+            // Select Project Manager node by default
+            const defaultPath = 'Project Manager';
+            const defaultNode = node.filter(d => d.path === defaultPath);
+            defaultNode.classed('active', true);
+        }
 
         // Initialize on page load
         function loadData() {
-            initializeNetworkMap();
+            // Only create network diagram if on desktop or tablet
+            if (window.innerWidth >= 768) {
+                initializeD3Navigation();
+            }
+
             initializeMobileRoles();
             initializeSectors();
             setDefaultSelections();
-        }
-
-        function initializeNetworkMap() {
-            const container = document.getElementById('networkContainer');
-            const svg = document.getElementById('networkSvg');
-
-            svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-            // Create nodes
-            networkNodes.forEach(node => {
-                const nodeEl = document.createElement('div');
-                nodeEl.className = `network-node ${node.type}`;
-                nodeEl.textContent = node.id;
-                nodeEl.style.left = `${node.x}%`;
-                nodeEl.style.top = `${node.y}%`;
-                nodeEl.style.transform = 'translate(-50%, -50%)';
-                nodeEl.dataset.role = node.id;
-
-                // All nodes are clickable
-                nodeEl.addEventListener('click', () => selectRole(node.id));
-                nodeEl.style.cursor = 'pointer';
-
-                container.appendChild(nodeEl);
-            });
-
-            // Draw connection lines
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    drawNetworkConnections();
-                }, 100);
-            });
-        }
-
-        function drawNetworkConnections() {
-            const svg = document.getElementById('networkSvg');
-            const container = document.getElementById('networkContainer');
-            const containerRect = container.getBoundingClientRect();
-
-            if (containerRect.width === 0 || containerRect.height === 0) {
-                setTimeout(() => {
-                    const retryRect = container.getBoundingClientRect();
-                    if (retryRect.width > 0 && retryRect.height > 0) {
-                        drawNetworkConnections();
-                    }
-                }, 500);
-                return;
-            }
-
-            networkConnections.forEach(([from, to]) => {
-                const fromNode = networkNodes.find(n => n.id === from);
-                const toNode = networkNodes.find(n => n.id === to);
-
-                if (fromNode && toNode) {
-                    let x1 = (fromNode.x / 100) * containerRect.width;
-                    let y1 = (fromNode.y / 100) * containerRect.height;
-                    const x2 = (toNode.x / 100) * containerRect.width;
-                    const y2 = (toNode.y / 100) * containerRect.height;
-
-                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    let pathData;
-
-                    // Special case: Trade → Project Manager
-                    if (from === 'Trade' && to === 'Project Manager') {
-                        const midX = (x1 + x2) / 2;
-                        const controlY = y1 + containerRect.height * 0.15;
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Trade → Product Manager
-                    else if (from === 'Trade' && to === 'Product Manager') {
-                        const midX = (x1 + x2) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.08;
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Citizen Developer → Project Manager
-                    else if (from === 'Citizen Developer' && to === 'Project Manager') {
-                        y1 = y1 - containerRect.height * 0.08;
-                        const x2Modified = x2 - containerRect.width * 0.04;
-                        const midX = (x1 + x2Modified) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.06;
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2Modified} ${y2}`;
-                    }
-                    // Special case: Citizen Developer → Data Analyst
-                    else if (from === 'Citizen Developer' && to === 'Data Analyst') {
-                        const midX = (x1 + x2) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.15;
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Data Analyst → Project Manager
-                    else if (from === 'Data Analyst' && to === 'Project Manager') {
-                        y1 = y1 - containerRect.height * 0.06;
-                        const midX = (x1 + x2) / 2;
-                        const controlY = Math.min(y1, y2) - containerRect.height * 0.03;
-                        pathData = `M ${x1} ${y1} Q ${midX} ${controlY} ${x2} ${y2}`;
-                    }
-                    // Special case: Trade → Citizen Developer
-                    else if (from === 'Trade' && to === 'Citizen Developer') {
-                        y1 = y1 + containerRect.height * 0.03;
-                        const y2Modified = y2 - containerRect.height * 0.03;
-                        const midX = (x1 + x2) / 2;
-                        const midY = (y1 + y2Modified) / 2;
-                        const dx = x2 - x1;
-                        const dy = y2Modified - y1;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        const curve = dist * 0.15;
-                        const perpX = -dy / dist * curve;
-                        const perpY = dx / dist * curve;
-                        pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2Modified}`;
-                    } else {
-                        // Standard curved connection
-                        const midX = (x1 + x2) / 2;
-                        const midY = (y1 + y2) / 2;
-                        const dx = x2 - x1;
-                        const dy = y2 - y1;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        const curve = dist * 0.15;
-                        const perpX = -dy / dist * curve;
-                        const perpY = dx / dist * curve;
-                        pathData = `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2}`;
-                    }
-
-                    path.setAttribute('d', pathData);
-                    path.setAttribute('class', 'network-line');
-                    svg.appendChild(path);
-                }
-            });
         }
 
         function initializeMobileRoles() {
@@ -1183,7 +1199,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function selectRole(role) {
             // Clear all previous selections
-            document.querySelectorAll('.network-node, #mobileRoleGrid .pill').forEach(el => {
+            document.querySelectorAll('.nav-node, #mobileRoleGrid .pill').forEach(el => {
                 el.classList.remove('active');
             });
 
@@ -1380,4 +1396,3 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     </script>
 </body>
 </html>
-

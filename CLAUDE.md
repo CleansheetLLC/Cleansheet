@@ -66,12 +66,10 @@ To ensure fast, consistent rebranding across the platform:
 - Header Title: #e0e0e0 (light gray for contrast on dark background)
 
 **Iconography:**
-- Phosphor Icons (MIT License)
-- More professional and modern than Font Awesome
+- Font Awesome 6.4.0 (Free)
 - Color-coded icon backgrounds (primary blue, dark, accent blue)
 - Consistent rounded square containers (60px × 60px)
 - All icons use white color
-- 6,000+ icons with multiple weights available
 
 **Branding:**
 - Logo files located: `assets/high-resolution-logo-files/`
@@ -86,15 +84,15 @@ To ensure fast, consistent rebranding across the platform:
 
 ### Main Landing Page (`index.html`)
 - Hero section with tagline (no h2 title)
-- 6 feature cards with Phosphor icons:
-  - Content Library (ph-book-open, primary blue)
-  - Career Paths (ph-path, dark)
-  - Role Translator (ph-compass, primary blue)
-  - Experience Tagger (ph-tags, accent blue)
-  - Cleansheet Canvas (ph-map-trifold, coming soon)
-  - Coaching & Mentorship (ph-users, dark)
-  - ML Pipeline Tour (ph-flow-arrow, dark)
-  - Privacy & Terms (ph-shield-check, dark)
+- 6 feature cards with Font Awesome icons:
+  - Content Library (fa-book-open, primary blue)
+  - Career Paths (fa-route, dark)
+  - Role Translator (fa-compass, primary blue)
+  - Experience Tagger (fa-tags, accent blue)
+  - Cleansheet Canvas (fa-map, coming soon)
+  - Coaching & Mentorship (fa-user-friends, dark)
+  - ML Pipeline Tour (fa-sitemap, dark)
+  - Privacy & Terms (fa-shield-alt, dark)
 - Coming Soon section (3-column grid, 2 rows, larger fonts: 16px body, 18px headings)
 - Footer with white external links
 
@@ -144,6 +142,30 @@ To ensure fast, consistent rebranding across the platform:
 **Role Translator** (`role-translator.html`)
 - Job role discovery tool
 - Skills mapping interface
+
+**D3 Network Navigation** (`experience-tagger-d3.html`)
+- **Reference implementation** for career path network navigation
+- Force-directed graph using D3.js v7
+- Compact 200px height for header navigation sections
+- SVG-based visualization with percentage-based positioning
+- Three-tier node system:
+  - **Primary** (blue #0066CC, 100×30px): Clickable technical career nodes
+  - **Secondary** (accent blue #004C99, 90×28px): Alternative specializations
+  - **Tertiary** (gray #d3d3d3, 100×26px): Non-clickable business roles for context
+- Rectangular nodes with 6px rounded corners (`rx: 6, ry: 6`)
+- No default borders (stroke: none), border appears only on active selection
+- Node positioning: x/y as percentages (0.0-1.0), converted to pixels at render
+- Links: 1px white (40% opacity) by default, 2px blue when active
+- Text: 10px Questrial, white on blue nodes, dark gray on tertiary nodes
+- Active state: Blue stroke (3px), drop-shadow glow effect
+- Hover effects: Drop-shadow on hover
+- Draggable nodes with gentle force simulation (prevents overlap)
+- Click handler: Only active on nodes with `url` property
+- Cursor: Pointer for clickable, default for tertiary nodes
+- Responsive: Adjusts to container width, works on mobile (180px height)
+- Connected links highlight when node is selected
+- Content panel updates based on selected node
+- Standard floating home button (top-left, white text, dark translucent)
 
 **Experience Tagger** (`experience-tagger.html`)
 - Professional experience management and tagging tool
@@ -376,6 +398,7 @@ A learner-extensible 2-D mindmap of job search resources with:
 Cleansheet/
 ├── index.html                    # Main landing page
 ├── career-paths.html             # Career navigator
+├── experience-tagger-d3.html     # D3 network navigation (reference implementation)
 ├── role-translator.html          # Role discovery
 ├── experience-tagger.html        # Experience management tool
 ├── ml-pipeline.html              # Pipeline visualization
