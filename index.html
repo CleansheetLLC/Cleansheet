@@ -1597,6 +1597,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 font-size: 11px;
             }
         }
+
+        /* Toggle Switch Styles */
+        #cleansheetAiToggle:checked + span {
+            background-color: var(--color-primary-blue);
+        }
+
+        #cleansheetAiToggle:checked + span + span {
+            transform: translateX(24px);
+        }
+
+        .integration-header:hover {
+            background: #f8f9fa !important;
+        }
     </style>
 </head>
 <body>
@@ -1725,11 +1738,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                     <!-- View Mode Toggle -->
                     <div style="display: flex; gap: 4px; background: rgba(255, 255, 255, 0.1); padding: 4px; border-radius: 8px;">
-                        <button class="view-mode-btn active" data-view="seeker" onclick="switchViewMode('seeker')" style="padding: 6px 16px; background: var(--color-primary-blue); border: none; color: white; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                        <button class="view-mode-btn active" data-view="seeker" onclick="switchViewMode('seeker')" style="padding: 6px 12px; background: var(--color-primary-blue); border: none; color: white; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
                             Seeker
                         </button>
-                        <button class="view-mode-btn" data-view="learner" onclick="switchViewMode('learner')" style="padding: 6px 16px; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                        <button class="view-mode-btn" data-view="learner" onclick="switchViewMode('learner')" style="padding: 6px 12px; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
                             Learner
+                        </button>
+                        <button class="view-mode-btn" data-view="professional" onclick="switchViewMode('professional')" style="padding: 6px 12px; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                            Professional
+                        </button>
+                        <button class="view-mode-btn" data-view="personal" onclick="switchViewMode('personal')" style="padding: 6px 12px; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                            Personal
                         </button>
                     </div>
 
@@ -1752,9 +1771,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-briefcase"></i>
                         <span>Job Search</span>
                     </button>
-                    <button class="main-menu-item" onclick="setActiveMenu(this)">
+                    <button class="main-menu-item" id="libraryMenuItem" onclick="setActiveMenu(this)">
                         <i class="ph ph-book-open"></i>
                         <span>Library</span>
+                    </button>
+                    <button class="main-menu-item" id="integrationsMenuItem" onclick="setActiveMenu(this); showIntegrationsView();" style="display: none;">
+                        <i class="ph ph-plugs-connected"></i>
+                        <span>Integrations</span>
                     </button>
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
                         <!-- Profile Circle -->
@@ -1853,6 +1876,203 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 <div id="canvas-mindmap"></div>
 
+                <!-- Integrations View -->
+                <div id="integrations-view" style="display: none; padding: 40px; overflow-y: auto; height: 100%;">
+                    <h2 style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Integrations</h2>
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 32px;">Configure API keys and workflow integrations for external services.</p>
+
+                    <!-- Two Column Layout -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+
+                        <!-- Left Column: CRM/ERP -->
+                        <div>
+                            <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ph-database" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                                CRM/ERP
+                            </h3>
+
+                    <!-- Dataverse -->
+                    <div class="integration-section" style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
+                        <div class="integration-header" onclick="toggleIntegrationSection('dataverse')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: white; cursor: pointer; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-database" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <span style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">Microsoft Dataverse</span>
+                            </div>
+                            <i class="ph ph-caret-down" id="dataverse-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="integration-content" id="dataverse-content" style="display: none; padding: 20px; background: var(--color-neutral-background-secondary); border-top: 1px solid var(--color-neutral-border);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Environment URL</label>
+                                <input type="text" placeholder="https://org.crm.dynamics.com" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Client ID</label>
+                                <input type="text" placeholder="Application (client) ID" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Client Secret</label>
+                                <input type="password" placeholder="Client secret value" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">Save Configuration</button>
+                        </div>
+                    </div>
+
+                    <!-- Salesforce -->
+                    <div class="integration-section" style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
+                        <div class="integration-header" onclick="toggleIntegrationSection('salesforce')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: white; cursor: pointer; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-cloud" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <span style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">Salesforce</span>
+                            </div>
+                            <i class="ph ph-caret-down" id="salesforce-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="integration-content" id="salesforce-content" style="display: none; padding: 20px; background: var(--color-neutral-background-secondary); border-top: 1px solid var(--color-neutral-border);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Instance URL</label>
+                                <input type="text" placeholder="https://yourinstance.salesforce.com" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Consumer Key</label>
+                                <input type="text" placeholder="Connected app consumer key" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Consumer Secret</label>
+                                <input type="password" placeholder="Connected app consumer secret" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">Save Configuration</button>
+                        </div>
+                    </div>
+
+                    <!-- Atlassian -->
+                    <div class="integration-section" style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
+                        <div class="integration-header" onclick="toggleIntegrationSection('atlassian')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: white; cursor: pointer; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-kanban" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <span style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">Atlassian (Jira/Confluence)</span>
+                            </div>
+                            <i class="ph ph-caret-down" id="atlassian-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="integration-content" id="atlassian-content" style="display: none; padding: 20px; background: var(--color-neutral-background-secondary); border-top: 1px solid var(--color-neutral-border);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Site URL</label>
+                                <input type="text" placeholder="https://yoursite.atlassian.net" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Email</label>
+                                <input type="email" placeholder="your.email@domain.com" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">API Token</label>
+                                <input type="password" placeholder="Atlassian API token" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">Save Configuration</button>
+                        </div>
+                    </div>
+                        </div> <!-- End CRM/ERP Column -->
+
+                        <!-- Right Column: AI/LLM -->
+                        <div>
+                            <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ph-brain" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                                AI/LLM
+                            </h3>
+
+                            <!-- Cleansheet AI Toggle -->
+                            <div id="cleansheetAiBox" style="margin-bottom: 16px; padding: 20px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white; transition: all 0.3s;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0;">
+                                    <div>
+                                        <div style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Enable Cleansheet AI</div>
+                                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text);">Use Cleansheet's managed AI services</div>
+                                    </div>
+                                    <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                                        <input type="checkbox" id="cleansheetAiToggle" onchange="toggleCleansheetAI()" style="opacity: 0; width: 0; height: 0;">
+                                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+                                        <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                                    </label>
+                                </div>
+
+                                <!-- AI Broker Selection (shown when Cleansheet AI is enabled) -->
+                                <div id="aiBrokerSection" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 102, 204, 0.2);">
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">AI Model Broker</div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-bottom: 12px;">By enabling this feature, you authorize anonymous data to be sent to Cleansheet AI partners for processing.</div>
+                                    <select id="aiBrokerSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; background: white;">
+                                        <option value="openai">OpenAI (GPT-4)</option>
+                                        <option value="anthropic">Anthropic (Claude)</option>
+                                        <option value="azure">Azure OpenAI</option>
+                                        <option value="generic">Generic LLM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                    <!-- OpenAI -->
+                    <div class="integration-section" style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
+                        <div class="integration-header" onclick="toggleIntegrationSection('openai')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: white; cursor: pointer; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-brain" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <span style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">OpenAI</span>
+                            </div>
+                            <i class="ph ph-caret-down" id="openai-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="integration-content" id="openai-content" style="display: none; padding: 20px; background: var(--color-neutral-background-secondary); border-top: 1px solid var(--color-neutral-border);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">API Key</label>
+                                <input type="password" placeholder="sk-..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Organization ID (Optional)</label>
+                                <input type="text" placeholder="org-..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">Save Configuration</button>
+                        </div>
+                    </div>
+
+                    <!-- Anthropic -->
+                    <div class="integration-section" style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
+                        <div class="integration-header" onclick="toggleIntegrationSection('anthropic')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: white; cursor: pointer; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-robot" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <span style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">Anthropic</span>
+                            </div>
+                            <i class="ph ph-caret-down" id="anthropic-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="integration-content" id="anthropic-content" style="display: none; padding: 20px; background: var(--color-neutral-background-secondary); border-top: 1px solid var(--color-neutral-border);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">API Key</label>
+                                <input type="password" placeholder="sk-ant-..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">Save Configuration</button>
+                        </div>
+                    </div>
+
+                    <!-- Generic LLM -->
+                    <div class="integration-section" style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
+                        <div class="integration-header" onclick="toggleIntegrationSection('genericllm')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: white; cursor: pointer; transition: background 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-cpu" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <span style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">Generic LLM</span>
+                            </div>
+                            <i class="ph ph-caret-down" id="genericllm-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="integration-content" id="genericllm-content" style="display: none; padding: 20px; background: var(--color-neutral-background-secondary); border-top: 1px solid var(--color-neutral-border);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">API Endpoint</label>
+                                <input type="text" placeholder="https://api.example.com/v1" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">API Key</label>
+                                <input type="password" placeholder="Your API key" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Model Name</label>
+                                <input type="text" placeholder="gpt-4, llama-2, etc." style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">Save Configuration</button>
+                        </div>
+                    </div>
+                        </div> <!-- End AI/LLM Column -->
+                    </div> <!-- End Two Column Grid -->
+                </div> <!-- End integrations-view -->
+
                 <!-- Collapse Toggle Button -->
                 <button class="panel-collapse-toggle" onclick="toggleRightPanel()" id="collapseToggle">
                     <i class="ph ph-caret-right"></i>
@@ -1860,7 +2080,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div> <!-- End homeView -->
 
                 <!-- Copyright Notice -->
-                <div style="position: absolute; bottom: 8px; right: 16px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text-muted); z-index: 5;">
+                <div style="position: absolute; bottom: 8px; right: 16px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); font-weight: 500; z-index: 5;">
                     © 2025 Cleansheet LLC. All rights reserved.
                 </div>
             </div>
@@ -2028,6 +2248,28 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
                 <div id="projectsContainer" class="stories-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
                     <!-- Project repo cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- My Notes Slideout Content -->
+            <div class="slideout-body" id="myNotesContent" style="display: none;">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+                    <button class="add-story-btn" onclick="addNote()" style="flex: 0 0 auto; margin-bottom: 0;">
+                        <i class="ph ph-plus-circle"></i> Add Note
+                    </button>
+                    <input type="text" id="notesSearchInput" placeholder="Search notes..." oninput="searchNotes()" style="flex: 1; padding: 8px 12px; border: 1px solid #e5e5e7; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                </div>
+                <div id="notesContainer" class="stories-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+                    <!-- Note cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <div class="slideout-body" id="tablesContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Structured data tables with typed columns for organizing professional information.
+                </p>
+                <div id="tablesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Table type cards will be dynamically inserted here -->
                 </div>
             </div>
         </div> <!-- End interview-slideout -->
@@ -2207,6 +2449,52 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
     </div> <!-- End project-form-modal -->
+
+    <!-- My Notes Form Modal -->
+    <div class="story-form-modal" id="noteFormModal">
+        <div class="story-form-content">
+            <div class="story-form-header">
+                <h3 id="noteFormTitle">Add Note</h3>
+                <button class="story-form-close" onclick="closeNoteForm()">&times;</button>
+            </div>
+            <div class="story-form-body">
+                <form id="noteForm" onsubmit="saveNote(event)">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="noteTitle" required placeholder="e.g., React Hooks Best Practices">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="noteCategory">
+                            <option value="learning">Learning</option>
+                            <option value="idea">Idea</option>
+                            <option value="question">Question</option>
+                            <option value="reference">Reference</option>
+                            <option value="todo">To-Do</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tags (Optional)</label>
+                        <input type="text" id="noteTags" placeholder="react, javascript, hooks">
+                        <small>Comma-separated list</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Content</label>
+                        <textarea id="noteContent" rows="12" required placeholder="Write your note here..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeNoteForm()">Cancel</button>
+                        <button type="submit" class="btn-save">Save Note</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> <!-- End note-form-modal -->
 
 </div> <!-- End canvas-modal-content -->
 </div> <!-- End canvas-modal -->
@@ -2541,26 +2829,49 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 }
             });
 
-            // Show/hide Job Search menu item
+            // Show/hide menu items based on mode
             const jobSearchMenuItem = document.getElementById('jobSearchMenuItem');
-            if (mode === 'learner') {
+            const libraryMenuItem = document.getElementById('libraryMenuItem');
+            const integrationsMenuItem = document.getElementById('integrationsMenuItem');
+
+            if (mode === 'seeker') {
+                // Seeker mode: Home, Job Search, Library
+                jobSearchMenuItem.style.display = 'flex';
+                libraryMenuItem.style.display = 'flex';
+                integrationsMenuItem.style.display = 'none';
+            } else if (mode === 'professional') {
+                // Professional mode: Home, Library, Integrations
                 jobSearchMenuItem.style.display = 'none';
+                libraryMenuItem.style.display = 'flex';
+                integrationsMenuItem.style.display = 'flex';
+
                 // If currently on Job Search view, switch back to Home
                 const menuName = document.querySelector('.main-menu-item.active span')?.textContent;
                 if (menuName === 'Job Search') {
                     document.querySelector('.main-menu-item').click(); // Click Home button
                 }
-            } else {
-                jobSearchMenuItem.style.display = 'flex';
+            } else if (mode === 'learner' || mode === 'personal') {
+                // Learner/Personal mode: Hide Job Search and Integrations
+                jobSearchMenuItem.style.display = 'none';
+                libraryMenuItem.style.display = 'flex';
+                integrationsMenuItem.style.display = 'none';
+
+                // If currently on Job Search view, switch back to Home
+                const menuName = document.querySelector('.main-menu-item.active span')?.textContent;
+                if (menuName === 'Job Search') {
+                    document.querySelector('.main-menu-item').click(); // Click Home button
+                }
             }
 
             // Clear and redraw visualization
             d3.select('#canvas-mindmap').selectAll('*').remove();
 
-            if (mode === 'learner') {
-                initializeLearnerNetwork(currentPersona);
-            } else {
+            if (mode === 'seeker' || mode === 'professional') {
+                // Seeker and Professional use mindmap layout
                 initializeMindmap(currentPersona);
+            } else {
+                // Learner and Personal use network layout
+                initializeLearnerNetwork(currentPersona);
             }
         }
 
@@ -2568,39 +2879,130 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const data = personaData[persona];
             if (!data) return null;
 
-            // In learner mode, filter out job search related nodes and add learner-specific nodes
+            const filteredChildren = data.children.filter(child => {
+                const excludedNodes = ['Job Opportunities', 'Application Materials', 'Interview Prep'];
+                return !excludedNodes.includes(child.name);
+            });
+
+            // Load counts from localStorage
+            const storedProjects = localStorage.getItem(`projects_${persona}`);
+            const projectsCount = storedProjects ? JSON.parse(storedProjects).length : 0;
+
+            const storedNotes = localStorage.getItem(`notes_${persona}`);
+            const notesCount = storedNotes ? JSON.parse(storedNotes).length : 0;
+
+            // Professional nodes
+            const professionalNodes = [
+                {
+                    name: 'Career Experience',
+                    count: filteredChildren.find(c => c.name === 'Career Experience')?.count || 0,
+                    children: []
+                },
+                {
+                    name: 'Goals',
+                    count: filteredChildren.find(c => c.name === 'Goals')?.count || 0,
+                    children: []
+                },
+                {
+                    name: 'Portfolio',
+                    count: filteredChildren.find(c => c.name === 'Portfolio')?.count || 0,
+                    children: []
+                },
+                {
+                    name: 'Code Snippets',
+                    count: 0,
+                    children: []
+                },
+                {
+                    name: 'Projects',
+                    count: projectsCount,
+                    children: []
+                },
+                {
+                    name: 'My Library',
+                    count: 0,
+                    children: []
+                }
+            ];
+
+            // Personal nodes
+            const personalNodes = [
+                {
+                    name: 'My Notes',
+                    count: notesCount,
+                    children: []
+                },
+                {
+                    name: 'Shopping',
+                    count: 0,
+                    children: []
+                },
+                {
+                    name: 'Finance',
+                    count: 0,
+                    children: []
+                },
+                {
+                    name: 'Calendar',
+                    count: 0,
+                    children: []
+                },
+                {
+                    name: 'Recipes',
+                    count: 0,
+                    children: []
+                }
+            ];
+
+            // Return different structures based on view mode
             if (currentViewMode === 'learner') {
-                const filteredChildren = data.children.filter(child => {
-                    const excludedNodes = ['Job Opportunities', 'Application Materials', 'Interview Prep'];
-                    return !excludedNodes.includes(child.name);
-                });
-
-                // Add learner-specific nodes
-                // Load project count from localStorage
-                const storedProjects = localStorage.getItem(`projects_${persona}`);
-                const projectsCount = storedProjects ? JSON.parse(storedProjects).length : 0;
-
-                const learnerNodes = [
-                    {
-                        name: 'Code Snippets',
-                        count: 0,
-                        children: []
-                    },
-                    {
-                        name: 'Projects',
-                        count: projectsCount,
-                        children: []
-                    },
-                    {
-                        name: 'My Library',
-                        count: 0,
-                        children: []
-                    }
-                ];
-
+                // Learner mode: two-tier with professional features directly connected to center
                 return {
                     ...data,
-                    children: [...filteredChildren, ...learnerNodes]
+                    children: professionalNodes
+                };
+            } else if (currentViewMode === 'professional') {
+                // Professional mode: mindmap structure with Documents, Tables, Reports, Templates, Workflows
+                return {
+                    ...data,
+                    children: [
+                        {
+                            name: 'Documents',
+                            count: 0,
+                            children: []
+                        },
+                        {
+                            name: 'Tables',
+                            count: 0,
+                            children: [
+                                {
+                                    name: 'Forms',
+                                    count: 0
+                                }
+                            ]
+                        },
+                        {
+                            name: 'Reports',
+                            count: 0,
+                            children: []
+                        },
+                        {
+                            name: 'Templates',
+                            count: 0,
+                            children: []
+                        },
+                        {
+                            name: 'Workflows',
+                            count: 0,
+                            children: []
+                        }
+                    ]
+                };
+            } else if (currentViewMode === 'personal') {
+                // Personal mode: flat network with only personal nodes
+                return {
+                    ...data,
+                    children: personalNodes
                 };
             }
 
@@ -2641,6 +3043,54 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.body.style.overflow = 'auto';
             // Clear the mindmap
             d3.select('#canvas-mindmap').selectAll('*').remove();
+        }
+
+        // Integrations View Functions
+        function showIntegrationsView() {
+            // Hide mindmap, show integrations view
+            document.getElementById('canvas-mindmap').style.display = 'none';
+            document.getElementById('integrations-view').style.display = 'block';
+        }
+
+        function hideIntegrationsView() {
+            // Show mindmap, hide integrations view
+            document.getElementById('canvas-mindmap').style.display = 'block';
+            document.getElementById('integrations-view').style.display = 'none';
+        }
+
+        function toggleIntegrationSection(sectionId) {
+            const content = document.getElementById(`${sectionId}-content`);
+            const caret = document.getElementById(`${sectionId}-caret`);
+
+            if (content.style.display === 'none' || content.style.display === '') {
+                // Open section
+                content.style.display = 'block';
+                caret.style.transform = 'rotate(180deg)';
+            } else {
+                // Close section
+                content.style.display = 'none';
+                caret.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleCleansheetAI() {
+            const toggle = document.getElementById('cleansheetAiToggle');
+            const brokerSection = document.getElementById('aiBrokerSection');
+            const aiBox = document.getElementById('cleansheetAiBox');
+
+            if (toggle.checked) {
+                // Show AI Broker selection and highlight the box
+                brokerSection.style.display = 'block';
+                aiBox.style.background = '#e3f2fd';
+                aiBox.style.borderColor = 'var(--color-primary-blue)';
+                aiBox.style.boxShadow = '0 2px 8px rgba(0, 102, 204, 0.2)';
+            } else {
+                // Hide AI Broker selection and remove highlight
+                brokerSection.style.display = 'none';
+                aiBox.style.background = 'white';
+                aiBox.style.borderColor = 'var(--color-neutral-border)';
+                aiBox.style.boxShadow = 'none';
+            }
         }
 
         function updateNodeCounts() {
@@ -2757,18 +3207,29 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             if (menuName === 'Job Search') {
                 jobSearchView.style.display = 'block';
+                hideIntegrationsView();
                 loadJobSearchView();
             } else if (menuName === 'Library') {
                 libraryView.style.display = 'block';
+                hideIntegrationsView();
                 loadLibraryView();
             } else if (menuName === 'Home') {
                 homeView.style.display = 'contents';
+                hideIntegrationsView();
                 // Redraw mindmap when returning to Home view
                 d3.select('#canvas-mindmap').selectAll('*').remove();
-                setTimeout(() => initializeMindmap(currentPersona), 50);
+                if (currentViewMode === 'seeker' || currentViewMode === 'professional') {
+                    setTimeout(() => initializeMindmap(currentPersona), 50);
+                } else {
+                    setTimeout(() => initializeLearnerNetwork(currentPersona), 50);
+                }
+            } else if (menuName === 'Integrations') {
+                homeView.style.display = 'contents';
+                showIntegrationsView();
             } else {
                 // Reset to home if unimplemented section
                 homeView.style.display = 'contents';
+                hideIntegrationsView();
                 document.querySelector('.main-menu-item').classList.add('active');
                 clickedItem.classList.remove('active');
                 alert(`${menuName} section coming soon! This is a demo of the Canvas interface navigation.`);
@@ -3439,9 +3900,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         `;
         document.head.appendChild(style);
 
-        // Track expanded node
-        let expandedNode = null;
-
         // D3 Learner Network - Force-Directed Layout
         function initializeLearnerNetwork(persona) {
             const container = document.getElementById('canvas-mindmap');
@@ -3452,7 +3910,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const data = getFilteredPersonaData(persona);
             if (!data) return;
 
-            // Create network data from filtered persona children
+            // Create network data
             const networkData = {
                 nodes: [],
                 links: []
@@ -3467,20 +3925,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 y: height / 2
             });
 
-            // Add child nodes (learning areas)
-            data.children.forEach((child, idx) => {
+            // Two-tier structure: Center → Features (used by all view modes now)
+            data.children.forEach((feature, idx) => {
+                const featureId = `feature-${idx}`;
                 networkData.nodes.push({
-                    id: `node-${idx}`,
-                    label: child.name,
+                    id: featureId,
+                    label: feature.name,
                     tier: 'primary',
-                    count: child.count,
-                    data: child
+                    count: feature.count,
+                    data: feature
                 });
 
-                // Link to center
+                // Link feature directly to center
                 networkData.links.push({
                     source: 'center',
-                    target: `node-${idx}`
+                    target: featureId
                 });
             });
 
@@ -3491,15 +3950,24 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('height', height)
                 .attr('viewBox', [0, 0, width, height]);
 
-            // Create force simulation
+            // Create force simulation with adjusted parameters for three tiers
             const simulation = d3.forceSimulation(networkData.nodes)
                 .force('link', d3.forceLink(networkData.links)
                     .id(d => d.id)
-                    .distance(200)
+                    .distance(d => {
+                        // Shorter distance from center to secondary
+                        if (d.source.tier === 'center') return 150;
+                        // Longer distance from secondary to tertiary
+                        return 200;
+                    })
                     .strength(0.3))
-                .force('charge', d3.forceManyBody().strength(-400))
+                .force('charge', d3.forceManyBody().strength(-300))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(80));
+                .force('collision', d3.forceCollide().radius(d => {
+                    if (d.tier === 'center') return 80;
+                    if (d.tier === 'secondary') return 90;
+                    return 80;
+                }));
 
             // Create links
             const link = svg.append('g')
@@ -3532,13 +4000,34 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         .attr('y', -20)
                         .attr('fill', 'var(--color-primary-blue)')
                         .attr('rx', 6);
-                } else {
+                } else if (d.tier === 'secondary') {
+                    // Secondary nodes (Professional/Personal in Learner mode) - larger, darker
+                    g.append('rect')
+                        .attr('width', 150)
+                        .attr('height', 45)
+                        .attr('x', -75)
+                        .attr('y', -22.5)
+                        .attr('fill', 'rgba(0, 102, 204, 0.5)')
+                        .attr('rx', 6)
+                        .style('cursor', 'pointer');
+                } else if (d.tier === 'primary') {
+                    // Primary nodes (Professional/Personal mode features) - standard size
                     g.append('rect')
                         .attr('width', 140)
                         .attr('height', 40)
                         .attr('x', -70)
                         .attr('y', -20)
                         .attr('fill', 'rgba(0, 102, 204, 0.3)')
+                        .attr('rx', 6)
+                        .style('cursor', 'pointer');
+                } else {
+                    // Tertiary nodes (Learner mode features) - smaller, lighter
+                    g.append('rect')
+                        .attr('width', 130)
+                        .attr('height', 35)
+                        .attr('x', -65)
+                        .attr('y', -17.5)
+                        .attr('fill', 'rgba(0, 102, 204, 0.2)')
                         .attr('rx', 6)
                         .style('cursor', 'pointer');
                 }
@@ -3549,13 +4038,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('dy', '0.35em')
                 .attr('text-anchor', 'middle')
                 .attr('font-family', 'var(--font-family-ui)')
-                .attr('font-size', d => d.tier === 'center' ? '14px' : '13px')
-                .attr('font-weight', '600')
+                .attr('font-size', d => {
+                    if (d.tier === 'center') return '14px';
+                    if (d.tier === 'secondary') return '13px';
+                    if (d.tier === 'primary') return '13px';
+                    return '12px';
+                })
+                .attr('font-weight', d => d.tier === 'secondary' ? '700' : '600')
                 .attr('fill', d => d.tier === 'center' ? 'white' : 'var(--color-neutral-text)')
                 .attr('pointer-events', 'none')
                 .text(d => d.label);
 
-            // Add count badges for primary nodes
+            // Add count badges for primary nodes (Professional/Personal modes)
             node.filter(d => d.tier === 'primary' && d.count > 0)
                 .append('circle')
                 .attr('cx', 70)
@@ -3578,28 +4072,61 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('pointer-events', 'none')
                 .text(d => d.count);
 
-            // Click handler for primary nodes
+            // Add count badges for tertiary nodes (Learner mode)
+            node.filter(d => d.tier === 'tertiary' && d.count > 0)
+                .append('circle')
+                .attr('cx', 65)
+                .attr('cy', -17.5)
+                .attr('r', 10)
+                .attr('fill', '#e3f2fd')
+                .attr('stroke', 'var(--color-primary-blue)')
+                .attr('stroke-width', 1);
+
+            node.filter(d => d.tier === 'tertiary' && d.count > 0)
+                .append('text')
+                .attr('x', 65)
+                .attr('y', -17.5)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'middle')
+                .attr('font-family', 'var(--font-family-ui)')
+                .attr('font-size', '10px')
+                .attr('font-weight', '700')
+                .attr('fill', 'var(--color-primary-blue)')
+                .attr('pointer-events', 'none')
+                .text(d => d.count);
+
+            // Shared click handler function for features
+            function handleFeatureClick(nodeName) {
+                if (nodeName === 'Career Experience') {
+                    openCareerExperienceSlideout();
+                } else if (nodeName === 'Goals') {
+                    openSkillsCompetenciesSlideout();
+                } else if (nodeName === 'Portfolio') {
+                    openPortfolioSlideout();
+                } else if (nodeName === 'Projects') {
+                    openProjectsSlideout();
+                } else if (nodeName === 'Code Snippets') {
+                    openCodeSnippetsSlideout();
+                } else if (nodeName === 'My Library') {
+                    openMyLibrarySlideout();
+                } else if (nodeName === 'My Notes') {
+                    openMyNotesSlideout();
+                } else if (nodeName === 'Shopping') {
+                    alert('Shopping functionality coming soon!');
+                } else if (nodeName === 'Finance') {
+                    alert('Finance functionality coming soon!');
+                } else if (nodeName === 'Calendar') {
+                    alert('Calendar functionality coming soon!');
+                } else if (nodeName === 'Recipes') {
+                    alert('Recipes functionality coming soon!');
+                }
+            }
+
+            // Click handler for primary nodes (Professional/Personal mode features)
             node.filter(d => d.tier === 'primary')
                 .on('click', function(event, d) {
                     event.stopPropagation();
-                    console.log('Clicked node:', d.label, d.data);
-
-                    // Handle different node types
-                    const nodeName = d.label;
-
-                    if (nodeName === 'Career Experience') {
-                        openCareerExperienceSlideout();
-                    } else if (nodeName === 'Goals') {
-                        openSkillsCompetenciesSlideout();
-                    } else if (nodeName === 'Portfolio') {
-                        openPortfolioSlideout();
-                    } else if (nodeName === 'Projects') {
-                        openProjectsSlideout();
-                    } else if (nodeName === 'Code Snippets') {
-                        openCodeSnippetsSlideout();
-                    } else if (nodeName === 'My Library') {
-                        openMyLibrarySlideout();
-                    }
+                    handleFeatureClick(d.label);
                 })
                 .on('mouseover', function() {
                     d3.select(this).select('rect')
@@ -3614,15 +4141,59 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         .attr('fill', 'rgba(0, 102, 204, 0.3)');
                 });
 
+            // Click handler for tertiary nodes (Learner mode features)
+            node.filter(d => d.tier === 'tertiary')
+                .on('click', function(event, d) {
+                    event.stopPropagation();
+                    handleFeatureClick(d.label);
+                })
+                .on('mouseover', function() {
+                    d3.select(this).select('rect')
+                        .transition()
+                        .duration(200)
+                        .attr('fill', 'rgba(0, 102, 204, 0.4)');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).select('rect')
+                        .transition()
+                        .duration(200)
+                        .attr('fill', 'rgba(0, 102, 204, 0.2)');
+                });
+
+            // Hover handlers for secondary nodes (Learner mode categories - non-clickable)
+            node.filter(d => d.tier === 'secondary')
+                .on('mouseover', function() {
+                    d3.select(this).select('rect')
+                        .transition()
+                        .duration(200)
+                        .attr('fill', 'rgba(0, 102, 204, 0.65)');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).select('rect')
+                        .transition()
+                        .duration(200)
+                        .attr('fill', 'rgba(0, 102, 204, 0.5)');
+                });
+
             // Update positions on tick
             simulation.on('tick', () => {
                 link.attr('x1', d => {
-                    // For center node (rectangle), calculate edge point
                     const dx = d.target.x - d.source.x;
                     const dy = d.target.y - d.source.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const rectWidth = 70;
-                    const rectHeight = 20;
+
+                    // Get dimensions based on source tier
+                    let rectWidth, rectHeight;
+                    if (d.source.tier === 'center') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else if (d.source.tier === 'secondary') {
+                        rectWidth = 75; rectHeight = 22.5;
+                    } else if (d.source.tier === 'primary') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else {
+                        rectWidth = 65; rectHeight = 17.5;
+                    }
+
                     const angle = Math.atan2(dy, dx);
                     const rectAngle = Math.atan2(rectHeight, rectWidth);
                     let offset;
@@ -3637,8 +4208,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     const dx = d.target.x - d.source.x;
                     const dy = d.target.y - d.source.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const rectWidth = 70;
-                    const rectHeight = 20;
+
+                    let rectWidth, rectHeight;
+                    if (d.source.tier === 'center') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else if (d.source.tier === 'secondary') {
+                        rectWidth = 75; rectHeight = 22.5;
+                    } else if (d.source.tier === 'primary') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else {
+                        rectWidth = 65; rectHeight = 17.5;
+                    }
+
                     const angle = Math.atan2(dy, dx);
                     const rectAngle = Math.atan2(rectHeight, rectWidth);
                     let offset;
@@ -3650,12 +4231,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return d.source.y + (dy / dist) * offset;
                 })
                 .attr('x2', d => {
-                    // For primary nodes (rectangles), calculate edge point
                     const dx = d.target.x - d.source.x;
                     const dy = d.target.y - d.source.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const rectWidth = 70;
-                    const rectHeight = 20;
+
+                    // Get dimensions based on target tier
+                    let rectWidth, rectHeight;
+                    if (d.target.tier === 'center') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else if (d.target.tier === 'secondary') {
+                        rectWidth = 75; rectHeight = 22.5;
+                    } else if (d.target.tier === 'primary') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else {
+                        rectWidth = 65; rectHeight = 17.5;
+                    }
+
                     const angle = Math.atan2(dy, dx);
                     const rectAngle = Math.atan2(rectHeight, rectWidth);
                     let offset;
@@ -3670,8 +4261,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     const dx = d.target.x - d.source.x;
                     const dy = d.target.y - d.source.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const rectWidth = 70;
-                    const rectHeight = 20;
+
+                    let rectWidth, rectHeight;
+                    if (d.target.tier === 'center') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else if (d.target.tier === 'secondary') {
+                        rectWidth = 75; rectHeight = 22.5;
+                    } else if (d.target.tier === 'primary') {
+                        rectWidth = 70; rectHeight = 20;
+                    } else {
+                        rectWidth = 65; rectHeight = 17.5;
+                    }
+
                     const angle = Math.atan2(dy, dx);
                     const rectAngle = Math.atan2(rectHeight, rectWidth);
                     let offset;
@@ -3843,12 +4444,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 nodeEnter.each(function(d) {
                     if (d.depth === 1) {
                         const iconMap = {
+                            // Seeker mode icons
                             'Job Opportunities': 'ph-briefcase',
                             'Application Materials': 'ph-file-text',
                             'Career Experience': 'ph-suitcase',
                             'Goals': 'ph-target',
                             'Portfolio': 'ph-folder-open',
-                            'Interview Prep': 'ph-chats-circle'
+                            'Interview Prep': 'ph-chats-circle',
+                            // Professional mode icons
+                            'Documents': 'ph-file-text',
+                            'Tables': 'ph-table',
+                            'Reports': 'ph-chart-bar',
+                            'Templates': 'ph-note-blank',
+                            'Workflows': 'ph-git-branch'
                         };
 
                         const iconClass = iconMap[d.data.name];
@@ -3944,6 +4552,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             // Interview Prep opens slideout with tabbed view
                             console.log('Opening Interview Prep slideout');
                             openInterviewPrepSlideout();
+                        } else if (nodeName === 'Tables') {
+                            // Tables opens slideout with table type cards
+                            console.log('Opening Tables slideout');
+                            openTablesSlideout();
                         } else {
                             // Other nodes expand normally
                             toggleNode(d);
@@ -3980,7 +4592,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 nodeUpdate.select('rect')
                     .attr('class', d => {
                         if (d.depth === 1) {
-                            return d.children ? 'expanded' : (d._children ? 'collapsed' : '');
+                            // Expanded if has visible children, collapsed otherwise (including no children)
+                            return d.children ? 'expanded' : 'collapsed';
                         }
                         return '';
                     });
@@ -6146,6 +6759,340 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openMyLibrarySlideout() {
             alert('My Library functionality coming soon! This will connect to your Cleansheet Library content for personalized learning resources.');
+        }
+
+        // My Notes Management
+        let userNotes = [];
+        const categoryColors = {
+            'learning': { bg: '#e3f2fd', color: '#1565c0', icon: 'ph-graduation-cap' },
+            'idea': { bg: '#fff3e0', color: '#ef6c00', icon: 'ph-lightbulb' },
+            'question': { bg: '#f3e5f5', color: '#7b1fa2', icon: 'ph-question' },
+            'reference': { bg: '#e8f5e9', color: '#2e7d32', icon: 'ph-bookmark' },
+            'todo': { bg: '#ffebee', color: '#c62828', icon: 'ph-check-square' },
+            'general': { bg: '#f5f5f5', color: '#616161', icon: 'ph-note' }
+        };
+
+        function loadUserNotes() {
+            const stored = localStorage.getItem(`notes_${currentPersona}`);
+            userNotes = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveUserNotes() {
+            localStorage.setItem(`notes_${currentPersona}`, JSON.stringify(userNotes));
+        }
+
+        function openMyNotesSlideout() {
+            loadUserNotes();
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'My Notes';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+
+            // Show notes content
+            document.getElementById('myNotesContent').style.display = 'flex';
+            document.getElementById('notesSearchInput').value = '';
+            loadNotesCards();
+
+            slideout.classList.add('active');
+        }
+
+        // Tables Management
+        function openTablesSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Tables';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+
+            // Show tables content
+            document.getElementById('tablesContent').style.display = 'block';
+            loadTableTypeCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadTableTypeCards() {
+            const container = document.getElementById('tablesContainer');
+
+            // Define table types relevant to different personas
+            const tableTypes = [
+                {
+                    name: 'Contacts',
+                    icon: 'ph-address-book',
+                    description: 'People and organizations with contact information, roles, and relationships.',
+                    columns: ['Name', 'Email', 'Phone', 'Company', 'Role', 'Location', 'Notes']
+                },
+                {
+                    name: 'Customers',
+                    icon: 'ph-users',
+                    description: 'Customer records with account details, history, and engagement data.',
+                    columns: ['Customer ID', 'Name', 'Email', 'Account Type', 'Status', 'Created Date', 'Lifetime Value']
+                },
+                {
+                    name: 'Projects',
+                    icon: 'ph-folder',
+                    description: 'Project tracking with timelines, resources, and deliverables.',
+                    columns: ['Project Name', 'Status', 'Start Date', 'End Date', 'Budget', 'Team', 'Priority']
+                },
+                {
+                    name: 'Tasks',
+                    icon: 'ph-check-square',
+                    description: 'Task management with assignments, deadlines, and dependencies.',
+                    columns: ['Task Name', 'Assigned To', 'Due Date', 'Status', 'Priority', 'Tags', 'Progress']
+                },
+                {
+                    name: 'Inventory',
+                    icon: 'ph-package',
+                    description: 'Product or asset inventory with quantities, locations, and specifications.',
+                    columns: ['Item Name', 'SKU', 'Quantity', 'Location', 'Supplier', 'Cost', 'Last Updated']
+                },
+                {
+                    name: 'Vendors',
+                    icon: 'ph-handshake',
+                    description: 'Vendor and supplier information with contracts and performance metrics.',
+                    columns: ['Vendor Name', 'Contact', 'Services', 'Contract Start', 'Contract End', 'Rating', 'Notes']
+                },
+                {
+                    name: 'Events',
+                    icon: 'ph-calendar',
+                    description: 'Event planning and scheduling with attendees and logistics.',
+                    columns: ['Event Name', 'Date', 'Time', 'Location', 'Attendees', 'Status', 'Budget']
+                },
+                {
+                    name: 'Assets',
+                    icon: 'ph-briefcase',
+                    description: 'Equipment and resource tracking with maintenance and ownership.',
+                    columns: ['Asset Name', 'Type', 'Owner', 'Location', 'Purchase Date', 'Value', 'Status']
+                },
+                {
+                    name: 'Issues',
+                    icon: 'ph-warning',
+                    description: 'Issue and bug tracking with severity, assignments, and resolutions.',
+                    columns: ['Issue ID', 'Title', 'Severity', 'Status', 'Assigned To', 'Created Date', 'Resolved Date']
+                },
+                {
+                    name: 'Expenses',
+                    icon: 'ph-receipt',
+                    description: 'Expense tracking and reimbursement management.',
+                    columns: ['Date', 'Category', 'Amount', 'Vendor', 'Payment Method', 'Status', 'Receipt']
+                }
+            ];
+
+            container.innerHTML = '';
+
+            tableTypes.forEach(table => {
+                const card = document.createElement('div');
+                card.style.cssText = 'padding: 20px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px;';
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="ph ${table.icon}" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${table.name}</div>
+                        </div>
+                        <button onclick="event.stopPropagation(); shareTable('${table.name}')" style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Share</span>
+                        </button>
+                    </div>
+                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">
+                        ${table.description}
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin-bottom: 8px;">Columns</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            ${table.columns.map(col => `<span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${col}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">SHARED WITH</div>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; color: var(--color-primary-blue);">AM</div>
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #f3e5f5; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; color: #7b1fa2;">JS</div>
+                            <span style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">+ 3 others</span>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.borderColor = 'var(--color-primary-blue)';
+                    card.style.boxShadow = '0 2px 8px rgba(0, 102, 204, 0.15)';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.borderColor = 'var(--color-neutral-border)';
+                    card.style.boxShadow = 'none';
+                });
+
+                card.addEventListener('click', () => {
+                    alert(`${table.name} table functionality coming soon!`);
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function shareTable(tableName) {
+            alert(`Share ${tableName} table functionality coming soon!`);
+        }
+
+        function loadNotesCards(searchTerm = '') {
+            const container = document.getElementById('notesContainer');
+
+            let filteredNotes = userNotes;
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filteredNotes = userNotes.filter(note =>
+                    note.title.toLowerCase().includes(term) ||
+                    note.content.toLowerCase().includes(term) ||
+                    (note.tags && note.tags.toLowerCase().includes(term))
+                );
+            }
+
+            if (filteredNotes.length === 0) {
+                const message = searchTerm
+                    ? `<p style="color: #666; text-align: center; padding: 40px 20px; grid-column: 1/-1;">No notes found matching "${searchTerm}"</p>`
+                    : '<p style="color: #666; text-align: center; padding: 40px 20px; grid-column: 1/-1;">No notes yet. Click Add Note to create your first note.</p>';
+                container.innerHTML = message;
+                return;
+            }
+
+            container.innerHTML = filteredNotes.map((note, index) => {
+                const actualIndex = userNotes.indexOf(note);
+                const categoryStyle = categoryColors[note.category] || categoryColors['general'];
+                const tags = note.tags ? note.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+                const contentPreview = note.content.length > 200 ? note.content.substring(0, 200) + '...' : note.content;
+
+                return `
+                    <div class="story-card" style="cursor: default; border-left: 4px solid ${categoryStyle.color};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <span style="background: ${categoryStyle.bg}; color: ${categoryStyle.color}; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="${categoryStyle.icon}" style="font-size: 14px;"></i>
+                                        ${note.category.charAt(0).toUpperCase() + note.category.slice(1)}
+                                    </span>
+                                    <span style="color: #999; font-size: 11px;">${note.date}</span>
+                                </div>
+                                <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">${note.title}</h4>
+                                <p style="margin: 0 0 12px 0; color: #666; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">
+                                    ${contentPreview}
+                                </p>
+                                ${tags.length > 0 ? `
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                        ${tags.map(tag => `
+                                            <span style="background: #f5f5f5; color: #666; padding: 3px 8px; border-radius: 10px; font-size: 10px;">
+                                                #${tag}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-left: 12px;">
+                                <button onclick="editNote(${actualIndex})" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600;">
+                                    <i class="ph ph-pencil"></i> Edit
+                                </button>
+                                <button onclick="deleteNote(${actualIndex})" style="padding: 6px 10px; background: #fee; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #c33; font-weight: 600;">
+                                    <i class="ph ph-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function searchNotes() {
+            const searchTerm = document.getElementById('notesSearchInput').value;
+            loadNotesCards(searchTerm);
+        }
+
+        function addNote() {
+            document.getElementById('noteFormModal').classList.add('active');
+            document.getElementById('noteForm').reset();
+            document.getElementById('noteFormTitle').textContent = 'Add Note';
+            document.getElementById('noteForm').dataset.editIndex = '';
+        }
+
+        function editNote(index) {
+            const note = userNotes[index];
+            document.getElementById('noteFormModal').classList.add('active');
+            document.getElementById('noteFormTitle').textContent = 'Edit Note';
+
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteCategory').value = note.category;
+            document.getElementById('noteTags').value = note.tags || '';
+            document.getElementById('noteContent').value = note.content;
+
+            document.getElementById('noteForm').dataset.editIndex = index;
+        }
+
+        function closeNoteForm() {
+            document.getElementById('noteFormModal').classList.remove('active');
+        }
+
+        function saveNote(event) {
+            event.preventDefault();
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            const noteData = {
+                title: document.getElementById('noteTitle').value,
+                category: document.getElementById('noteCategory').value,
+                tags: document.getElementById('noteTags').value,
+                content: document.getElementById('noteContent').value,
+                date: dateStr,
+                timestamp: now.getTime()
+            };
+
+            const editIndex = document.getElementById('noteForm').dataset.editIndex;
+
+            if (editIndex !== '') {
+                noteData.date = userNotes[parseInt(editIndex)].date; // Keep original date
+                noteData.editedDate = dateStr; // Track edit date
+                userNotes[parseInt(editIndex)] = noteData;
+            } else {
+                userNotes.unshift(noteData); // Add to beginning (most recent first)
+            }
+
+            saveUserNotes();
+            loadNotesCards();
+            updateNodeCounts();
+            closeNoteForm();
+        }
+
+        function deleteNote(index) {
+            if (confirm('Are you sure you want to delete this note?')) {
+                userNotes.splice(index, 1);
+                saveUserNotes();
+                loadNotesCards();
+                updateNodeCounts();
+            }
         }
 
         // Skills & Competencies Management
