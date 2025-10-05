@@ -457,7 +457,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             overflow: hidden;
             background: var(--color-neutral-background);
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 350px 1fr;
             gap: 24px;
             transition: grid-template-columns 0.3s ease;
             min-height: 0;
@@ -465,7 +465,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         .canvas-modal-body.collapsed {
-            grid-template-columns: 1fr 0px;
+            grid-template-columns: 0px 1fr;
             gap: 0;
         }
 
@@ -496,22 +496,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         .canvas-modal-body.collapsed .canvas-right-panel {
             opacity: 0;
-            transform: translateX(20px);
+            transform: translateX(-20px);
             pointer-events: none;
         }
 
         .panel-collapse-toggle {
             position: absolute;
             top: 50%;
-            right: 374px;
+            left: 374px;
             transform: translateY(-50%);
             background: white;
             border: 1px solid var(--color-neutral-border);
-            border-radius: 8px 0 0 8px;
+            border-radius: 0 8px 8px 0;
             padding: 12px 8px;
             cursor: pointer;
             z-index: 101;
-            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             color: var(--color-dark);
             font-size: 20px;
@@ -520,7 +520,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         .canvas-modal-body.collapsed .panel-collapse-toggle {
-            right: 0;
+            left: 0;
         }
 
         .panel-collapse-toggle:hover {
@@ -1589,14 +1589,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
             </div>
             <div class="canvas-modal-body" id="canvasBody">
-                <div id="canvas-mindmap"></div>
-
-                <!-- Collapse Toggle Button -->
-                <button class="panel-collapse-toggle" onclick="toggleRightPanel()" id="collapseToggle">
-                    <i class="ph ph-caret-right"></i>
-                </button>
-
-                <!-- Right Panel -->
+                <!-- Left Panel (formerly right panel) -->
                 <div class="canvas-right-panel">
                     <!-- Calendar Widget -->
                     <div class="calendar-widget">
@@ -1651,6 +1644,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     </div>
                 </div>
+
+                <div id="canvas-mindmap"></div>
+
+                <!-- Collapse Toggle Button -->
+                <button class="panel-collapse-toggle" onclick="toggleRightPanel()" id="collapseToggle">
+                    <i class="ph ph-caret-right"></i>
+                </button>
             </div>
 
         <!-- Interview Prep Slideout (60% width) - Inside Canvas Modal -->
@@ -2174,10 +2174,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             if (rightPanelCollapsed) {
                 body.classList.add('collapsed');
-                icon.className = 'ph ph-caret-left';
+                icon.className = 'ph ph-caret-right';
             } else {
                 body.classList.remove('collapsed');
-                icon.className = 'ph ph-caret-right';
+                icon.className = 'ph ph-caret-left';
             }
         }
 
@@ -2191,12 +2191,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const toggle = document.getElementById('collapseToggle');
             const icon = toggle.querySelector('i');
             body.classList.add('collapsed');
-            icon.className = 'ph ph-caret-left';
+            icon.className = 'ph ph-caret-right';
 
             // Load user data
             loadUserJobs();
             loadStories();
             loadUserExperiences();
+
+            // Add click-outside-to-close handler for slideout
+            const slideout = document.getElementById('interviewSlideout');
+            slideout.addEventListener('click', function(event) {
+                // Close if clicking on the slideout background (not the content)
+                if (event.target === slideout) {
+                    closeInterviewSlideout();
+                }
+            });
 
             setTimeout(() => initializeMindmap(currentPersona), 100);
         }
@@ -2562,6 +2571,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         } else if (nodeName === 'Career Experience') {
                             console.log('Opening Career Experience slideout');
                             openCareerExperienceSlideout();
+                        } else if (nodeName === 'Application Materials') {
+                            console.log('Opening Application Materials slideout');
+                            openApplicationMaterialsSlideout();
                         } else if (nodeName === 'Interview Prep') {
                             // Interview Prep still expands to show Behavioral/Technical
                             toggleNode(d);
@@ -2902,6 +2914,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             technicalContent.style.display = 'none';
             jobOpportunitiesContent.style.display = 'none';
             careerExperienceContent.style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
 
             // Show appropriate content
             if (category === 'Behavioral') {
@@ -3199,12 +3212,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const behavioralContent = document.getElementById('behavioralContent');
             const technicalContent = document.getElementById('technicalContent');
             const jobOpportunitiesContent = document.getElementById('jobOpportunitiesContent');
+            const careerExperienceContent = document.getElementById('careerExperienceContent');
+            const applicationMaterialsContent = document.getElementById('applicationMaterialsContent');
 
             titleEl.textContent = 'Job Opportunities';
 
-            // Hide other content, show job opportunities
+            // Hide all other content sections
             behavioralContent.style.display = 'none';
             technicalContent.style.display = 'none';
+            careerExperienceContent.style.display = 'none';
+            applicationMaterialsContent.style.display = 'none';
+
+            // Show job opportunities content
             jobOpportunitiesContent.style.display = 'flex';
 
             // Load job opportunities for current persona
@@ -3724,13 +3743,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const technicalContent = document.getElementById('technicalContent');
             const jobOpportunitiesContent = document.getElementById('jobOpportunitiesContent');
             const careerExperienceContent = document.getElementById('careerExperienceContent');
+            const applicationMaterialsContent = document.getElementById('applicationMaterialsContent');
 
             titleEl.textContent = 'Career Experience';
 
-            // Show career experience content
+            // Hide all other content sections
             behavioralContent.style.display = 'none';
             technicalContent.style.display = 'none';
             jobOpportunitiesContent.style.display = 'none';
+            applicationMaterialsContent.style.display = 'none';
+
+            // Show career experience content
             careerExperienceContent.style.display = 'flex';
 
             loadCareerExperiences();
@@ -3864,6 +3887,351 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function uploadResume() {
             alert('Resume upload coming soon! This will parse your resume and automatically extract your work experience, skills, and achievements.');
+        }
+
+        // Application Materials Management
+        let userApplicationMaterials = [];
+        let editingMaterialIndex = -1;
+
+        // Example application materials for each persona
+        const exampleApplicationMaterials = {
+            'retail-manager': [
+                {
+                    type: 'Resume',
+                    title: 'Cloud Operations Resume',
+                    jobOpportunity: 'Cloud Operations Engineer - TechCorp',
+                    content: 'Experienced retail operations manager with 5+ years managing store operations, inventory systems, and teams of 15-30 employees. Strong background in data analysis using Excel and Power BI. Seeking to transition technical operations and cloud infrastructure management skills.',
+                    format: 'PDF',
+                    atsOptimized: true,
+                    createdDate: '2024-09-15',
+                    isExample: true
+                },
+                {
+                    type: 'Cover Letter',
+                    title: 'Cloud Operations Cover Letter',
+                    jobOpportunity: 'Cloud Operations Engineer - TechCorp',
+                    content: 'Dear Hiring Manager,\n\nI am writing to express my strong interest in the Cloud Operations Engineer position at TechCorp. While my professional background is in retail management, I have developed a strong foundation in technical operations, data analysis, and system optimization that directly translates to cloud operations.\n\nIn my role as Store Manager at RetailMart, I successfully managed complex operational systems including POS infrastructure, inventory management systems, and business analytics platforms. I taught myself Excel, Power BI, and basic SQL to build automated reporting dashboards that reduced manual reporting time by 90% and improved inventory accuracy from 83% to 94%.\n\nMy experience managing 24/7 retail operations has given me deep expertise in incident response, system monitoring, and maintaining high availability - all critical skills for cloud operations. I\'m comfortable working under pressure during peak periods and have consistently maintained 99.5%+ system uptime even during our busiest seasons.\n\nI am currently completing AWS Cloud Practitioner and Solutions Architect Associate certifications to formalize my cloud knowledge. I\'m excited about the opportunity to bring my operational excellence, problem-solving skills, and commitment to reliability to TechCorp\'s cloud infrastructure team.\n\nThank you for considering my application.\n\nSincerely,\n[Your Name]',
+                    format: 'DOCX',
+                    atsOptimized: true,
+                    createdDate: '2024-09-15',
+                    isExample: true
+                },
+                {
+                    type: 'Email',
+                    title: 'Networking Email to TechCorp Cloud Engineer',
+                    jobOpportunity: 'Cloud Operations Engineer - TechCorp',
+                    content: 'Subject: Retail Manager → Cloud Operations: Seeking Advice\n\nHi [Name],\n\nI found your profile while researching Cloud Operations Engineers at TechCorp and was impressed by your career path. I\'m currently a Store Manager at RetailMart looking to transition into cloud operations, and I\'d love to learn from your experience.\n\nI\'ve been managing 24/7 retail operations for 5 years, including POS systems, inventory management, and analytics platforms. I\'ve taught myself data analysis (Excel, Power BI, SQL) and am currently studying for AWS certifications. I believe my operational experience and technical aptitude would translate well to cloud operations.\n\nWould you be open to a brief 15-minute call to share your insights on making a similar transition? I\'d love to hear about the skills that matter most in your role and any advice you have for someone with my background.\n\nI understand you\'re busy - even a few sentences via email would be incredibly helpful!\n\nThank you for considering,\n[Your Name]',
+                    format: 'HTML',
+                    atsOptimized: false,
+                    createdDate: '2024-09-16',
+                    isExample: true
+                }
+            ],
+            'chemist': [
+                {
+                    type: 'Resume',
+                    title: 'Cloud Computing Resume',
+                    jobOpportunity: 'Cloud Solutions Architect - CloudVendor',
+                    content: 'Senior Chemist with 4+ years pharmaceutical R&D experience and strong computational background. Extensive experience with scientific computing, data analysis (Python, R), and laboratory automation systems. Seeking to apply analytical rigor and technical expertise to cloud architecture and solutions design.',
+                    format: 'PDF',
+                    atsOptimized: true,
+                    createdDate: '2024-09-12',
+                    isExample: true
+                },
+                {
+                    type: 'Cover Letter',
+                    title: 'Cloud Architect Cover Letter',
+                    jobOpportunity: 'Cloud Solutions Architect - CloudVendor',
+                    content: 'Dear Hiring Manager,\n\nI am excited to apply for the Cloud Solutions Architect position at CloudVendor. As a Senior Chemist with extensive experience in computational chemistry and scientific data analysis, I bring a unique combination of analytical thinking, technical depth, and problem-solving skills that translate directly to cloud architecture.\n\nIn my current role at PharmaCorp, I regularly work with large-scale computational workflows processing terabytes of experimental data. I\'ve designed and optimized data pipelines using Python and R, integrated multiple scientific software platforms, and troubleshot complex system performance issues - experiences that mirror the challenges cloud architects face when designing scalable solutions.\n\nMy work has required me to deeply understand distributed computing concepts, resource optimization, and system reliability. When our lab needed to process 10x more molecular simulations for a critical drug discovery project, I architected a workflow that reduced processing time from 3 weeks to 4 days by optimizing parallelization and resource allocation.\n\nI\'ve been systematically building cloud expertise through AWS Solutions Architect certification coursework and hands-on personal projects deploying containerized applications, implementing CI/CD pipelines, and designing multi-tier architectures on AWS.\n\nI\'m eager to bring my analytical rigor, systems thinking, and technical aptitude to help CloudVendor\'s customers design robust, scalable cloud solutions.\n\nThank you for your consideration.\n\nBest regards,\n[Your Name]',
+                    format: 'DOCX',
+                    atsOptimized: true,
+                    createdDate: '2024-09-12',
+                    isExample: true
+                },
+                {
+                    type: 'Email',
+                    title: 'Cold Outreach to CloudVendor Recruiter',
+                    jobOpportunity: 'Cloud Solutions Architect - CloudVendor',
+                    content: 'Subject: PhD Chemist → Cloud Solutions Architect: Non-Traditional Background\n\nHi [Recruiter Name],\n\nI\'m reaching out regarding the Cloud Solutions Architect role at CloudVendor (Job #12345). I know my resume shows "Senior Chemist" rather than traditional cloud experience, but I believe my technical background positions me uniquely well for this role.\n\nIn pharmaceutical R&D, I\'ve spent 4+ years designing computational workflows for large-scale data analysis, optimizing distributed computing systems, and troubleshooting complex multi-system integrations - skills that map directly to cloud architecture challenges. I\'m proficient in Python, Linux, Git, and containerization, and I\'m completing my AWS Solutions Architect Associate certification.\n\nI\'ve successfully delivered multiple projects requiring systems thinking and technical depth:\n- Architected data pipeline processing 2TB+ datasets, reducing compute time 75%\n- Integrated 5+ scientific software platforms with automated workflows\n- Led cross-functional teams through technical troubleshooting and optimization\n\nI understand this is a non-traditional background, but I\'m confident my analytical rigor, technical aptitude, and problem-solving approach would bring value to CloudVendor\'s solutions architecture team. Would you be open to a brief conversation to discuss how my experience translates to cloud architecture?\n\nI\'ve attached my resume highlighting the technical parallels. Thank you for considering a candidate with a different path into tech!\n\nBest,\n[Your Name]',
+                    format: 'TXT',
+                    atsOptimized: false,
+                    createdDate: '2024-09-13',
+                    isExample: true
+                }
+            ],
+            'new-graduate': [
+                {
+                    type: 'Resume',
+                    title: 'Full Stack Developer Resume',
+                    jobOpportunity: 'Junior Full Stack Developer - StartupCo',
+                    content: 'Recent Computer Science graduate with strong full-stack development skills and 3 internship experiences. Proficient in React, Node.js, Python, and cloud platforms. Built 5+ personal projects including e-commerce platform and social media dashboard. Seeking entry-level full stack role to apply technical skills and continue learning.',
+                    format: 'PDF',
+                    atsOptimized: true,
+                    createdDate: '2024-09-20',
+                    isExample: true
+                },
+                {
+                    type: 'Cover Letter',
+                    title: 'Junior Developer Cover Letter',
+                    jobOpportunity: 'Junior Full Stack Developer - StartupCo',
+                    content: 'Dear Hiring Manager,\n\nI am excited to apply for the Junior Full Stack Developer position at StartupCo. As a recent Computer Science graduate with internship experience and a portfolio of personal projects, I am eager to contribute to your engineering team while continuing to grow my technical skills.\n\nDuring my Software Engineering Internship at TechStart Inc., I contributed to a React-based customer portal serving 10,000+ users. I implemented responsive UI components, integrated RESTful APIs, and wrote comprehensive test suites - resulting in a 20% reduction in reported bugs. This experience taught me the importance of code quality, user-centric design, and collaborative development.\n\nBeyond coursework and internships, I\'ve built several full-stack projects to deepen my skills:\n- E-commerce platform with React frontend, Node.js backend, and PostgreSQL database\n- Real-time chat application using WebSockets and Redis\n- Personal portfolio website with blog CMS (Next.js, Tailwind CSS)\n\nI\'m particularly drawn to StartupCo\'s mission to [mission] and your tech stack. I\'m proficient in React, Node.js, Python, and PostgreSQL, and I\'m comfortable learning new technologies quickly. I\'m excited about the opportunity to work on challenging problems, learn from experienced engineers, and contribute to meaningful products.\n\nThank you for considering my application. I look forward to the opportunity to discuss how I can contribute to StartupCo\'s success.\n\nBest regards,\n[Your Name]',
+                    format: 'DOCX',
+                    atsOptimized: true,
+                    createdDate: '2024-09-20',
+                    isExample: true
+                },
+                {
+                    type: 'Email',
+                    title: 'Follow-up After Career Fair',
+                    jobOpportunity: 'Junior Full Stack Developer - StartupCo',
+                    content: 'Subject: Following Up - CS Grad Interested in Junior Full Stack Role\n\nHi [Recruiter Name],\n\nIt was great meeting you at the Tech Career Fair yesterday! I enjoyed learning about StartupCo\'s product roadmap and engineering culture. Your comments about prioritizing code quality and mentorship really resonated with me.\n\nAs mentioned, I\'m a recent CS graduate actively seeking junior full stack roles. I have:\n- 3 internships (including 6-month SWE internship at TechStart Inc.)\n- Strong skills in React, Node.js, Python, PostgreSQL\n- Portfolio of 5+ personal projects demonstrating full-stack capabilities\n- Genuine excitement about building user-focused products\n\nI\'ve attached my resume and would love to continue the conversation about how I could contribute to your team. I\'m particularly interested in the Junior Full Stack Developer role I saw posted on your careers page.\n\nWould you be open to scheduling a brief call next week to discuss the role and answer any questions about my background?\n\nThank you again for your time at the fair!\n\nBest,\n[Your Name]\n\nPortfolio: [URL]\nGitHub: [URL]\nLinkedIn: [URL]',
+                    format: 'HTML',
+                    atsOptimized: false,
+                    createdDate: '2024-09-21',
+                    isExample: true
+                }
+            ],
+            'data-analyst': [
+                {
+                    type: 'Resume',
+                    title: 'Data Analyst Resume',
+                    jobOpportunity: 'Senior Data Analyst - DataCorp',
+                    content: 'Data Analyst with 3+ years experience in business intelligence, data visualization, and analytics. Proficient in SQL, Python, Tableau, and Power BI. Track record of delivering actionable insights that drove business decisions and revenue growth. Seeking senior analyst role to tackle complex analytical challenges.',
+                    format: 'PDF',
+                    atsOptimized: true,
+                    createdDate: '2024-09-18',
+                    isExample: true
+                },
+                {
+                    type: 'Cover Letter',
+                    title: 'Senior Analyst Cover Letter',
+                    jobOpportunity: 'Senior Data Analyst - DataCorp',
+                    content: 'Dear Hiring Manager,\n\nI am writing to express my strong interest in the Senior Data Analyst position at DataCorp. With over 3 years of experience delivering business-critical analytics and a proven track record of turning data into actionable insights, I am excited about the opportunity to contribute to your data team.\n\nIn my current role as BI Analyst at TechCorp, I\'ve consistently delivered high-impact analytical projects:\n- Built customer churn prediction model (78% accuracy) that reduced churn from 8% to 5.5%, saving $200K ARR\n- Automated executive reporting pipeline, reducing manual effort from 20 hours to 30 minutes monthly\n- Designed self-service analytics dashboards that democratized data access for 100+ employees\n- Collaborated cross-functionally with Product, Sales, and Customer Success to drive data-informed decisions\n\nI\'m proficient in the full analytics stack: SQL for data extraction and transformation, Python (pandas, scikit-learn) for advanced analysis and modeling, and Tableau/Power BI for visualization and storytelling. More importantly, I understand that great analysis requires both technical skills and business acumen - the ability to ask the right questions, identify meaningful patterns, and communicate insights effectively to non-technical stakeholders.\n\nI\'m particularly excited about DataCorp\'s focus on [specific aspect] and the opportunity to work with [specific technologies/data]. I\'m confident my analytical skills, business mindset, and collaborative approach would make me a strong addition to your team.\n\nThank you for considering my application. I look forward to discussing how I can contribute to DataCorp\'s success.\n\nBest regards,\n[Your Name]',
+                    format: 'DOCX',
+                    atsOptimized: true,
+                    createdDate: '2024-09-18',
+                    isExample: true
+                },
+                {
+                    type: 'Email',
+                    title: 'Referral Request from Former Colleague',
+                    jobOpportunity: 'Senior Data Analyst - DataCorp',
+                    content: 'Subject: Quick Favor - DataCorp Senior Analyst Referral?\n\nHey [Former Colleague],\n\nI hope you\'re doing well at DataCorp! I saw you\'ve been there about 6 months now - how are you liking it?\n\nI\'m reaching out because I\'m actively looking for my next role, and I noticed DataCorp has a Senior Data Analyst position open that looks like a great fit for my background. Given that we worked together at TechCorp and you know my analytical skills firsthand, I was hoping you might be willing to refer me?\n\nQuick reminder of what I bring to the table:\n- 3+ years BI/analytics experience\n- Strong SQL, Python, Tableau skills\n- Track record of high-impact projects (churn model, reporting automation, etc.)\n- Collaborative cross-functional approach\n\nI know referrals can be a big ask, so totally understand if the timing isn\'t right. But if you\'d be comfortable putting in a good word, I\'d really appreciate it! I\'ve attached my resume if that helps.\n\nEither way, would love to catch up sometime - it\'s been too long!\n\nThanks for considering,\n[Your Name]',
+                    format: 'TXT',
+                    atsOptimized: false,
+                    createdDate: '2024-09-19',
+                    isExample: true
+                }
+            ]
+        };
+
+        function loadUserApplicationMaterials() {
+            const stored = localStorage.getItem(`applicationMaterials_${currentPersona}`);
+            userApplicationMaterials = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveUserApplicationMaterials() {
+            localStorage.setItem(`applicationMaterials_${currentPersona}`, JSON.stringify(userApplicationMaterials));
+        }
+
+        function openApplicationMaterialsSlideout() {
+            loadUserApplicationMaterials();
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+            const behavioralContent = document.getElementById('behavioralContent');
+            const technicalContent = document.getElementById('technicalContent');
+            const jobOpportunitiesContent = document.getElementById('jobOpportunitiesContent');
+            const careerExperienceContent = document.getElementById('careerExperienceContent');
+            const applicationMaterialsContent = document.getElementById('applicationMaterialsContent');
+
+            titleEl.textContent = 'Application Materials';
+
+            // Hide all other content sections
+            behavioralContent.style.display = 'none';
+            technicalContent.style.display = 'none';
+            jobOpportunitiesContent.style.display = 'none';
+            careerExperienceContent.style.display = 'none';
+
+            // Show application materials content
+            applicationMaterialsContent.style.display = 'flex';
+            loadApplicationMaterials();
+
+            slideout.classList.add('active');
+        }
+
+        function loadApplicationMaterials() {
+            const container = document.getElementById('materialsContainer');
+            const exampleMaterials = exampleApplicationMaterials[currentPersona] || [];
+            const allMaterials = [...userApplicationMaterials, ...exampleMaterials];
+
+            if (allMaterials.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center; padding: 40px 20px;">No application materials yet. Click Generate or Upload to add materials.</p>';
+                return;
+            }
+
+            container.innerHTML = allMaterials.map((material, index) => {
+                const isUserMaterial = index < userApplicationMaterials.length;
+                const typeColors = {
+                    'Resume': '#0066CC',
+                    'Cover Letter': '#004C99',
+                    'Email': '#1a1a1a'
+                };
+                const typeColor = typeColors[material.type] || '#666';
+
+                return `
+                    <div class="story-card" style="opacity: ${material.isExample ? '0.7' : '1'};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                    <span style="background: ${typeColor}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;">
+                                        ${material.type}
+                                    </span>
+                                    <span style="background: #f5f5f7; color: #666; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap;">
+                                        ${material.format}
+                                    </span>
+                                    ${material.atsOptimized ? '<span style="background: #e3f2fd; color: #0066CC; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap;">ATS Optimized</span>' : ''}
+                                    ${material.isExample ? '<span style="background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap;">Example</span>' : ''}
+                                </div>
+                                <h4 style="margin: 0 0 4px 0; color: #1a1a1a; font-size: 15px; font-weight: 600;">${material.title}</h4>
+                                ${material.jobOpportunity ? `<p style="margin: 0 0 8px 0; color: #666; font-size: 12px;">For: ${material.jobOpportunity}</p>` : ''}
+                                <p style="margin: 0; color: #999; font-size: 11px;">Created: ${material.createdDate}</p>
+                            </div>
+                            ${isUserMaterial ? `
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="downloadMaterial(${index})" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600;">
+                                        <i class="ph ph-download-simple"></i> Download
+                                    </button>
+                                    <button onclick="deleteMaterial(${index})" style="padding: 6px 10px; background: #fee; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #c33; font-weight: 600;">
+                                        <i class="ph ph-trash"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e5e7;">
+                            <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.5; max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                ${material.content.substring(0, 200)}${material.content.length > 200 ? '...' : ''}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateMaterial() {
+            // Create modal for generation options
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;';
+
+            const jobOpps = exampleJobOpportunities[currentPersona] || [];
+            const jobOptions = jobOpps.map((job, i) => `<option value="${i}">${job.title} - ${job.company}</option>`).join('');
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; padding: 24px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                    <h3 style="margin: 0 0 20px 0; font-family: Questrial, sans-serif; color: #1a1a1a;">Generate Application Material</h3>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #333;">Material Type</label>
+                        <select id="materialType" style="width: 100%; padding: 10px; border: 1px solid #e5e5e7; border-radius: 4px; font-family: Barlow, sans-serif; font-size: 14px;">
+                            <option value="Resume">Resume</option>
+                            <option value="Cover Letter">Cover Letter</option>
+                            <option value="Email">Email</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #333;">Job Opportunity</label>
+                        <select id="jobOpportunity" style="width: 100%; padding: 10px; border: 1px solid #e5e5e7; border-radius: 4px; font-family: Barlow, sans-serif; font-size: 14px;">
+                            <option value="">Select a job opportunity...</option>
+                            ${jobOptions}
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #333;">Output Format</label>
+                        <select id="outputFormat" style="width: 100%; padding: 10px; border: 1px solid #e5e5e7; border-radius: 4px; font-family: Barlow, sans-serif; font-size: 14px;">
+                            <option value="PDF">PDF</option>
+                            <option value="DOCX">DOCX (Word)</option>
+                            <option value="HTML">HTML</option>
+                            <option value="MD">Markdown</option>
+                            <option value="TXT">Plain Text</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="atsOptimized" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 13px; font-weight: 600; color: #333;">ATS Optimized (Applicant Tracking System)</span>
+                        </label>
+                        <p style="margin: 4px 0 0 26px; font-size: 12px; color: #666;">Formats the document for better parsing by automated hiring systems</p>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=\\'position: fixed\\']').remove()" style="padding: 10px 20px; background: #f5f5f7; border: none; border-radius: 6px; cursor: pointer; font-family: Questrial, sans-serif; font-size: 14px; font-weight: 600; color: #666;">
+                            Cancel
+                        </button>
+                        <button onclick="executeGenerate(this)" style="padding: 10px 20px; background: #0066CC; border: none; border-radius: 6px; cursor: pointer; font-family: Questrial, sans-serif; font-size: 14px; font-weight: 600; color: white;">
+                            <i class="ph ph-sparkle"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function executeGenerate(button) {
+            const modal = button.closest('div[style*="position: fixed"]');
+            const materialType = document.getElementById('materialType').value;
+            const jobOppIndex = document.getElementById('jobOpportunity').value;
+            const outputFormat = document.getElementById('outputFormat').value;
+            const atsOptimized = document.getElementById('atsOptimized').checked;
+
+            if (!jobOppIndex) {
+                alert('Please select a job opportunity');
+                return;
+            }
+
+            const jobOpps = exampleJobOpportunities[currentPersona] || [];
+            const selectedJob = jobOpps[jobOppIndex];
+            const jobTitle = `${selectedJob.title} - ${selectedJob.company}`;
+
+            // Simulate generation (in real implementation, this would call an API)
+            const newMaterial = {
+                type: materialType,
+                title: `${materialType} for ${selectedJob.company}`,
+                jobOpportunity: jobTitle,
+                content: `Generated ${materialType.toLowerCase()} for ${jobTitle}. This would contain the actual generated content based on your career experience and the job requirements.`,
+                format: outputFormat,
+                atsOptimized: atsOptimized,
+                createdDate: new Date().toISOString().split('T')[0],
+                isExample: false
+            };
+
+            userApplicationMaterials.push(newMaterial);
+            saveUserApplicationMaterials();
+            loadApplicationMaterials();
+            updateNodeCounts();
+            modal.remove();
+
+            alert(`${materialType} generated successfully! In a full implementation, this would use AI to generate a customized ${materialType.toLowerCase()} based on your experience and the job requirements.`);
+        }
+
+        function uploadMaterial() {
+            alert('Upload functionality coming soon! This will allow you to upload existing resumes, cover letters, and other application materials in various formats (PDF, DOCX, TXT, etc.).');
+        }
+
+        function downloadMaterial(index) {
+            const material = userApplicationMaterials[index];
+            alert(`Download ${material.title} as ${material.format}\n\nIn a full implementation, this would download the material in the selected format.`);
+        }
+
+        function deleteMaterial(index) {
+            if (confirm('Are you sure you want to delete this application material?')) {
+                userApplicationMaterials.splice(index, 1);
+                saveUserApplicationMaterials();
+                loadApplicationMaterials();
+                updateNodeCounts();
+            }
         }
     </script>
 </body>
