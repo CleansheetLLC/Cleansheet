@@ -3276,42 +3276,48 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             slideout.classList.add('active');
         }
 
+        // Enhanced job opportunities with skills and competencies
+        const exampleJobOpportunities = {
+            'retail-manager': [
+                { title: 'Operations Manager', company: 'Amazon', location: 'Seattle', salary: '$125K', status: 'interested', skills: ['Excel', 'Data Analysis', 'Process Optimization'], competencies: ['Leadership', 'Operations Management', 'Problem Solving'], isExample: true },
+                { title: 'Business Analyst', company: 'Target HQ', location: 'Minneapolis', salary: '$95K', status: 'interested', skills: ['Excel', 'Power BI', 'SQL'], competencies: ['Data Analysis', 'Business Intelligence', 'Communication'], isExample: true },
+                { title: 'Data Analyst', company: 'Walmart eCommerce', location: 'Bentonville', salary: '$85K', status: 'interested', skills: ['SQL', 'Python', 'Tableau'], competencies: ['Analytics', 'Critical Thinking', 'Collaboration'], isExample: true },
+                { title: 'Supply Chain Analyst', company: 'Nike', location: 'Portland', salary: '$90K', status: 'interested', skills: ['Excel', 'Supply Chain Software', 'Data Visualization'], competencies: ['Logistics', 'Process Improvement', 'Stakeholder Management'], isExample: true },
+                { title: 'Ops Coordinator', company: 'Instacart', location: 'San Francisco', salary: '$80K', status: 'interested', skills: ['Project Management', 'Excel', 'Communication'], competencies: ['Organization', 'Multitasking', 'Adaptability'], isExample: true }
+            ],
+            'chemist': [
+                { title: 'Sr Data Scientist', company: 'Pfizer R&D', location: 'Cambridge', salary: '$165K', status: 'interested', skills: ['Python', 'Machine Learning', 'R', 'SQL'], competencies: ['Statistical Analysis', 'Research', 'Scientific Communication'], isExample: true },
+                { title: 'Computational Chemist', company: 'Moderna', location: 'Boston', salary: '$155K', status: 'interested', skills: ['Python', 'Molecular Modeling', 'Linux', 'HPC'], competencies: ['Computational Chemistry', 'Problem Solving', 'Collaboration'], isExample: true },
+                { title: 'ML Engineer', company: 'Genentech', location: 'South SF', salary: '$180K', status: 'interested', skills: ['Python', 'TensorFlow', 'PyTorch', 'AWS'], competencies: ['Machine Learning', 'Software Engineering', 'Agile Development'], isExample: true },
+                { title: 'Bioinformatics Scientist', company: 'Illumina', location: 'San Diego', salary: '$145K', status: 'interested', skills: ['Python', 'R', 'NGS Analysis', 'Bioinformatics Tools'], competencies: ['Genomics', 'Data Analysis', 'Cross-functional Collaboration'], isExample: true },
+                { title: 'Research Scientist', company: 'Merck', location: 'Rahway, NJ', salary: '$140K', status: 'interested', skills: ['Python', 'HPLC', 'Spectroscopy', 'R'], competencies: ['Analytical Chemistry', 'Experimental Design', 'Technical Writing'], isExample: true }
+            ],
+            'new-graduate': [
+                { title: 'Junior Full Stack Developer', company: 'StartupCo', location: 'Austin', salary: '$85K', status: 'applied', skills: ['React', 'Node.js', 'JavaScript', 'Git'], competencies: ['Full Stack Development', 'Problem Solving', 'Learning Agility'], isExample: true },
+                { title: 'Software Engineer I', company: 'Microsoft', location: 'Redmond', salary: '$120K', status: 'interested', skills: ['C#', '.NET', 'Azure', 'SQL'], competencies: ['Software Development', 'Collaboration', 'Technical Communication'], isExample: true },
+                { title: 'Frontend Developer', company: 'Shopify', location: 'Remote', salary: '$95K', status: 'interested', skills: ['React', 'TypeScript', 'CSS', 'Redux'], competencies: ['UI Development', 'Responsive Design', 'User Experience'], isExample: true },
+                { title: 'Backend Engineer', company: 'Stripe', location: 'San Francisco', salary: '$130K', status: 'interested', skills: ['Python', 'PostgreSQL', 'REST APIs', 'Docker'], competencies: ['API Development', 'System Design', 'Testing'], isExample: true },
+                { title: 'Web Developer', company: 'HubSpot', location: 'Boston', salary: '$90K', status: 'interested', skills: ['JavaScript', 'React', 'Node.js', 'MongoDB'], competencies: ['Web Development', 'Agile', 'Communication'], isExample: true }
+            ],
+            'data-analyst': [
+                { title: 'Senior Data Analyst', company: 'DataCorp', location: 'New York', salary: '$125K', status: 'interviewing', skills: ['SQL', 'Python', 'Tableau', 'Excel'], competencies: ['Data Analysis', 'Business Intelligence', 'Stakeholder Management'], isExample: true },
+                { title: 'BI Analyst', company: 'Salesforce', location: 'San Francisco', salary: '$115K', status: 'interested', skills: ['SQL', 'Tableau', 'Power BI', 'ETL'], competencies: ['Business Intelligence', 'Data Visualization', 'Communication'], isExample: true },
+                { title: 'Analytics Engineer', company: 'Airbnb', location: 'Remote', salary: '$140K', status: 'interested', skills: ['SQL', 'Python', 'dbt', 'Looker'], competencies: ['Data Modeling', 'Analytics Engineering', 'Collaboration'], isExample: true },
+                { title: 'Data Scientist', company: 'Netflix', location: 'Los Gatos', salary: '$155K', status: 'interested', skills: ['Python', 'SQL', 'Machine Learning', 'A/B Testing'], competencies: ['Statistical Analysis', 'Experimentation', 'Product Analytics'], isExample: true },
+                { title: 'Product Analyst', company: 'LinkedIn', location: 'Sunnyvale', salary: '$130K', status: 'interested', skills: ['SQL', 'Python', 'Tableau', 'Excel'], competencies: ['Product Analytics', 'Metrics Definition', 'Cross-functional Collaboration'], isExample: true }
+            ]
+        };
+
         function loadJobOpportunities() {
             const container = document.getElementById('jobsContainer');
             container.innerHTML = '';
 
             loadUserJobs();
 
-            // Get job opportunities from current persona's children (examples)
-            const currentPersonaData = personaData[currentPersona];
-            const jobOppsNode = currentPersonaData.children.find(child => child.name === 'Job Opportunities');
-
-            // Combine user jobs with example jobs
+            // Combine user jobs with example jobs from enhanced data
             const allJobs = [...userJobs];
-
-            // Add example jobs from persona data
-            if (jobOppsNode && jobOppsNode.children && jobOppsNode.children.length > 0) {
-                jobOppsNode.children.forEach((job) => {
-                    const jobText = job.name;
-                    const lines = jobText.split('\n');
-                    const title = lines[0] || 'Untitled Position';
-                    const details = lines[1] || '';
-
-                    // Parse company, location, salary from "Company (Location, Salary)"
-                    const match = details.match(/^(.+?)\s*\((.+?),\s*\$?([\d,K]+)\)/);
-
-                    if (match) {
-                        allJobs.push({
-                            title: title,
-                            company: match[1].trim(),
-                            location: match[2].trim(),
-                            salary: '$' + match[3].trim(),
-                            status: 'interested',
-                            isExample: true
-                        });
-                    }
-                });
-            }
+            const exampleJobs = exampleJobOpportunities[currentPersona] || [];
+            allJobs.push(...exampleJobs);
 
             if (allJobs.length === 0) {
                 container.innerHTML = `
@@ -3351,8 +3357,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <div class="job-company">${escapeHtml(job.company)}</div>
                             ${job.location ? `<div class="job-location"><i class="ph ph-map-pin" style="font-size: 10px;"></i> ${escapeHtml(job.location)}</div>` : ''}
                             ${job.salary ? `<div class="job-salary">${escapeHtml(job.salary)}</div>` : ''}
-                            <span class="job-status ${job.status}">${statusLabels[job.status]}</span>
-                            ${job.isExample ? '<span class="competency-tag" style="margin-left: 6px;">Example</span>' : ''}
+                            <div style="margin-top: 6px;">
+                                <span class="job-status ${job.status}">${statusLabels[job.status]}</span>
+                                ${job.isExample ? '<span class="competency-tag" style="margin-left: 6px;">Example</span>' : ''}
+                            </div>
                         </div>
                         ${isUserJob ? `
                         <div class="story-actions">
@@ -3365,6 +3373,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                         ` : ''}
                     </div>
+                    ${job.skills && job.skills.length > 0 ? `
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
+                            <div style="font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Required Skills</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                ${job.skills.map(skill => `<span style="background: #e3f2fd; color: #0066CC; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${escapeHtml(skill)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${job.competencies && job.competencies.length > 0 ? `
+                        <div style="margin-top: 8px;">
+                            <div style="font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Key Competencies</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                ${job.competencies.map(comp => `<span style="background: #f5f5f7; color: #666; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${escapeHtml(comp)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
                     ${job.notes ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-neutral-border); font-size: 11px; color: var(--color-neutral-text-light);">${escapeHtml(job.notes)}</div>` : ''}
                 `;
                 container.appendChild(card);
