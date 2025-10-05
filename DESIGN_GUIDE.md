@@ -216,11 +216,21 @@ body, p {
 ## Component Patterns
 
 ### Iconography
-**Library**: Font Awesome 6.4.0 (Free)
+**Library**: Phosphor Icons (MIT License, 6,000+ icons)
 
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 ```
+
+**Usage**:
+```html
+<!-- Icon with class syntax -->
+<i class="ph ph-book-open"></i>
+<i class="ph ph-map-trifold"></i>
+<i class="ph ph-compass"></i>
+```
+
+**Migration from Font Awesome**: All pages now use Phosphor Icons for consistency and broader icon selection.
 
 #### Icon Containers
 ```css
@@ -351,6 +361,14 @@ body, p {
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
+}
+
+/* Count badges (used in Canvas modal) */
+.count-badge {
+    background: #e3f2fd;  /* Light blue */
+    color: #1a1a1a;       /* Dark gray text */
+    font-weight: 600;
+    /* NO border/stroke - fill only */
 }
 ```
 
@@ -492,6 +510,391 @@ node.append('rect')
 4. **Contrast**: White text on blue nodes, dark text on gray nodes
 5. **Compact layout**: Keep y-values between 0.12 and 0.88 to avoid clipping
 6. **Clean design**: No outlines on default state, only show on active selection
+
+---
+
+### D3 Tree Visualization (Canvas Modal)
+**Implementation**: `index.html` - Cleansheet Canvas modal
+
+A tree-based mindmap visualization using D3.js for navigating career resources with expand/collapse functionality.
+
+#### Dependencies
+```html
+<script src="https://d3js.org/d3.v7.min.js"></script>
+```
+
+#### Modal Structure
+```html
+<div class="canvas-modal" id="canvasModal">
+    <div class="canvas-modal-content">
+        <div class="canvas-modal-header">
+            <div class="persona-selector">
+                <button class="persona-btn active" data-persona="retail-manager">
+                    Marcus Thompson
+                </button>
+                <!-- More persona buttons -->
+            </div>
+            <button class="close-btn" onclick="closeCanvas()">×</button>
+        </div>
+        <div class="canvas-modal-body" id="canvasBody">
+            <div class="mindmap-container">
+                <div id="mindmap"></div>
+            </div>
+            <div class="right-panel">
+                <!-- Calendar and AI Assistant widgets -->
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+#### Styling
+```css
+.canvas-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    display: none;
+}
+
+.canvas-modal.active { display: flex; }
+
+.canvas-modal-content {
+    width: 95vw; height: 95vh;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.canvas-modal-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 350px;  /* Expanded */
+    gap: 24px;
+    transition: grid-template-columns 0.3s ease;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.canvas-modal-body.collapsed {
+    grid-template-columns: 1fr 0px;  /* Collapsed */
+    gap: 0;
+}
+
+.mindmap-container {
+    overflow: auto;
+    background: var(--color-neutral-background);
+    border-radius: 8px;
+}
+
+/* Tree nodes */
+.tree-node rect {
+    fill: white;
+    stroke: #ddd;
+    stroke-width: 1;
+    rx: 6;
+    ry: 6;
+}
+
+.tree-node.root rect {
+    fill: white;
+    stroke: var(--color-primary-blue);
+    stroke-width: 2;
+}
+
+.tree-node.child rect {
+    fill: var(--color-primary-blue);
+}
+
+.tree-node.grandchild rect {
+    fill: white;
+}
+
+.tree-node text {
+    font-family: var(--font-family-ui);
+    font-size: 13px;
+    fill: #333;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.tree-node.child text {
+    fill: white;
+    font-weight: 600;
+}
+
+/* Tree links */
+.tree-link {
+    fill: none;
+    stroke: #999;
+    stroke-width: 2;
+}
+
+/* Count badges */
+.count-badge-circle {
+    fill: #e3f2fd;  /* Light blue */
+}
+
+.count-badge-text {
+    fill: #1a1a1a;  /* Dark gray */
+    font-size: 11px;
+    font-weight: 600;
+    text-anchor: middle;
+    pointer-events: none;
+}
+```
+
+#### D3 Tree Implementation
+
+**Key Pattern: Use `.nodeSize()` for fixed spacing**
+```javascript
+// CORRECT: Fixed node spacing
+const treeLayout = d3.tree()
+    .nodeSize([60, 220]);  // [vertical, horizontal] spacing in pixels
+
+// WRONG: Dynamic scaling
+const treeLayout = d3.tree()
+    .size([height, width]);  // Nodes compress when tree expands
+```
+
+**Hierarchy Creation with Collapse**
+```javascript
+// Step 1: Create hierarchy with FULL data first
+const root = d3.hierarchy(mindmapData);
+root.x0 = height / 2;
+root.y0 = 0;
+
+// Step 2: Manually collapse grandchildren (hide initially)
+if (root.children) {
+    root.children.forEach(child => {
+        if (child.children) {
+            child._children = child.children;  // Store for later
+            child.children = null;              // Hide initially
+        }
+    });
+}
+```
+
+**CRITICAL**: Never pre-hide children before calling `d3.hierarchy()`. D3 needs to see the full data structure first.
+
+**Toggle Node Function**
+```javascript
+function toggleNode(d) {
+    if (!d._children && !d.children) return;
+
+    // If opening this node
+    if (d._children) {
+        // Close any other open second-level nodes
+        root.children.forEach(child => {
+            if (child !== d && child.children) {
+                child._children = child.children;
+                child.children = null;
+            }
+        });
+
+        // Open this node
+        d.children = d._children;
+        d._children = null;
+    } else {
+        // Close this node
+        d._children = d.children;
+        d.children = null;
+    }
+
+    update(d);  // Redraw tree
+}
+```
+
+**Text Truncation**
+```javascript
+function wrapText(text, maxWidth, maxLines = 999) {
+    const words = text.text().split(/\s+/).reverse();
+    let line = [];
+    let lineNumber = 0;
+    let lineHeight = 1.1;
+    const y = text.attr('y');
+    const dy = parseFloat(text.attr('dy')) || 0;
+    let tspan = text.text(null).append('tspan')
+        .attr('x', 0).attr('y', y).attr('dy', dy + 'em');
+
+    let word;
+    while (word = words.pop()) {
+        if (lineNumber >= maxLines) break;
+
+        line.push(word);
+        tspan.text(line.join(' '));
+
+        if (tspan.node().getComputedTextLength() > maxWidth) {
+            line.pop();
+
+            // Add ellipsis if this is the last line
+            if (lineNumber === maxLines - 1 && words.length > 0) {
+                tspan.text(line.join(' ') + '...');
+            } else {
+                tspan.text(line.join(' '));
+            }
+
+            line = [word];
+            tspan = text.append('tspan')
+                .attr('x', 0)
+                .attr('y', y)
+                .attr('dy', ++lineNumber * lineHeight + dy + 'em')
+                .text(word);
+        }
+    }
+}
+```
+
+**Dynamic SVG Sizing**
+```javascript
+function update(source) {
+    const visibleNodes = root.descendants();
+    const neededHeight = Math.max(height, visibleNodes.length * 60);
+    const neededWidth = Math.max(width, 1000);
+
+    svg.style('min-width', neededWidth + 'px')
+       .style('min-height', neededHeight + 'px');
+
+    // Use nodeSize for fixed spacing
+    const treeLayout = d3.tree()
+        .nodeSize([60, 220])
+        .separation((a, b) => {
+            if (a.depth === 2 && b.depth === 2) {
+                return a.parent === b.parent ? 1.0 : 1.3;
+            }
+            return a.parent === b.parent ? 1.0 : 1.5;
+        });
+
+    const treeData = treeLayout(root);
+    // ... render nodes and links
+}
+```
+
+#### Node Dimensions
+- **Root**: 140×60px (white background, blue border)
+- **Second-level**: 180×50px (blue background, white text)
+- **Third-level**: 250×40px (white background, dark text)
+
+#### Text Constraints
+- **Maximum characters**: 50 chars
+- **Maximum lines**: 2 lines for third-level nodes
+- **Truncation**: Ellipsis (...) on last line if exceeded
+- **Line breaks**: Support `\n` for manual line breaks (e.g., job listings)
+
+#### Data Structure
+```javascript
+const personaData = {
+    'retail-manager': {
+        name: 'Marcus Thompson',
+        goal: 'Transition from retail management...',
+        children: [
+            {
+                name: 'Job Opportunities',
+                count: 5,  // Shows in badge
+                children: [
+                    { name: 'Operations Manager\nAmazon (Seattle, $125K)' }
+                ]
+            },
+            {
+                name: 'Portfolio',
+                count: 2,
+                children: [
+                    { name: 'Power BI Sales Dashboard' }
+                ]
+            },
+            {
+                name: 'Interview Prep',
+                count: 3,
+                children: [
+                    { name: 'Behavioral' },
+                    { name: 'Technical' },
+                    { name: 'Challenge' }
+                ]
+            }
+        ]
+    }
+};
+```
+
+#### Badge Positioning
+```javascript
+// Count badge for second-level nodes
+node.filter(d => d.depth === 1 && d.data.count)
+    .each(function(d) {
+        const count = d.data.count;
+
+        // Circle
+        d3.select(this.parentNode)
+            .append('circle')
+            .attr('class', 'count-badge-circle')
+            .attr('cx', 90 - 20)  // childWidth/2 - offset
+            .attr('cy', -25 + 15)  // -childHeight/2 + offset
+            .attr('r', 12)
+            .attr('fill', '#e3f2fd');  // Light blue, NO stroke
+
+        // Text
+        d3.select(this.parentNode)
+            .append('text')
+            .attr('class', 'count-badge-text')
+            .attr('x', 90 - 20)
+            .attr('y', -25 + 15)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '11px')
+            .attr('font-weight', '600')
+            .attr('fill', '#1a1a1a')  // Dark gray
+            .text(count);
+    });
+```
+
+#### Right Panel (Collapsible)
+```javascript
+function toggleRightPanel() {
+    const body = document.getElementById('canvasBody');
+    const toggle = document.getElementById('collapseToggle');
+    const icon = toggle.querySelector('i');
+
+    rightPanelCollapsed = !rightPanelCollapsed;
+
+    if (rightPanelCollapsed) {
+        body.classList.add('collapsed');
+        icon.className = 'ph ph-caret-left';
+    } else {
+        body.classList.remove('collapsed');
+        icon.className = 'ph ph-caret-right';
+    }
+}
+```
+
+#### Best Practices
+1. **Always use `.nodeSize()`** for tree layouts - prevents node compression on expand
+2. **Create hierarchy first** - call `d3.hierarchy()` with full data before hiding children
+3. **Constrain text** - set char limits (50), line limits (2), add ellipsis
+4. **Dynamic sizing** - calculate SVG dimensions based on visible nodes
+5. **Scrollable container** - use `overflow: auto` to handle large trees
+6. **Single-node expansion** - only one second-level node open at a time
+7. **Badge styling** - light blue background (#e3f2fd), dark text (#1a1a1a), NO border
+8. **Smooth transitions** - 400ms duration for expand/collapse animations
+9. **Panel collapse** - starts collapsed to maximize mindmap space
+10. **Line break support** - use `\n` for multi-line text in job listings
+
+#### Content Guidelines
+**Portfolio**: Include only displayable artifacts (dashboards, projects, repos, publications). Exclude achievements/metrics (those belong in Career Experience).
+
+**Interview Prep**: Simplified to three categories:
+- Behavioral (questions about past experience)
+- Technical (skills assessment)
+- Challenge (coding/problem-solving)
+
+These categories trigger CRUD slideout widgets for managing multiple records.
+
+**Job Opportunities**: Format with line breaks:
+```javascript
+{ name: 'Job Title\nCompany (Location, Salary)' }
+```
 
 ---
 

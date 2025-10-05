@@ -64,12 +64,17 @@ To ensure fast, consistent rebranding across the platform:
 - Neutral Border: #e5e5e7
 - Neutral White: #ffffff
 - Header Title: #e0e0e0 (light gray for contrast on dark background)
+- Badge Background: #e3f2fd (light blue for count badges)
+- Badge Text: #1a1a1a (dark gray, weight 600)
 
 **Iconography:**
-- Font Awesome 6.4.0 (Free)
+- **Phosphor Icons** - Primary icon library (MIT License, 6,000+ icons)
+- Loaded via CDN: `https://unpkg.com/@phosphor-icons/web`
+- Icon classes: `<i class="ph ph-icon-name"></i>`
 - Color-coded icon backgrounds (primary blue, dark, accent blue)
 - Consistent rounded square containers (60px × 60px)
 - All icons use white color
+- **Migration from Font Awesome**: All pages now use Phosphor Icons for consistency
 
 **Branding:**
 - Logo files located: `assets/high-resolution-logo-files/`
@@ -204,6 +209,56 @@ To ensure fast, consistent rebranding across the platform:
   - Mobile (≤768px): Single column
 - Equal-height cards with hover effects (lift + shadow)
 - "← Home" button matches career-paths.html style (compact, dark translucent, backdrop blur)
+
+**Cleansheet Canvas** (`index.html` - Canvas Modal)
+- **Purpose**: Interactive career navigation canvas mockup with D3.js tree visualization
+- **Technology**: D3.js v7 tree layout with fixed nodeSize for static positioning
+- **Modal Structure**:
+  - Full-screen modal (95vh × 95vw) with rounded corners
+  - Header with persona selector (4 clickable personas)
+  - Grid layout: `1fr 350px` (mindmap + right panel) or `1fr 0px` (collapsed)
+  - Collapsible right panel with Calendar and AI Assistant widgets
+  - Panel starts collapsed to maximize mindmap space
+  - Smooth grid transitions on collapse (0.3s ease)
+- **D3 Tree Visualization**:
+  - Tree layout using `.nodeSize([60, 220])` for FIXED vertical and horizontal spacing
+  - Three node levels with rectangular shapes (rounded corners):
+    - **Root** (140×60px): "My Canvas" with white background
+    - **Second-level** (180×50px): Categories with count badges (Job Opportunities, Portfolio, etc.)
+    - **Third-level** (250×40px): Detail items with text truncation
+  - Text constraints: 50 char max, 2 lines max, ellipsis truncation
+  - Links: 2px gray stroke, curved paths using `d3.linkHorizontal()`
+  - Scrollable container for large trees (`overflow: auto`)
+- **Expand/Collapse Pattern**:
+  - Only ONE second-level node can be expanded at a time
+  - Clicking a node toggles between `children` (visible) and `_children` (hidden)
+  - **CRITICAL**: Must call `d3.hierarchy()` FIRST with full data, THEN manually move `child.children` to `child._children` to hide grandchildren initially
+  - Update function recalculates tree layout and animates transitions
+- **Count Badges**:
+  - Light blue circle (`#e3f2fd`) positioned at top-right of second-level nodes
+  - Dark gray text (`#1a1a1a`, weight 600)
+  - 12px radius, centered text
+  - NO border/stroke
+- **Persona Data Structure**:
+  - 4 personas: Retail Manager, Research Chemist, New Graduate, Data Analyst
+  - Each persona has unique career navigation data:
+    - Job Opportunities (with line breaks: "Job Title\nCompany (Location, Salary)")
+    - Application Materials
+    - Career Experience
+    - Skills & Goals
+    - Portfolio (displayable artifacts only: dashboards, projects, repos, publications)
+    - Interview Prep (simplified: Behavioral, Technical, Challenge - for future CRUD widgets)
+- **Right Panel Widgets**:
+  - Calendar: Upcoming interviews with date, time, company info
+  - Outlook sync with professional animation (rotate → scale-in → fade-in)
+  - AI Assistant: Chat interface placeholder
+  - Collapse toggle button with caret icons (positioned at panel edge)
+- **Technical Implementation Notes**:
+  - SVG dynamically sized based on visible nodes: `min-height: visibleNodes.length * 60`
+  - Text wrapping with custom function using tspan elements
+  - Separation function for enhanced spacing between grandchildren
+  - Overflow prevention: `overflow: hidden` on modal content, `min-height: 0` on modal body
+  - D3 transitions (400ms duration) for smooth expand/collapse
 
 **Legal Documents:**
 - `privacy-policy.html` - Privacy policy
@@ -460,6 +515,47 @@ Cleansheet/
 - Date linking dropdowns for chronological data entry
 - Modal forms with sticky header/footer for long forms
 
+**D3.js Visualization Patterns:**
+- **Tree Layout with Fixed Spacing**:
+  - Use `.nodeSize([vertical, horizontal])` for static node distances
+  - DO NOT use `.size([height, width])` which scales dynamically
+  - Example: `.nodeSize([60, 220])` maintains 60px vertical, 220px horizontal spacing
+  - Dynamic container sizing: `Math.max(height, visibleNodes.length * 60)`
+- **Hierarchy Creation and Collapse**:
+  - ALWAYS call `d3.hierarchy(data)` FIRST with complete data structure
+  - THEN manually move `node.children` to `node._children` to hide nodes
+  - Never pre-hide children before hierarchy creation (D3 won't see them)
+  ```javascript
+  const root = d3.hierarchy(fullData); // D3 sees all children
+  root.children.forEach(child => {
+      if (child.children) {
+          child._children = child.children; // Store for later
+          child.children = null; // Hide initially
+      }
+  });
+  ```
+- **Toggle Pattern for Expand/Collapse**:
+  - Toggle between `children` (visible) and `_children` (hidden)
+  - Close other nodes at same level before opening new one
+  - Call `update(d)` after toggling to redraw tree
+- **Text Truncation in SVG**:
+  - Set max character length (e.g., 50 chars)
+  - Limit lines with custom wrapping function (e.g., 2 lines max)
+  - Add ellipsis on last line if text exceeds limits
+  - Use tspan elements for multi-line text
+- **Node Separation**:
+  - Custom separation function for enhanced spacing
+  - Different separation for nodes at same depth vs different depths
+  - Example: Grandchildren get 1.3× separation if different parents
+- **SVG Scrolling**:
+  - Make container scrollable: `overflow: auto`
+  - Dynamically set SVG min-width/min-height based on tree size
+  - Prevents nodes from rendering outside viewport
+- **Badge Positioning**:
+  - Use `attr('cx', width/2 - offset)` for right-aligned badges
+  - Position relative to node rect dimensions
+  - NO stroke/border on count badges (fill only)
+
 ---
 
 ## Development Best Practices
@@ -485,6 +581,16 @@ Cleansheet/
 2. Run generator after changes: `python generate_corpus_index.py`
 3. Verify output file size and structure
 4. Test interactive features (search, filters, slideout)
+
+### When Working with D3.js Visualizations
+1. **Always use `.nodeSize()` for tree layouts** - ensures static positioning
+2. **Create hierarchy with full data first** - never pre-hide children
+3. **Implement proper expand/collapse** - toggle children/_children, update tree
+4. **Constrain text dimensions** - set char limits, line limits, use ellipsis
+5. **Make containers scrollable** - dynamically size SVG, add overflow: auto
+6. **Test with various data sizes** - ensure no viewport overflow
+7. **Use D3 transitions** - smooth animations (400ms recommended)
+8. **Position badges carefully** - relative to node dimensions, no default borders
 
 ---
 
@@ -798,5 +904,5 @@ For questions about this development context:
 
 ---
 
-**Last Updated:** 2025-10-03
-**Version:** 1.0
+**Last Updated:** 2025-10-05
+**Version:** 1.1 - Added Cleansheet Canvas modal documentation with D3.js tree visualization patterns
