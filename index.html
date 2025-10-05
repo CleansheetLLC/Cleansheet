@@ -406,11 +406,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         .persona-selector {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
             gap: 8px;
-            flex-wrap: wrap;
             flex: 1;
-            justify-content: center;
         }
 
         /* Main Menu */
@@ -2265,11 +2265,82 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <div class="slideout-body" id="tablesContent" style="display: none;">
-                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 16px;">
                     Structured data tables with typed columns for organizing professional information.
                 </p>
-                <div id="tablesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
-                    <!-- Table type cards will be dynamically inserted here -->
+
+                <!-- Tables Tabs -->
+                <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--color-neutral-border);">
+                    <button id="tablesCardsTab" onclick="switchTablesView('cards')" style="padding: 12px 24px; background: none; border: none; border-bottom: 2px solid var(--color-primary-blue); color: var(--color-primary-blue); font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        Cards
+                    </button>
+                    <button id="tablesRelationshipsTab" onclick="switchTablesView('relationships')" style="padding: 12px 24px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-neutral-text); font-family: var(--font-family-heading); font-size: 14px; cursor: pointer;">
+                        Relationships
+                    </button>
+                </div>
+
+                <!-- Cards View -->
+                <div id="tablesCardsView" style="display: block;">
+                    <div id="tablesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                        <!-- Table type cards will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Relationships View (ERD) -->
+                <div id="tablesRelationshipsView" style="display: none;">
+                    <div style="background: white; border-radius: 8px; padding: 24px; border: 1px solid var(--color-neutral-border);">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); margin-bottom: 16px;">
+                            Entity Relationship Diagram showing how tables connect to each other
+                        </p>
+                        <div id="tablesERDContainer" style="width: 100%; height: 600px; position: relative;">
+                            <!-- ERD will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slideout-body" id="formsContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Interactive forms for data collection, surveys, and user input.
+                </p>
+                <div id="formsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Form type cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <div class="slideout-body" id="documentsContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Document library for storing and organizing professional files and content.
+                </p>
+                <div id="documentsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Document type cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <div class="slideout-body" id="reportsContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Analytics and reporting dashboards for data visualization and insights.
+                </p>
+                <div id="reportsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Report type cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <div class="slideout-body" id="templatesContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Reusable templates for standardizing documents, emails, and workflows.
+                </p>
+                <div id="templatesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Template type cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <div class="slideout-body" id="workflowsContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Automated workflows and business process automation tools.
+                </p>
+                <div id="workflowsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Workflow type cards will be dynamically inserted here -->
                 </div>
             </div>
         </div> <!-- End interview-slideout -->
@@ -2962,7 +3033,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     children: professionalNodes
                 };
             } else if (currentViewMode === 'professional') {
-                // Professional mode: mindmap structure with Documents, Tables, Reports, Templates, Workflows
+                // Professional mode: mindmap structure with Documents, Tables, Forms, Reports, Templates, Workflows
                 return {
                     ...data,
                     children: [
@@ -2974,12 +3045,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         {
                             name: 'Tables',
                             count: 0,
-                            children: [
-                                {
-                                    name: 'Forms',
-                                    count: 0
-                                }
-                            ]
+                            children: []
+                        },
+                        {
+                            name: 'Forms',
+                            count: 0,
+                            children: []
                         },
                         {
                             name: 'Reports',
@@ -4441,24 +4512,25 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     .attr('y', d => d.depth === 0 ? -rootHeight/2 : d.depth === 1 ? -childHeight/2 : -grandchildHeight/2);
 
                 // Add icons for depth 1 nodes (categories)
+                const iconMap = {
+                    // Seeker mode icons
+                    'Job Opportunities': 'ph-briefcase',
+                    'Application Materials': 'ph-file-text',
+                    'Career Experience': 'ph-suitcase',
+                    'Goals': 'ph-target',
+                    'Portfolio': 'ph-folder-open',
+                    'Interview Prep': 'ph-chats-circle',
+                    // Professional mode icons
+                    'Documents': 'ph-file-text',
+                    'Tables': 'ph-table',
+                    'Forms': 'ph-clipboard-text',
+                    'Reports': 'ph-chart-bar',
+                    'Templates': 'ph-note-blank',
+                    'Workflows': 'ph-git-branch'
+                };
+
                 nodeEnter.each(function(d) {
                     if (d.depth === 1) {
-                        const iconMap = {
-                            // Seeker mode icons
-                            'Job Opportunities': 'ph-briefcase',
-                            'Application Materials': 'ph-file-text',
-                            'Career Experience': 'ph-suitcase',
-                            'Goals': 'ph-target',
-                            'Portfolio': 'ph-folder-open',
-                            'Interview Prep': 'ph-chats-circle',
-                            // Professional mode icons
-                            'Documents': 'ph-file-text',
-                            'Tables': 'ph-table',
-                            'Reports': 'ph-chart-bar',
-                            'Templates': 'ph-note-blank',
-                            'Workflows': 'ph-git-branch'
-                        };
-
                         const iconClass = iconMap[d.data.name];
                         if (iconClass) {
                             d3.select(this)
@@ -4556,6 +4628,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             // Tables opens slideout with table type cards
                             console.log('Opening Tables slideout');
                             openTablesSlideout();
+                        } else if (nodeName === 'Forms') {
+                            console.log('Opening Forms slideout');
+                            openFormsSlideout();
+                        } else if (nodeName === 'Documents') {
+                            console.log('Opening Documents slideout');
+                            openDocumentsSlideout();
+                        } else if (nodeName === 'Reports') {
+                            console.log('Opening Reports slideout');
+                            openReportsSlideout();
+                        } else if (nodeName === 'Templates') {
+                            console.log('Opening Templates slideout');
+                            openTemplatesSlideout();
+                        } else if (nodeName === 'Workflows') {
+                            console.log('Opening Workflows slideout');
+                            openWorkflowsSlideout();
                         } else {
                             // Other nodes expand normally
                             toggleNode(d);
@@ -4578,6 +4665,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 nodeUpdate.transition()
                     .duration(500)
                     .attr('transform', d => `translate(${d.y}, ${d.x})`);
+
+                // Ensure all depth 1 nodes have icons (handles nodes that existed before)
+                nodeUpdate.each(function(d) {
+                    if (d.depth === 1) {
+                        const nodeElement = d3.select(this);
+                        // Check if icon already exists
+                        if (nodeElement.select('foreignObject').empty()) {
+                            const iconClass = iconMap[d.data.name];
+                            if (iconClass) {
+                                nodeElement
+                                    .append('foreignObject')
+                                    .attr('width', 20)
+                                    .attr('height', 20)
+                                    .attr('x', -childWidth/2 + 8)
+                                    .attr('y', -10)
+                                    .html(`<i class="ph ${iconClass}" style="font-size: 20px; color: #0066CC;"></i>`);
+                            }
+                        }
+                    }
+                });
 
                 // Update cursor for all nodes based on whether they have children
                 nodeUpdate.style('cursor', d => {
@@ -6825,6 +6932,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('portfolioContent').style.display = 'none';
             document.getElementById('projectsContent').style.display = 'none';
             document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('formsContent').style.display = 'none';
+            document.getElementById('documentsContent').style.display = 'none';
+            document.getElementById('reportsContent').style.display = 'none';
+            document.getElementById('templatesContent').style.display = 'none';
+            document.getElementById('workflowsContent').style.display = 'none';
 
             // Show tables content
             document.getElementById('tablesContent').style.display = 'block';
@@ -6914,10 +7026,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <div style="flex: 1;">
                             <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${table.name}</div>
                         </div>
-                        <button onclick="event.stopPropagation(); shareTable('${table.name}')" style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
-                            <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
-                            <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Share</span>
-                        </button>
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="event.stopPropagation(); editItem('${table.name}')" title="Edit" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-pencil-simple" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteItem('${table.name}')" title="Delete" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#dc2626'; this.style.background='#fef2f2';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-trash" style="font-size: 16px; color: #dc2626;"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); shareTable('${table.name}')" title="Share" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            </button>
+                        </div>
                     </div>
                     <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">
                         ${table.description}
@@ -6958,6 +7077,772 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function shareTable(tableName) {
             alert(`Share ${tableName} table functionality coming soon!`);
+        }
+
+        // Switch between Cards and Relationships views in Tables
+        function switchTablesView(view) {
+            const cardsTab = document.getElementById('tablesCardsTab');
+            const relationshipsTab = document.getElementById('tablesRelationshipsTab');
+            const cardsView = document.getElementById('tablesCardsView');
+            const relationshipsView = document.getElementById('tablesRelationshipsView');
+
+            if (view === 'cards') {
+                // Show cards view
+                cardsView.style.display = 'block';
+                relationshipsView.style.display = 'none';
+
+                // Update tab styling
+                cardsTab.style.borderBottom = '2px solid var(--color-primary-blue)';
+                cardsTab.style.color = 'var(--color-primary-blue)';
+                cardsTab.style.fontWeight = '600';
+
+                relationshipsTab.style.borderBottom = '2px solid transparent';
+                relationshipsTab.style.color = 'var(--color-neutral-text)';
+                relationshipsTab.style.fontWeight = '400';
+            } else if (view === 'relationships') {
+                // Show relationships view
+                cardsView.style.display = 'none';
+                relationshipsView.style.display = 'block';
+
+                // Update tab styling
+                relationshipsTab.style.borderBottom = '2px solid var(--color-primary-blue)';
+                relationshipsTab.style.color = 'var(--color-primary-blue)';
+                relationshipsTab.style.fontWeight = '600';
+
+                cardsTab.style.borderBottom = '2px solid transparent';
+                cardsTab.style.color = 'var(--color-neutral-text)';
+                cardsTab.style.fontWeight = '400';
+
+                // Render ERD if not already rendered
+                renderTablesERD();
+            }
+        }
+
+        // Render Entity Relationship Diagram with force-directed layout
+        function renderTablesERD() {
+            const container = document.getElementById('tablesERDContainer');
+
+            // Clear existing content
+            container.innerHTML = '';
+
+            // Define table nodes and relationships
+            const nodes = [
+                { id: 'contacts', name: 'Contacts', columns: ['Name', 'Email', 'Phone', 'Company'] },
+                { id: 'customers', name: 'Customers', columns: ['Name', 'Type', 'Status', 'Contact_ID'] },
+                { id: 'projects', name: 'Projects', columns: ['Name', 'Start Date', 'Status', 'Customer_ID'] },
+                { id: 'tasks', name: 'Tasks', columns: ['Title', 'Due Date', 'Status', 'Project_ID'] },
+                { id: 'vendors', name: 'Vendors', columns: ['Name', 'Category', 'Contact_ID'] },
+                { id: 'expenses', name: 'Expenses', columns: ['Amount', 'Date', 'Vendor_ID', 'Project_ID'] }
+            ];
+
+            const links = [
+                { source: 'customers', target: 'contacts', type: 'many-to-one', label: 'has contact' },
+                { source: 'projects', target: 'customers', type: 'many-to-one', label: 'belongs to' },
+                { source: 'tasks', target: 'projects', type: 'many-to-one', label: 'part of' },
+                { source: 'vendors', target: 'contacts', type: 'many-to-one', label: 'has contact' },
+                { source: 'expenses', target: 'vendors', type: 'many-to-one', label: 'paid to' },
+                { source: 'expenses', target: 'projects', type: 'many-to-one', label: 'charged to' }
+            ];
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Create SVG
+            const svg = d3.select('#tablesERDContainer')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height])
+                .attr('style', 'max-width: 100%; height: auto;');
+
+            // Create force simulation
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links)
+                    .id(d => d.id)
+                    .distance(200)
+                    .strength(0.5))
+                .force('charge', d3.forceManyBody().strength(-800))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(150));
+
+            // Create arrow marker for directed edges
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 130)
+                .attr('refY', 0)
+                .attr('markerWidth', 8)
+                .attr('markerHeight', 8)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M0,-5L10,0L0,5')
+                .attr('fill', '#0066CC')
+                .attr('opacity', 0.6);
+
+            // Draw relationship lines
+            const linkGroup = svg.append('g').attr('class', 'relationships');
+
+            const link = linkGroup.selectAll('line')
+                .data(links)
+                .join('line')
+                .attr('stroke', '#0066CC')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', d => d.type === 'many-to-one' ? '5,5' : '0')
+                .attr('opacity', 0.6)
+                .attr('marker-end', 'url(#arrowhead)');
+
+            // Add relationship labels
+            const linkLabels = linkGroup.selectAll('text')
+                .data(links)
+                .join('text')
+                .attr('text-anchor', 'middle')
+                .attr('font-family', 'var(--font-family-body)')
+                .attr('font-size', '11px')
+                .attr('fill', '#666')
+                .attr('dy', -5)
+                .text(d => d.label);
+
+            // Draw table nodes
+            const nodeGroup = svg.append('g').attr('class', 'tables');
+
+            const node = nodeGroup.selectAll('g')
+                .data(nodes)
+                .join('g')
+                .attr('cursor', 'grab')
+                .call(drag(simulation));
+
+            // Calculate node height based on number of columns
+            nodes.forEach(n => {
+                n.height = 40 + (n.columns.length * 24);
+            });
+
+            // Table container (rounded rectangle)
+            node.append('rect')
+                .attr('width', 240)
+                .attr('height', d => d.height)
+                .attr('x', -120)
+                .attr('y', d => -d.height / 2)
+                .attr('rx', 8)
+                .attr('ry', 8)
+                .attr('fill', 'white')
+                .attr('stroke', '#0066CC')
+                .attr('stroke-width', 2);
+
+            // Table header background
+            node.append('rect')
+                .attr('width', 240)
+                .attr('height', 40)
+                .attr('x', -120)
+                .attr('y', d => -d.height / 2)
+                .attr('rx', 8)
+                .attr('ry', 8)
+                .attr('fill', '#e3f2fd');
+
+            // Table header divider
+            node.append('line')
+                .attr('x1', -120)
+                .attr('y1', d => -d.height / 2 + 40)
+                .attr('x2', 120)
+                .attr('y2', d => -d.height / 2 + 40)
+                .attr('stroke', '#0066CC')
+                .attr('stroke-width', 2);
+
+            // Table icon
+            node.append('foreignObject')
+                .attr('width', 20)
+                .attr('height', 20)
+                .attr('x', -108)
+                .attr('y', d => -d.height / 2 + 10)
+                .html('<i class="ph ph-table" style="font-size: 20px; color: #0066CC;"></i>');
+
+            // Table name
+            node.append('text')
+                .attr('x', -80)
+                .attr('y', d => -d.height / 2 + 25)
+                .attr('font-family', 'var(--font-family-heading)')
+                .attr('font-size', '16px')
+                .attr('font-weight', '600')
+                .attr('fill', '#0066CC')
+                .text(d => d.name);
+
+            // Table columns
+            node.each(function(d) {
+                const group = d3.select(this);
+                d.columns.forEach((col, idx) => {
+                    const y = -d.height / 2 + 40 + (idx * 24) + 16;
+
+                    // Column name
+                    group.append('text')
+                        .attr('x', -108)
+                        .attr('y', y)
+                        .attr('font-family', 'var(--font-family-body)')
+                        .attr('font-size', '12px')
+                        .attr('fill', '#333')
+                        .text(col);
+
+                    // Show key icon for foreign keys (columns ending in _ID)
+                    if (col.endsWith('_ID')) {
+                        group.append('foreignObject')
+                            .attr('width', 14)
+                            .attr('height', 14)
+                            .attr('x', 100)
+                            .attr('y', y - 10)
+                            .html('<i class="ph ph-key" style="font-size: 14px; color: #666;"></i>');
+                    }
+                });
+            });
+
+            // Update positions on each tick
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                linkLabels
+                    .attr('x', d => (d.source.x + d.target.x) / 2)
+                    .attr('y', d => (d.source.y + d.target.y) / 2);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag behavior
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                    d3.select(this).attr('cursor', 'grabbing');
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                    d3.select(this).attr('cursor', 'grab');
+                }
+
+                return d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended);
+            }
+
+            // Add legend
+            const legend = svg.append('g')
+                .attr('transform', `translate(20, ${height - 80})`);
+
+            legend.append('rect')
+                .attr('width', 220)
+                .attr('height', 70)
+                .attr('rx', 6)
+                .attr('fill', 'white')
+                .attr('stroke', '#e5e5e7')
+                .attr('stroke-width', 1);
+
+            legend.append('text')
+                .attr('x', 10)
+                .attr('y', 20)
+                .attr('font-family', 'var(--font-family-heading)')
+                .attr('font-size', '12px')
+                .attr('font-weight', '600')
+                .attr('fill', '#333')
+                .text('Legend');
+
+            legend.append('line')
+                .attr('x1', 10)
+                .attr('y1', 35)
+                .attr('x2', 40)
+                .attr('y2', 35)
+                .attr('stroke', '#0066CC')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '5,5')
+                .attr('opacity', 0.6);
+
+            legend.append('text')
+                .attr('x', 50)
+                .attr('y', 39)
+                .attr('font-family', 'var(--font-family-body)')
+                .attr('font-size', '11px')
+                .attr('fill', '#666')
+                .text('Many-to-One (Drag to move)');
+
+            legend.append('foreignObject')
+                .attr('width', 14)
+                .attr('height', 14)
+                .attr('x', 10)
+                .attr('y', 48)
+                .html('<i class="ph ph-key" style="font-size: 14px; color: #666;"></i>');
+
+            legend.append('text')
+                .attr('x', 30)
+                .attr('y', 60)
+                .attr('font-family', 'var(--font-family-body)')
+                .attr('font-size', '11px')
+                .attr('fill', '#666')
+                .text('Foreign Key');
+        }
+
+        // Forms Management
+        function openFormsSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Forms';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('tablesContent').style.display = 'none';
+            document.getElementById('documentsContent').style.display = 'none';
+            document.getElementById('reportsContent').style.display = 'none';
+            document.getElementById('templatesContent').style.display = 'none';
+            document.getElementById('workflowsContent').style.display = 'none';
+
+            // Show forms content
+            document.getElementById('formsContent').style.display = 'block';
+            loadFormTypeCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadFormTypeCards() {
+            const container = document.getElementById('formsContainer');
+
+            const formTypes = [
+                {
+                    name: 'Contact Forms',
+                    icon: 'ph-envelope',
+                    description: 'Customer inquiry forms, feedback forms, and contact requests.',
+                    tags: ['Customer Service', 'Sales', 'Support']
+                },
+                {
+                    name: 'Survey Forms',
+                    icon: 'ph-chart-line',
+                    description: 'Employee surveys, customer satisfaction, and feedback collection.',
+                    tags: ['HR', 'Customer Success', 'Marketing']
+                },
+                {
+                    name: 'Registration Forms',
+                    icon: 'ph-user-plus',
+                    description: 'Event registration, account creation, and user onboarding.',
+                    tags: ['Events', 'Marketing', 'Operations']
+                },
+                {
+                    name: 'Application Forms',
+                    icon: 'ph-file-text',
+                    description: 'Job applications, program applications, and request forms.',
+                    tags: ['HR', 'Recruiting', 'Operations']
+                },
+                {
+                    name: 'Order Forms',
+                    icon: 'ph-shopping-cart',
+                    description: 'Product orders, service requests, and purchase forms.',
+                    tags: ['Sales', 'E-commerce', 'Operations']
+                },
+                {
+                    name: 'Feedback Forms',
+                    icon: 'ph-chat-circle-dots',
+                    description: 'Product feedback, service reviews, and suggestion forms.',
+                    tags: ['Product', 'Customer Success', 'Quality']
+                }
+            ];
+
+            createCardGrid(container, formTypes, 'Form');
+        }
+
+        // Documents Management
+        function openDocumentsSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Documents';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('tablesContent').style.display = 'none';
+            document.getElementById('formsContent').style.display = 'none';
+            document.getElementById('reportsContent').style.display = 'none';
+            document.getElementById('templatesContent').style.display = 'none';
+            document.getElementById('workflowsContent').style.display = 'none';
+
+            // Show documents content
+            document.getElementById('documentsContent').style.display = 'block';
+            loadDocumentTypeCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadDocumentTypeCards() {
+            const container = document.getElementById('documentsContainer');
+
+            const documentTypes = [
+                {
+                    name: 'Proposals',
+                    icon: 'ph-file-text',
+                    description: 'Business proposals, project bids, and RFP responses.',
+                    tags: ['Business', 'Sales', 'Contracts']
+                },
+                {
+                    name: 'Contracts',
+                    icon: 'ph-file-doc',
+                    description: 'Legal agreements, NDAs, and service contracts.',
+                    tags: ['Legal', 'Compliance', 'Business']
+                },
+                {
+                    name: 'Presentations',
+                    icon: 'ph-presentation',
+                    description: 'Slide decks, pitch presentations, and meeting materials.',
+                    tags: ['Marketing', 'Sales', 'Internal']
+                },
+                {
+                    name: 'Policies',
+                    icon: 'ph-book',
+                    description: 'Company policies, procedures, and guidelines.',
+                    tags: ['HR', 'Compliance', 'Operations']
+                },
+                {
+                    name: 'Manuals',
+                    icon: 'ph-notebook',
+                    description: 'User guides, training materials, and documentation.',
+                    tags: ['Training', 'Support', 'Operations']
+                },
+                {
+                    name: 'Invoices',
+                    icon: 'ph-receipt',
+                    description: 'Billing documents, invoices, and payment records.',
+                    tags: ['Finance', 'Accounting', 'Business']
+                }
+            ];
+
+            createCardGrid(container, documentTypes, 'Document');
+        }
+
+        // Reports Management
+        function openReportsSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Reports';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('tablesContent').style.display = 'none';
+            document.getElementById('formsContent').style.display = 'none';
+            document.getElementById('documentsContent').style.display = 'none';
+            document.getElementById('templatesContent').style.display = 'none';
+            document.getElementById('workflowsContent').style.display = 'none';
+
+            // Show reports content
+            document.getElementById('reportsContent').style.display = 'block';
+            loadReportTypeCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadReportTypeCards() {
+            const container = document.getElementById('reportsContainer');
+
+            const reportTypes = [
+                {
+                    name: 'Sales Dashboard',
+                    icon: 'ph-chart-line',
+                    description: 'Revenue tracking, pipeline analysis, and sales performance metrics.',
+                    tags: ['Sales', 'Revenue', 'KPIs']
+                },
+                {
+                    name: 'Financial Reports',
+                    icon: 'ph-currency-dollar',
+                    description: 'P&L statements, balance sheets, and cash flow analysis.',
+                    tags: ['Finance', 'Accounting', 'Executive']
+                },
+                {
+                    name: 'Project Status',
+                    icon: 'ph-kanban',
+                    description: 'Project timelines, milestone tracking, and resource utilization.',
+                    tags: ['Projects', 'Operations', 'Management']
+                },
+                {
+                    name: 'Customer Analytics',
+                    icon: 'ph-users-three',
+                    description: 'Customer behavior, retention rates, and satisfaction scores.',
+                    tags: ['Customer Success', 'Analytics', 'Marketing']
+                },
+                {
+                    name: 'Performance Metrics',
+                    icon: 'ph-gauge',
+                    description: 'Team performance, productivity tracking, and OKR progress.',
+                    tags: ['HR', 'Management', 'Operations']
+                },
+                {
+                    name: 'Marketing Analytics',
+                    icon: 'ph-megaphone',
+                    description: 'Campaign performance, lead generation, and conversion rates.',
+                    tags: ['Marketing', 'Analytics', 'Sales']
+                }
+            ];
+
+            createCardGrid(container, reportTypes, 'Report');
+        }
+
+        // Templates Management
+        function openTemplatesSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Templates';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('tablesContent').style.display = 'none';
+            document.getElementById('formsContent').style.display = 'none';
+            document.getElementById('documentsContent').style.display = 'none';
+            document.getElementById('reportsContent').style.display = 'none';
+            document.getElementById('workflowsContent').style.display = 'none';
+
+            // Show templates content
+            document.getElementById('templatesContent').style.display = 'block';
+            loadTemplateTypeCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadTemplateTypeCards() {
+            const container = document.getElementById('templatesContainer');
+
+            const templateTypes = [
+                {
+                    name: 'Email Templates',
+                    icon: 'ph-envelope',
+                    description: 'Pre-written emails for common business communications.',
+                    tags: ['Communication', 'Sales', 'Support']
+                },
+                {
+                    name: 'Meeting Agendas',
+                    icon: 'ph-calendar-check',
+                    description: 'Structured agendas for meetings and planning sessions.',
+                    tags: ['Meetings', 'Operations', 'Management']
+                },
+                {
+                    name: 'Report Templates',
+                    icon: 'ph-file-chart',
+                    description: 'Standardized formats for recurring reports and analysis.',
+                    tags: ['Reporting', 'Analytics', 'Executive']
+                },
+                {
+                    name: 'Onboarding Checklists',
+                    icon: 'ph-user-plus',
+                    description: 'Step-by-step guides for employee onboarding processes.',
+                    tags: ['HR', 'Training', 'Operations']
+                },
+                {
+                    name: 'Project Plans',
+                    icon: 'ph-folder-notch',
+                    description: 'Project planning templates with timelines and deliverables.',
+                    tags: ['Projects', 'Management', 'Operations']
+                },
+                {
+                    name: 'SOP Documents',
+                    icon: 'ph-list-checks',
+                    description: 'Standard operating procedure templates for processes.',
+                    tags: ['Operations', 'Compliance', 'Training']
+                }
+            ];
+
+            createCardGrid(container, templateTypes, 'Template');
+        }
+
+        // Workflows Management
+        function openWorkflowsSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Workflows';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('tablesContent').style.display = 'none';
+            document.getElementById('formsContent').style.display = 'none';
+            document.getElementById('documentsContent').style.display = 'none';
+            document.getElementById('reportsContent').style.display = 'none';
+            document.getElementById('templatesContent').style.display = 'none';
+
+            // Show workflows content
+            document.getElementById('workflowsContent').style.display = 'block';
+            loadWorkflowTypeCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadWorkflowTypeCards() {
+            const container = document.getElementById('workflowsContainer');
+
+            const workflowTypes = [
+                {
+                    name: 'Approval Workflows',
+                    icon: 'ph-check-circle',
+                    description: 'Multi-level approval processes for documents and requests.',
+                    tags: ['Operations', 'Management', 'Compliance']
+                },
+                {
+                    name: 'Onboarding Automation',
+                    icon: 'ph-users',
+                    description: 'Automated employee onboarding with task assignments.',
+                    tags: ['HR', 'Operations', 'Automation']
+                },
+                {
+                    name: 'Lead Routing',
+                    icon: 'ph-arrow-circle-right',
+                    description: 'Automatic lead assignment based on criteria and availability.',
+                    tags: ['Sales', 'Marketing', 'Automation']
+                },
+                {
+                    name: 'Issue Escalation',
+                    icon: 'ph-warning-circle',
+                    description: 'Automatic escalation of issues based on severity and time.',
+                    tags: ['Support', 'Operations', 'Management']
+                },
+                {
+                    name: 'Document Review',
+                    icon: 'ph-file-magnifying-glass',
+                    description: 'Collaborative document review and feedback collection.',
+                    tags: ['Collaboration', 'Operations', 'Quality']
+                },
+                {
+                    name: 'Inventory Alerts',
+                    icon: 'ph-package',
+                    description: 'Automated notifications for low stock and reorder points.',
+                    tags: ['Inventory', 'Operations', 'Automation']
+                }
+            ];
+
+            createCardGrid(container, workflowTypes, 'Workflow');
+        }
+
+        // Shared card creation function
+        function createCardGrid(container, items, typeName) {
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.style.cssText = 'padding: 20px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px;';
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="ph ${item.icon}" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${item.name}</div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="event.stopPropagation(); editItem('${item.name}')" title="Edit" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-pencil-simple" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteItem('${item.name}')" title="Delete" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#dc2626'; this.style.background='#fef2f2';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-trash" style="font-size: 16px; color: #dc2626;"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); shareItem('${item.name}')" title="Share" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">
+                        ${item.description}
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        ${item.tags.map(tag => `<span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${tag}</span>`).join('')}
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">SHARED WITH</div>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; color: var(--color-primary-blue);">AM</div>
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #f3e5f5; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; color: #7b1fa2;">JS</div>
+                            <span style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">+ 3 others</span>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.borderColor = 'var(--color-primary-blue)';
+                    card.style.boxShadow = '0 2px 8px rgba(0, 102, 204, 0.15)';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.borderColor = 'var(--color-neutral-border)';
+                    card.style.boxShadow = 'none';
+                });
+
+                card.addEventListener('click', () => {
+                    alert(`${item.name} ${typeName.toLowerCase()} functionality coming soon!`);
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function editItem(itemName) {
+            alert(`Edit ${itemName} functionality coming soon!`);
+        }
+
+        function deleteItem(itemName) {
+            if (confirm(`Are you sure you want to delete ${itemName}?`)) {
+                alert(`Delete ${itemName} functionality coming soon!`);
+            }
+        }
+
+        function shareItem(itemName) {
+            alert(`Share ${itemName} functionality coming soon!`);
         }
 
         function loadNotesCards(searchTerm = '') {
