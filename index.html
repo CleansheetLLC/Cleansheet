@@ -390,20 +390,64 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            padding-bottom: 16px;
+            margin-bottom: 0;
+            gap: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .canvas-modal-header h2 {
             font-family: var(--font-family-ui);
-            font-size: 24px;
+            font-size: 20px;
             color: white;
             margin: 0;
+            white-space: nowrap;
         }
 
         .persona-selector {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Main Menu */
+        .main-menu {
+            display: flex;
+            gap: 4px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .main-menu-item {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .main-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .main-menu-item.active {
+            background: rgba(0, 102, 204, 0.3);
+            color: white;
+        }
+
+        .main-menu-item i {
+            font-size: 16px;
         }
 
         .persona-btn {
@@ -427,6 +471,106 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .persona-btn.active {
             background: var(--color-primary-blue);
             border-color: var(--color-primary-blue);
+        }
+
+        /* Profile Circle */
+        .profile-circle {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-accent-blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 52px;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+        }
+
+        .profile-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .profile-dropdown-name {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 4px 0;
+        }
+
+        .profile-dropdown-role {
+            font-family: var(--font-family-body);
+            font-size: 12px;
+            color: var(--color-neutral-text-light);
+            margin: 0;
+        }
+
+        .profile-dropdown-menu {
+            padding: 8px 0;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            color: var(--color-neutral-text);
+            cursor: pointer;
+            transition: all 0.15s;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .profile-dropdown-item i {
+            font-size: 18px;
+            color: var(--color-primary-blue);
         }
 
         .canvas-modal-close {
@@ -1578,17 +1722,72 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         <div class="canvas-modal-content">
             <div class="canvas-modal-header">
                 <div class="canvas-modal-header-top">
-                    <h2>Cleansheet Canvas - Interactive Mindmap</h2>
+                    <h2>Cleansheet Canvas Tour</h2>
+                    <div class="persona-selector">
+                        <button class="persona-btn active" data-persona="retail-manager" onclick="switchPersona('retail-manager')">Retail Manager</button>
+                        <button class="persona-btn" data-persona="chemist" onclick="switchPersona('chemist')">Research Chemist</button>
+                        <button class="persona-btn" data-persona="new-graduate" onclick="switchPersona('new-graduate')">New Graduate</button>
+                        <button class="persona-btn" data-persona="data-analyst" onclick="switchPersona('data-analyst')">Data Analyst</button>
+                    </div>
                     <button class="canvas-modal-close" onclick="closeCanvasModal()">&times;</button>
                 </div>
-                <div class="persona-selector">
-                    <button class="persona-btn active" data-persona="retail-manager" onclick="switchPersona('retail-manager')">Retail Manager</button>
-                    <button class="persona-btn" data-persona="chemist" onclick="switchPersona('chemist')">Research Chemist</button>
-                    <button class="persona-btn" data-persona="new-graduate" onclick="switchPersona('new-graduate')">New Graduate</button>
-                    <button class="persona-btn" data-persona="data-analyst" onclick="switchPersona('data-analyst')">Data Analyst</button>
+
+                <!-- Main Menu -->
+                <div class="main-menu">
+                    <button class="main-menu-item active" onclick="setActiveMenu(this)">
+                        <i class="ph ph-house"></i>
+                        <span>Home</span>
+                    </button>
+                    <button class="main-menu-item" onclick="setActiveMenu(this)">
+                        <i class="ph ph-briefcase"></i>
+                        <span>Job Search</span>
+                    </button>
+                    <button class="main-menu-item" onclick="setActiveMenu(this)">
+                        <i class="ph ph-book-open"></i>
+                        <span>Library</span>
+                    </button>
+                    <button class="main-menu-item" onclick="setActiveMenu(this)">
+                        <i class="ph ph-chalkboard-teacher"></i>
+                        <span>Coaching</span>
+                    </button>
+                    <button class="main-menu-item" onclick="setActiveMenu(this)">
+                        <i class="ph ph-chart-line"></i>
+                        <span>Progress</span>
+                    </button>
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                        <!-- Profile Circle -->
+                        <div class="profile-circle">
+                            <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileDropdown()">
+                                <span id="profileInitials">AM</span>
+                            </div>
+                            <div class="profile-dropdown" id="profileDropdown">
+                                <div class="profile-dropdown-header">
+                                    <div class="profile-dropdown-name" id="profileName">Alex Martinez</div>
+                                    <div class="profile-dropdown-role" id="profileRole">Retail Manager</div>
+                                </div>
+                                <div class="profile-dropdown-menu">
+                                    <button class="profile-dropdown-item" onclick="openProfileSettings()">
+                                        <i class="ph ph-user-circle"></i>
+                                        <span>Profile</span>
+                                    </button>
+                                    <button class="profile-dropdown-item" onclick="openSettings()">
+                                        <i class="ph ph-gear"></i>
+                                        <span>Settings</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="canvas-modal-body" id="canvasBody">
+                <!-- Job Search Aggregation View -->
+                <div id="jobSearchView" style="display: none; padding: 24px; overflow-y: auto; background: var(--color-neutral-background); grid-column: 1 / -1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10;">
+                    <!-- Job Search Content will be inserted here -->
+                </div>
+
+                <!-- Home/Canvas View -->
+                <div id="homeView" style="display: contents;">
                 <!-- Left Panel (formerly right panel) -->
                 <div class="canvas-right-panel">
                     <!-- Calendar Widget -->
@@ -1651,6 +1850,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <button class="panel-collapse-toggle" onclick="toggleRightPanel()" id="collapseToggle">
                     <i class="ph ph-caret-right"></i>
                 </button>
+                </div> <!-- End homeView -->
             </div>
 
         <!-- Interview Prep Slideout (60% width) - Inside Canvas Modal -->
@@ -2278,6 +2478,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             });
             document.querySelector(`[data-persona="${persona}"]`).classList.add('active');
 
+            // Update profile info
+            updateProfileInfo(persona);
+
             // Load user data for new persona
             loadUserJobs();
             loadStories();
@@ -2286,6 +2489,229 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Clear and redraw mindmap
             d3.select('#canvas-mindmap').selectAll('*').remove();
             initializeMindmap(persona);
+        }
+
+        // Profile dropdown functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileCircle = document.querySelector('.profile-circle');
+            const dropdown = document.getElementById('profileDropdown');
+
+            if (profileCircle && !profileCircle.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function updateProfileInfo(persona) {
+            const personaInfo = {
+                'retail-manager': {
+                    name: 'Alex Martinez',
+                    role: 'Retail Manager',
+                    initials: 'AM'
+                },
+                'chemist': {
+                    name: 'Dr. Sarah Chen',
+                    role: 'Research Chemist',
+                    initials: 'SC'
+                },
+                'new-graduate': {
+                    name: 'Jordan Kim',
+                    role: 'New Graduate',
+                    initials: 'JK'
+                },
+                'data-analyst': {
+                    name: 'Riley Patel',
+                    role: 'Data Analyst',
+                    initials: 'RP'
+                }
+            };
+
+            const info = personaInfo[persona];
+            if (info) {
+                document.getElementById('profileInitials').textContent = info.initials;
+                document.getElementById('profileName').textContent = info.name;
+                document.getElementById('profileRole').textContent = info.role;
+            }
+        }
+
+        function openProfileSettings() {
+            alert('Profile settings coming soon! This will allow you to edit your personal information, upload a photo, and manage your account details.');
+            document.getElementById('profileDropdown').classList.remove('active');
+        }
+
+        function openSettings() {
+            alert('Settings coming soon! This will allow you to configure preferences, notifications, privacy settings, and application behavior.');
+            document.getElementById('profileDropdown').classList.remove('active');
+        }
+
+        // Main menu functions
+        function setActiveMenu(clickedItem) {
+            // Remove active class from all menu items
+            document.querySelectorAll('.main-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Add active class to clicked item
+            clickedItem.classList.add('active');
+
+            // Get menu name
+            const menuName = clickedItem.querySelector('span').textContent;
+
+            // Show/hide appropriate view
+            const homeView = document.getElementById('homeView');
+            const jobSearchView = document.getElementById('jobSearchView');
+
+            if (menuName === 'Job Search') {
+                homeView.style.display = 'none';
+                jobSearchView.style.display = 'block';
+                loadJobSearchView();
+            } else if (menuName === 'Home') {
+                homeView.style.display = 'contents';
+                jobSearchView.style.display = 'none';
+            } else {
+                // Other sections coming soon
+                alert(`${menuName} section coming soon! This is a demo of the Canvas interface navigation.`);
+            }
+        }
+
+        function loadJobSearchView() {
+            const container = document.getElementById('jobSearchView');
+
+            container.innerHTML = `
+                <div style="max-width: 1400px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div>
+                            <h2 style="font-family: var(--font-family-ui); font-size: 28px; color: var(--color-dark); margin: 0 0 8px 0;">Job Search Aggregator</h2>
+                            <p style="font-family: var(--font-family-body); color: var(--color-neutral-text-light); margin: 0;">Search across multiple job boards and configure automated alerts</p>
+                        </div>
+                        <button onclick="openAlertSettings()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                            <i class="ph ph-bell"></i>
+                            Configure Alerts
+                        </button>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 120px; gap: 12px;">
+                            <input type="text" placeholder="Job title, keywords..." style="padding: 12px 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-body); font-size: 14px;">
+                            <input type="text" placeholder="Location" style="padding: 12px 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-body); font-size: 14px;">
+                            <button style="padding: 12px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 14px;">
+                                <i class="ph ph-magnifying-glass"></i> Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Job Board Sources -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        ${renderJobBoard('LinkedIn', 'ph-linkedin-logo', '#0077B5', 847, true)}
+                        ${renderJobBoard('Indeed', 'ph-briefcase', '#2164F3', 1203, true)}
+                        ${renderJobBoard('Glassdoor', 'ph-building', '#0CAA41', 523, false)}
+                        ${renderJobBoard('ZipRecruiter', 'ph-suitcase', '#1472E8', 412, true)}
+                        ${renderJobBoard('Monster', 'ph-file-text', '#6E46AE', 289, false)}
+                        ${renderJobBoard('CareerBuilder', 'ph-briefcase-metal', '#0B7A3E', 356, false)}
+                    </div>
+
+                    <!-- Recent Alerts -->
+                    <div style="margin-top: 32px; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 18px; color: var(--color-dark); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-bell-ringing"></i>
+                            Active Job Alerts
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            ${renderAlertCard('Data Analyst', 'Remote', 'Daily', 3)}
+                            ${renderAlertCard('Business Analyst', 'Minneapolis, MN', 'Weekly', 0)}
+                            ${renderAlertCard('Operations Manager', 'Twin Cities Metro', 'Daily', 7)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderJobBoard(name, icon, color, count, enabled) {
+            return `
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid ${color}; ${!enabled ? 'opacity: 0.6;' : ''}">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: ${color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                                <i class="ph ${icon}"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-family: var(--font-family-ui); font-size: 18px; color: var(--color-dark); margin: 0 0 4px 0;">${name}</h4>
+                                <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); margin: 0;">${count.toLocaleString()} jobs found</p>
+                            </div>
+                        </div>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleJobBoard('${name}', this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="searchJobBoard('${name}')" style="flex: 1; padding: 8px 16px; background: ${color}; color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; ${!enabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${!enabled ? 'disabled' : ''}>
+                            View Results
+                        </button>
+                        <button onclick="configureSource('${name}')" style="padding: 8px 12px; background: var(--color-neutral-background); color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer;">
+                            <i class="ph ph-gear"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAlertCard(title, location, frequency, newJobs) {
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--color-neutral-background); border-radius: 8px; border: 1px solid var(--color-neutral-border);">
+                    <div style="flex: 1;">
+                        <div style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${title}</div>
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light);">
+                            <i class="ph ph-map-pin"></i> ${location} · ${frequency} alerts
+                        </div>
+                    </div>
+                    ${newJobs > 0 ? `
+                        <div style="background: #ff9800; color: white; padding: 4px 12px; border-radius: 12px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600;">
+                            ${newJobs} new
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; gap: 8px; margin-left: 16px;">
+                        <button onclick="editAlert('${title}')" style="padding: 6px 12px; background: white; color: var(--color-primary-blue); border: 1px solid var(--color-primary-blue); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                            Edit
+                        </button>
+                        <button onclick="deleteAlert('${title}')" style="padding: 6px 12px; background: white; color: #c33; border: 1px solid #c33; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Job search action functions
+        function openAlertSettings() {
+            alert('Alert Configuration:\n\nConfigure automated job alerts based on:\n• Keywords and job titles\n• Location preferences\n• Salary ranges\n• Company size and industry\n• Remote/hybrid/on-site preferences\n• Frequency (instant, daily, weekly)\n\nAlerts will be sent via email and push notifications.');
+        }
+
+        function toggleJobBoard(name, enabled) {
+            console.log(`${name} ${enabled ? 'enabled' : 'disabled'}`);
+            loadJobSearchView();
+        }
+
+        function searchJobBoard(name) {
+            alert(`Opening ${name} search results...\n\nThis would display job listings from ${name} matching your current search criteria.`);
+        }
+
+        function configureSource(name) {
+            alert(`Configure ${name} Settings:\n\n• API credentials\n• Search parameters\n• Auto-apply preferences\n• Salary range filters\n• Experience level requirements`);
+        }
+
+        function editAlert(title) {
+            alert(`Edit Alert: ${title}\n\nModify search criteria, location, frequency, and notification preferences.`);
+        }
+
+        function deleteAlert(title) {
+            if (confirm(`Delete alert for "${title}"?`)) {
+                alert('Alert deleted successfully.');
+            }
         }
 
         // Close modal on background click
@@ -2558,6 +2984,31 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     .attr('x', d => d.depth === 0 ? -rootWidth/2 : d.depth === 1 ? -childWidth/2 : -grandchildWidth/2)
                     .attr('y', d => d.depth === 0 ? -rootHeight/2 : d.depth === 1 ? -childHeight/2 : -grandchildHeight/2);
 
+                // Add icons for depth 1 nodes (categories)
+                nodeEnter.each(function(d) {
+                    if (d.depth === 1) {
+                        const iconMap = {
+                            'Job Opportunities': 'ph-briefcase',
+                            'Application Materials': 'ph-file-text',
+                            'Career Experience': 'ph-suitcase',
+                            'Goals': 'ph-target',
+                            'Portfolio': 'ph-folder-open',
+                            'Interview Prep': 'ph-chats-circle'
+                        };
+
+                        const iconClass = iconMap[d.data.name];
+                        if (iconClass) {
+                            d3.select(this)
+                                .append('foreignObject')
+                                .attr('width', 20)
+                                .attr('height', 20)
+                                .attr('x', -childWidth/2 + 8)
+                                .attr('y', -10)
+                                .html(`<i class="ph ${iconClass}" style="font-size: 20px; color: #0066CC;"></i>`);
+                        }
+                    }
+                });
+
                 // Add text labels
                 nodeEnter.append('text')
                     .attr('dy', '0.35em')
@@ -2572,7 +3023,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             const maxWidth = rootWidth - 20;
                             wrapText(text, maxWidth, 3); // Max 3 lines for root
                         } else if (d.depth === 1) {
-                            const maxWidth = childWidth - 50;
+                            // Shift text to the right to make room for icon
+                            text.attr('x', 15);
+                            const maxWidth = childWidth - 70;
                             text.text(label);
                             wrapText(text, maxWidth, 2); // Max 2 lines for categories
 

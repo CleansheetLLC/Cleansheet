@@ -471,6 +471,7 @@ For questions, issues, or feature requests:
 ## Acknowledgments
 
 - **Security and Compliance** - [2x4 www.dugganusa.com](https://2x4.dugganusa.com/)
+- **D3.js** - Data visualization library (BSD 3-Clause License)
 - **Phosphor Icons** - Icon library (6,000+ icons, MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces
 - **Azure** - Cloud infrastructure and ML services
