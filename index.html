@@ -1751,6 +1751,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <!-- Application material cards will be dynamically inserted here -->
                 </div>
             </div>
+
+            <!-- Portfolio Slideout Content -->
+            <div class="slideout-body" id="portfolioContent" style="display: none;">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <button class="add-story-btn" onclick="addPortfolioProject()" style="flex: 0 0 auto; margin-bottom: 0;">
+                        <i class="ph ph-plus-circle"></i> Add Project
+                    </button>
+                    <button class="upload-resume-btn" onclick="importFromGitHub()" style="flex: 0 0 auto;">
+                        <i class="ph ph-github-logo"></i> Import from GitHub
+                    </button>
+                </div>
+                <div id="portfolioContainer" class="stories-container">
+                    <!-- Portfolio project cards will be dynamically inserted here -->
+                </div>
+            </div>
         </div> <!-- End interview-slideout -->
 
     <!-- Story Form Modal (Inside Canvas Modal) -->
@@ -2574,6 +2589,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         } else if (nodeName === 'Application Materials') {
                             console.log('Opening Application Materials slideout');
                             openApplicationMaterialsSlideout();
+                        } else if (nodeName === 'Portfolio') {
+                            console.log('Opening Portfolio slideout');
+                            openPortfolioSlideout();
                         } else if (nodeName === 'Interview Prep') {
                             // Interview Prep still expands to show Behavioral/Technical
                             toggleNode(d);
@@ -2915,6 +2933,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             jobOpportunitiesContent.style.display = 'none';
             careerExperienceContent.style.display = 'none';
             document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
 
             // Show appropriate content
             if (category === 'Behavioral') {
@@ -3222,6 +3241,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             technicalContent.style.display = 'none';
             careerExperienceContent.style.display = 'none';
             applicationMaterialsContent.style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
 
             // Show job opportunities content
             jobOpportunitiesContent.style.display = 'flex';
@@ -3752,6 +3772,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             technicalContent.style.display = 'none';
             jobOpportunitiesContent.style.display = 'none';
             applicationMaterialsContent.style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
 
             // Show career experience content
             careerExperienceContent.style.display = 'flex';
@@ -4051,6 +4072,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             technicalContent.style.display = 'none';
             jobOpportunitiesContent.style.display = 'none';
             careerExperienceContent.style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
 
             // Show application materials content
             applicationMaterialsContent.style.display = 'flex';
@@ -4230,6 +4252,254 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 userApplicationMaterials.splice(index, 1);
                 saveUserApplicationMaterials();
                 loadApplicationMaterials();
+                updateNodeCounts();
+            }
+        }
+
+        // Portfolio Management
+        let userPortfolioProjects = [];
+
+        // Example portfolio projects for each persona
+        const examplePortfolioProjects = {
+            'retail-manager': [
+                {
+                    title: 'Power BI Sales Dashboard',
+                    description: 'Interactive sales analytics dashboard tracking KPIs across 15 retail locations. Includes YoY comparisons, inventory turnover analysis, and predictive sales forecasting.',
+                    technologies: ['Power BI', 'Excel', 'SQL'],
+                    url: null,
+                    imageUrl: null,
+                    completedDate: '2023-11',
+                    highlights: [
+                        'Reduced reporting time from 4 hours to 15 minutes',
+                        'Identified $45K in inventory optimization opportunities',
+                        'Adopted by 12 stores in district'
+                    ],
+                    isExample: true
+                },
+                {
+                    title: 'Staff Scheduling Model (Excel VBA)',
+                    description: 'Automated employee scheduling system using Excel VBA and optimization algorithms. Considers availability, labor laws, peak traffic patterns, and employee preferences.',
+                    technologies: ['Excel VBA', 'Optimization Algorithms'],
+                    url: null,
+                    imageUrl: null,
+                    completedDate: '2023-06',
+                    highlights: [
+                        'Reduced scheduling time from 3 hours to 30 minutes weekly',
+                        'Improved schedule fairness scores by 40%',
+                        'Decreased overtime costs by 15%'
+                    ],
+                    isExample: true
+                }
+            ],
+            'chemist': [
+                {
+                    title: 'Molecular Simulation Pipeline (Python)',
+                    description: 'Automated computational chemistry workflow for high-throughput molecular dynamics simulations. Processes 100+ compounds in parallel using AWS batch computing.',
+                    technologies: ['Python', 'AWS', 'Docker', 'RDKit', 'PyMOL'],
+                    url: 'https://github.com/username/molecular-sim-pipeline',
+                    imageUrl: null,
+                    completedDate: '2024-01',
+                    highlights: [
+                        'Reduced simulation time from 3 weeks to 4 days',
+                        'Processed 2TB+ of molecular data',
+                        'Published methodology in Journal of Computational Chemistry'
+                    ],
+                    isExample: true
+                },
+                {
+                    title: 'HPLC Data Analysis Dashboard',
+                    description: 'R Shiny web application for analyzing HPLC chromatography data with automated peak detection, integration, and statistical analysis.',
+                    technologies: ['R', 'Shiny', 'ggplot2', 'Machine Learning'],
+                    url: 'https://github.com/username/hplc-analysis',
+                    imageUrl: null,
+                    completedDate: '2023-09',
+                    highlights: [
+                        'Automated analysis of 500+ chromatograms monthly',
+                        '95% accuracy in automated peak detection',
+                        'Used by 8 chemists in R&D department'
+                    ],
+                    isExample: true
+                }
+            ],
+            'new-graduate': [
+                {
+                    title: 'E-Commerce Platform (MERN Stack)',
+                    description: 'Full-stack e-commerce application with product catalog, shopping cart, user authentication, payment processing (Stripe), and admin dashboard.',
+                    technologies: ['React', 'Node.js', 'Express', 'MongoDB', 'Stripe API'],
+                    url: 'https://github.com/username/ecommerce-platform',
+                    imageUrl: null,
+                    completedDate: '2024-03',
+                    highlights: [
+                        'Built responsive UI with React and Tailwind CSS',
+                        'Implemented JWT authentication and role-based access',
+                        'Integrated Stripe payment processing',
+                        '95% test coverage with Jest'
+                    ],
+                    isExample: true
+                },
+                {
+                    title: 'Real-Time Chat Application',
+                    description: 'WebSocket-based chat app with real-time messaging, user presence detection, typing indicators, and message history stored in Redis.',
+                    technologies: ['React', 'Socket.io', 'Node.js', 'Redis', 'Docker'],
+                    url: 'https://github.com/username/realtime-chat',
+                    imageUrl: null,
+                    completedDate: '2024-01',
+                    highlights: [
+                        'Handles 100+ concurrent connections',
+                        'Sub-100ms message latency',
+                        'Deployed on AWS with Docker and CI/CD pipeline'
+                    ],
+                    isExample: true
+                }
+            ],
+            'data-analyst': [
+                {
+                    title: 'Customer Churn Prediction Model',
+                    description: 'Machine learning model predicting customer churn 30 days in advance with 78% accuracy. Built using Python scikit-learn with feature engineering from behavioral data.',
+                    technologies: ['Python', 'scikit-learn', 'pandas', 'Power BI'],
+                    url: 'https://github.com/username/churn-prediction',
+                    imageUrl: null,
+                    completedDate: '2023-12',
+                    highlights: [
+                        '78% prediction accuracy (vs 65% baseline)',
+                        'Reduced churn from 8% to 5.5%',
+                        'Saved $200K in annual recurring revenue',
+                        'Deployed as automated daily scoring pipeline'
+                    ],
+                    isExample: true
+                },
+                {
+                    title: 'Automated Reporting Pipeline',
+                    description: 'Python-based ETL pipeline that extracts data from warehouse, performs calculations, generates charts, and exports formatted Excel reports on schedule.',
+                    technologies: ['Python', 'pandas', 'SQL', 'matplotlib', 'Apache Airflow'],
+                    url: 'https://github.com/username/reporting-automation',
+                    imageUrl: null,
+                    completedDate: '2023-08',
+                    highlights: [
+                        'Reduced manual reporting time from 20 hours to 30 minutes monthly',
+                        'Eliminated ~95% of human errors',
+                        'Automated 3 additional reports after initial success',
+                        'Saved 230+ hours annually'
+                    ],
+                    isExample: true
+                }
+            ]
+        };
+
+        function loadUserPortfolioProjects() {
+            const stored = localStorage.getItem(`portfolioProjects_${currentPersona}`);
+            userPortfolioProjects = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveUserPortfolioProjects() {
+            localStorage.setItem(`portfolioProjects_${currentPersona}`, JSON.stringify(userPortfolioProjects));
+        }
+
+        function openPortfolioSlideout() {
+            loadUserPortfolioProjects();
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+            const behavioralContent = document.getElementById('behavioralContent');
+            const technicalContent = document.getElementById('technicalContent');
+            const jobOpportunitiesContent = document.getElementById('jobOpportunitiesContent');
+            const careerExperienceContent = document.getElementById('careerExperienceContent');
+            const applicationMaterialsContent = document.getElementById('applicationMaterialsContent');
+            const portfolioContent = document.getElementById('portfolioContent');
+
+            titleEl.textContent = 'Portfolio Projects';
+
+            // Hide all other content sections
+            behavioralContent.style.display = 'none';
+            technicalContent.style.display = 'none';
+            jobOpportunitiesContent.style.display = 'none';
+            careerExperienceContent.style.display = 'none';
+            applicationMaterialsContent.style.display = 'none';
+
+            // Show portfolio content
+            portfolioContent.style.display = 'flex';
+            loadPortfolioProjects();
+
+            slideout.classList.add('active');
+        }
+
+        function loadPortfolioProjects() {
+            const container = document.getElementById('portfolioContainer');
+            const exampleProjects = examplePortfolioProjects[currentPersona] || [];
+            const allProjects = [...userPortfolioProjects, ...exampleProjects];
+
+            if (allProjects.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center; padding: 40px 20px;">No portfolio projects yet. Click Add Project or Import from GitHub to showcase your work.</p>';
+                return;
+            }
+
+            container.innerHTML = allProjects.map((project, index) => {
+                const isUserProject = index < userPortfolioProjects.length;
+
+                return `
+                    <div class="story-card" style="opacity: ${project.isExample ? '0.7' : '1'};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                    ${project.isExample ? '<span style="background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap;">Example</span>' : ''}
+                                    <span style="background: #f5f5f7; color: #666; padding: 4px 10px; border-radius: 4px; font-size: 11px;">
+                                        ${project.completedDate}
+                                    </span>
+                                </div>
+                                <h4 style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">${project.title}</h4>
+                                <p style="margin: 0 0 12px 0; color: #666; font-size: 13px; line-height: 1.5;">
+                                    ${project.description}
+                                </p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                                    ${project.technologies.map(tech => `
+                                        <span style="background: #e3f2fd; color: #0066CC; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                            ${tech}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                                ${project.highlights && project.highlights.length > 0 ? `
+                                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e5e7;">
+                                        <strong style="font-size: 12px; color: #333; display: block; margin-bottom: 6px;">Key Achievements:</strong>
+                                        <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #666; line-height: 1.6;">
+                                            ${project.highlights.map(highlight => `<li>${highlight}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${isUserProject ? `
+                                <div style="display: flex; gap: 8px; margin-left: 12px;">
+                                    ${project.url ? `
+                                        <a href="${project.url}" target="_blank" rel="noopener noreferrer" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600; text-decoration: none;">
+                                            <i class="ph ph-link"></i> View
+                                        </a>
+                                    ` : ''}
+                                    <button onclick="deletePortfolioProject(${index})" style="padding: 6px 10px; background: #fee; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #c33; font-weight: 600;">
+                                        <i class="ph ph-trash"></i>
+                                    </button>
+                                </div>
+                            ` : project.url ? `
+                                <a href="${project.url}" target="_blank" rel="noopener noreferrer" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600; text-decoration: none; margin-left: 12px;">
+                                    <i class="ph ph-link"></i> View
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addPortfolioProject() {
+            alert('Add Portfolio Project functionality coming soon! This will allow you to manually add projects with title, description, technologies, URL, and achievements.');
+        }
+
+        function importFromGitHub() {
+            alert('GitHub import coming soon! This will allow you to automatically import projects from your GitHub profile including README content, technologies used, and statistics.');
+        }
+
+        function deletePortfolioProject(index) {
+            if (confirm('Are you sure you want to delete this portfolio project?')) {
+                userPortfolioProjects.splice(index, 1);
+                saveUserPortfolioProjects();
+                loadPortfolioProjects();
                 updateNodeCounts();
             }
         }
