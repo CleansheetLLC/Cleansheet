@@ -22,6 +22,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -483,24 +484,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-accent-blue) 100%);
+            background: rgba(0, 102, 204, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-family: var(--font-family-ui);
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 400;
             cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: none;
             transition: all 0.2s;
             user-select: none;
         }
 
         .profile-avatar:hover {
-            transform: scale(1.05);
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+            background: rgba(0, 102, 204, 0.4);
         }
 
         .profile-dropdown {
@@ -1723,6 +1722,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <div class="canvas-modal-header">
                 <div class="canvas-modal-header-top">
                     <h2>Cleansheet Canvas Tour</h2>
+
+                    <!-- View Mode Toggle -->
+                    <div style="display: flex; gap: 4px; background: rgba(255, 255, 255, 0.1); padding: 4px; border-radius: 8px;">
+                        <button class="view-mode-btn active" data-view="seeker" onclick="switchViewMode('seeker')" style="padding: 6px 16px; background: var(--color-primary-blue); border: none; color: white; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                            Seeker
+                        </button>
+                        <button class="view-mode-btn" data-view="learner" onclick="switchViewMode('learner')" style="padding: 6px 16px; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                            Learner
+                        </button>
+                    </div>
+
                     <div class="persona-selector">
                         <button class="persona-btn active" data-persona="retail-manager" onclick="switchPersona('retail-manager')">Retail Manager</button>
                         <button class="persona-btn" data-persona="chemist" onclick="switchPersona('chemist')">Research Chemist</button>
@@ -1738,7 +1748,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-house"></i>
                         <span>Home</span>
                     </button>
-                    <button class="main-menu-item" onclick="setActiveMenu(this)">
+                    <button class="main-menu-item" id="jobSearchMenuItem" onclick="setActiveMenu(this)">
                         <i class="ph ph-briefcase"></i>
                         <span>Job Search</span>
                     </button>
@@ -2005,6 +2015,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <!-- Skills and competencies will be dynamically inserted here -->
                 </div>
             </div>
+
+            <!-- Projects Slideout Content -->
+            <div class="slideout-body" id="projectsContent" style="display: none;">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <button class="add-story-btn" onclick="addProjectRepo()" style="flex: 0 0 auto; margin-bottom: 0;">
+                        <i class="ph ph-plus-circle"></i> Connect Repository
+                    </button>
+                    <button class="upload-resume-btn" onclick="scanLocalRepos()" style="flex: 0 0 auto;">
+                        <i class="ph ph-folder-open"></i> Scan Local Directories
+                    </button>
+                </div>
+                <div id="projectsContainer" class="stories-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Project repo cards will be dynamically inserted here -->
+                </div>
+            </div>
         </div> <!-- End interview-slideout -->
 
     <!-- Story Form Modal (Inside Canvas Modal) -->
@@ -2121,17 +2146,80 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         </div>
     </div> <!-- End job-form-modal -->
 
+    <!-- Project Repository Form Modal -->
+    <div class="story-form-modal" id="projectFormModal">
+        <div class="story-form-content">
+            <div class="story-form-header">
+                <h3 id="projectFormTitle">Connect Project Repository</h3>
+                <button class="story-form-close" onclick="closeProjectForm()">&times;</button>
+            </div>
+            <div class="story-form-body">
+                <form id="projectForm" onsubmit="saveProject(event)">
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input type="text" id="projectName" required placeholder="e.g., E-Commerce Dashboard">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Local Directory Path</label>
+                        <input type="text" id="projectPath" required placeholder="C:\Users\username\projects\my-project">
+                        <small>Path to your local repository folder</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Repository URL (Optional)</label>
+                        <input type="url" id="projectRepoUrl" placeholder="https://github.com/username/repo">
+                        <small>GitHub, GitLab, or other remote repository</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="projectDescription" rows="3" placeholder="Brief description of the project..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technologies</label>
+                        <input type="text" id="projectTechnologies" placeholder="React, Node.js, PostgreSQL">
+                        <small>Comma-separated list (will be color-coded)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Topics/Categories</label>
+                        <input type="text" id="projectTopics" placeholder="Web Development, Full Stack, E-Commerce">
+                        <small>Comma-separated list (will be color-coded)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="projectStatus">
+                            <option value="active">Active Development</option>
+                            <option value="completed">Completed</option>
+                            <option value="archived">Archived</option>
+                            <option value="planning">Planning</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeProjectForm()">Cancel</button>
+                        <button type="submit" class="btn-save">Save Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> <!-- End project-form-modal -->
+
 </div> <!-- End canvas-modal-content -->
 </div> <!-- End canvas-modal -->
 
     <script>
-        // Current persona
+        // Current persona and view mode
         let currentPersona = 'retail-manager';
+        let currentViewMode = 'seeker'; // 'seeker' or 'learner'
 
         // Persona data from experience tagger with expandable content
         const personaData = {
             'retail-manager': {
-                name: 'Marcus Thompson',
+                name: 'Alex Martinez',
                 goal: 'Transition from retail management into business analytics or operations management roles in tech companies',
                 children: [
                     {
@@ -2269,7 +2357,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 ]
             },
             'new-graduate': {
-                name: 'Jamie Rodriguez',
+                name: 'Jordan Kim',
                 goal: 'Launch career in software development or cloud engineering, building practical skills',
                 children: [
                     {
@@ -2341,7 +2429,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 ]
             },
             'data-analyst': {
-                name: 'Priya Patel',
+                name: 'Riley Patel',
                 goal: 'Advance from data analyst to senior data scientist or machine learning engineer role',
                 children: [
                     {
@@ -2435,6 +2523,90 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
         }
 
+        // View Mode Functions
+        function switchViewMode(mode) {
+            currentViewMode = mode;
+
+            // Update toggle buttons
+            document.querySelectorAll('.view-mode-btn').forEach(btn => {
+                const btnMode = btn.getAttribute('data-view');
+                if (btnMode === mode) {
+                    btn.style.background = 'var(--color-primary-blue)';
+                    btn.style.color = 'white';
+                    btn.classList.add('active');
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'rgba(255, 255, 255, 0.7)';
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Show/hide Job Search menu item
+            const jobSearchMenuItem = document.getElementById('jobSearchMenuItem');
+            if (mode === 'learner') {
+                jobSearchMenuItem.style.display = 'none';
+                // If currently on Job Search view, switch back to Home
+                const menuName = document.querySelector('.main-menu-item.active span')?.textContent;
+                if (menuName === 'Job Search') {
+                    document.querySelector('.main-menu-item').click(); // Click Home button
+                }
+            } else {
+                jobSearchMenuItem.style.display = 'flex';
+            }
+
+            // Clear and redraw visualization
+            d3.select('#canvas-mindmap').selectAll('*').remove();
+
+            if (mode === 'learner') {
+                initializeLearnerNetwork(currentPersona);
+            } else {
+                initializeMindmap(currentPersona);
+            }
+        }
+
+        function getFilteredPersonaData(persona) {
+            const data = personaData[persona];
+            if (!data) return null;
+
+            // In learner mode, filter out job search related nodes and add learner-specific nodes
+            if (currentViewMode === 'learner') {
+                const filteredChildren = data.children.filter(child => {
+                    const excludedNodes = ['Job Opportunities', 'Application Materials', 'Interview Prep'];
+                    return !excludedNodes.includes(child.name);
+                });
+
+                // Add learner-specific nodes
+                // Load project count from localStorage
+                const storedProjects = localStorage.getItem(`projects_${persona}`);
+                const projectsCount = storedProjects ? JSON.parse(storedProjects).length : 0;
+
+                const learnerNodes = [
+                    {
+                        name: 'Code Snippets',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Projects',
+                        count: projectsCount,
+                        children: []
+                    },
+                    {
+                        name: 'My Library',
+                        count: 0,
+                        children: []
+                    }
+                ];
+
+                return {
+                    ...data,
+                    children: [...filteredChildren, ...learnerNodes]
+                };
+            }
+
+            return data;
+        }
+
         // Canvas Modal Functions
         function openCanvasModal() {
             document.getElementById('canvasModal').classList.add('active');
@@ -2469,6 +2641,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.body.style.overflow = 'auto';
             // Clear the mindmap
             d3.select('#canvas-mindmap').selectAll('*').remove();
+        }
+
+        function updateNodeCounts() {
+            // Redraw the visualization to update counts
+            d3.select('#canvas-mindmap').selectAll('*').remove();
+            if (currentViewMode === 'learner') {
+                initializeLearnerNetwork(currentPersona);
+            } else {
+                initializeMindmap(currentPersona);
+            }
         }
 
         function switchPersona(persona) {
@@ -2581,6 +2763,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 loadLibraryView();
             } else if (menuName === 'Home') {
                 homeView.style.display = 'contents';
+                // Redraw mindmap when returning to Home view
+                d3.select('#canvas-mindmap').selectAll('*').remove();
+                setTimeout(() => initializeMindmap(currentPersona), 50);
             } else {
                 // Reset to home if unimplemented section
                 homeView.style.display = 'contents';
@@ -2595,6 +2780,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             container.innerHTML = `
                 <div style="max-width: 1400px; margin: 0 auto;">
+                    <!-- My Job Search Collapsible Section -->
+                    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px; overflow: hidden;">
+                        <div onclick="toggleJobSearchSankey()" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-neutral-border);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-funnel" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                <div>
+                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; color: var(--color-dark); margin: 0;">My Job Search Pipeline</h3>
+                                    <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); margin: 4px 0 0 0;">Track your job search progress</p>
+                                </div>
+                            </div>
+                            <i class="ph ph-caret-down" id="sankeyToggleIcon" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                        </div>
+                        <div id="sankeyContainer" style="display: none; padding: 32px 20px;">
+                            <div id="jobSearchSankey" style="width: 100%; height: 400px;"></div>
+                        </div>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                         <div>
                             <h2 style="font-family: var(--font-family-ui); font-size: 28px; color: var(--color-dark); margin: 0 0 8px 0;">Job Search Aggregator</h2>
@@ -2724,6 +2926,195 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             if (confirm(`Delete alert for "${title}"?`)) {
                 alert('Alert deleted successfully.');
             }
+        }
+
+        // Job Search Sankey Functions
+        let sankeyExpanded = false;
+
+        function toggleJobSearchSankey() {
+            sankeyExpanded = !sankeyExpanded;
+            const container = document.getElementById('sankeyContainer');
+            const icon = document.getElementById('sankeyToggleIcon');
+
+            if (sankeyExpanded) {
+                container.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+                // Initialize Sankey diagram
+                setTimeout(() => initializeJobSearchSankey(), 100);
+            } else {
+                container.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function initializeJobSearchSankey() {
+            const container = document.getElementById('jobSearchSankey');
+            if (!container) return;
+
+            // Clear any existing content
+            d3.select('#jobSearchSankey').selectAll('*').remove();
+
+            const width = container.clientWidth;
+            const height = 400;
+
+            // Calculate total found from enabled job boards
+            const totalFound = 847 + 1203 + 412; // 2462 jobs from enabled boards
+
+            // Cleansheet color scheme - professional blues with accent colors
+            const data = {
+                nodes: [
+                    { name: 'Found' },        // 0
+                    { name: 'Interested' },   // 1
+                    { name: 'Applied' },      // 2
+                    { name: 'Interviewing' }, // 3
+                    { name: 'Offer' }         // 4
+                ],
+                links: [
+                    { source: 0, target: 1, value: 150, color: '#B3D9FF' },  // Light blue
+                    { source: 1, target: 2, value: 80, color: '#80BFFF' },   // Medium blue
+                    { source: 2, target: 3, value: 25, color: '#4D9FFF' },   // Primary blue
+                    { source: 3, target: 4, value: 3, color: '#0066CC' }     // Cleansheet primary blue
+                ]
+            };
+
+            // Create SVG
+            const svg = d3.select('#jobSearchSankey')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Define gradient for each link
+            const defs = svg.append('defs');
+
+            data.links.forEach((link, i) => {
+                const gradient = defs.append('linearGradient')
+                    .attr('id', `gradient-${i}`)
+                    .attr('gradientUnits', 'userSpaceOnUse');
+
+                gradient.append('stop')
+                    .attr('offset', '0%')
+                    .attr('stop-color', link.color)
+                    .attr('stop-opacity', 0.6);
+
+                gradient.append('stop')
+                    .attr('offset', '100%')
+                    .attr('stop-color', link.color)
+                    .attr('stop-opacity', 0.3);
+            });
+
+            // Create Sankey generator
+            const sankey = d3.sankey()
+                .nodeWidth(15)  // Thin vertical bars
+                .nodePadding(50)  // Generous spacing
+                .extent([[80, 20], [width - 200, height - 20]]);
+
+            // Generate Sankey layout
+            const { nodes, links } = sankey({
+                nodes: data.nodes.map(d => Object.assign({}, d)),
+                links: data.links.map(d => Object.assign({}, d))
+            });
+
+            // Custom link path generator for smooth curves
+            const linkPath = d3.linkHorizontal()
+                .source(d => [d.source.x1, d.y0])
+                .target(d => [d.target.x0, d.y1]);
+
+            // Draw links with gradient fills
+            svg.append('g')
+                .selectAll('path')
+                .data(links)
+                .join('path')
+                .attr('d', d => {
+                    // Create smooth S-curve path
+                    const sourceX = d.source.x1;
+                    const targetX = d.target.x0;
+                    const sourceY = d.y0;
+                    const targetY = d.y1;
+                    const sourceHeight = d.width;
+
+                    const path = d3.path();
+                    const midX = (sourceX + targetX) / 2;
+
+                    path.moveTo(sourceX, sourceY);
+                    path.bezierCurveTo(midX, sourceY, midX, targetY, targetX, targetY);
+                    path.lineTo(targetX, targetY + sourceHeight);
+                    path.bezierCurveTo(midX, targetY + sourceHeight, midX, sourceY + sourceHeight, sourceX, sourceY + sourceHeight);
+                    path.closePath();
+
+                    return path.toString();
+                })
+                .attr('fill', (d, i) => `url(#gradient-${i})`)
+                .attr('opacity', 0.7)
+                .on('mouseover', function() {
+                    d3.select(this).attr('opacity', 0.9);
+                })
+                .on('mouseout', function() {
+                    d3.select(this).attr('opacity', 0.7);
+                })
+                .append('title')
+                .text(d => `${d.source.name} → ${d.target.name}\n${d.value} jobs`);
+
+            // Draw nodes as thin bars
+            svg.append('g')
+                .selectAll('rect')
+                .data(nodes)
+                .join('rect')
+                .attr('x', d => d.x0)
+                .attr('y', d => d.y0)
+                .attr('height', d => d.y1 - d.y0)
+                .attr('width', d => d.x1 - d.x0)
+                .attr('fill', '#0066CC')
+                .attr('opacity', 0.8);
+
+            // Add stage labels to the left
+            svg.append('g')
+                .selectAll('text')
+                .data(nodes)
+                .join('text')
+                .attr('x', d => d.x0 - 10)
+                .attr('y', d => (d.y0 + d.y1) / 2)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'end')
+                .attr('font-family', 'var(--font-family-ui)')
+                .attr('font-size', '14px')
+                .attr('font-weight', '600')
+                .attr('fill', '#333')
+                .text(d => d.name);
+
+            // Add count labels to the right
+            svg.append('g')
+                .selectAll('text')
+                .data(nodes)
+                .join('text')
+                .attr('x', d => d.x1 + 10)
+                .attr('y', d => (d.y0 + d.y1) / 2)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'start')
+                .attr('font-family', 'var(--font-family-body)')
+                .attr('font-size', '18px')
+                .attr('font-weight', '700')
+                .attr('fill', '#0066CC')
+                .text(d => {
+                    if (d.name === 'Found') return totalFound.toLocaleString();
+                    return d.value.toLocaleString();
+                });
+
+            // Add conversion percentages below count labels
+            svg.append('g')
+                .selectAll('text')
+                .data(nodes.filter((d, i) => i > 0))
+                .join('text')
+                .attr('x', d => d.x1 + 10)
+                .attr('y', d => (d.y0 + d.y1) / 2 + 18)
+                .attr('text-anchor', 'start')
+                .attr('font-family', 'var(--font-family-body)')
+                .attr('font-size', '11px')
+                .attr('font-weight', '400')
+                .attr('fill', '#666')
+                .text((d, i) => {
+                    const conversions = [6.1, 53.3, 31.3, 12.0];
+                    return `${conversions[i].toFixed(1)}% conv.`;
+                });
         }
 
         // Library View Functions
@@ -3051,6 +3442,269 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // Track expanded node
         let expandedNode = null;
 
+        // D3 Learner Network - Force-Directed Layout
+        function initializeLearnerNetwork(persona) {
+            const container = document.getElementById('canvas-mindmap');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Get persona data
+            const data = getFilteredPersonaData(persona);
+            if (!data) return;
+
+            // Create network data from filtered persona children
+            const networkData = {
+                nodes: [],
+                links: []
+            };
+
+            // Add center node (learner)
+            networkData.nodes.push({
+                id: 'center',
+                label: data.name,
+                tier: 'center',
+                x: width / 2,
+                y: height / 2
+            });
+
+            // Add child nodes (learning areas)
+            data.children.forEach((child, idx) => {
+                networkData.nodes.push({
+                    id: `node-${idx}`,
+                    label: child.name,
+                    tier: 'primary',
+                    count: child.count,
+                    data: child
+                });
+
+                // Link to center
+                networkData.links.push({
+                    source: 'center',
+                    target: `node-${idx}`
+                });
+            });
+
+            // Create SVG
+            const svg = d3.select('#canvas-mindmap')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height]);
+
+            // Create force simulation
+            const simulation = d3.forceSimulation(networkData.nodes)
+                .force('link', d3.forceLink(networkData.links)
+                    .id(d => d.id)
+                    .distance(200)
+                    .strength(0.3))
+                .force('charge', d3.forceManyBody().strength(-400))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(80));
+
+            // Create links
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(networkData.links)
+                .join('line')
+                .attr('stroke', 'rgba(0, 102, 204, 0.3)')
+                .attr('stroke-width', 2);
+
+            // Create nodes
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(networkData.nodes)
+                .join('g')
+                .attr('class', d => `network-node ${d.tier}`)
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+
+            // Add rectangles for all nodes
+            node.each(function(d) {
+                const g = d3.select(this);
+
+                if (d.tier === 'center') {
+                    g.append('rect')
+                        .attr('width', 140)
+                        .attr('height', 40)
+                        .attr('x', -70)
+                        .attr('y', -20)
+                        .attr('fill', 'var(--color-primary-blue)')
+                        .attr('rx', 6);
+                } else {
+                    g.append('rect')
+                        .attr('width', 140)
+                        .attr('height', 40)
+                        .attr('x', -70)
+                        .attr('y', -20)
+                        .attr('fill', 'rgba(0, 102, 204, 0.3)')
+                        .attr('rx', 6)
+                        .style('cursor', 'pointer');
+                }
+            });
+
+            // Add labels
+            node.append('text')
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'middle')
+                .attr('font-family', 'var(--font-family-ui)')
+                .attr('font-size', d => d.tier === 'center' ? '14px' : '13px')
+                .attr('font-weight', '600')
+                .attr('fill', d => d.tier === 'center' ? 'white' : 'var(--color-neutral-text)')
+                .attr('pointer-events', 'none')
+                .text(d => d.label);
+
+            // Add count badges for primary nodes
+            node.filter(d => d.tier === 'primary' && d.count > 0)
+                .append('circle')
+                .attr('cx', 70)
+                .attr('cy', -20)
+                .attr('r', 10)
+                .attr('fill', '#e3f2fd')
+                .attr('stroke', 'var(--color-primary-blue)')
+                .attr('stroke-width', 1);
+
+            node.filter(d => d.tier === 'primary' && d.count > 0)
+                .append('text')
+                .attr('x', 70)
+                .attr('y', -20)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'middle')
+                .attr('font-family', 'var(--font-family-ui)')
+                .attr('font-size', '10px')
+                .attr('font-weight', '700')
+                .attr('fill', 'var(--color-primary-blue)')
+                .attr('pointer-events', 'none')
+                .text(d => d.count);
+
+            // Click handler for primary nodes
+            node.filter(d => d.tier === 'primary')
+                .on('click', function(event, d) {
+                    event.stopPropagation();
+                    console.log('Clicked node:', d.label, d.data);
+
+                    // Handle different node types
+                    const nodeName = d.label;
+
+                    if (nodeName === 'Career Experience') {
+                        openCareerExperienceSlideout();
+                    } else if (nodeName === 'Goals') {
+                        openSkillsCompetenciesSlideout();
+                    } else if (nodeName === 'Portfolio') {
+                        openPortfolioSlideout();
+                    } else if (nodeName === 'Projects') {
+                        openProjectsSlideout();
+                    } else if (nodeName === 'Code Snippets') {
+                        openCodeSnippetsSlideout();
+                    } else if (nodeName === 'My Library') {
+                        openMyLibrarySlideout();
+                    }
+                })
+                .on('mouseover', function() {
+                    d3.select(this).select('rect')
+                        .transition()
+                        .duration(200)
+                        .attr('fill', 'rgba(0, 102, 204, 0.5)');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).select('rect')
+                        .transition()
+                        .duration(200)
+                        .attr('fill', 'rgba(0, 102, 204, 0.3)');
+                });
+
+            // Update positions on tick
+            simulation.on('tick', () => {
+                link.attr('x1', d => {
+                    // For center node (rectangle), calculate edge point
+                    const dx = d.target.x - d.source.x;
+                    const dy = d.target.y - d.source.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const rectWidth = 70;
+                    const rectHeight = 20;
+                    const angle = Math.atan2(dy, dx);
+                    const rectAngle = Math.atan2(rectHeight, rectWidth);
+                    let offset;
+                    if (Math.abs(angle) < rectAngle || Math.abs(angle) > Math.PI - rectAngle) {
+                        offset = rectWidth / Math.abs(Math.cos(angle));
+                    } else {
+                        offset = rectHeight / Math.abs(Math.sin(angle));
+                    }
+                    return d.source.x + (dx / dist) * offset;
+                })
+                .attr('y1', d => {
+                    const dx = d.target.x - d.source.x;
+                    const dy = d.target.y - d.source.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const rectWidth = 70;
+                    const rectHeight = 20;
+                    const angle = Math.atan2(dy, dx);
+                    const rectAngle = Math.atan2(rectHeight, rectWidth);
+                    let offset;
+                    if (Math.abs(angle) < rectAngle || Math.abs(angle) > Math.PI - rectAngle) {
+                        offset = rectWidth / Math.abs(Math.cos(angle));
+                    } else {
+                        offset = rectHeight / Math.abs(Math.sin(angle));
+                    }
+                    return d.source.y + (dy / dist) * offset;
+                })
+                .attr('x2', d => {
+                    // For primary nodes (rectangles), calculate edge point
+                    const dx = d.target.x - d.source.x;
+                    const dy = d.target.y - d.source.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const rectWidth = 70;
+                    const rectHeight = 20;
+                    const angle = Math.atan2(dy, dx);
+                    const rectAngle = Math.atan2(rectHeight, rectWidth);
+                    let offset;
+                    if (Math.abs(angle) < rectAngle || Math.abs(angle) > Math.PI - rectAngle) {
+                        offset = rectWidth / Math.abs(Math.cos(angle));
+                    } else {
+                        offset = rectHeight / Math.abs(Math.sin(angle));
+                    }
+                    return d.target.x - (dx / dist) * offset;
+                })
+                .attr('y2', d => {
+                    const dx = d.target.x - d.source.x;
+                    const dy = d.target.y - d.source.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const rectWidth = 70;
+                    const rectHeight = 20;
+                    const angle = Math.atan2(dy, dx);
+                    const rectAngle = Math.atan2(rectHeight, rectWidth);
+                    let offset;
+                    if (Math.abs(angle) < rectAngle || Math.abs(angle) > Math.PI - rectAngle) {
+                        offset = rectWidth / Math.abs(Math.cos(angle));
+                    } else {
+                        offset = rectHeight / Math.abs(Math.sin(angle));
+                    }
+                    return d.target.y - (dy / dist) * offset;
+                });
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag functions
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+        }
+
         // D3 Mindmap Initialization - Tree Layout (Left to Right)
         function initializeMindmap(persona) {
             const container = document.getElementById('canvas-mindmap');
@@ -3060,8 +3714,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Reset expanded node
             expandedNode = null;
 
-            // Get persona-specific data
-            const data = personaData[persona];
+            // Get persona-specific data (filtered based on view mode)
+            const data = getFilteredPersonaData(persona);
+            if (!data) return;
 
             // Mindmap data structure - keep all children for D3 to see
             const mindmapData = {
@@ -5286,6 +5941,211 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 loadPortfolioProjects();
                 updateNodeCounts();
             }
+        }
+
+        // Projects Management
+        let userProjects = [];
+        const technologyColors = {
+            'React': '#61DAFB', 'Vue': '#42B883', 'Angular': '#DD0031', 'Node.js': '#68A063',
+            'Python': '#3776AB', 'JavaScript': '#F7DF1E', 'TypeScript': '#3178C6',
+            'Java': '#007396', 'C#': '#239120', 'Ruby': '#CC342D', 'Go': '#00ADD8',
+            'PHP': '#777BB4', 'Swift': '#FA7343', 'Kotlin': '#7F52FF',
+            'PostgreSQL': '#336791', 'MongoDB': '#47A248', 'MySQL': '#4479A1',
+            'Redis': '#DC382D', 'Docker': '#2496ED', 'Kubernetes': '#326CE5',
+            'AWS': '#FF9900', 'Azure': '#0089D6', 'GCP': '#4285F4',
+            'Git': '#F05032', 'GraphQL': '#E10098', 'REST': '#009688'
+        };
+        const topicColors = {
+            'Web Development': '#0066CC', 'Mobile': '#673AB7', 'Backend': '#4CAF50',
+            'Frontend': '#FF9800', 'Full Stack': '#E91E63', 'DevOps': '#00BCD4',
+            'Data Science': '#9C27B0', 'Machine Learning': '#3F51B5', 'AI': '#2196F3',
+            'Cloud': '#03A9F4', 'Security': '#F44336', 'Testing': '#8BC34A',
+            'E-Commerce': '#FF5722', 'Analytics': '#607D8B', 'API': '#795548'
+        };
+
+        function loadUserProjects() {
+            const stored = localStorage.getItem(`projects_${currentPersona}`);
+            userProjects = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveUserProjects() {
+            localStorage.setItem(`projects_${currentPersona}`, JSON.stringify(userProjects));
+        }
+
+        function openProjectsSlideout() {
+            loadUserProjects();
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Project Repositories';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+
+            // Show projects content
+            document.getElementById('projectsContent').style.display = 'flex';
+            loadProjectsCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadProjectsCards() {
+            const container = document.getElementById('projectsContainer');
+
+            if (userProjects.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center; padding: 40px 20px; grid-column: 1/-1;">No project repositories yet. Click Connect Repository to add your local projects.</p>';
+                return;
+            }
+
+            container.innerHTML = userProjects.map((project, index) => {
+                const statusBadgeColors = {
+                    'active': 'background: #e8f5e9; color: #2e7d32',
+                    'completed': 'background: #e3f2fd; color: #1565c0',
+                    'archived': 'background: #f5f5f5; color: #757575',
+                    'planning': 'background: #fff3e0; color: #ef6c00'
+                };
+
+                const technologies = project.technologies ? project.technologies.split(',').map(t => t.trim()) : [];
+                const topics = project.topics ? project.topics.split(',').map(t => t.trim()) : [];
+
+                return `
+                    <div class="experience-card" style="cursor: default;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">${project.name}</h4>
+                                    <span style="padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; ${statusBadgeColors[project.status]}">
+                                        ${project.status.toUpperCase()}
+                                    </span>
+                                </div>
+                                <p style="margin: 0 0 8px 0; color: #666; font-size: 12px; font-family: 'Courier New', monospace;">
+                                    <i class="ph ph-folder"></i> ${project.path}
+                                </p>
+                                ${project.repoUrl ? `
+                                    <p style="margin: 0 0 8px 0; color: #0066CC; font-size: 12px;">
+                                        <i class="ph ph-git-branch"></i> <a href="${project.repoUrl}" target="_blank" rel="noopener noreferrer" style="color: #0066CC; text-decoration: none;">${project.repoUrl}</a>
+                                    </p>
+                                ` : ''}
+                                ${project.description ? `
+                                    <p style="margin: 0 0 12px 0; color: #666; font-size: 13px; line-height: 1.5;">
+                                        ${project.description}
+                                    </p>
+                                ` : ''}
+                                ${technologies.length > 0 ? `
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+                                        ${technologies.map(tech => {
+                                            const color = technologyColors[tech] || '#999';
+                                            return `<span style="background: ${color}20; color: ${color}; border: 1px solid ${color}40; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                                ${tech}
+                                            </span>`;
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
+                                ${topics.length > 0 ? `
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                        ${topics.map(topic => {
+                                            const color = topicColors[topic] || '#666';
+                                            return `<span style="background: ${color}15; color: ${color}; border: 1px solid ${color}30; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
+                                                ${topic}
+                                            </span>`;
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-left: 12px;">
+                                <button onclick="editProject(${index})" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600;">
+                                    <i class="ph ph-pencil"></i> Edit
+                                </button>
+                                <button onclick="deleteProject(${index})" style="padding: 6px 10px; background: #fee; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #c33; font-weight: 600;">
+                                    <i class="ph ph-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addProjectRepo() {
+            document.getElementById('projectFormModal').classList.add('active');
+            document.getElementById('projectForm').reset();
+            document.getElementById('projectFormTitle').textContent = 'Connect Project Repository';
+            document.getElementById('projectForm').dataset.editIndex = '';
+        }
+
+        function editProject(index) {
+            const project = userProjects[index];
+            document.getElementById('projectFormModal').classList.add('active');
+            document.getElementById('projectFormTitle').textContent = 'Edit Project Repository';
+
+            document.getElementById('projectName').value = project.name;
+            document.getElementById('projectPath').value = project.path;
+            document.getElementById('projectRepoUrl').value = project.repoUrl || '';
+            document.getElementById('projectDescription').value = project.description || '';
+            document.getElementById('projectTechnologies').value = project.technologies || '';
+            document.getElementById('projectTopics').value = project.topics || '';
+            document.getElementById('projectStatus').value = project.status;
+
+            document.getElementById('projectForm').dataset.editIndex = index;
+        }
+
+        function closeProjectForm() {
+            document.getElementById('projectFormModal').classList.remove('active');
+        }
+
+        function saveProject(event) {
+            event.preventDefault();
+
+            const projectData = {
+                name: document.getElementById('projectName').value,
+                path: document.getElementById('projectPath').value,
+                repoUrl: document.getElementById('projectRepoUrl').value,
+                description: document.getElementById('projectDescription').value,
+                technologies: document.getElementById('projectTechnologies').value,
+                topics: document.getElementById('projectTopics').value,
+                status: document.getElementById('projectStatus').value
+            };
+
+            const editIndex = document.getElementById('projectForm').dataset.editIndex;
+
+            if (editIndex !== '') {
+                userProjects[parseInt(editIndex)] = projectData;
+            } else {
+                userProjects.push(projectData);
+            }
+
+            saveUserProjects();
+            loadProjectsCards();
+            updateNodeCounts();
+            closeProjectForm();
+        }
+
+        function deleteProject(index) {
+            if (confirm('Are you sure you want to remove this project repository connection?')) {
+                userProjects.splice(index, 1);
+                saveUserProjects();
+                loadProjectsCards();
+                updateNodeCounts();
+            }
+        }
+
+        function scanLocalRepos() {
+            alert('Scan Local Directories functionality coming soon! This will automatically detect Git repositories in your specified folders.');
+        }
+
+        function openCodeSnippetsSlideout() {
+            alert('Code Snippets functionality coming soon! This will allow you to save and organize reusable code snippets with syntax highlighting.');
+        }
+
+        function openMyLibrarySlideout() {
+            alert('My Library functionality coming soon! This will connect to your Cleansheet Library content for personalized learning resources.');
         }
 
         // Skills & Competencies Management
