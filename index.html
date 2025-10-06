@@ -931,6 +931,41 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             box-shadow: 0 2px 8px rgba(0,102,204,0.3);
         }
 
+        .calendar-view-btn {
+            padding: 8px 16px;
+            background: white;
+            color: var(--color-neutral-text);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-heading);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-view-btn.active {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
+
+        .calendar-view-btn:hover:not(.active) {
+            background: var(--color-neutral-background-secondary);
+            border-color: var(--color-primary-blue);
+        }
+
+        .calendar-view-btn-green.active {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .calendar-view-btn-green:hover:not(.active) {
+            background: var(--color-neutral-background-secondary);
+            border-color: #16a34a;
+        }
+
         .linkedin-connect-btn {
             padding: 8px 16px;
             background: #0077B5;
@@ -2264,6 +2299,66 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
             </div>
 
+            <!-- Calendar Content -->
+            <div class="slideout-body" id="calendarContent" style="display: none;">
+                <!-- Calendar Header with View Switcher -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button id="dailyViewBtn" onclick="switchCalendarView('daily')" class="calendar-view-btn calendar-view-btn-green active">Daily</button>
+                        <button id="weeklyViewBtn" onclick="switchCalendarView('weekly')" class="calendar-view-btn calendar-view-btn-green">Weekly</button>
+                        <button id="monthlyViewBtn" onclick="switchCalendarView('monthly')" class="calendar-view-btn calendar-view-btn-green">Monthly</button>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button onclick="navigateCalendar('prev')" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; font-family: var(--font-family-heading); font-size: 14px;">
+                            <i class="ph ph-caret-left"></i>
+                        </button>
+                        <button onclick="navigateCalendar('today')" style="padding: 6px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600;">
+                            Today
+                        </button>
+                        <button onclick="navigateCalendar('next')" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; font-family: var(--font-family-heading); font-size: 14px;">
+                            <i class="ph ph-caret-right"></i>
+                        </button>
+                        <span id="calendarDateRange" style="font-family: var(--font-family-heading); font-size: 16px; font-weight: 600; color: var(--color-neutral-text); margin-left: 8px;">
+                            <!-- Date range will be set by JS -->
+                        </span>
+                    </div>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="openAddEventForm()" class="add-story-btn" style="margin: 0; background: #16a34a;">
+                            <i class="ph ph-plus-circle"></i> Add Event
+                        </button>
+                        <button onclick="openCalendarSettings()" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer;">
+                            <i class="ph ph-gear" style="font-size: 18px; color: var(--color-neutral-text);"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calendar Display Area -->
+                <div id="calendarDisplayArea" style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 16px; min-height: 500px;">
+                    <!-- Calendar views will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Recipes Content -->
+            <div class="slideout-body" id="recipesContent" style="display: none;">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+                    <button class="add-story-btn" onclick="openAddRecipeForm()" style="flex: 0 0 auto; margin-bottom: 0; background: #16a34a;">
+                        <i class="ph ph-plus-circle"></i> Add Recipe
+                    </button>
+                    <input type="text" id="recipesSearchInput" placeholder="Search recipes..." oninput="searchRecipes()" style="flex: 1; padding: 8px 12px; border: 1px solid #e5e5e7; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    <select id="cuisineFilterSelect" onchange="filterRecipes()" style="padding: 8px 12px; border: 1px solid #e5e5e7; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; cursor: pointer;">
+                        <option value="">All Cuisines</option>
+                    </select>
+                    <select id="mealTypeFilterSelect" onchange="filterRecipes()" style="padding: 8px 12px; border: 1px solid #e5e5e7; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; cursor: pointer;">
+                        <option value="">All Meal Types</option>
+                    </select>
+                </div>
+                <div id="recipesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+                    <!-- Recipe cards will be dynamically inserted here -->
+                </div>
+            </div>
+
             <div class="slideout-body" id="tablesContent" style="display: none;">
                 <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 16px;">
                     Structured data tables with typed columns for organizing professional information.
@@ -2566,6 +2661,314 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
     </div> <!-- End note-form-modal -->
+
+    <!-- Calendar Event Form Modal -->
+    <div class="story-form-modal" id="eventFormModal">
+        <div class="story-form-content" style="max-width: 600px;">
+            <div class="story-form-header">
+                <h3 id="eventFormTitle">Add Event</h3>
+                <button class="story-form-close" onclick="closeEventForm()">&times;</button>
+            </div>
+            <div class="story-form-body">
+                <form id="eventForm" onsubmit="saveEvent(event)">
+                    <div class="form-group">
+                        <label>Event Title</label>
+                        <input type="text" id="eventTitle" required placeholder="e.g., Team Meeting">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Type</label>
+                        <select id="eventType" onchange="updateEventTypeFields()">
+                            <option value="allday">All-Day Event</option>
+                            <option value="datetime">Date & Time Event</option>
+                            <option value="time">Time-Only Event</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="eventDateField">
+                        <label>Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+
+                    <div class="form-group" id="eventStartTimeField" style="display: none;">
+                        <label>Start Time</label>
+                        <input type="time" id="eventStartTime">
+                    </div>
+
+                    <div class="form-group" id="eventEndTimeField" style="display: none;">
+                        <label>End Time</label>
+                        <input type="time" id="eventEndTime">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="eventRecurring" onchange="toggleRecurringFields()">
+                            Recurring Event
+                        </label>
+                    </div>
+
+                    <div id="recurringFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Recurrence Pattern</label>
+                            <select id="recurrencePattern">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Repeat Every</label>
+                            <input type="number" id="recurrenceInterval" value="1" min="1" style="width: 80px;">
+                            <span id="recurrenceUnitLabel">day(s)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ends</label>
+                            <select id="recurrenceEndType" onchange="toggleRecurrenceEnd()">
+                                <option value="never">Never</option>
+                                <option value="date">On Date</option>
+                                <option value="count">After Occurrences</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="recurrenceEndDateField" style="display: none;">
+                            <label>End Date</label>
+                            <input type="date" id="recurrenceEndDate">
+                        </div>
+
+                        <div class="form-group" id="recurrenceCountField" style="display: none;">
+                            <label>Number of Occurrences</label>
+                            <input type="number" id="recurrenceCount" value="10" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location (Optional)</label>
+                        <input type="text" id="eventLocation" placeholder="e.g., Conference Room A">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <textarea id="eventDescription" rows="3" placeholder="Add details about this event..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Calendar</label>
+                        <select id="eventCalendar">
+                            <option value="personal">Personal</option>
+                            <!-- External calendars will be added here -->
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeEventForm()">Cancel</button>
+                        <button type="submit" class="btn-save">Save Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> <!-- End event-form-modal -->
+
+    <!-- Calendar Settings Modal -->
+    <div class="story-form-modal" id="calendarSettingsModal">
+        <div class="story-form-content" style="max-width: 700px;">
+            <div class="story-form-header">
+                <h3>Calendar Settings</h3>
+                <button class="story-form-close" onclick="closeCalendarSettings()">&times;</button>
+            </div>
+            <div class="story-form-body">
+                <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--color-neutral-border);">
+                    <button id="syncTab" onclick="switchSettingsTab('sync')" style="padding: 12px 24px; background: none; border: none; border-bottom: 2px solid var(--color-primary-blue); color: var(--color-primary-blue); font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        Sync & Import
+                    </button>
+                    <button id="exportTab" onclick="switchSettingsTab('export')" style="padding: 12px 24px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-neutral-text); font-family: var(--font-family-heading); font-size: 14px; cursor: pointer;">
+                        Export
+                    </button>
+                    <button id="shareTab" onclick="switchSettingsTab('share')" style="padding: 12px 24px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-neutral-text); font-family: var(--font-family-heading); font-size: 14px; cursor: pointer;">
+                        Sharing
+                    </button>
+                </div>
+
+                <!-- Sync & Import Tab -->
+                <div id="syncSettingsContent" style="display: block;">
+                    <h4 style="font-family: var(--font-family-heading); font-size: 16px; font-weight: 600; margin-bottom: 12px;">Connected Calendars</h4>
+                    <div id="connectedCalendars" style="margin-bottom: 24px;">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); font-style: italic;">
+                            No external calendars connected.
+                        </p>
+                    </div>
+
+                    <h4 style="font-family: var(--font-family-heading); font-size: 16px; font-weight: 600; margin-bottom: 12px;">Connect Calendar</h4>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button onclick="connectGoogleCalendar()" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 6px; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-google-logo"></i> Google Calendar
+                        </button>
+                        <button onclick="connectMicrosoftCalendar()" style="padding: 10px 20px; background: #0078D4; color: white; border: none; border-radius: 6px; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-microsoft-outlook-logo"></i> Outlook / Microsoft 365
+                        </button>
+                        <button onclick="connectAppleCalendar()" style="padding: 10px 20px; background: #555; color: white; border: none; border-radius: 6px; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-apple-logo"></i> Apple Calendar
+                        </button>
+                    </div>
+
+                    <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text-light); margin-top: 12px;">
+                        Two-way sync keeps your events synchronized across all connected calendars.
+                    </p>
+                </div>
+
+                <!-- Export Tab -->
+                <div id="exportSettingsContent" style="display: none;">
+                    <h4 style="font-family: var(--font-family-heading); font-size: 16px; font-weight: 600; margin-bottom: 12px;">Export Calendar</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 16px;">
+                        Export your entire calendar or individual events in standard formats.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <button onclick="exportCalendar('ics')" style="padding: 12px 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="ph ph-calendar-blank" style="margin-right: 8px;"></i> iCalendar Format (.ics)</span>
+                            <i class="ph ph-download-simple"></i>
+                        </button>
+                        <button onclick="exportCalendar('csv')" style="padding: 12px 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="ph ph-file-csv" style="margin-right: 8px;"></i> CSV Spreadsheet (.csv)</span>
+                            <i class="ph ph-download-simple"></i>
+                        </button>
+                        <button onclick="exportCalendar('json')" style="padding: 12px 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="ph ph-code" style="margin-right: 8px;"></i> JSON Format (.json)</span>
+                            <i class="ph ph-download-simple"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Share Tab -->
+                <div id="shareSettingsContent" style="display: none;">
+                    <h4 style="font-family: var(--font-family-heading); font-size: 16px; font-weight: 600; margin-bottom: 12px;">Share Calendar</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 16px;">
+                        Generate a shareable link to allow others to view your calendar.
+                    </p>
+
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <input type="text" id="shareLink" readonly value="https://cleansheet.info/calendar/share/..." style="flex: 1; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; background: var(--color-neutral-background);">
+                        <button onclick="copyShareLink()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; cursor: pointer;">
+                            <i class="ph ph-copy"></i> Copy
+                        </button>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="checkbox" id="sharePublic" onchange="togglePublicSharing()">
+                            Make calendar publicly accessible
+                        </label>
+                    </div>
+
+                    <h4 style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; margin-bottom: 8px; margin-top: 24px;">Permissions</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="radio" name="sharePermission" value="view" checked>
+                            View only (others can see events)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="radio" name="sharePermission" value="edit">
+                            Can edit (others can add/modify events)
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End calendar-settings-modal -->
+
+    <!-- Recipe Form Modal -->
+    <div id="recipeFormModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div style="position: sticky; top: 0; background: white; z-index: 10; padding: 20px; border-bottom: 1px solid var(--color-neutral-border);">
+                <h2 id="recipeFormTitle" style="font-family: var(--font-family-heading); font-size: 20px; font-weight: 600; color: var(--color-neutral-text); margin: 0;">Add Recipe</h2>
+            </div>
+
+            <div style="padding: 20px;">
+                <input type="hidden" id="recipeEditIndex" value="">
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Recipe Name *</label>
+                    <input type="text" id="recipeName" placeholder="e.g., Chicken Tacos" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Cuisine</label>
+                        <input type="text" id="recipeCuisine" placeholder="e.g., Mexican, Italian" list="cuisineList" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        <datalist id="cuisineList">
+                            <option value="Mexican">
+                            <option value="Italian">
+                            <option value="Chinese">
+                            <option value="Indian">
+                            <option value="Thai">
+                            <option value="American">
+                            <option value="French">
+                            <option value="Japanese">
+                            <option value="Mediterranean">
+                            <option value="Greek">
+                        </datalist>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Meal Type</label>
+                        <input type="text" id="recipeMealType" placeholder="e.g., Dinner, Snack" list="mealTypeList" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        <datalist id="mealTypeList">
+                            <option value="Breakfast">
+                            <option value="Lunch">
+                            <option value="Dinner">
+                            <option value="Snack">
+                            <option value="Dessert">
+                            <option value="Drink">
+                            <option value="Appetizer">
+                        </datalist>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Prep Time (minutes)</label>
+                        <input type="number" id="recipePrepTime" placeholder="30" min="0" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Cook Time (minutes)</label>
+                        <input type="number" id="recipeCookTime" placeholder="45" min="0" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Servings</label>
+                    <input type="number" id="recipeServings" placeholder="4" min="1" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Ingredients *</label>
+                    <textarea id="recipeIngredients" placeholder="One ingredient per line&#10;e.g.,&#10;2 cups flour&#10;1 lb chicken breast&#10;1 tsp salt" rows="6" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Instructions *</label>
+                    <textarea id="recipeInstructions" placeholder="One step per line&#10;e.g.,&#10;1. Preheat oven to 350°F&#10;2. Mix flour and salt in bowl&#10;3. Add water and knead dough" rows="8" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Notes</label>
+                    <textarea id="recipeNotes" placeholder="Any additional tips, variations, or notes about this recipe" rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; resize: vertical;"></textarea>
+                </div>
+            </div>
+
+            <div style="position: sticky; bottom: 0; background: white; border-top: 1px solid var(--color-neutral-border); padding: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+                <button onclick="closeRecipeForm()" style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    Cancel
+                </button>
+                <button onclick="saveRecipe()" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; font-family: var(--font-family-heading); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-check-circle"></i> Save Recipe
+                </button>
+            </div>
+        </div>
+    </div> <!-- End recipe-form-modal -->
 
 </div> <!-- End canvas-modal-content -->
 </div> <!-- End canvas-modal -->
@@ -4316,7 +4719,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 } else if (nodeName === 'Finance') {
                     alert('Finance functionality coming soon!');
                 } else if (nodeName === 'Calendar') {
-                    alert('Calendar functionality coming soon!');
+                    openCalendarSlideout();
                 } else if (nodeName === 'Recipes') {
                     alert('Recipes functionality coming soon!');
                 }
@@ -7041,6 +7444,895 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadNotesCards();
 
             slideout.classList.add('active');
+        }
+
+        // Calendar Management
+        let calendarEvents = [];
+        let currentCalendarView = 'weekly';
+        let currentCalendarDate = new Date();
+        let editingEventIndex = -1;
+
+        function loadCalendarEvents() {
+            const stored = localStorage.getItem('calendarEvents_' + currentPersona);
+            if (stored) {
+                try {
+                    calendarEvents = JSON.parse(stored);
+                } catch (e) {
+                    calendarEvents = [];
+                }
+            } else {
+                // Initialize with example events if none exist
+                calendarEvents = getExamplePersonalEvents();
+            }
+        }
+
+        function getExamplePersonalEvents() {
+            const today = new Date();
+            const year = today.getFullYear();
+
+            return [
+                // Birthdays
+                {
+                    title: "Mom's Birthday",
+                    type: 'allday',
+                    date: `${year}-03-15`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Call Mom and send flowers',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Dad's Birthday",
+                    type: 'allday',
+                    date: `${year}-07-22`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Plan dinner with family',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Sister's Birthday",
+                    type: 'allday',
+                    date: `${year}-09-08`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: '',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Best Friend's Birthday",
+                    type: 'allday',
+                    date: `${year}-11-12`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Birthday dinner planned',
+                    calendar: 'personal'
+                },
+
+                // Holidays
+                {
+                    title: "New Year's Day",
+                    type: 'allday',
+                    date: `${year}-01-01`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Federal Holiday',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Valentine's Day",
+                    type: 'allday',
+                    date: `${year}-02-14`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Dinner reservation at 7 PM',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Memorial Day",
+                    type: 'allday',
+                    date: `${year}-05-26`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: false,
+                    location: '',
+                    description: 'Federal Holiday - BBQ with family',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Independence Day",
+                    type: 'allday',
+                    date: `${year}-07-04`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Fireworks at the park',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Labor Day",
+                    type: 'allday',
+                    date: `${year}-09-01`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: false,
+                    location: '',
+                    description: 'Federal Holiday',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Halloween",
+                    type: 'allday',
+                    date: `${year}-10-31`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Trick-or-treating with kids',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Thanksgiving",
+                    type: 'allday',
+                    date: `${year}-11-27`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: false,
+                    location: '',
+                    description: 'Dinner at grandparents',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Christmas Eve",
+                    type: 'allday',
+                    date: `${year}-12-24`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Family gathering',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Christmas",
+                    type: 'allday',
+                    date: `${year}-12-25`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Federal Holiday',
+                    calendar: 'personal'
+                },
+                {
+                    title: "New Year's Eve",
+                    type: 'allday',
+                    date: `${year}-12-31`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: '',
+                    description: 'Party at Sarah\'s house',
+                    calendar: 'personal'
+                },
+
+                // Vacations
+                {
+                    title: "Spring Break Trip",
+                    type: 'allday',
+                    date: `${year}-03-20`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: false,
+                    location: 'Miami, FL',
+                    description: 'Beach vacation - 7 days',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Summer Vacation",
+                    type: 'allday',
+                    date: `${year}-07-15`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: false,
+                    location: 'Yellowstone National Park',
+                    description: 'Camping and hiking - 10 days',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Anniversary Weekend",
+                    type: 'allday',
+                    date: `${year}-09-20`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'yearly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: 'Napa Valley, CA',
+                    description: 'Wine country getaway',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Thanksgiving Road Trip",
+                    type: 'allday',
+                    date: `${year}-11-22`,
+                    startTime: '',
+                    endTime: '',
+                    recurring: false,
+                    location: 'Denver, CO to Chicago, IL',
+                    description: 'Driving to see family',
+                    calendar: 'personal'
+                },
+
+                // Personal Events
+                {
+                    title: "Dentist Appointment",
+                    type: 'datetime',
+                    date: `${year}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate() + 7).padStart(2, '0')}`,
+                    startTime: '10:00',
+                    endTime: '11:00',
+                    recurring: false,
+                    location: 'Dr. Smith Dental Office',
+                    description: 'Regular cleaning',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Gym Session",
+                    type: 'datetime',
+                    date: `${year}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate() + 1).padStart(2, '0')}`,
+                    startTime: '06:30',
+                    endTime: '07:30',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'weekly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: 'LA Fitness',
+                    description: 'Morning workout',
+                    calendar: 'personal'
+                },
+                {
+                    title: "Book Club Meeting",
+                    type: 'datetime',
+                    date: `${year}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate() + 14).padStart(2, '0')}`,
+                    startTime: '19:00',
+                    endTime: '21:00',
+                    recurring: true,
+                    recurrence: {
+                        pattern: 'monthly',
+                        interval: '1',
+                        endType: 'never'
+                    },
+                    location: 'Coffee House Downtown',
+                    description: 'Discussing "The Great Gatsby"',
+                    calendar: 'personal'
+                }
+            ];
+        }
+
+        function saveCalendarEvents() {
+            localStorage.setItem('calendarEvents_' + currentPersona, JSON.stringify(calendarEvents));
+        }
+
+        function openCalendarSlideout() {
+            loadCalendarEvents();
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Calendar';
+
+            // Hide all other content sections
+            document.getElementById('interviewPrepContent').style.display = 'none';
+            document.getElementById('behavioralContent').style.display = 'none';
+            document.getElementById('technicalContent').style.display = 'none';
+            document.getElementById('jobOpportunitiesContent').style.display = 'none';
+            document.getElementById('careerExperienceContent').style.display = 'none';
+            document.getElementById('applicationMaterialsContent').style.display = 'none';
+            document.getElementById('skillsCompetenciesContent').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'none';
+            document.getElementById('projectsContent').style.display = 'none';
+            document.getElementById('myNotesContent').style.display = 'none';
+            document.getElementById('formsContent').style.display = 'none';
+            document.getElementById('documentsContent').style.display = 'none';
+            document.getElementById('reportsContent').style.display = 'none';
+            document.getElementById('templatesContent').style.display = 'none';
+            document.getElementById('workflowsContent').style.display = 'none';
+            document.getElementById('tablesContent').style.display = 'none';
+
+            // Show calendar content
+            document.getElementById('calendarContent').style.display = 'block';
+            renderCalendar();
+
+            slideout.classList.add('active');
+        }
+
+        function switchCalendarView(view) {
+            currentCalendarView = view;
+
+            // Update active button states
+            document.querySelectorAll('.calendar-view-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(view + 'ViewBtn').classList.add('active');
+
+            renderCalendar();
+        }
+
+        function navigateCalendar(direction) {
+            if (direction === 'prev') {
+                if (currentCalendarView === 'daily') {
+                    currentCalendarDate.setDate(currentCalendarDate.getDate() - 1);
+                } else if (currentCalendarView === 'weekly') {
+                    currentCalendarDate.setDate(currentCalendarDate.getDate() - 7);
+                } else {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                }
+            } else if (direction === 'next') {
+                if (currentCalendarView === 'daily') {
+                    currentCalendarDate.setDate(currentCalendarDate.getDate() + 1);
+                } else if (currentCalendarView === 'weekly') {
+                    currentCalendarDate.setDate(currentCalendarDate.getDate() + 7);
+                } else {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                }
+            } else if (direction === 'today') {
+                currentCalendarDate = new Date();
+            }
+
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const displayArea = document.getElementById('calendarDisplayArea');
+            const dateRangeEl = document.getElementById('calendarDateRange');
+
+            if (currentCalendarView === 'daily') {
+                renderDailyView(displayArea, dateRangeEl);
+            } else if (currentCalendarView === 'weekly') {
+                renderWeeklyView(displayArea, dateRangeEl);
+            } else {
+                renderMonthlyView(displayArea, dateRangeEl);
+            }
+        }
+
+        function renderDailyView(container, dateRangeEl) {
+            const dateStr = currentCalendarDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            dateRangeEl.textContent = dateStr;
+
+            const dayEvents = getEventsForDate(currentCalendarDate);
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+
+            // Time slots from 6 AM to 10 PM
+            for (let hour = 6; hour <= 22; hour++) {
+                const timeStr = formatHour(hour);
+                const eventsAtHour = dayEvents.filter(e => {
+                    if (e.type === 'allday') return hour === 6;
+                    if (!e.startTime) return false;
+                    const eventHour = parseInt(e.startTime.split(':')[0]);
+                    return eventHour === hour;
+                });
+
+                html += `
+                    <div style="display: flex; border-bottom: 1px solid var(--color-neutral-border); padding: 8px 0;">
+                        <div style="width: 80px; font-family: var(--font-family-heading); font-size: 12px; color: var(--color-neutral-text-light); padding-right: 16px; text-align: right;">
+                            ${timeStr}
+                        </div>
+                        <div style="flex: 1;">
+                            ${eventsAtHour.map(event => renderEventCard(event, 'daily')).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderWeeklyView(container, dateRangeEl) {
+            const weekStart = getWeekStart(currentCalendarDate);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            dateRangeEl.textContent = `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+            let html = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--color-neutral-border);">';
+
+            // Day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach((day, index) => {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + index);
+                const isToday = isSameDay(date, new Date());
+
+                html += `
+                    <div style="background: white; padding: 12px 8px; text-align: center; ${isToday ? 'background: #dcfce7;' : ''}">
+                        <div style="font-family: var(--font-family-heading); font-size: 11px; font-weight: 600; color: var(--color-neutral-text-light); text-transform: uppercase;">
+                            ${day}
+                        </div>
+                        <div style="font-family: var(--font-family-heading); font-size: 20px; font-weight: 600; color: ${isToday ? '#16a34a' : 'var(--color-neutral-text)'}; margin-top: 4px;">
+                            ${date.getDate()}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Day cells with events
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + i);
+                const dayEvents = getEventsForDate(date);
+
+                html += `
+                    <div style="background: white; padding: 8px; min-height: 120px; max-height: 300px; overflow-y: auto;">
+                        ${dayEvents.map(event => renderEventCard(event, 'weekly')).join('')}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderMonthlyView(container, dateRangeEl) {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthName = currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            dateRangeEl.textContent = monthName;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDayOfWeek = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+
+            let html = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--color-neutral-border);">';
+
+            // Day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                html += `
+                    <div style="background: white; padding: 8px; text-align: center; font-family: var(--font-family-heading); font-size: 11px; font-weight: 600; color: var(--color-neutral-text-light); text-transform: uppercase;">
+                        ${day}
+                    </div>
+                `;
+            });
+
+            // Empty cells before first day
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div style="background: #fafafa; min-height: 100px;"></div>';
+            }
+
+            // Days of month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const isToday = isSameDay(date, new Date());
+                const dayEvents = getEventsForDate(date);
+
+                html += `
+                    <div style="background: white; padding: 8px; min-height: 100px; max-height: 150px; overflow-y: auto; ${isToday ? 'border: 2px solid #16a34a;' : ''}">
+                        <div style="font-family: var(--font-family-heading); font-size: 14px; font-weight: ${isToday ? '700' : '600'}; color: ${isToday ? '#16a34a' : 'var(--color-neutral-text)'}; margin-bottom: 4px;">
+                            ${day}
+                        </div>
+                        ${dayEvents.map(event => renderEventCard(event, 'monthly')).join('')}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderEventCard(event, viewMode) {
+            const timeStr = event.type === 'allday' ? 'All Day' : event.startTime ? event.startTime + (event.endTime ? ' - ' + event.endTime : '') : '';
+
+            if (viewMode === 'monthly') {
+                return `
+                    <div onclick="viewEvent(${calendarEvents.indexOf(event)})" style="background: #dcfce7; border-left: 3px solid #16a34a; padding: 4px 6px; margin-bottom: 4px; cursor: pointer; border-radius: 3px;">
+                        <div style="font-family: var(--font-family-heading); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${event.title}
+                        </div>
+                    </div>
+                `;
+            } else if (viewMode === 'weekly') {
+                return `
+                    <div onclick="viewEvent(${calendarEvents.indexOf(event)})" style="background: #dcfce7; border-left: 3px solid #16a34a; padding: 6px 8px; margin-bottom: 6px; cursor: pointer; border-radius: 4px;">
+                        <div style="font-family: var(--font-family-heading); font-size: 10px; color: #16a34a; font-weight: 600; margin-bottom: 2px;">
+                            ${timeStr}
+                        </div>
+                        <div style="font-family: var(--font-family-heading); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">
+                            ${event.title}
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div onclick="viewEvent(${calendarEvents.indexOf(event)})" style="background: #dcfce7; border-left: 3px solid #16a34a; padding: 12px; margin-bottom: 8px; cursor: pointer; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-heading); font-size: 16px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                                    ${event.title}
+                                </div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; color: #16a34a; font-weight: 600;">
+                                    ${timeStr}
+                                </div>
+                                ${event.location ? `
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text-light); margin-top: 4px;">
+                                        <i class="ph ph-map-pin"></i> ${event.location}
+                                    </div>
+                                ` : ''}
+                                ${event.description ? `
+                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-top: 8px;">
+                                        ${event.description}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="display: flex; gap: 4px;">
+                                <button onclick="event.stopPropagation(); editEvent(${calendarEvents.indexOf(event)})" style="padding: 6px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">
+                                    <i class="ph ph-pencil-simple" style="font-size: 14px; color: #16a34a;"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); shareEventPrompt(${calendarEvents.indexOf(event)})" style="padding: 6px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">
+                                    <i class="ph ph-share-network" style="font-size: 14px; color: #16a34a;"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteEvent(${calendarEvents.indexOf(event)})" style="padding: 6px; background: #fee; border: 1px solid #fcc; border-radius: 4px; cursor: pointer;">
+                                    <i class="ph ph-trash" style="font-size: 14px; color: #c33;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getEventsForDate(date) {
+            return calendarEvents.filter(event => {
+                const eventDate = new Date(event.date);
+                return isSameDay(eventDate, date);
+            });
+        }
+
+        function isSameDay(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getDate() === date2.getDate();
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        function formatHour(hour) {
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:00 ${ampm}`;
+        }
+
+        function openAddEventForm() {
+            editingEventIndex = -1;
+            document.getElementById('eventFormTitle').textContent = 'Add Event';
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventDate').value = currentCalendarDate.toISOString().split('T')[0];
+            document.getElementById('eventFormModal').style.display = 'flex';
+        }
+
+        function closeEventForm() {
+            document.getElementById('eventFormModal').style.display = 'none';
+            editingEventIndex = -1;
+        }
+
+        function updateEventTypeFields() {
+            const type = document.getElementById('eventType').value;
+            const startTimeField = document.getElementById('eventStartTimeField');
+            const endTimeField = document.getElementById('eventEndTimeField');
+            const dateField = document.getElementById('eventDateField');
+
+            if (type === 'allday') {
+                startTimeField.style.display = 'none';
+                endTimeField.style.display = 'none';
+                dateField.style.display = 'block';
+            } else if (type === 'datetime') {
+                startTimeField.style.display = 'block';
+                endTimeField.style.display = 'block';
+                dateField.style.display = 'block';
+            } else if (type === 'time') {
+                startTimeField.style.display = 'block';
+                endTimeField.style.display = 'block';
+                dateField.style.display = 'none';
+            }
+        }
+
+        function toggleRecurringFields() {
+            const isRecurring = document.getElementById('eventRecurring').checked;
+            document.getElementById('recurringFields').style.display = isRecurring ? 'block' : 'none';
+        }
+
+        function toggleRecurrenceEnd() {
+            const endType = document.getElementById('recurrenceEndType').value;
+            document.getElementById('recurrenceEndDateField').style.display = endType === 'date' ? 'block' : 'none';
+            document.getElementById('recurrenceCountField').style.display = endType === 'count' ? 'block' : 'none';
+        }
+
+        function saveEvent(e) {
+            e.preventDefault();
+
+            const eventData = {
+                title: document.getElementById('eventTitle').value,
+                type: document.getElementById('eventType').value,
+                date: document.getElementById('eventDate').value,
+                startTime: document.getElementById('eventStartTime').value,
+                endTime: document.getElementById('eventEndTime').value,
+                recurring: document.getElementById('eventRecurring').checked,
+                location: document.getElementById('eventLocation').value,
+                description: document.getElementById('eventDescription').value,
+                calendar: document.getElementById('eventCalendar').value
+            };
+
+            if (eventData.recurring) {
+                eventData.recurrence = {
+                    pattern: document.getElementById('recurrencePattern').value,
+                    interval: document.getElementById('recurrenceInterval').value,
+                    endType: document.getElementById('recurrenceEndType').value,
+                    endDate: document.getElementById('recurrenceEndDate').value,
+                    count: document.getElementById('recurrenceCount').value
+                };
+            }
+
+            if (editingEventIndex >= 0) {
+                calendarEvents[editingEventIndex] = eventData;
+            } else {
+                calendarEvents.push(eventData);
+            }
+
+            saveCalendarEvents();
+            renderCalendar();
+            closeEventForm();
+        }
+
+        function viewEvent(index) {
+            editEvent(index);
+        }
+
+        function editEvent(index) {
+            const event = calendarEvents[index];
+            editingEventIndex = index;
+
+            document.getElementById('eventFormTitle').textContent = 'Edit Event';
+            document.getElementById('eventTitle').value = event.title;
+            document.getElementById('eventType').value = event.type;
+            document.getElementById('eventDate').value = event.date;
+            document.getElementById('eventStartTime').value = event.startTime || '';
+            document.getElementById('eventEndTime').value = event.endTime || '';
+            document.getElementById('eventRecurring').checked = event.recurring || false;
+            document.getElementById('eventLocation').value = event.location || '';
+            document.getElementById('eventDescription').value = event.description || '';
+            document.getElementById('eventCalendar').value = event.calendar || 'personal';
+
+            updateEventTypeFields();
+            toggleRecurringFields();
+
+            if (event.recurrence) {
+                document.getElementById('recurrencePattern').value = event.recurrence.pattern;
+                document.getElementById('recurrenceInterval').value = event.recurrence.interval;
+                document.getElementById('recurrenceEndType').value = event.recurrence.endType;
+                document.getElementById('recurrenceEndDate').value = event.recurrence.endDate || '';
+                document.getElementById('recurrenceCount').value = event.recurrence.count || 10;
+                toggleRecurrenceEnd();
+            }
+
+            document.getElementById('eventFormModal').style.display = 'flex';
+        }
+
+        function deleteEvent(index) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                calendarEvents.splice(index, 1);
+                saveCalendarEvents();
+                renderCalendar();
+            }
+        }
+
+        function shareEventPrompt(index) {
+            const event = calendarEvents[index];
+            alert(`Share functionality coming soon!\n\nEvent: ${event.title}\nDate: ${event.date}\n\nYou'll be able to share this event via email, text, or social media.`);
+        }
+
+        function openCalendarSettings() {
+            document.getElementById('calendarSettingsModal').style.display = 'flex';
+        }
+
+        function closeCalendarSettings() {
+            document.getElementById('calendarSettingsModal').style.display = 'none';
+        }
+
+        function switchSettingsTab(tab) {
+            document.getElementById('syncSettingsContent').style.display = 'none';
+            document.getElementById('exportSettingsContent').style.display = 'none';
+            document.getElementById('shareSettingsContent').style.display = 'none';
+
+            document.getElementById('syncTab').style.borderBottom = '2px solid transparent';
+            document.getElementById('syncTab').style.color = 'var(--color-neutral-text)';
+            document.getElementById('exportTab').style.borderBottom = '2px solid transparent';
+            document.getElementById('exportTab').style.color = 'var(--color-neutral-text)';
+            document.getElementById('shareTab').style.borderBottom = '2px solid transparent';
+            document.getElementById('shareTab').style.color = 'var(--color-neutral-text)';
+
+            if (tab === 'sync') {
+                document.getElementById('syncSettingsContent').style.display = 'block';
+                document.getElementById('syncTab').style.borderBottom = '2px solid var(--color-primary-blue)';
+                document.getElementById('syncTab').style.color = 'var(--color-primary-blue)';
+            } else if (tab === 'export') {
+                document.getElementById('exportSettingsContent').style.display = 'block';
+                document.getElementById('exportTab').style.borderBottom = '2px solid var(--color-primary-blue)';
+                document.getElementById('exportTab').style.color = 'var(--color-primary-blue)';
+            } else if (tab === 'share') {
+                document.getElementById('shareSettingsContent').style.display = 'block';
+                document.getElementById('shareTab').style.borderBottom = '2px solid var(--color-primary-blue)';
+                document.getElementById('shareTab').style.color = 'var(--color-primary-blue)';
+            }
+        }
+
+        function connectGoogleCalendar() {
+            alert('Google Calendar connection coming soon!\n\nYou\'ll be able to:\n• Two-way sync with Google Calendar\n• Import existing events\n• Auto-sync new events');
+        }
+
+        function connectMicrosoftCalendar() {
+            alert('Microsoft Calendar connection coming soon!\n\nYou\'ll be able to:\n• Two-way sync with Outlook/Microsoft 365\n• Import existing events\n• Auto-sync new events');
+        }
+
+        function connectAppleCalendar() {
+            alert('Apple Calendar connection coming soon!\n\nYou\'ll be able to:\n• Two-way sync with iCloud Calendar\n• Import existing events\n• Auto-sync new events');
+        }
+
+        function exportCalendar(format) {
+            if (calendarEvents.length === 0) {
+                alert('No events to export!');
+                return;
+            }
+
+            let data, filename, mimeType;
+
+            if (format === 'ics') {
+                data = generateICS();
+                filename = 'cleansheet-calendar.ics';
+                mimeType = 'text/calendar';
+            } else if (format === 'csv') {
+                data = generateCSV();
+                filename = 'cleansheet-calendar.csv';
+                mimeType = 'text/csv';
+            } else if (format === 'json') {
+                data = JSON.stringify(calendarEvents, null, 2);
+                filename = 'cleansheet-calendar.json';
+                mimeType = 'application/json';
+            }
+
+            const blob = new Blob([data], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateICS() {
+            let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Cleansheet//Calendar//EN\n';
+
+            calendarEvents.forEach(event => {
+                ics += 'BEGIN:VEVENT\n';
+                ics += `SUMMARY:${event.title}\n`;
+                ics += `DTSTART:${event.date.replace(/-/g, '')}${event.startTime ? 'T' + event.startTime.replace(':', '') + '00' : ''}\n`;
+                if (event.endTime) {
+                    ics += `DTEND:${event.date.replace(/-/g, '')}T${event.endTime.replace(':', '')}00\n`;
+                }
+                if (event.location) {
+                    ics += `LOCATION:${event.location}\n`;
+                }
+                if (event.description) {
+                    ics += `DESCRIPTION:${event.description}\n`;
+                }
+                ics += 'END:VEVENT\n';
+            });
+
+            ics += 'END:VCALENDAR';
+            return ics;
+        }
+
+        function generateCSV() {
+            let csv = 'Title,Date,Start Time,End Time,Type,Location,Description,Recurring\n';
+
+            calendarEvents.forEach(event => {
+                csv += `"${event.title}","${event.date}","${event.startTime || ''}","${event.endTime || ''}","${event.type}","${event.location || ''}","${event.description || ''}","${event.recurring ? 'Yes' : 'No'}"\n`;
+            });
+
+            return csv;
+        }
+
+        function copyShareLink() {
+            const link = document.getElementById('shareLink');
+            link.select();
+            document.execCommand('copy');
+            alert('Share link copied to clipboard!');
+        }
+
+        function togglePublicSharing() {
+            const isPublic = document.getElementById('sharePublic').checked;
+            if (isPublic) {
+                alert('Calendar is now publicly accessible. Anyone with the link can view your events.');
+            } else {
+                alert('Calendar is now private. Only people you invite can view your events.');
+            }
         }
 
         // Tables Management
