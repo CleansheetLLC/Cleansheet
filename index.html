@@ -23,6 +23,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -1065,8 +1070,68 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             transform: scale(1.1);
         }
 
+        .block-btn:hover {
+            background: #e3f2fd !important;
+            border-color: var(--color-primary-blue) !important;
+        }
+
         .story-action-btn.delete:hover {
             color: #dc3545;
+        }
+
+        /* Quill Editor Styles */
+        #quillEditor .ql-container {
+            flex: 1;
+            overflow-y: auto;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        #quillEditor .ql-editor {
+            padding: 40px;
+            min-height: 100%;
+        }
+
+        #quillEditor .ql-toolbar {
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 1px solid var(--color-neutral-border);
+            background: var(--color-neutral-background-secondary);
+            padding: 12px;
+        }
+
+        #quillEditor .ql-editor h1,
+        #quillEditor .ql-editor h2,
+        #quillEditor .ql-editor h3,
+        #quillEditor .ql-editor h4 {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        #quillEditor .ql-editor h1 {
+            font-size: 32px;
+        }
+
+        #quillEditor .ql-editor h2 {
+            font-size: 26px;
+        }
+
+        #quillEditor .ql-editor h3 {
+            font-size: 20px;
+        }
+
+        #quillEditor .ql-editor h4 {
+            font-size: 16px;
+        }
+
+        #quillEditor .ql-editor p {
+            margin-bottom: 12px;
+            color: var(--color-neutral-text);
         }
 
         .story-experience {
@@ -2421,6 +2486,257 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 </div> <!-- End integrations-view -->
 
+                <!-- Document Editor Modal -->
+                <div id="documentEditorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; overflow-y: auto;">
+                    <div style="min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                        <div style="background: white; border-radius: 12px; width: 100%; max-width: 1400px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+
+                            <!-- Modal Header (Sticky) -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--color-neutral-border); background: white; border-radius: 12px 12px 0 0;">
+                                <div style="flex: 1; max-width: 600px;">
+                                    <input type="text" id="docTitle" placeholder="Untitled Document" style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); padding: 8px 0; outline: none;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <!-- View Toggle -->
+                                    <div style="display: flex; align-items: center; background: var(--color-neutral-background); border-radius: 6px; padding: 2px;">
+                                        <button id="structuredViewBtn" onclick="toggleDocumentView('structured')" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                            Structured
+                                        </button>
+                                        <button id="unstructuredViewBtn" onclick="toggleDocumentView('unstructured')" style="padding: 6px 12px; background: transparent; color: var(--color-dark); border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                            Unstructured
+                                        </button>
+                                    </div>
+                                    <!-- Work Breakdown Numbering Toggle -->
+                                    <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer;">
+                                        <input type="checkbox" id="wbnToggle" onchange="toggleWorkBreakdownNumbering()" style="width: 16px; height: 16px; cursor: pointer;">
+                                        <span>WBN</span>
+                                    </label>
+                                    <!-- Export Menu -->
+                                    <div style="position: relative;">
+                                        <button onclick="toggleExportMenu()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                            <i class="ph ph-export"></i>
+                                            Export
+                                            <i class="ph ph-caret-down" style="font-size: 12px;"></i>
+                                        </button>
+                                        <div id="exportMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); min-width: 140px; z-index: 1000;">
+                                            <button onclick="exportDocument('pdf')" style="width: 100%; padding: 10px 16px; border: none; background: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                                                <i class="ph ph-file-pdf"></i>
+                                                PDF
+                                            </button>
+                                            <button onclick="exportDocument('docx')" style="width: 100%; padding: 10px 16px; border: none; background: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                                                <i class="ph ph-file-doc"></i>
+                                                DOCX
+                                            </button>
+                                            <button onclick="exportDocument('html')" style="width: 100%; padding: 10px 16px; border: none; background: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                                                <i class="ph ph-file-html"></i>
+                                                HTML
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button onclick="saveDocument()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                        Save
+                                    </button>
+                                    <button onclick="closeDocumentEditor()" style="padding: 8px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; font-size: 20px;">
+                                        <i class="ph ph-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Modal Body (Scrollable) -->
+                            <div style="flex: 1; overflow-y: auto; display: flex;">
+                                <!-- Structured View (Block-based) -->
+                                <div id="structuredView" style="display: flex; flex: 1;">
+                                    <!-- Left Sidebar - Block Palette -->
+                                    <div id="blockPalette" style="width: 200px; border-right: 1px solid var(--color-neutral-border); padding: 20px; background: var(--color-neutral-background);">
+                                        <h4 style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin: 0 0 16px 0;">Insert Block</h4>
+                                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                                            <button onclick="addBlock('header')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-text-h"></i>
+                                                Header
+                                            </button>
+                                            <button onclick="addBlock('text')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-text-aa"></i>
+                                                Rich Text
+                                            </button>
+                                            <button onclick="addBlock('table')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-table"></i>
+                                                Table
+                                            </button>
+                                            <button onclick="addBlock('image')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-image"></i>
+                                                Image
+                                            </button>
+                                            <button onclick="addBlock('markdown')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-markdown-logo"></i>
+                                                Markdown
+                                            </button>
+                                            <button onclick="addBlock('latex')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-function"></i>
+                                                LaTeX
+                                            </button>
+                                            <button onclick="addBlock('mermaid')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-flow-arrow"></i>
+                                                Mermaid
+                                            </button>
+                                            <button onclick="addBlock('plantuml')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-tree-structure"></i>
+                                                PlantUML
+                                            </button>
+                                            <button onclick="addBlock('code')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                                <i class="ph ph-code"></i>
+                                                Code
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Main Content Area -->
+                                    <div id="documentBlocks" style="flex: 1; padding: 40px; background: white;">
+                                        <!-- Document blocks will be added here -->
+                                        <div style="text-align: center; color: var(--color-neutral-text); padding: 60px 20px;">
+                                            <i class="ph ph-cursor-text" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 16px;"></i>
+                                            <p style="font-family: var(--font-family-body); font-size: 14px;">Click a block type to start building your document</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Unstructured View (Rich Text) -->
+                                <div id="unstructuredView" style="display: none; flex: 1; flex-direction: column; background: white; overflow: hidden;">
+                                    <div id="quillEditor" style="flex: 1; display: flex; flex-direction: column;">
+                                        <!-- Quill editor will be initialized here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Editor Modal -->
+                <div id="tableEditorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000;">
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; background: white;">
+                        <!-- Table Editor Header -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--color-neutral-border); background: white;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div id="tableIcon" style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="ph ph-table" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                                </div>
+                                <div>
+                                    <h2 id="tableEditorTitle" style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin: 0;">Table Name</h2>
+                                    <div id="tableRowCount" style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text-light); margin-top: 2px;">0 rows</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <!-- View Selector -->
+                                <select id="viewSelector" onchange="switchTableView()" style="padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer;">
+                                    <option value="default">Default View</option>
+                                </select>
+                                <!-- Add New Row Button -->
+                                <button onclick="addNewRow()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph ph-plus"></i>
+                                    Add Row
+                                </button>
+                                <!-- Close Button -->
+                                <button onclick="closeTableEditor()" style="padding: 8px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; font-size: 20px;">
+                                    <i class="ph ph-x"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Toolbar -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--color-neutral-border); background: var(--color-neutral-background-secondary);">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <!-- Filter Button -->
+                                <button onclick="toggleFilterPanel()" id="filterBtn" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph ph-funnel"></i>
+                                    Filter
+                                </button>
+                                <!-- Sort Button -->
+                                <button onclick="toggleSortPanel()" id="sortBtn" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph ph-sort-ascending"></i>
+                                    Sort
+                                </button>
+                                <!-- Group Button -->
+                                <button onclick="toggleGroupPanel()" id="groupBtn" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph ph-rows"></i>
+                                    Group
+                                </button>
+                                <!-- Search -->
+                                <div style="position: relative;">
+                                    <input type="text" id="tableSearch" placeholder="Search..." style="padding: 6px 12px 6px 32px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; width: 200px;">
+                                    <i class="ph ph-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--color-neutral-text); font-size: 14px;"></i>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <!-- Save View Button -->
+                                <button onclick="saveCurrentView()" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph ph-floppy-disk"></i>
+                                    Save View
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Content Area -->
+                        <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                            <!-- Filter/Sort/Group Panels (Hidden by default) -->
+                            <div id="filterPanel" style="display: none; padding: 16px 24px; border-bottom: 1px solid var(--color-neutral-border); background: #fafbfc;">
+                                <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 12px;">Filter Conditions</div>
+                                <div id="filterConditions"></div>
+                                <button onclick="addFilterCondition()" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; color: var(--color-primary-blue); cursor: pointer; margin-top: 8px;">
+                                    <i class="ph ph-plus"></i> Add Condition
+                                </button>
+                            </div>
+
+                            <div id="sortPanel" style="display: none; padding: 16px 24px; border-bottom: 1px solid var(--color-neutral-border); background: #fafbfc;">
+                                <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 12px;">Sort Order</div>
+                                <div id="sortConditions"></div>
+                                <button onclick="addSortCondition()" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; color: var(--color-primary-blue); cursor: pointer; margin-top: 8px;">
+                                    <i class="ph ph-plus"></i> Add Sort
+                                </button>
+                            </div>
+
+                            <div id="groupPanel" style="display: none; padding: 16px 24px; border-bottom: 1px solid var(--color-neutral-border); background: #fafbfc;">
+                                <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 12px;">Group By</div>
+                                <select id="groupByColumn" onchange="applyGrouping()" style="padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; width: 200px;">
+                                    <option value="">No Grouping</option>
+                                </select>
+                            </div>
+
+                            <!-- Data Grid -->
+                            <div id="tableDataGrid" style="flex: 1; overflow: auto; background: white;">
+                                <!-- Table will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column Type Editor Modal -->
+                <div id="columnTypeEditorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+                        <!-- Modal Header -->
+                        <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-neutral-border);">
+                            <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Change Column Type</h3>
+                            <div id="columnTypeEditorColumnName" style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-top: 4px;"></div>
+                        </div>
+
+                        <!-- Type Options -->
+                        <div style="padding: 20px 24px; max-height: 400px; overflow-y: auto;">
+                            <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin-bottom: 12px;">Select Data Type</div>
+                            <div id="columnTypeOptions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <!-- Type options will be dynamically inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                            <button onclick="closeColumnTypeEditor()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
+                                Cancel
+                            </button>
+                            <button onclick="applyColumnType()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Collapse Toggle Button -->
                 <button class="panel-collapse-toggle" onclick="toggleRightPanel()" id="collapseToggle">
                     <i class="ph ph-caret-right"></i>
@@ -3081,11 +3397,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <div class="slideout-body" id="documentsContent" style="display: none;">
-                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
-                    Document library for storing and organizing professional files and content.
-                </p>
-                <div id="documentsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <!-- Document type cards will be dynamically inserted here -->
+                <button class="add-story-btn" onclick="openDocumentEditor()">
+                    <i class="ph ph-plus-circle"></i> New Document
+                </button>
+                <div id="documentsContainer">
+                    <!-- Document cards will be dynamically inserted here -->
                 </div>
             </div>
 
@@ -3113,6 +3429,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </p>
                 <div id="workflowsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <!-- Workflow type cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Documents Slideout Content -->
+            <div class="slideout-body" id="documentsContent" style="display: none;">
+                <button class="add-story-btn" onclick="openDocumentEditor()">
+                    <i class="ph ph-plus-circle"></i> New Document
+                </button>
+                <div id="documentsContainer" class="stories-container">
+                    <!-- Document cards will be dynamically inserted here -->
                 </div>
             </div>
         </div> <!-- End interview-slideout -->
@@ -4205,6 +4531,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadUserJobs();
             loadStories();
             loadUserExperiences();
+            initializeDemoDocuments();
 
             // Add click-outside-to-close handler for slideout
             const slideout = document.getElementById('interviewSlideout');
@@ -10878,7 +11205,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function editItem(itemName) {
-            alert(`Edit ${itemName} functionality coming soon!`);
+            openTableEditor(itemName);
         }
 
         function deleteItem(itemName) {
@@ -10890,6 +11217,1493 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function shareItem(itemName) {
             alert(`Share ${itemName} functionality coming soon!`);
         }
+
+        // Table Editor Functionality
+        let currentTableName = '';
+        let currentTableData = [];
+        let currentTableColumns = [];
+        let currentTableColumnTypes = {}; // Store column types { columnName: type }
+        let currentTableIcon = 'ph-table';
+        let currentTableViews = { 'default': { name: 'Default View', filters: [], sorts: [], groupBy: null } };
+        let currentViewName = 'default';
+        let filterConditionId = 0;
+        let sortConditionId = 0;
+
+        // PostgreSQL-aligned column types
+        const POSTGRES_COLUMN_TYPES = [
+            { value: 'text', label: 'Text', icon: 'ph-text-aa' },
+            { value: 'varchar', label: 'VARCHAR', icon: 'ph-text-aa' },
+            { value: 'integer', label: 'Integer', icon: 'ph-hash' },
+            { value: 'bigint', label: 'Big Integer', icon: 'ph-hash' },
+            { value: 'numeric', label: 'Numeric', icon: 'ph-number-square-one' },
+            { value: 'decimal', label: 'Decimal', icon: 'ph-number-square-one' },
+            { value: 'real', label: 'Real', icon: 'ph-number-square-one' },
+            { value: 'double', label: 'Double Precision', icon: 'ph-number-square-one' },
+            { value: 'boolean', label: 'Boolean', icon: 'ph-check-square' },
+            { value: 'date', label: 'Date', icon: 'ph-calendar-blank' },
+            { value: 'timestamp', label: 'Timestamp', icon: 'ph-clock' },
+            { value: 'timestamptz', label: 'Timestamp with TZ', icon: 'ph-clock' },
+            { value: 'time', label: 'Time', icon: 'ph-clock' },
+            { value: 'interval', label: 'Interval', icon: 'ph-timer' },
+            { value: 'json', label: 'JSON', icon: 'ph-brackets-curly' },
+            { value: 'jsonb', label: 'JSONB', icon: 'ph-brackets-curly' },
+            { value: 'uuid', label: 'UUID', icon: 'ph-fingerprint' },
+            { value: 'array', label: 'Array', icon: 'ph-list' },
+            { value: 'bytea', label: 'Bytea', icon: 'ph-file-code' }
+        ];
+
+        function openTableEditor(tableName) {
+            currentTableName = tableName;
+
+            // Find table definition
+            const tableTypes = [
+                { name: 'Contacts', icon: 'ph-address-book', columns: ['Name', 'Email', 'Phone', 'Company', 'Role', 'Location', 'Notes'] },
+                { name: 'Customers', icon: 'ph-users', columns: ['Customer ID', 'Name', 'Email', 'Account Type', 'Status', 'Created Date', 'Lifetime Value'] },
+                { name: 'Projects', icon: 'ph-folder', columns: ['Project Name', 'Status', 'Start Date', 'End Date', 'Budget', 'Team', 'Priority'] },
+                { name: 'Tasks', icon: 'ph-check-square', columns: ['Task Name', 'Assigned To', 'Due Date', 'Status', 'Priority', 'Tags', 'Progress'] },
+                { name: 'Inventory', icon: 'ph-package', columns: ['Item Name', 'SKU', 'Quantity', 'Location', 'Supplier', 'Cost', 'Last Updated'] },
+                { name: 'Vendors', icon: 'ph-handshake', columns: ['Vendor Name', 'Contact', 'Services', 'Contract Start', 'Contract End', 'Rating', 'Notes'] },
+                { name: 'Events', icon: 'ph-calendar', columns: ['Event Name', 'Date', 'Time', 'Location', 'Attendees', 'Status', 'Budget'] },
+                { name: 'Assets', icon: 'ph-briefcase', columns: ['Asset Name', 'Type', 'Owner', 'Location', 'Purchase Date', 'Value', 'Status'] },
+                { name: 'Issues', icon: 'ph-warning', columns: ['Issue ID', 'Title', 'Severity', 'Status', 'Assigned To', 'Created Date', 'Resolved Date'] },
+                { name: 'Expenses', icon: 'ph-receipt', columns: ['Date', 'Category', 'Amount', 'Vendor', 'Payment Method', 'Status', 'Receipt'] }
+            ];
+
+            const tableDefinition = tableTypes.find(t => t.name === tableName);
+            if (!tableDefinition) return;
+
+            currentTableColumns = tableDefinition.columns;
+            currentTableIcon = tableDefinition.icon;
+
+            // Load or initialize table data and column types from localStorage
+            const storageKey = `table_${tableName.toLowerCase().replace(/\s+/g, '_')}`;
+            const typesKey = `table_types_${tableName.toLowerCase().replace(/\s+/g, '_')}`;
+
+            const savedData = localStorage.getItem(storageKey);
+            const savedTypes = localStorage.getItem(typesKey);
+
+            if (savedData) {
+                currentTableData = JSON.parse(savedData);
+            } else {
+                // Initialize with sample data
+                currentTableData = generateSampleData(tableName, currentTableColumns);
+                localStorage.setItem(storageKey, JSON.stringify(currentTableData));
+            }
+
+            if (savedTypes) {
+                currentTableColumnTypes = JSON.parse(savedTypes);
+            } else {
+                // Initialize column types based on column names
+                currentTableColumnTypes = inferColumnTypes(currentTableColumns);
+                localStorage.setItem(typesKey, JSON.stringify(currentTableColumnTypes));
+            }
+
+            // Update modal UI
+            document.getElementById('tableEditorTitle').textContent = tableName;
+            document.getElementById('tableIcon').innerHTML = `<i class="ph ${currentTableIcon}" style="font-size: 20px; color: var(--color-primary-blue);"></i>`;
+            updateRowCount();
+
+            // Populate group by dropdown
+            const groupBySelect = document.getElementById('groupByColumn');
+            groupBySelect.innerHTML = '<option value="">No Grouping</option>';
+            currentTableColumns.forEach(col => {
+                const option = document.createElement('option');
+                option.value = col;
+                option.textContent = col;
+                groupBySelect.appendChild(option);
+            });
+
+            // Render table
+            renderTableGrid();
+
+            // Show modal
+            document.getElementById('tableEditorModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function inferColumnTypes(columns) {
+            const types = {};
+            columns.forEach(col => {
+                const lower = col.toLowerCase();
+
+                if (lower.includes('id') || lower.includes('quantity') || lower.includes('progress')) {
+                    types[col] = 'integer';
+                } else if (lower.includes('email') || lower.includes('name') || lower.includes('title') || lower.includes('location') || lower.includes('notes') || lower.includes('description')) {
+                    types[col] = 'text';
+                } else if (lower.includes('date') && !lower.includes('time')) {
+                    types[col] = 'date';
+                } else if (lower.includes('time') || lower.includes('timestamp')) {
+                    types[col] = 'timestamp';
+                } else if (lower.includes('amount') || lower.includes('budget') || lower.includes('cost') || lower.includes('value') || lower.includes('price')) {
+                    types[col] = 'numeric';
+                } else if (lower.includes('rating')) {
+                    types[col] = 'decimal';
+                } else if (lower.includes('status') || lower.includes('priority') || lower.includes('type') || lower.includes('category')) {
+                    types[col] = 'varchar';
+                } else if (lower.includes('active') || lower.includes('enabled') || lower.includes('verified')) {
+                    types[col] = 'boolean';
+                } else if (lower.includes('tags') || lower.includes('items')) {
+                    types[col] = 'array';
+                } else if (lower.includes('data') || lower.includes('config') || lower.includes('metadata')) {
+                    types[col] = 'jsonb';
+                } else {
+                    types[col] = 'text'; // Default
+                }
+            });
+            return types;
+        }
+
+        function closeTableEditor() {
+            // Save data and types before closing
+            const storageKey = `table_${currentTableName.toLowerCase().replace(/\s+/g, '_')}`;
+            const typesKey = `table_types_${currentTableName.toLowerCase().replace(/\s+/g, '_')}`;
+
+            localStorage.setItem(storageKey, JSON.stringify(currentTableData));
+            localStorage.setItem(typesKey, JSON.stringify(currentTableColumnTypes));
+
+            document.getElementById('tableEditorModal').style.display = 'none';
+            document.body.style.overflow = '';
+
+            // Reset state
+            currentTableName = '';
+            currentTableData = [];
+            currentTableColumns = [];
+            currentTableColumnTypes = {};
+        }
+
+        function generateSampleData(tableName, columns) {
+            const samples = [];
+            const sampleCount = 15;
+
+            for (let i = 0; i < sampleCount; i++) {
+                const row = { id: Date.now() + i };
+                columns.forEach(col => {
+                    row[col] = generateSampleValue(col, i);
+                });
+                samples.push(row);
+            }
+
+            return samples;
+        }
+
+        function generateSampleValue(columnName, index) {
+            const lower = columnName.toLowerCase();
+
+            if (lower.includes('name')) return `Sample ${index + 1}`;
+            if (lower.includes('email')) return `user${index + 1}@example.com`;
+            if (lower.includes('phone')) return `(555) ${String(index + 100).padStart(3, '0')}-${String(index * 11).padStart(4, '0')}`;
+            if (lower.includes('date')) return new Date(2025, 0, index + 1).toLocaleDateString();
+            if (lower.includes('status')) return ['Active', 'Pending', 'Completed', 'On Hold'][index % 4];
+            if (lower.includes('priority')) return ['High', 'Medium', 'Low'][index % 3];
+            if (lower.includes('amount') || lower.includes('budget') || lower.includes('cost') || lower.includes('value')) return `$${(Math.random() * 10000 + 100).toFixed(2)}`;
+            if (lower.includes('quantity') || lower.includes('progress')) return Math.floor(Math.random() * 100);
+            if (lower.includes('rating')) return (Math.random() * 5).toFixed(1);
+
+            return `Data ${index + 1}`;
+        }
+
+        function renderTableGrid() {
+            const grid = document.getElementById('tableDataGrid');
+
+            // Create table HTML with sticky headers
+            let html = `
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--font-family-body); font-size: 13px;">
+                    <thead style="position: sticky; top: 0; background: var(--color-neutral-background); z-index: 10;">
+                        <tr style="border-bottom: 2px solid var(--color-neutral-border);">
+                            <th style="padding: 12px; text-align: left; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; width: 40px;">
+                                <input type="checkbox" onchange="toggleAllRows(this.checked)" style="cursor: pointer;">
+                            </th>
+            `;
+
+            // Add column headers with type indicators
+            currentTableColumns.forEach(col => {
+                const colType = currentTableColumnTypes[col] || 'text';
+                const typeInfo = POSTGRES_COLUMN_TYPES.find(t => t.value === colType) || POSTGRES_COLUMN_TYPES[0];
+
+                html += `
+                    <th style="padding: 12px; text-align: left; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); min-width: 180px;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="text-transform: uppercase;">${escapeHtml(col)}</span>
+                                <i class="ph ph-caret-up-down" style="font-size: 12px; color: var(--color-neutral-text-light); cursor: pointer;" onclick="quickSort('${col}')"></i>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 4px; cursor: pointer;" onclick="openColumnTypeEditor('${col}')">
+                                <i class="ph ${typeInfo.icon}" style="font-size: 11px; color: var(--color-primary-blue);"></i>
+                                <span style="font-size: 10px; color: var(--color-primary-blue); font-weight: 500; text-transform: none;">${typeInfo.label}</span>
+                                <i class="ph ph-caret-down" style="font-size: 10px; color: var(--color-primary-blue);"></i>
+                            </div>
+                        </div>
+                    </th>
+                `;
+            });
+
+            html += `
+                            <th style="padding: 12px; width: 80px; text-align: center; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Add data rows
+            currentTableData.forEach((row, rowIndex) => {
+                html += `
+                    <tr style="border-bottom: 1px solid var(--color-neutral-border); transition: background 0.2s;" onmouseenter="this.style.background='#f8f9fa'" onmouseleave="this.style.background='white'">
+                        <td style="padding: 12px;">
+                            <input type="checkbox" style="cursor: pointer;">
+                        </td>
+                `;
+
+                currentTableColumns.forEach(col => {
+                    const value = row[col] || '';
+                    html += `
+                        <td style="padding: 12px;">
+                            <input type="text" value="${escapeHtml(String(value))}" onchange="updateCellValue(${rowIndex}, '${col}', this.value)" style="width: 100%; border: 1px solid transparent; padding: 4px 8px; border-radius: 4px; font-family: var(--font-family-body); font-size: 13px; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--color-primary-blue)'" onblur="this.style.borderColor='transparent'">
+                        </td>
+                    `;
+                });
+
+                html += `
+                        <td style="padding: 12px; text-align: center;">
+                            <button onclick="deleteRow(${rowIndex})" style="padding: 4px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; color: #dc2626; transition: all 0.2s;" onmouseenter="this.style.borderColor='#dc2626'; this.style.background='#fef2f2'" onmouseleave="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white'">
+                                <i class="ph ph-trash" style="font-size: 14px;"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            grid.innerHTML = html;
+        }
+
+        function updateRowCount() {
+            const count = currentTableData.length;
+            document.getElementById('tableRowCount').textContent = `${count} row${count !== 1 ? 's' : ''}`;
+        }
+
+        function updateCellValue(rowIndex, columnName, value) {
+            currentTableData[rowIndex][columnName] = value;
+            // Auto-save
+            const storageKey = `table_${currentTableName.toLowerCase().replace(/\s+/g, '_')}`;
+            localStorage.setItem(storageKey, JSON.stringify(currentTableData));
+        }
+
+        function addNewRow() {
+            const newRow = { id: Date.now() };
+            currentTableColumns.forEach(col => {
+                newRow[col] = '';
+            });
+            currentTableData.unshift(newRow);
+            renderTableGrid();
+            updateRowCount();
+        }
+
+        function deleteRow(rowIndex) {
+            if (confirm('Delete this row?')) {
+                currentTableData.splice(rowIndex, 1);
+                renderTableGrid();
+                updateRowCount();
+            }
+        }
+
+        function toggleAllRows(checked) {
+            const checkboxes = document.querySelectorAll('#tableDataGrid tbody input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = checked);
+        }
+
+        function quickSort(columnName) {
+            currentTableData.sort((a, b) => {
+                const aVal = String(a[columnName] || '');
+                const bVal = String(b[columnName] || '');
+                return aVal.localeCompare(bVal);
+            });
+            renderTableGrid();
+        }
+
+        // Filter Panel Functions
+        function toggleFilterPanel() {
+            const panel = document.getElementById('filterPanel');
+            const btn = document.getElementById('filterBtn');
+            const isVisible = panel.style.display !== 'none';
+
+            panel.style.display = isVisible ? 'none' : 'block';
+            btn.style.background = isVisible ? 'white' : '#e3f2fd';
+        }
+
+        function addFilterCondition() {
+            const container = document.getElementById('filterConditions');
+            const conditionId = filterConditionId++;
+
+            const div = document.createElement('div');
+            div.id = `filter-${conditionId}`;
+            div.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 8px;';
+
+            div.innerHTML = `
+                <select style="padding: 6px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px;">
+                    ${currentTableColumns.map(col => `<option value="${col}">${col}</option>`).join('')}
+                </select>
+                <select style="padding: 6px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px;">
+                    <option value="contains">Contains</option>
+                    <option value="equals">Equals</option>
+                    <option value="starts">Starts with</option>
+                    <option value="ends">Ends with</option>
+                </select>
+                <input type="text" placeholder="Value..." style="padding: 6px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; flex: 1;">
+                <button onclick="removeFilterCondition(${conditionId})" style="padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; color: #dc2626;">
+                    <i class="ph ph-x"></i>
+                </button>
+            `;
+
+            container.appendChild(div);
+        }
+
+        function removeFilterCondition(conditionId) {
+            const element = document.getElementById(`filter-${conditionId}`);
+            if (element) element.remove();
+        }
+
+        // Sort Panel Functions
+        function toggleSortPanel() {
+            const panel = document.getElementById('sortPanel');
+            const btn = document.getElementById('sortBtn');
+            const isVisible = panel.style.display !== 'none';
+
+            panel.style.display = isVisible ? 'none' : 'block';
+            btn.style.background = isVisible ? 'white' : '#e3f2fd';
+        }
+
+        function addSortCondition() {
+            const container = document.getElementById('sortConditions');
+            const conditionId = sortConditionId++;
+
+            const div = document.createElement('div');
+            div.id = `sort-${conditionId}`;
+            div.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 8px;';
+
+            div.innerHTML = `
+                <select style="padding: 6px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px; flex: 1;">
+                    ${currentTableColumns.map(col => `<option value="${col}">${col}</option>`).join('')}
+                </select>
+                <select style="padding: 6px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 12px;">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+                <button onclick="removeSortCondition(${conditionId})" style="padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; color: #dc2626;">
+                    <i class="ph ph-x"></i>
+                </button>
+            `;
+
+            container.appendChild(div);
+        }
+
+        function removeSortCondition(conditionId) {
+            const element = document.getElementById(`sort-${conditionId}`);
+            if (element) element.remove();
+        }
+
+        // Group Panel Functions
+        function toggleGroupPanel() {
+            const panel = document.getElementById('groupPanel');
+            const btn = document.getElementById('groupBtn');
+            const isVisible = panel.style.display !== 'none';
+
+            panel.style.display = isVisible ? 'none' : 'block';
+            btn.style.background = isVisible ? 'white' : '#e3f2fd';
+        }
+
+        function applyGrouping() {
+            const groupByColumn = document.getElementById('groupByColumn').value;
+            if (!groupByColumn) {
+                renderTableGrid();
+                return;
+            }
+
+            // Group rows by selected column
+            alert(`Grouping by ${groupByColumn} - Full implementation coming soon!`);
+        }
+
+        // View Management
+        function switchTableView() {
+            const viewName = document.getElementById('viewSelector').value;
+            currentViewName = viewName;
+            // Load view settings
+            alert(`Switching to view: ${viewName} - Full implementation coming soon!`);
+        }
+
+        function saveCurrentView() {
+            const viewName = prompt('Enter name for this view:');
+            if (!viewName) return;
+
+            currentTableViews[viewName] = {
+                name: viewName,
+                filters: [],
+                sorts: [],
+                groupBy: null
+            };
+
+            // Add to view selector
+            const selector = document.getElementById('viewSelector');
+            const option = document.createElement('option');
+            option.value = viewName;
+            option.textContent = viewName;
+            selector.appendChild(option);
+            selector.value = viewName;
+
+            alert(`View "${viewName}" saved successfully!`);
+        }
+
+        // Column Type Editor Functions
+        let currentEditingColumn = '';
+        let selectedColumnType = '';
+
+        function openColumnTypeEditor(columnName) {
+            currentEditingColumn = columnName;
+            selectedColumnType = currentTableColumnTypes[columnName] || 'text';
+
+            // Update modal header
+            document.getElementById('columnTypeEditorColumnName').textContent = `Column: ${columnName}`;
+
+            // Render type options
+            const container = document.getElementById('columnTypeOptions');
+            container.innerHTML = '';
+
+            POSTGRES_COLUMN_TYPES.forEach(type => {
+                const isSelected = type.value === selectedColumnType;
+                const button = document.createElement('button');
+                button.style.cssText = `
+                    padding: 12px;
+                    background: ${isSelected ? '#e3f2fd' : 'white'};
+                    border: 2px solid ${isSelected ? 'var(--color-primary-blue)' : 'var(--color-neutral-border)'};
+                    border-radius: 6px;
+                    font-family: var(--font-family-body);
+                    font-size: 12px;
+                    color: var(--color-dark);
+                    cursor: pointer;
+                    text-align: left;
+                    transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                `;
+
+                button.innerHTML = `
+                    <i class="ph ${type.icon}" style="font-size: 16px; color: ${isSelected ? 'var(--color-primary-blue)' : 'var(--color-neutral-text)'}; flex-shrink: 0;"></i>
+                    <span style="font-weight: ${isSelected ? '600' : '400'};">${type.label}</span>
+                `;
+
+                button.onclick = () => selectColumnType(type.value);
+
+                button.onmouseenter = () => {
+                    if (!isSelected) {
+                        button.style.borderColor = 'var(--color-primary-blue)';
+                        button.style.background = '#f8f9fa';
+                    }
+                };
+
+                button.onmouseleave = () => {
+                    if (!isSelected) {
+                        button.style.borderColor = 'var(--color-neutral-border)';
+                        button.style.background = 'white';
+                    }
+                };
+
+                container.appendChild(button);
+            });
+
+            // Show modal
+            document.getElementById('columnTypeEditorModal').style.display = 'flex';
+        }
+
+        function selectColumnType(typeValue) {
+            selectedColumnType = typeValue;
+            // Re-render to show selection
+            openColumnTypeEditor(currentEditingColumn);
+        }
+
+        function applyColumnType() {
+            if (selectedColumnType && currentEditingColumn) {
+                currentTableColumnTypes[currentEditingColumn] = selectedColumnType;
+
+                // Save to localStorage
+                const typesKey = `table_types_${currentTableName.toLowerCase().replace(/\s+/g, '_')}`;
+                localStorage.setItem(typesKey, JSON.stringify(currentTableColumnTypes));
+
+                // Re-render table to show new type
+                renderTableGrid();
+
+                closeColumnTypeEditor();
+            }
+        }
+
+        function closeColumnTypeEditor() {
+            document.getElementById('columnTypeEditorModal').style.display = 'none';
+            currentEditingColumn = '';
+            selectedColumnType = '';
+        }
+
+        // Initialize demo documents if none exist
+        function initializeDemoDocuments() {
+            const existing = localStorage.getItem('professionalDocuments');
+            if (existing) return; // Don't overwrite existing documents
+
+            const demoDocuments = [
+                // STRUCTURED DOCUMENT EXAMPLE 1
+                {
+                    title: 'Project Charter - Q4 Digital Transformation',
+                    lastModified: new Date('2025-10-01').toISOString(),
+                    documentType: 'structured',
+                    blocks: [
+                        { id: 'b1', type: 'header', level: 1, content: 'Project Charter: Q4 Digital Transformation Initiative' },
+                        { id: 'b2', type: 'text', content: 'This document outlines the strategic objectives, scope, and key deliverables for our Q4 digital transformation initiative focused on modernizing customer-facing systems and improving operational efficiency.\n\nKey stakeholders include the CTO, VP of Engineering, Product Management team, and select representatives from Sales and Customer Success. This initiative represents a $2.5M investment over 6 months with expected annual savings of $850K.' },
+                        { id: 'b3', type: 'header', level: 2, content: 'Executive Summary' },
+                        { id: 'b4', type: 'text', content: 'The digital transformation project aims to migrate legacy systems to cloud infrastructure, implement new CRM capabilities, and establish data-driven decision-making processes across the organization.\n\nExpected Benefits:\n• 35% efficiency gain within 12 months\n• 50% reduction in infrastructure costs\n• Improved customer satisfaction scores (target: +15 NPS points)\n• Enhanced data security and compliance' },
+                        { id: 'b5', type: 'image', content: 'https://via.placeholder.com/800x300/0066CC/FFFFFF?text=Digital+Transformation+Roadmap' },
+                        { id: 'b6', type: 'header', level: 2, content: 'Project Timeline' },
+                        { id: 'b7', type: 'mermaid', content: 'gantt\n    title Q4 Digital Transformation Timeline\n    dateFormat  YYYY-MM-DD\n    section Phase 1\n    Infrastructure Setup :a1, 2025-10-01, 30d\n    section Phase 2\n    CRM Migration :a2, 2025-11-01, 45d\n    section Phase 3\n    Testing & Deployment :a3, 2025-12-15, 20d' },
+                        { id: 'b8', type: 'header', level: 2, content: 'Technology Stack' },
+                        { id: 'b9', type: 'code', language: 'javascript', content: '// Microservices Architecture\nconst services = {\n  api: "Node.js/Express",\n  database: "PostgreSQL",\n  cache: "Redis",\n  queue: "RabbitMQ",\n  frontend: "React"\n};' }
+                    ]
+                },
+                {
+                    title: 'Technical Architecture Documentation',
+                    lastModified: new Date('2025-09-28').toISOString(),
+                    blocks: [
+                        { id: 'c1', type: 'header', level: 1, content: 'System Architecture Overview' },
+                        { id: 'c2', type: 'text', content: 'This document describes the high-level architecture of our microservices-based platform, including component interactions, data flow, and infrastructure requirements.\n\nThe system follows a modern cloud-native architecture pattern with the following characteristics:\n\n• Microservices-based design for independent scaling\n• Event-driven communication using message queues\n• Containerized deployment with Kubernetes orchestration\n• Multi-region deployment for high availability\n• Zero-trust security model with service mesh' },
+                        { id: 'c3', type: 'image', content: 'https://via.placeholder.com/900x400/004C99/FFFFFF?text=Microservices+Architecture' },
+                        { id: 'c4', type: 'header', level: 2, content: 'Component Interaction' },
+                        { id: 'c5', type: 'plantuml', content: '@startuml\nactor User\nUser -> API_Gateway : HTTP Request\nAPI_Gateway -> Auth_Service : Validate Token\nAuth_Service --> API_Gateway : Token Valid\nAPI_Gateway -> Business_Logic : Route Request\nBusiness_Logic -> Database : Query Data\nDatabase --> Business_Logic : Return Data\nBusiness_Logic --> User : JSON Response\n@enduml' },
+                        { id: 'c6', type: 'header', level: 2, content: 'Database Schema' },
+                        { id: 'c7', type: 'text', content: 'Our PostgreSQL database uses a normalized schema with the following core tables. All tables include audit fields (created_at, updated_at, created_by) for compliance tracking.' },
+                        { id: 'c8', type: 'code', language: 'sql', content: 'CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  created_at TIMESTAMP DEFAULT NOW(),\n  role VARCHAR(50)\n);\n\nCREATE INDEX idx_users_email ON users(email);' }
+                    ]
+                },
+                {
+                    title: 'API Integration Guide',
+                    lastModified: new Date('2025-09-25').toISOString(),
+                    blocks: [
+                        { id: 'd1', type: 'header', level: 1, content: 'REST API Integration Guide' },
+                        { id: 'd2', type: 'text', content: 'Complete guide for integrating with our RESTful API endpoints, including authentication, rate limiting, and best practices.' },
+                        { id: 'd3', type: 'header', level: 2, content: 'Authentication' },
+                        { id: 'd4', type: 'markdown', content: 'All API requests must include an **Authorization** header:\n\n```\nAuthorization: Bearer YOUR_API_TOKEN\n```\n\nTokens expire after 24 hours. Refresh using the `/auth/refresh` endpoint.' },
+                        { id: 'd5', type: 'header', level: 2, content: 'Example Request' },
+                        { id: 'd6', type: 'code', language: 'python', content: 'import requests\n\nheaders = {\n    "Authorization": "Bearer YOUR_TOKEN",\n    "Content-Type": "application/json"\n}\n\nresponse = requests.get(\n    "https://api.example.com/v1/users",\n    headers=headers\n)\n\nprint(response.json())' },
+                        { id: 'd7', type: 'header', level: 2, content: 'Rate Limits' },
+                        { id: 'd8', type: 'table', content: 'Endpoint,Rate Limit,Window\n/api/users,100 requests,1 minute\n/api/data,500 requests,1 hour\n/api/upload,10 requests,1 minute' }
+                    ]
+                },
+                {
+                    title: 'Meeting Notes - Sprint Planning',
+                    lastModified: new Date('2025-10-04').toISOString(),
+                    blocks: [
+                        { id: 'e1', type: 'header', level: 1, content: 'Sprint Planning - Week of Oct 7' },
+                        { id: 'e2', type: 'text', content: 'Attendees: Engineering team, Product Manager, UX Designer\nDate: October 4, 2025' },
+                        { id: 'e3', type: 'header', level: 2, content: 'Sprint Goals' },
+                        { id: 'e4', type: 'markdown', content: '- [ ] Complete user authentication refactor\n- [ ] Implement new dashboard widgets\n- [ ] Fix critical bugs from last sprint\n- [ ] Write integration tests for payment flow\n- [ ] Deploy to staging environment' },
+                        { id: 'e5', type: 'header', level: 2, content: 'Action Items' },
+                        { id: 'e6', type: 'text', content: 'Sarah: Lead authentication refactor (5 story points)\nMike: Dashboard widget implementation (8 story points)\nAlex: Bug fixes and testing (3 story points)\n\nEstimated velocity: 16 points\nSprint ends: October 18, 2025' }
+                    ]
+                },
+                {
+                    title: 'Product Requirements - User Dashboard',
+                    lastModified: new Date('2025-09-30').toISOString(),
+                    documentType: 'structured',
+                    blocks: [
+                        { id: 'f1', type: 'header', level: 1, content: 'Product Requirements: User Dashboard v2.0' },
+                        { id: 'f2', type: 'text', content: 'This document defines the requirements for the redesigned user dashboard, including new widgets, improved navigation, and personalization features. The dashboard redesign addresses user feedback from Q3 surveys (85% requested better data visualization) and aims to reduce time-to-insight by 40%. Target launch: November 15, 2025.' },
+                        { id: 'f3', type: 'header', level: 2, content: 'Current State Analysis' },
+                        { id: 'f4', type: 'text', content: 'User testing revealed several pain points: Information density is too high (average task completion time: 4.2 minutes), critical metrics are buried 2-3 clicks deep, no personalization options for different user roles, and mobile experience is suboptimal (43% bounce rate on mobile).' },
+                        { id: 'f5', type: 'header', level: 2, content: 'User Stories' },
+                        { id: 'f6', type: 'text', content: 'As a user, I want to see my recent activity at a glance so I can quickly understand what has happened since my last visit. The activity feed should show the last 10 items sorted by timestamp with action type, timestamp, and relevant entity information.' }
+                    ]
+                },
+                // UNSTRUCTURED DOCUMENT EXAMPLE 1
+                {
+                    title: 'Executive Summary - Market Analysis Q3 2025',
+                    lastModified: new Date('2025-09-28').toISOString(),
+                    documentType: 'unstructured',
+                    richTextContent: '<h1>Market Analysis: Third Quarter 2025</h1><p>The third quarter of 2025 demonstrated significant growth across our core market segments, with particular strength in the enterprise SaaS vertical. Total addressable market (TAM) expanded by 23% year-over-year, driven primarily by increased digital transformation budgets and a favorable regulatory environment for cloud adoption.</p><p>Our competitive analysis reveals three key insights that will shape Q4 strategy. First, market consolidation continues with two major acquisitions announced in September, reducing the number of significant competitors from eight to six. Second, pricing pressure has eased as customers prioritize feature depth over cost optimization, creating opportunities for premium positioning. Third, emerging AI capabilities have become table stakes rather than differentiators, requiring rapid feature parity to maintain market share.</p><p>Customer acquisition metrics improved substantially with a 31% reduction in CAC while maintaining consistent LTV ratios. This efficiency gain reflects both marketing optimization and product-market fit maturation. Churn declined to 4.2% annually, our lowest rate in three years, attributed to enhanced onboarding programs and proactive customer success interventions.</p><p>Looking ahead to Q4, we recommend aggressive expansion in the mid-market segment where win rates exceed 40% and sales cycles average just 45 days. The enterprise pipeline remains robust with $12.4M in qualified opportunities, though longer cycles require sustained investment in enterprise sales resources. International expansion, particularly in EMEA markets, presents significant untapped opportunity with preliminary analysis suggesting 60% TAM growth potential.</p><p>Resource allocation for Q4 should prioritize product development (40% of budget), go-to-market expansion (35%), and customer success programs (25%). This distribution reflects our strategic imperative to maintain competitive feature velocity while scaling revenue efficiently. Expected outcomes include 28% revenue growth, 250 net new customers, and achievement of profitability milestone by year end.</p>'
+                },
+                // UNSTRUCTURED DOCUMENT EXAMPLE 2
+                {
+                    title: 'Team Meeting Notes - Engineering All-Hands',
+                    lastModified: new Date('2025-10-03').toISOString(),
+                    documentType: 'unstructured',
+                    richTextContent: '<h1>Engineering All-Hands Meeting</h1><h2>October 3, 2025</h2><p>The quarterly all-hands meeting covered several critical topics including architecture decisions, team growth, and upcoming project timelines. Engineering headcount will increase from 42 to 58 by year end, with new hires focused on backend infrastructure, mobile development, and data engineering capabilities.</p><p><strong>Architecture Updates:</strong> The migration to microservices architecture is 65% complete with five services successfully deployed to production. Performance improvements are substantial, with API response times reduced by 40% and system availability improved to 99.97% uptime. The remaining monolith components will be decomposed over the next two quarters using the strangler fig pattern to minimize risk.</p><p>Security posture received significant attention following the recent third-party audit. All critical and high-severity findings have been addressed, with medium-severity items scheduled for resolution by month end. Implementation of zero-trust architecture principles will begin in Q1 2026, requiring coordination across engineering, security, and operations teams.</p><p><strong>Team Updates:</strong> Three new team leads were announced. Sarah Chen will lead the platform team, focusing on internal developer tools and infrastructure. Marcus Rodriguez transitions to mobile engineering lead, driving our iOS and Android roadmap. The new data engineering team, led by Jennifer Kim, will establish data governance frameworks and build analytics infrastructure.</p><p>Notable project milestones include the beta launch of the AI-powered search feature, completion of the payments infrastructure overhaul, and successful migration of 80% of customers to the new authentication system. Customer feedback on these improvements has been overwhelmingly positive with NPS scores increasing 12 points quarter-over-quarter.</p><p>Looking forward, Q4 priorities include completing the microservices migration, launching the mobile app redesign, achieving SOC 2 Type II certification, and implementing the new observability stack. Engineering will also support the product team\'s ambitious feature roadmap while maintaining our commitment to technical debt reduction and code quality improvements.</p>'
+                }
+            ];
+
+            localStorage.setItem('professionalDocuments', JSON.stringify(demoDocuments));
+        }
+
+        // Documents Slideout Functions
+        function openDocumentsSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Documents';
+
+            // Hide all content sections
+            hideAllContentSections();
+
+            // Show documents content
+            document.getElementById('documentsContent').style.display = 'block';
+            loadDocuments();
+
+            slideout.classList.add('active');
+        }
+
+        function loadDocuments() {
+            const container = document.getElementById('documentsContainer');
+            container.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 16px;';
+
+            const documents = JSON.parse(localStorage.getItem('professionalDocuments') || '[]');
+
+            if (documents.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-neutral-text);"><i class="ph ph-file-text" style="font-size: 48px; color: var(--color-neutral-border); display: block; margin-bottom: 12px;"></i>No documents yet. Click "+ New Document" to create one.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            documents.forEach((doc, index) => {
+                const card = createDocumentCard(doc, index);
+                container.appendChild(card);
+            });
+        }
+
+        function createDocumentCard(doc, index) {
+            const card = document.createElement('div');
+            card.style.cssText = 'padding: 20px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px;';
+
+            const lastModified = new Date(doc.lastModified).toLocaleDateString();
+            const isStructured = doc.documentType === 'structured' || doc.blocks;
+            const isUnstructured = doc.documentType === 'unstructured' || doc.richTextContent;
+
+            let wordCount = 0;
+            let charCount = 0;
+            let blockCount = 0;
+            const blockTypes = {};
+
+            if (isUnstructured) {
+                // Calculate word and character counts from rich text
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = doc.richTextContent || '';
+                const text = tempDiv.textContent || '';
+                wordCount = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+                charCount = text.length;
+            } else {
+                // Count blocks for structured documents
+                blockCount = doc.blocks ? doc.blocks.length : 0;
+                if (doc.blocks) {
+                    doc.blocks.forEach(block => {
+                        blockTypes[block.type] = (blockTypes[block.type] || 0) + 1;
+                        // Also count words from text blocks
+                        if (block.type === 'text' || block.type === 'header') {
+                            const text = block.content || '';
+                            wordCount += text.trim().split(/\s+/).filter(w => w.length > 0).length;
+                        }
+                    });
+                }
+            }
+
+            // Calculate reading time (200 words per minute)
+            const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+            // Determine icon based on content type
+            let icon = 'ph-file-text';
+            if (isUnstructured) {
+                icon = 'ph-article';
+            } else if (blockTypes.code || blockTypes.markdown) {
+                icon = 'ph-code';
+            } else if (blockTypes.image) {
+                icon = 'ph-file-image';
+            } else if (blockTypes.table) {
+                icon = 'ph-table';
+            }
+
+            card.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph ${icon}" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${escapeHtml(doc.title || 'Untitled Document')}</div>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="event.stopPropagation(); openDocumentEditor(${index})" title="Edit" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-pencil-simple" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); deleteDocument(${index})" title="Delete" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#dc2626'; this.style.background='#fef2f2';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-trash" style="font-size: 16px; color: #dc2626;"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); shareDocument(${index})" title="Share" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                        </button>
+                    </div>
+                </div>
+                <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">
+                    ${getDocumentPreview(doc)}
+                </div>
+                <div style="margin-top: 4px;">
+                    <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin-bottom: 8px;">
+                        ${isUnstructured ? 'Statistics' : 'Content'}
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        ${isUnstructured ? `
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${wordCount.toLocaleString()} Words</span>
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${charCount.toLocaleString()} Characters</span>
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-clock" style="margin-right: 2px;"></i>${readingTime} min read</span>
+                        ` : `
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${blockCount} Block${blockCount !== 1 ? 's' : ''}</span>
+                            ${blockTypes.header ? `<span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${blockTypes.header} Section${blockTypes.header !== 1 ? 's' : ''}</span>` : ''}
+                            ${blockTypes.image ? `<span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${blockTypes.image} Image${blockTypes.image !== 1 ? 's' : ''}</span>` : ''}
+                            ${blockTypes.code ? `<span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${blockTypes.code} Code</span>` : ''}
+                            ${blockTypes.table ? `<span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${blockTypes.table} Table${blockTypes.table !== 1 ? 's' : ''}</span>` : ''}
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-clock" style="margin-right: 2px;"></i>${readingTime} min read</span>
+                        `}
+                    </div>
+                </div>
+                <div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
+                    <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">LAST MODIFIED</div>
+                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">
+                        <i class="ph ph-calendar-blank" style="margin-right: 4px;"></i>
+                        ${lastModified}
+                    </div>
+                </div>
+            `;
+
+            card.addEventListener('mouseenter', () => {
+                card.style.borderColor = 'var(--color-primary-blue)';
+                card.style.boxShadow = '0 2px 8px rgba(0, 102, 204, 0.15)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.borderColor = 'var(--color-neutral-border)';
+                card.style.boxShadow = 'none';
+            });
+
+            card.addEventListener('click', () => {
+                openDocumentEditor(index);
+            });
+
+            return card;
+        }
+
+        function getDocumentPreview(doc) {
+            // Handle unstructured documents
+            if (doc.documentType === 'unstructured' || doc.richTextContent) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = doc.richTextContent || '';
+                const text = tempDiv.textContent || '';
+                const preview = text.trim().substring(0, 150);
+                return escapeHtml(preview) + (text.length > 150 ? '...' : '');
+            }
+
+            // Handle structured documents
+            if (!doc.blocks || doc.blocks.length === 0) return 'Empty document';
+
+            // Find first text or header block for preview
+            const previewBlock = doc.blocks.find(b => b.type === 'text' || b.type === 'header');
+            if (previewBlock && previewBlock.content) {
+                const preview = previewBlock.content.substring(0, 150);
+                return escapeHtml(preview) + (previewBlock.content.length > 150 ? '...' : '');
+            }
+
+            return `Document contains ${doc.blocks.length} block${doc.blocks.length !== 1 ? 's' : ''}`;
+        }
+
+        function shareDocument(index) {
+            alert('Share functionality coming soon!\n\nYou will be able to:\n• Export as PDF\n• Share via email\n• Generate shareable link');
+        }
+
+        // Document Editor Functions
+        let currentDocumentIndex = null;
+        let currentDocumentBlocks = [];
+        let currentBlockId = 0;
+
+        let quillEditor = null;
+        let currentDocumentView = 'structured'; // 'structured' or 'unstructured'
+
+        function openDocumentEditor(documentIndex = null) {
+            currentDocumentIndex = documentIndex;
+            const modal = document.getElementById('documentEditorModal');
+            const titleInput = document.getElementById('docTitle');
+            const blocksContainer = document.getElementById('documentBlocks');
+
+            if (documentIndex !== null) {
+                // Editing existing document
+                const documents = JSON.parse(localStorage.getItem('professionalDocuments') || '[]');
+                const doc = documents[documentIndex];
+                titleInput.value = doc.title || '';
+                currentDocumentBlocks = doc.blocks || [];
+                renderDocumentBlocks();
+
+                // Initialize Quill with converted content
+                initializeQuillEditor();
+                syncBlocksToQuill();
+            } else {
+                // New document
+                titleInput.value = '';
+                currentDocumentBlocks = [];
+                blocksContainer.innerHTML = '<div style="text-align: center; color: var(--color-neutral-text); padding: 60px 20px;"><i class="ph ph-cursor-text" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 16px;"></i><p style="font-family: var(--font-family-body); font-size: 14px;">Click a block type to start building your document</p></div>';
+
+                // Initialize empty Quill editor
+                initializeQuillEditor();
+            }
+
+            // Reset to structured view
+            currentDocumentView = 'structured';
+            toggleDocumentView('structured');
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function initializeQuillEditor() {
+            if (quillEditor) {
+                quillEditor = null;
+            }
+
+            const editorContainer = document.getElementById('quillEditor');
+            editorContainer.innerHTML = ''; // Clear previous instance
+
+            quillEditor = new Quill('#quillEditor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'align': [] }],
+                        ['link', 'image', 'code-block'],
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Start writing your document...'
+            });
+        }
+
+        function toggleDocumentView(view) {
+            currentDocumentView = view;
+
+            const structuredView = document.getElementById('structuredView');
+            const unstructuredView = document.getElementById('unstructuredView');
+            const structuredBtn = document.getElementById('structuredViewBtn');
+            const unstructuredBtn = document.getElementById('unstructuredViewBtn');
+
+            if (view === 'structured') {
+                // Show structured view
+                structuredView.style.display = 'flex';
+                unstructuredView.style.display = 'none';
+
+                // Update button styles
+                structuredBtn.style.background = 'var(--color-primary-blue)';
+                structuredBtn.style.color = 'white';
+                unstructuredBtn.style.background = 'transparent';
+                unstructuredBtn.style.color = 'var(--color-dark)';
+
+                // Sync from Quill to blocks if switching from unstructured
+                if (quillEditor) {
+                    syncQuillToBlocks();
+                }
+            } else {
+                // Show unstructured view
+                structuredView.style.display = 'none';
+                unstructuredView.style.display = 'flex';
+
+                // Update button styles
+                structuredBtn.style.background = 'transparent';
+                structuredBtn.style.color = 'var(--color-dark)';
+                unstructuredBtn.style.background = 'var(--color-primary-blue)';
+                unstructuredBtn.style.color = 'white';
+
+                // Sync from blocks to Quill if switching from structured
+                syncBlocksToQuill();
+            }
+        }
+
+        function syncBlocksToQuill() {
+            if (!quillEditor) return;
+
+            let html = '';
+
+            // Process blocks in hierarchical order
+            currentDocumentBlocks.forEach((block, index) => {
+                switch (block.type) {
+                    case 'header':
+                        // Add spacing before headers (except first element)
+                        if (index > 0) {
+                            html += '<br>';
+                        }
+                        html += `<h${block.level}>${escapeHtml(block.content || '')}</h${block.level}>`;
+                        break;
+
+                    case 'text':
+                        // Split text into paragraphs and clean up
+                        const paragraphs = (block.content || '').split('\n').filter(p => p.trim());
+                        paragraphs.forEach(para => {
+                            // Check if it's a bullet point
+                            if (para.trim().startsWith('•') || para.trim().startsWith('*')) {
+                                html += `<li>${escapeHtml(para.replace(/^[•*]\s*/, ''))}</li>`;
+                            } else {
+                                html += `<p>${escapeHtml(para)}</p>`;
+                            }
+                        });
+                        break;
+
+                    case 'image':
+                        if (block.content) {
+                            html += `<p><img src="${block.content}" style="max-width: 100%; height: auto; display: block; margin: 12px 0;"></p>`;
+                        }
+                        break;
+
+                    case 'code':
+                        html += `<pre>${escapeHtml(block.content || '')}</pre>`;
+                        break;
+
+                    case 'table':
+                        // Convert CSV-like table data to actual table
+                        const tableContent = block.content || '';
+                        if (tableContent.trim()) {
+                            const rows = tableContent.split('\n').filter(r => r.trim());
+                            if (rows.length > 0) {
+                                html += '<table style="border-collapse: collapse; width: 100%; margin: 12px 0;">';
+                                rows.forEach((row, rowIndex) => {
+                                    const cells = row.split(',');
+                                    html += '<tr>';
+                                    cells.forEach(cell => {
+                                        const tag = rowIndex === 0 ? 'th' : 'td';
+                                        html += `<${tag} style="border: 1px solid #ddd; padding: 8px;">${escapeHtml(cell.trim())}</${tag}>`;
+                                    });
+                                    html += '</tr>';
+                                });
+                                html += '</table>';
+                            }
+                        }
+                        break;
+
+                    case 'markdown':
+                    case 'latex':
+                    case 'mermaid':
+                    case 'plantuml':
+                        // Show these as formatted pre blocks with labels
+                        const typeLabels = {
+                            'markdown': 'Markdown Content',
+                            'latex': 'LaTeX Math',
+                            'mermaid': 'Mermaid Diagram',
+                            'plantuml': 'PlantUML Diagram'
+                        };
+                        html += `<p><em>${typeLabels[block.type]}:</em></p>`;
+                        html += `<pre>${escapeHtml(block.content || '')}</pre>`;
+                        break;
+                }
+            });
+
+            const delta = quillEditor.clipboard.convert(html);
+            quillEditor.setContents(delta);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function syncQuillToBlocks() {
+            if (!quillEditor) return;
+
+            // Convert Quill content to blocks
+            const delta = quillEditor.getContents();
+            const newBlocks = [];
+            let currentTextBlock = null;
+
+            delta.ops.forEach(op => {
+                if (op.insert) {
+                    if (typeof op.insert === 'string') {
+                        const text = op.insert;
+
+                        if (op.attributes && op.attributes.header) {
+                            // Header block
+                            const level = op.attributes.header;
+                            newBlocks.push({
+                                id: `block-${Date.now()}-${Math.random()}`,
+                                type: 'header',
+                                level: level,
+                                content: text.trim()
+                            });
+                            currentTextBlock = null;
+                        } else if (op.attributes && op.attributes['code-block']) {
+                            // Code block
+                            newBlocks.push({
+                                id: `block-${Date.now()}-${Math.random()}`,
+                                type: 'code',
+                                language: 'javascript',
+                                content: text
+                            });
+                            currentTextBlock = null;
+                        } else {
+                            // Regular text
+                            if (!currentTextBlock) {
+                                currentTextBlock = {
+                                    id: `block-${Date.now()}-${Math.random()}`,
+                                    type: 'text',
+                                    content: ''
+                                };
+                                newBlocks.push(currentTextBlock);
+                            }
+                            currentTextBlock.content += text;
+                        }
+                    } else if (op.insert.image) {
+                        // Image block
+                        newBlocks.push({
+                            id: `block-${Date.now()}-${Math.random()}`,
+                            type: 'image',
+                            content: op.insert.image
+                        });
+                        currentTextBlock = null;
+                    }
+                }
+            });
+
+            currentDocumentBlocks = newBlocks;
+            renderDocumentBlocks();
+        }
+
+        function closeDocumentEditor() {
+            const modal = document.getElementById('documentEditorModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            currentDocumentIndex = null;
+            currentDocumentBlocks = [];
+        }
+
+        function addBlock(type) {
+            const blockId = `block-${Date.now()}-${currentBlockId++}`;
+            const block = {
+                id: blockId,
+                type: type,
+                content: '',
+                level: type === 'header' ? 1 : null,
+                language: type === 'code' ? 'javascript' : null
+            };
+
+            currentDocumentBlocks.push(block);
+            renderDocumentBlocks();
+        }
+
+        function renderDocumentBlocks() {
+            const container = document.getElementById('documentBlocks');
+            container.innerHTML = '';
+
+            if (currentDocumentBlocks.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--color-neutral-text); padding: 60px 20px;"><i class="ph ph-cursor-text" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 16px;"></i><p style="font-family: var(--font-family-body); font-size: 14px;">Click a block type to start building your document</p></div>';
+                return;
+            }
+
+            // Build hierarchical structure
+            let i = 0;
+            while (i < currentDocumentBlocks.length) {
+                const block = currentDocumentBlocks[i];
+                if (block.type === 'header') {
+                    // Find all children (blocks until next header of same or higher level)
+                    const children = [];
+                    let j = i + 1;
+                    while (j < currentDocumentBlocks.length) {
+                        const nextBlock = currentDocumentBlocks[j];
+                        if (nextBlock.type === 'header' && nextBlock.level <= block.level) {
+                            break; // Found a header at same or higher level
+                        }
+                        children.push({ block: nextBlock, index: j });
+                        j++;
+                    }
+
+                    // Create header container with children
+                    const headerContainer = createHeaderContainer(block, i, children);
+                    container.appendChild(headerContainer);
+                    i = j; // Skip to next section
+                } else {
+                    // Orphan block (not under a header)
+                    const blockEl = createBlockElement(block, i);
+                    container.appendChild(blockEl);
+                    i++;
+                }
+            }
+        }
+
+        function createHeaderContainer(headerBlock, headerIndex, children) {
+            const container = document.createElement('div');
+            container.style.cssText = 'margin-bottom: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;';
+
+            // Determine container background based on level
+            const levelColors = {
+                1: '#e3f2fd', // Light blue for H1
+                2: '#f3e5f5', // Light purple for H2
+                3: '#fff3e0', // Light orange for H3
+                4: '#f1f8e9'  // Light green for H4
+            };
+            const bgColor = levelColors[headerBlock.level] || '#f5f5f5';
+
+            // Header section with controls
+            const headerSection = document.createElement('div');
+            headerSection.style.cssText = `background: ${bgColor}; padding: 16px; border-bottom: 1px solid var(--color-neutral-border);`;
+
+            headerSection.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="flex: 1;">
+                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <select onchange="updateBlockLevel(${headerIndex}, this.value)" style="padding: 6px 10px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-size: 13px; font-weight: 600; background: white;">
+                                <option value="1" ${headerBlock.level === 1 ? 'selected' : ''}>H1</option>
+                                <option value="2" ${headerBlock.level === 2 ? 'selected' : ''}>H2</option>
+                                <option value="3" ${headerBlock.level === 3 ? 'selected' : ''}>H3</option>
+                                <option value="4" ${headerBlock.level === 4 ? 'selected' : ''}>H4</option>
+                            </select>
+                            <span style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px;">${children.length} block${children.length !== 1 ? 's' : ''} in section</span>
+                        </div>
+                        <input type="text" value="${headerBlock.content || ''}" onchange="updateBlockContent(${headerIndex}, this.value)" placeholder="Enter header text..." style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: ${28 - (headerBlock.level * 4)}px; font-weight: 600; color: var(--color-dark); outline: none; background: transparent;">
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button onclick="moveBlockUp(${headerIndex})" ${headerIndex === 0 ? 'disabled' : ''} style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; font-size: 14px;" title="Move section up">
+                            <i class="ph ph-arrow-up"></i>
+                        </button>
+                        <button onclick="moveBlockDown(${headerIndex})" style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; font-size: 14px;" title="Move section down">
+                            <i class="ph ph-arrow-down"></i>
+                        </button>
+                        <button onclick="deleteBlock(${headerIndex})" style="padding: 6px 10px; background: white; border: 1px solid #d32f2f; color: #d32f2f; border-radius: 4px; cursor: pointer; font-size: 14px;" title="Delete section">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(headerSection);
+
+            // Children container
+            if (children.length > 0) {
+                const childrenContainer = document.createElement('div');
+                childrenContainer.style.cssText = 'padding: 16px; background: white;';
+
+                children.forEach(({ block, index }) => {
+                    const childEl = createBlockElement(block, index, true);
+                    childrenContainer.appendChild(childEl);
+                });
+
+                container.appendChild(childrenContainer);
+            }
+
+            return container;
+        }
+
+        function createBlockElement(block, index, isChild = false) {
+            const blockEl = document.createElement('div');
+            blockEl.className = 'document-block';
+            blockEl.style.cssText = 'position: relative; margin-bottom: 20px; padding: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white;';
+
+            let contentHTML = '';
+
+            switch (block.type) {
+                case 'text':
+                    contentHTML = `
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter text (supports rich formatting)..." style="width: 100%; min-height: 150px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark); resize: vertical; outline: none; line-height: 1.6;">${block.content || ''}</textarea>
+                    `;
+                    break;
+
+                case 'table':
+                    contentHTML = `
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
+                            <i class="ph ph-table"></i> Table editor (coming soon)
+                        </div>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter table data (CSV format)..." style="width: 100%; min-height: 120px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.5;">${block.content || ''}</textarea>
+                    `;
+                    break;
+
+                case 'image':
+                    contentHTML = `
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
+                            <i class="ph ph-image"></i> Image
+                        </div>
+                        <input type="text" value="${block.content || ''}" onchange="updateBlockContent(${index}, this.value)" placeholder="Enter image URL..." style="width: 100%; padding: 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 13px;">
+                        ${block.content ? `<img src="${block.content}" style="max-width: 100%; margin-top: 12px; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
+                    `;
+                    break;
+
+                case 'markdown':
+                    contentHTML = `
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
+                            <i class="ph ph-markdown-logo"></i> Markdown (with LaTeX support)
+                        </div>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter markdown content (LaTeX: $inline$ or $$block$$)..." style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || ''}</textarea>
+                    `;
+                    break;
+
+                case 'latex':
+                    contentHTML = `
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
+                            <i class="ph ph-function"></i> LaTeX Math
+                        </div>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter LaTeX math expressions...\n\nExamples:\n$inline: a^2 + b^2 = c^2$\n$$display block: \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$" style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || ''}</textarea>
+                    `;
+                    break;
+
+                case 'mermaid':
+                    contentHTML = `
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
+                            <i class="ph ph-flow-arrow"></i> Mermaid Diagram
+                        </div>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter Mermaid syntax..." style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || 'graph TD\n    A[Start] --> B[Process]\n    B --> C[End]'}</textarea>
+                    `;
+                    break;
+
+                case 'plantuml':
+                    contentHTML = `
+                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
+                            <i class="ph ph-tree-structure"></i> PlantUML Diagram
+                        </div>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter PlantUML syntax..." style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || '@startuml\nActor User\nUser -> System: Request\nSystem --> User: Response\n@enduml'}</textarea>
+                    `;
+                    break;
+
+                case 'code':
+                    contentHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <i class="ph ph-code" style="color: var(--color-neutral-text);"></i>
+                            <select onchange="updateBlockLanguage(${index}, this.value)" style="padding: 4px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-size: 12px;">
+                                <option value="javascript" ${block.language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                                <option value="python" ${block.language === 'python' ? 'selected' : ''}>Python</option>
+                                <option value="java" ${block.language === 'java' ? 'selected' : ''}>Java</option>
+                                <option value="csharp" ${block.language === 'csharp' ? 'selected' : ''}>C#</option>
+                                <option value="cpp" ${block.language === 'cpp' ? 'selected' : ''}>C++</option>
+                                <option value="sql" ${block.language === 'sql' ? 'selected' : ''}>SQL</option>
+                                <option value="html" ${block.language === 'html' ? 'selected' : ''}>HTML</option>
+                                <option value="css" ${block.language === 'css' ? 'selected' : ''}>CSS</option>
+                            </select>
+                            <span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Code block (with linting)</span>
+                        </div>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter code..." style="width: 100%; min-height: 220px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 13px; background: #f8f8f8; resize: vertical; line-height: 1.6;">${block.content || ''}</textarea>
+                    `;
+                    break;
+            }
+
+            blockEl.innerHTML = `
+                <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
+                    ${!isChild ? `
+                        <button onclick="moveBlockUp(${index})" ${index === 0 ? 'disabled' : ''} style="padding: 4px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; font-size: 14px;" title="Move up">
+                            <i class="ph ph-arrow-up"></i>
+                        </button>
+                        <button onclick="moveBlockDown(${index})" ${index === currentDocumentBlocks.length - 1 ? 'disabled' : ''} style="padding: 4px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; font-size: 14px;" title="Move down">
+                            <i class="ph ph-arrow-down"></i>
+                        </button>
+                    ` : ''}
+                    <button onclick="deleteBlock(${index})" style="padding: 4px 8px; background: white; border: 1px solid #d32f2f; color: #d32f2f; border-radius: 4px; cursor: pointer; font-size: 14px;" title="Delete block">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                </div>
+                ${contentHTML}
+            `;
+
+            return blockEl;
+        }
+
+        function updateBlockContent(index, content) {
+            currentDocumentBlocks[index].content = content;
+        }
+
+        function updateBlockLevel(index, level) {
+            currentDocumentBlocks[index].level = parseInt(level);
+            renderDocumentBlocks();
+        }
+
+        function updateBlockLanguage(index, language) {
+            currentDocumentBlocks[index].language = language;
+        }
+
+        function moveBlockUp(index) {
+            const block = currentDocumentBlocks[index];
+
+            if (block.type === 'header') {
+                // Moving a section - find all its children
+                const children = [];
+                let j = index + 1;
+                while (j < currentDocumentBlocks.length) {
+                    const nextBlock = currentDocumentBlocks[j];
+                    if (nextBlock.type === 'header' && nextBlock.level <= block.level) {
+                        break;
+                    }
+                    children.push(nextBlock);
+                    j++;
+                }
+
+                const sectionLength = 1 + children.length; // header + children
+
+                if (index === 0) return; // Can't move first section up
+
+                // Find the previous section
+                let prevSectionStart = index - 1;
+                while (prevSectionStart > 0 && currentDocumentBlocks[prevSectionStart].type !== 'header') {
+                    prevSectionStart--;
+                }
+
+                // Extract current section
+                const section = currentDocumentBlocks.splice(index, sectionLength);
+
+                // Insert before previous section
+                currentDocumentBlocks.splice(prevSectionStart, 0, ...section);
+            } else {
+                // Moving a non-header block
+                if (index > 0) {
+                    [currentDocumentBlocks[index - 1], currentDocumentBlocks[index]] = [currentDocumentBlocks[index], currentDocumentBlocks[index - 1]];
+                }
+            }
+
+            renderDocumentBlocks();
+        }
+
+        function moveBlockDown(index) {
+            const block = currentDocumentBlocks[index];
+
+            if (block.type === 'header') {
+                // Moving a section - find all its children
+                const children = [];
+                let j = index + 1;
+                while (j < currentDocumentBlocks.length) {
+                    const nextBlock = currentDocumentBlocks[j];
+                    if (nextBlock.type === 'header' && nextBlock.level <= block.level) {
+                        break;
+                    }
+                    children.push(nextBlock);
+                    j++;
+                }
+
+                const sectionLength = 1 + children.length;
+                const sectionEnd = index + sectionLength;
+
+                if (sectionEnd >= currentDocumentBlocks.length) return; // Can't move last section down
+
+                // Find the next section
+                let nextSectionEnd = sectionEnd + 1;
+                while (nextSectionEnd < currentDocumentBlocks.length) {
+                    const nextBlock = currentDocumentBlocks[nextSectionEnd];
+                    if (nextBlock.type === 'header' && nextBlock.level <= block.level) {
+                        break;
+                    }
+                    nextSectionEnd++;
+                }
+
+                // Extract current section
+                const section = currentDocumentBlocks.splice(index, sectionLength);
+
+                // Insert after next section
+                const insertPos = Math.min(nextSectionEnd - sectionLength, currentDocumentBlocks.length);
+                currentDocumentBlocks.splice(insertPos, 0, ...section);
+            } else {
+                // Moving a non-header block
+                if (index < currentDocumentBlocks.length - 1) {
+                    [currentDocumentBlocks[index], currentDocumentBlocks[index + 1]] = [currentDocumentBlocks[index + 1], currentDocumentBlocks[index]];
+                }
+            }
+
+            renderDocumentBlocks();
+        }
+
+        function deleteBlock(index) {
+            const block = currentDocumentBlocks[index];
+
+            if (block.type === 'header') {
+                // Deleting a section - find all its children
+                const children = [];
+                let j = index + 1;
+                while (j < currentDocumentBlocks.length) {
+                    const nextBlock = currentDocumentBlocks[j];
+                    if (nextBlock.type === 'header' && nextBlock.level <= block.level) {
+                        break;
+                    }
+                    children.push(nextBlock);
+                    j++;
+                }
+
+                const sectionLength = 1 + children.length;
+                const message = children.length > 0
+                    ? `Delete this section and its ${children.length} child block${children.length !== 1 ? 's' : ''}?`
+                    : 'Delete this header?';
+
+                if (confirm(message)) {
+                    currentDocumentBlocks.splice(index, sectionLength);
+                    renderDocumentBlocks();
+                }
+            } else {
+                // Deleting a regular block
+                if (confirm('Delete this block?')) {
+                    currentDocumentBlocks.splice(index, 1);
+                    renderDocumentBlocks();
+                }
+            }
+        }
+
+        function toggleWorkBreakdownNumbering() {
+            const enabled = document.getElementById('wbnToggle').checked;
+            alert(`Work Breakdown Numbering ${enabled ? 'enabled' : 'disabled'}. This feature will automatically number headers in the exported document.`);
+        }
+
+        function toggleExportMenu() {
+            const menu = document.getElementById('exportMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function exportDocument(format) {
+            const title = document.getElementById('docTitle').value || 'Untitled Document';
+            toggleExportMenu();
+            alert(`Export to ${format.toUpperCase()} coming soon!\n\nDocument: ${title}\nBlocks: ${currentDocumentBlocks.length}`);
+        }
+
+        function saveDocument() {
+            const title = document.getElementById('docTitle').value || 'Untitled Document';
+            const documents = JSON.parse(localStorage.getItem('professionalDocuments') || '[]');
+
+            const documentData = {
+                title: title,
+                blocks: currentDocumentBlocks,
+                lastModified: new Date().toISOString()
+            };
+
+            if (currentDocumentIndex !== null) {
+                // Update existing document
+                documents[currentDocumentIndex] = documentData;
+            } else {
+                // Add new document
+                documents.push(documentData);
+            }
+
+            localStorage.setItem('professionalDocuments', JSON.stringify(documents));
+            alert('Document saved!');
+            closeDocumentEditor();
+            loadDocuments();
+        }
+
+        function editDocument(index) {
+            openDocumentEditor(index);
+        }
+
+        function deleteDocument(index) {
+            if (confirm('Are you sure you want to delete this document?')) {
+                const documents = JSON.parse(localStorage.getItem('professionalDocuments') || '[]');
+                documents.splice(index, 1);
+                localStorage.setItem('professionalDocuments', JSON.stringify(documents));
+                loadDocuments();
+            }
+        }
+
+        // Close export menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const exportMenu = document.getElementById('exportMenu');
+            if (exportMenu && !event.target.closest('[onclick*="toggleExportMenu"]') && !event.target.closest('#exportMenu')) {
+                exportMenu.style.display = 'none';
+            }
+        });
 
         function loadNotesCards(searchTerm = '') {
             const container = document.getElementById('notesContainer');
