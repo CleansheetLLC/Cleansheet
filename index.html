@@ -2709,7 +2709,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
 
                 <!-- Column Type Editor Modal -->
-                <div id="columnTypeEditorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; display: flex; align-items: center; justify-content: center;">
+                <div id="columnTypeEditorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; align-items: center; justify-content: center;">
                     <div style="background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
                         <!-- Modal Header -->
                         <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-neutral-border);">
@@ -2733,6 +2733,155 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <button onclick="applyColumnType()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
                                 Apply
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Designer Modal -->
+                <div id="formDesignerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; overflow-y: auto;">
+                    <div style="min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                        <div style="background: white; border-radius: 12px; width: 100%; max-width: 2750px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+                            <!-- Modal Header -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--color-neutral-border);">
+                                <div style="flex: 1; max-width: 600px;">
+                                    <input type="text" id="formTitle" placeholder="Untitled Form" style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); padding: 8px 0; outline: none;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <!-- Preview Button -->
+                                    <button onclick="openFormPreview()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                        <i class="ph ph-eye"></i> Preview
+                                    </button>
+                                    <!-- Publish Menu -->
+                                    <div style="position: relative;">
+                                        <button onclick="togglePublishMenu()" id="publishBtn" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                            <i class="ph ph-paper-plane-tilt"></i>
+                                            Publish
+                                            <i class="ph ph-caret-down"></i>
+                                        </button>
+                                        <div id="publishMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000;">
+                                            <button onclick="publishFormAs('open')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
+                                                <i class="ph ph-globe" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                                <span>Publish as Open Form</span>
+                                            </button>
+                                            <button onclick="publishFormAs('specific')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
+                                                <i class="ph ph-users" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                                <span>Publish to Specific Users</span>
+                                            </button>
+                                            <button onclick="shareFormWithEditors()" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; border-top: 1px solid var(--color-neutral-border);" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
+                                                <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                                <span>Share with Editors</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Save Button -->
+                                    <button onclick="saveFormDesign()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
+                                        <i class="ph ph-floppy-disk"></i> Save
+                                    </button>
+                                    <!-- Close Button -->
+                                    <button onclick="closeFormDesigner()" style="padding: 8px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; font-size: 20px;">
+                                        <i class="ph ph-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Modal Body -->
+                            <div style="flex: 1; overflow-y: auto; display: flex;">
+                                <!-- Left Sidebar - Field Palette -->
+                                <div style="width: 300px; border-right: 1px solid var(--color-neutral-border); padding: 20px; background: var(--color-neutral-background);">
+                                    <h4 style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin: 0 0 16px 0;">Form Fields</h4>
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="addFormField('text')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-text-aa"></i>
+                                            Text Input
+                                        </button>
+                                        <button onclick="addFormField('textarea')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-text-align-left"></i>
+                                            Text Area
+                                        </button>
+                                        <button onclick="addFormField('email')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-envelope"></i>
+                                            Email
+                                        </button>
+                                        <button onclick="addFormField('number')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-hash"></i>
+                                            Number
+                                        </button>
+                                        <button onclick="addFormField('phone')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-phone"></i>
+                                            Phone
+                                        </button>
+                                        <button onclick="addFormField('date')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-calendar-blank"></i>
+                                            Date
+                                        </button>
+                                        <button onclick="addFormField('time')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-clock"></i>
+                                            Time
+                                        </button>
+                                        <button onclick="addFormField('dropdown')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-list"></i>
+                                            Dropdown
+                                        </button>
+                                        <button onclick="addFormField('radio')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-radio-button"></i>
+                                            Radio Buttons
+                                        </button>
+                                        <button onclick="addFormField('checkbox')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-check-square"></i>
+                                            Checkboxes
+                                        </button>
+                                        <button onclick="addFormField('file')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-upload-simple"></i>
+                                            File Upload
+                                        </button>
+                                        <button onclick="addFormField('picture')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-image"></i>
+                                            Picture
+                                        </button>
+                                        <button onclick="addFormField('scale')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-sliders-horizontal"></i>
+                                            Scale
+                                        </button>
+                                        <button onclick="addFormField('likert')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-rows"></i>
+                                            Likert Scale
+                                        </button>
+                                        <button onclick="addFormField('section')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                                            <i class="ph ph-text-h-two"></i>
+                                            Section Header
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Main Content Area - Form Builder -->
+                                <div style="flex: 1; background: white; overflow-y: auto; display: flex; justify-content: center;">
+                                    <div id="formFieldsContainer" style="width: 100%; max-width: 1200px; padding: 40px;">
+                                    <div style="text-align: center; color: var(--color-neutral-text); padding: 60px 20px;">
+                                        <i class="ph ph-note-pencil" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 16px;"></i>
+                                        <p style="font-family: var(--font-family-body); font-size: 14px;">Click a field type to start building your form</p>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Preview Modal -->
+                <div id="formPreviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; overflow-y: auto;">
+                    <div style="min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 40px;">
+                        <div style="background: white; border-radius: 12px; width: 100%; max-width: 800px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+                            <!-- Preview Header -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--color-neutral-border);">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin: 0;">Form Preview</h3>
+                                <button onclick="closeFormPreview()" style="padding: 8px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; font-size: 20px;">
+                                    <i class="ph ph-x"></i>
+                                </button>
+                            </div>
+                            <!-- Preview Body -->
+                            <div id="formPreviewContent" style="padding: 32px; max-height: 70vh; overflow-y: auto;">
+                                <!-- Form preview will be rendered here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3388,11 +3537,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <div class="slideout-body" id="formsContent" style="display: none;">
-                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
-                    Interactive forms for data collection, surveys, and user input.
-                </p>
-                <div id="formsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <!-- Form type cards will be dynamically inserted here -->
+                <button class="add-story-btn" onclick="openFormDesigner()">
+                    <i class="ph ph-plus-circle"></i> New Form
+                </button>
+                <div id="formsContainer" class="stories-container">
+                    <!-- Form cards will be dynamically inserted here -->
                 </div>
             </div>
 
@@ -4532,6 +4681,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadStories();
             loadUserExperiences();
             initializeDemoDocuments();
+            initializeDemoForms();
 
             // Add click-outside-to-close handler for slideout
             const slideout = document.getElementById('interviewSlideout');
@@ -11743,6 +11893,753 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('columnTypeEditorModal').style.display = 'none';
             currentEditingColumn = '';
             selectedColumnType = '';
+        }
+
+        // Form Designer Functions
+        let currentFormIndex = null;
+        let currentFormFields = [];
+        let professionalForms = [];
+
+        // Load forms from localStorage
+        function loadProfessionalForms() {
+            const saved = localStorage.getItem('professionalForms');
+            if (saved) {
+                professionalForms = JSON.parse(saved);
+            }
+        }
+
+        // Update loadFormTypeCards to show user-created forms
+        function loadFormTypeCards() {
+            loadProfessionalForms();
+            const container = document.getElementById('formsContainer');
+            container.innerHTML = '';
+
+            if (professionalForms.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted);">
+                        <i class="ph ph-file-dotted" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>No forms created yet. Click "+ New Form" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            professionalForms.forEach((form, index) => {
+                const card = document.createElement('div');
+                card.className = 'story-card';
+
+                // Status badge
+                let statusBadge = '';
+                if (form.status === 'open') {
+                    statusBadge = '<span style="background: #10b981; color: white; padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase;">OPEN</span>';
+                } else if (form.status === 'specific') {
+                    statusBadge = '<span style="background: #f59e0b; color: white; padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase;">SPECIFIC</span>';
+                } else if (form.status === 'shared') {
+                    statusBadge = '<span style="background: var(--color-primary-blue); color: white; padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase;">SHARED</span>';
+                } else {
+                    statusBadge = '<span style="background: #6b7280; color: white; padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase;">DRAFT</span>';
+                }
+
+                card.innerHTML = `
+                    <div class="story-card-header">
+                        <div>
+                            <h3 class="story-title">${form.title || 'Untitled Form'}</h3>
+                            ${statusBadge}
+                        </div>
+                        <div class="story-actions">
+                            <button class="story-action-btn" onclick="event.stopPropagation(); openFormDesigner(${index});" title="Edit Form">
+                                <i class="ph ph-pencil"></i>
+                            </button>
+                            <button class="story-action-btn delete" onclick="event.stopPropagation(); deleteForm(${index});" title="Delete Form">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p style="margin: 0 0 8px 0; color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; line-height: 1.4;">
+                        ${form.fields?.length || 0} fields
+                    </p>
+                    <div style="font-size: 11px; color: var(--color-neutral-text-muted); font-family: var(--font-family-body);">
+                        Modified ${new Date(form.lastModified).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function openFormDesigner(formIndex = null) {
+            currentFormIndex = formIndex;
+
+            if (formIndex !== null && professionalForms[formIndex]) {
+                // Edit existing form
+                const form = professionalForms[formIndex];
+                document.getElementById('formTitle').value = form.title || '';
+                currentFormFields = JSON.parse(JSON.stringify(form.fields || []));
+            } else {
+                // New form
+                document.getElementById('formTitle').value = '';
+                currentFormFields = [];
+            }
+
+            renderFormFields();
+            document.getElementById('formDesignerModal').style.display = 'flex';
+        }
+
+        function closeFormDesigner() {
+            document.getElementById('formDesignerModal').style.display = 'none';
+            currentFormIndex = null;
+            currentFormFields = [];
+        }
+
+        function addFormField(type) {
+            const field = {
+                id: Date.now() + Math.random(),
+                type: type,
+                label: getDefaultLabel(type),
+                placeholder: '',
+                required: false,
+                linkedTable: '',
+                linkedColumn: '',
+                options: type === 'dropdown' || type === 'radio' || type === 'checkbox' ? ['Option 1', 'Option 2'] : []
+            };
+
+            // Add scale-specific properties
+            if (type === 'scale') {
+                field.scaleMin = 1;
+                field.scaleMax = 10;
+                field.scaleMinLabel = 'Not at all';
+                field.scaleMaxLabel = 'Extremely';
+            }
+
+            // Add likert-specific properties
+            if (type === 'likert') {
+                field.likertOptions = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+            }
+
+            currentFormFields.push(field);
+            renderFormFields();
+        }
+
+        function getDefaultLabel(type) {
+            const labels = {
+                'text': 'Text Input',
+                'textarea': 'Text Area',
+                'email': 'Email Address',
+                'number': 'Number',
+                'phone': 'Phone Number',
+                'date': 'Date',
+                'time': 'Time',
+                'dropdown': 'Select Option',
+                'radio': 'Choose One',
+                'checkbox': 'Select All That Apply',
+                'file': 'Upload File',
+                'picture': 'Picture',
+                'scale': 'Rating Scale',
+                'likert': 'Likert Scale Question',
+                'section': 'Section Header'
+            };
+            return labels[type] || 'Field';
+        }
+
+        function renderFormFields() {
+            const container = document.getElementById('formFieldsContainer');
+            container.innerHTML = '';
+
+            if (currentFormFields.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--color-neutral-text-muted);">
+                        <i class="ph ph-cursor-click" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">Click a field type on the left to add it to your form</p>
+                    </div>
+                `;
+                return;
+            }
+
+            currentFormFields.forEach((field, index) => {
+                const fieldEl = document.createElement('div');
+                fieldEl.style.cssText = `
+                    background: white;
+                    border: 1px solid var(--color-neutral-border);
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-bottom: 16px;
+                    position: relative;
+                `;
+
+                if (field.type === 'section') {
+                    fieldEl.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <input type="text" value="${field.label}" onchange="updateFieldLabel(${index}, this.value)"
+                                style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Questrial', sans-serif; font-size: 18px; font-weight: 600;">
+                            <button onclick="removeFormField(${index})" style="margin-left: 12px; padding: 8px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                        <div style="height: 2px; background: var(--color-primary-blue);"></div>
+                    `;
+                } else {
+                    const linkedTableOptions = getAvailableTablesForLinking();
+                    const linkedColumnOptions = field.linkedTable ? getColumnsForTable(field.linkedTable) : [];
+
+                    fieldEl.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                            <div style="flex: 1;">
+                                <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    Field Label
+                                </label>
+                                <input type="text" value="${field.label}" onchange="updateFieldLabel(${index}, this.value)"
+                                    style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                            </div>
+                            <button onclick="removeFormField(${index})" style="margin-left: 12px; padding: 8px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+
+                        ${field.type !== 'file' && field.type !== 'picture' && field.type !== 'scale' && field.type !== 'likert' ? `
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                Placeholder
+                            </label>
+                            <input type="text" value="${field.placeholder}" onchange="updateFieldPlaceholder(${index}, this.value)"
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                        </div>
+                        ` : ''}
+
+                        ${field.type === 'picture' ? `
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                Image URL or Upload
+                            </label>
+                            <input type="text" value="${field.imageUrl || ''}" onchange="updateFieldImageUrl(${index}, this.value)" placeholder="https://example.com/image.jpg"
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                            <div style="margin-top: 8px; font-size: 12px; color: var(--color-neutral-text-muted);">Enter an image URL to display in the form</div>
+                        </div>
+                        ` : ''}
+
+                        ${field.type === 'scale' ? `
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                Scale Range
+                            </label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-size: 12px; margin-bottom: 4px; color: var(--color-neutral-text);">Minimum</label>
+                                    <input type="number" value="${field.scaleMin || 1}" onchange="updateScaleMin(${index}, this.value)"
+                                        style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 12px; margin-bottom: 4px; color: var(--color-neutral-text);">Maximum</label>
+                                    <input type="number" value="${field.scaleMax || 10}" onchange="updateScaleMax(${index}, this.value)"
+                                        style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                Scale Labels
+                            </label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-size: 12px; margin-bottom: 4px; color: var(--color-neutral-text);">Min Label</label>
+                                    <input type="text" value="${field.scaleMinLabel || ''}" onchange="updateScaleMinLabel(${index}, this.value)" placeholder="e.g., Not at all"
+                                        style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 12px; margin-bottom: 4px; color: var(--color-neutral-text);">Max Label</label>
+                                    <input type="text" value="${field.scaleMaxLabel || ''}" onchange="updateScaleMaxLabel(${index}, this.value)" placeholder="e.g., Extremely"
+                                        style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        ${field.type === 'likert' ? `
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                Likert Options (one per line)
+                            </label>
+                            <textarea onchange="updateLikertOptions(${index}, this.value)"
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px; min-height: 120px;">${(field.likertOptions || []).join('\n')}</textarea>
+                            <div style="margin-top: 8px; font-size: 12px; color: var(--color-neutral-text-muted);">Typical: Strongly Disagree, Disagree, Neutral, Agree, Strongly Agree</div>
+                        </div>
+                        ` : ''}
+
+                        ${field.type === 'dropdown' || field.type === 'radio' || field.type === 'checkbox' ? `
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                Options (one per line)
+                            </label>
+                            <textarea onchange="updateFieldOptions(${index}, this.value)"
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px; min-height: 80px;">${field.options.join('\n')}</textarea>
+                        </div>
+                        ` : ''}
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    Link to Table
+                                </label>
+                                <select onchange="updateFieldLinkedTable(${index}, this.value)"
+                                    style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;">
+                                    <option value="">None</option>
+                                    ${linkedTableOptions.map(table => `<option value="${table}" ${field.linkedTable === table ? 'selected' : ''}>${table}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Questrial', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    Link to Column
+                                </label>
+                                <select onchange="updateFieldLinkedColumn(${index}, this.value)"
+                                    style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px;" ${!field.linkedTable ? 'disabled' : ''}>
+                                    <option value="">None</option>
+                                    ${linkedColumnOptions.map(col => `<option value="${col}" ${field.linkedColumn === col ? 'selected' : ''}>${col}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; cursor: pointer; font-family: 'Barlow', sans-serif; font-weight: 300; font-size: 14px; color: var(--color-neutral-text);">
+                                <input type="checkbox" ${field.required ? 'checked' : ''} onchange="updateFieldRequired(${index}, this.checked)"
+                                    style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;">
+                                Required field
+                            </label>
+                            <button onclick="alert('Logic builder coming soon! This will allow you to show/hide fields based on other field values.')" style="padding: 6px 12px; background: white; border: 1px solid var(--color-primary-blue); color: var(--color-primary-blue); border-radius: 6px; font-family: 'Questrial', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <i class="ph ph-git-branch"></i> Logic
+                            </button>
+                        </div>
+                    `;
+                }
+
+                container.appendChild(fieldEl);
+            });
+        }
+
+        function updateFieldLabel(index, value) {
+            currentFormFields[index].label = value;
+        }
+
+        function updateFieldPlaceholder(index, value) {
+            currentFormFields[index].placeholder = value;
+        }
+
+        function updateFieldOptions(index, value) {
+            currentFormFields[index].options = value.split('\n').filter(o => o.trim());
+        }
+
+        function updateFieldRequired(index, value) {
+            currentFormFields[index].required = value;
+        }
+
+        function updateFieldLinkedTable(index, value) {
+            currentFormFields[index].linkedTable = value;
+            currentFormFields[index].linkedColumn = ''; // Reset column when table changes
+            renderFormFields(); // Re-render to update column dropdown
+        }
+
+        function updateFieldLinkedColumn(index, value) {
+            currentFormFields[index].linkedColumn = value;
+        }
+
+        function updateFieldImageUrl(index, value) {
+            if (!currentFormFields[index].imageUrl) {
+                currentFormFields[index].imageUrl = '';
+            }
+            currentFormFields[index].imageUrl = value;
+        }
+
+        function updateScaleMin(index, value) {
+            currentFormFields[index].scaleMin = parseInt(value) || 1;
+        }
+
+        function updateScaleMax(index, value) {
+            currentFormFields[index].scaleMax = parseInt(value) || 10;
+        }
+
+        function updateScaleMinLabel(index, value) {
+            currentFormFields[index].scaleMinLabel = value;
+        }
+
+        function updateScaleMaxLabel(index, value) {
+            currentFormFields[index].scaleMaxLabel = value;
+        }
+
+        function updateLikertOptions(index, value) {
+            currentFormFields[index].likertOptions = value.split('\n').filter(o => o.trim());
+        }
+
+        function removeFormField(index) {
+            if (confirm('Remove this field?')) {
+                currentFormFields.splice(index, 1);
+                renderFormFields();
+            }
+        }
+
+        function getAvailableTablesForLinking() {
+            const tables = [];
+            // Get all table definitions from localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('table_def_')) {
+                    const tableName = key.replace('table_def_', '').replace(/_/g, ' ');
+                    tables.push(tableName);
+                }
+            }
+            return tables;
+        }
+
+        function getColumnsForTable(tableName) {
+            const key = `table_def_${tableName.toLowerCase().replace(/\s+/g, '_')}`;
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                const def = JSON.parse(saved);
+                return def.columns || [];
+            }
+            return [];
+        }
+
+        function togglePublishMenu() {
+            const menu = document.getElementById('publishMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('publishMenu');
+            const publishBtn = event.target.closest('[onclick="togglePublishMenu()"]');
+            if (menu && menu.style.display === 'block' && !publishBtn && !menu.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        function publishFormAs(type) {
+            const title = document.getElementById('formTitle').value.trim();
+            if (!title) {
+                alert('Please enter a form title before publishing.');
+                return;
+            }
+
+            if (currentFormFields.length === 0) {
+                alert('Please add at least one field before publishing.');
+                return;
+            }
+
+            const form = {
+                title: title,
+                fields: currentFormFields,
+                status: type,
+                lastModified: new Date().toISOString(),
+                createdDate: currentFormIndex !== null ? professionalForms[currentFormIndex].createdDate : new Date().toISOString()
+            };
+
+            if (currentFormIndex !== null) {
+                professionalForms[currentFormIndex] = form;
+            } else {
+                professionalForms.push(form);
+            }
+
+            localStorage.setItem('professionalForms', JSON.stringify(professionalForms));
+
+            let message = '';
+            if (type === 'open') {
+                message = 'Form published as Open Form. Anyone with the link can submit responses.';
+            } else if (type === 'specific') {
+                message = 'Form published to specific users. Only invited users can submit responses.';
+            }
+
+            alert(message);
+            togglePublishMenu();
+            closeFormDesigner();
+            loadFormTypeCards();
+        }
+
+        function shareFormWithEditors() {
+            const title = document.getElementById('formTitle').value.trim();
+            if (!title) {
+                alert('Please enter a form title before sharing.');
+                return;
+            }
+
+            if (currentFormFields.length === 0) {
+                alert('Please add at least one field before sharing.');
+                return;
+            }
+
+            const form = {
+                title: title,
+                fields: currentFormFields,
+                status: 'shared',
+                lastModified: new Date().toISOString(),
+                createdDate: currentFormIndex !== null ? professionalForms[currentFormIndex].createdDate : new Date().toISOString()
+            };
+
+            if (currentFormIndex !== null) {
+                professionalForms[currentFormIndex] = form;
+            } else {
+                professionalForms.push(form);
+            }
+
+            localStorage.setItem('professionalForms', JSON.stringify(professionalForms));
+
+            alert('Form shared with editors. Collaborators can now edit this form.');
+            togglePublishMenu();
+            closeFormDesigner();
+            loadFormTypeCards();
+        }
+
+        function saveFormDesign() {
+            const title = document.getElementById('formTitle').value.trim();
+            if (!title) {
+                alert('Please enter a form title.');
+                return;
+            }
+
+            const form = {
+                title: title,
+                fields: currentFormFields,
+                status: currentFormIndex !== null && professionalForms[currentFormIndex].status ? professionalForms[currentFormIndex].status : 'draft',
+                lastModified: new Date().toISOString(),
+                createdDate: currentFormIndex !== null ? professionalForms[currentFormIndex].createdDate : new Date().toISOString()
+            };
+
+            if (currentFormIndex !== null) {
+                professionalForms[currentFormIndex] = form;
+            } else {
+                professionalForms.push(form);
+            }
+
+            localStorage.setItem('professionalForms', JSON.stringify(professionalForms));
+
+            alert('Form saved successfully!');
+            closeFormDesigner();
+            loadFormTypeCards();
+        }
+
+        function deleteForm(index) {
+            if (confirm('Are you sure you want to delete this form? This cannot be undone.')) {
+                professionalForms.splice(index, 1);
+                localStorage.setItem('professionalForms', JSON.stringify(professionalForms));
+                loadFormTypeCards();
+            }
+        }
+
+        // Form Preview Functions
+        function openFormPreview() {
+            const title = document.getElementById('formTitle').value.trim() || 'Untitled Form';
+            const container = document.getElementById('formPreviewContent');
+
+            if (currentFormFields.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted);">
+                        <i class="ph ph-file-dotted" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>No fields added to preview. Add fields to see the form preview.</p>
+                    </div>
+                `;
+            } else {
+                let html = `<h2 style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-dark); margin: 0 0 24px 0;">${title}</h2>`;
+
+                currentFormFields.forEach(field => {
+                    if (field.type === 'section') {
+                        html += `
+                            <div style="margin: 32px 0 16px 0;">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">${field.label}</h3>
+                                <div style="height: 2px; background: var(--color-primary-blue);"></div>
+                            </div>
+                        `;
+                    } else if (field.type === 'picture') {
+                        html += `
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    ${field.label}${field.required ? ' <span style="color: #ef4444;">*</span>' : ''}
+                                </label>
+                                ${field.imageUrl ? `<img src="${field.imageUrl}" alt="${field.label}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--color-neutral-border);">` : `<div style="padding: 40px; background: var(--color-neutral-background); border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: center; color: var(--color-neutral-text-muted);">No image URL provided</div>`}
+                            </div>
+                        `;
+                    } else {
+                        html += `<div style="margin-bottom: 20px;">`;
+                        html += `<label style="display: block; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">${field.label}${field.required ? ' <span style="color: #ef4444;">*</span>' : ''}</label>`;
+
+                        if (field.type === 'textarea') {
+                            html += `<textarea placeholder="${field.placeholder}" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; min-height: 100px;" disabled></textarea>`;
+                        } else if (field.type === 'dropdown') {
+                            html += `<select style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" disabled>`;
+                            html += `<option>${field.placeholder || 'Select an option...'}</option>`;
+                            field.options.forEach(opt => {
+                                html += `<option>${opt}</option>`;
+                            });
+                            html += `</select>`;
+                        } else if (field.type === 'radio') {
+                            field.options.forEach((opt, i) => {
+                                html += `<div style="display: flex; align-items: center; margin-bottom: 8px;"><input type="radio" name="preview_${field.id}" id="preview_${field.id}_${i}" style="margin-right: 8px;" disabled><label for="preview_${field.id}_${i}" style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text);">${opt}</label></div>`;
+                            });
+                        } else if (field.type === 'checkbox') {
+                            field.options.forEach((opt, i) => {
+                                html += `<div style="display: flex; align-items: center; margin-bottom: 8px;"><input type="checkbox" id="preview_${field.id}_${i}" style="margin-right: 8px;" disabled><label for="preview_${field.id}_${i}" style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text);">${opt}</label></div>`;
+                            });
+                        } else if (field.type === 'file') {
+                            html += `<input type="file" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" disabled>`;
+                        } else if (field.type === 'scale') {
+                            const min = field.scaleMin || 1;
+                            const max = field.scaleMax || 10;
+                            html += `<div style="display: flex; align-items: center; gap: 12px; margin: 20px 0;">`;
+                            html += `<span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); min-width: 100px;">${field.scaleMinLabel || min}</span>`;
+                            html += `<div style="flex: 1; display: flex; gap: 8px; justify-content: space-between;">`;
+                            for (let i = min; i <= max; i++) {
+                                html += `<label style="display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;">
+                                    <input type="radio" name="preview_scale_${field.id}" value="${i}" style="cursor: pointer;" disabled>
+                                    <span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">${i}</span>
+                                </label>`;
+                            }
+                            html += `</div>`;
+                            html += `<span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); min-width: 100px; text-align: right;">${field.scaleMaxLabel || max}</span>`;
+                            html += `</div>`;
+                        } else if (field.type === 'likert') {
+                            const options = field.likertOptions || ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+                            options.forEach((opt, i) => {
+                                html += `<div style="display: flex; align-items: center; margin-bottom: 8px;"><input type="radio" name="preview_likert_${field.id}" id="preview_likert_${field.id}_${i}" style="margin-right: 8px;" disabled><label for="preview_likert_${field.id}_${i}" style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text);">${opt}</label></div>`;
+                            });
+                        } else {
+                            const inputType = field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : field.type === 'phone' ? 'tel' : field.type === 'date' ? 'date' : field.type === 'time' ? 'time' : 'text';
+                            html += `<input type="${inputType}" placeholder="${field.placeholder}" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" disabled>`;
+                        }
+                        html += `</div>`;
+                    }
+                });
+
+                html += `<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-neutral-border);"><button style="padding: 12px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: not-allowed; opacity: 0.6;">Submit (Preview Only)</button></div>`;
+
+                container.innerHTML = html;
+            }
+
+            document.getElementById('formPreviewModal').style.display = 'flex';
+        }
+
+        function closeFormPreview() {
+            document.getElementById('formPreviewModal').style.display = 'none';
+        }
+
+        // Initialize demo forms if none exist
+        function initializeDemoForms() {
+            const existing = localStorage.getItem('professionalForms');
+            if (existing) return; // Don't overwrite existing forms
+
+            const demoForms = [
+                {
+                    title: 'Customer Feedback Survey',
+                    status: 'open',
+                    lastModified: new Date('2025-10-05').toISOString(),
+                    createdDate: new Date('2025-09-20').toISOString(),
+                    fields: [
+                        { id: 1, type: 'section', label: 'About You', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 2, type: 'text', label: 'Full Name', placeholder: 'Enter your full name', required: true, linkedTable: 'Customer Contacts', linkedColumn: 'Name', options: [] },
+                        { id: 3, type: 'email', label: 'Email Address', placeholder: 'your.email@company.com', required: true, linkedTable: 'Customer Contacts', linkedColumn: 'Email', options: [] },
+                        { id: 4, type: 'text', label: 'Company Name', placeholder: 'Your company', required: true, linkedTable: 'Customer Contacts', linkedColumn: 'Company', options: [] },
+                        { id: 5, type: 'section', label: 'Your Experience', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 6, type: 'radio', label: 'How satisfied are you with our product?', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied'] },
+                        { id: 7, type: 'checkbox', label: 'Which features do you use most?', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: ['Dashboard', 'Reports', 'API Integration', 'Mobile App', 'Analytics', 'Collaboration Tools'] },
+                        { id: 8, type: 'textarea', label: 'What improvements would you like to see?', placeholder: 'Share your suggestions...', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 9, type: 'dropdown', label: 'How likely are you to recommend us?', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['10 - Extremely Likely', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0 - Not at all likely'] }
+                    ]
+                },
+                {
+                    title: 'Job Application Form',
+                    status: 'open',
+                    lastModified: new Date('2025-10-03').toISOString(),
+                    createdDate: new Date('2025-09-15').toISOString(),
+                    fields: [
+                        { id: 1, type: 'section', label: 'Personal Information', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 2, type: 'text', label: 'First Name', placeholder: 'First name', required: true, linkedTable: 'Job Candidates', linkedColumn: 'First Name', options: [] },
+                        { id: 3, type: 'text', label: 'Last Name', placeholder: 'Last name', required: true, linkedTable: 'Job Candidates', linkedColumn: 'Last Name', options: [] },
+                        { id: 4, type: 'email', label: 'Email', placeholder: 'your.email@example.com', required: true, linkedTable: 'Job Candidates', linkedColumn: 'Email', options: [] },
+                        { id: 5, type: 'phone', label: 'Phone Number', placeholder: '(555) 123-4567', required: true, linkedTable: 'Job Candidates', linkedColumn: 'Phone', options: [] },
+                        { id: 6, type: 'section', label: 'Position Details', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 7, type: 'dropdown', label: 'Position Applying For', placeholder: '', required: true, linkedTable: 'Job Candidates', linkedColumn: 'Position', options: ['Senior Software Engineer', 'Product Manager', 'UX Designer', 'DevOps Engineer', 'Data Scientist', 'Marketing Manager'] },
+                        { id: 8, type: 'dropdown', label: 'Years of Experience', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['0-2 years', '3-5 years', '6-10 years', '10+ years'] },
+                        { id: 9, type: 'date', label: 'Available Start Date', placeholder: '', required: true, linkedTable: 'Job Candidates', linkedColumn: 'Start Date', options: [] },
+                        { id: 10, type: 'section', label: 'Additional Information', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 11, type: 'textarea', label: 'Why do you want to work with us?', placeholder: 'Tell us about your interest in this position...', required: true, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 12, type: 'file', label: 'Upload Resume (PDF)', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 13, type: 'checkbox', label: 'I confirm that all information provided is accurate', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['Yes, I confirm'] }
+                    ]
+                },
+                {
+                    title: 'Event Registration',
+                    status: 'specific',
+                    lastModified: new Date('2025-10-04').toISOString(),
+                    createdDate: new Date('2025-09-25').toISOString(),
+                    fields: [
+                        { id: 1, type: 'section', label: 'Attendee Information', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 2, type: 'text', label: 'Full Name', placeholder: 'Your full name', required: true, linkedTable: 'Event Attendees', linkedColumn: 'Name', options: [] },
+                        { id: 3, type: 'email', label: 'Email Address', placeholder: 'email@example.com', required: true, linkedTable: 'Event Attendees', linkedColumn: 'Email', options: [] },
+                        { id: 4, type: 'text', label: 'Organization', placeholder: 'Company or organization', required: false, linkedTable: 'Event Attendees', linkedColumn: 'Organization', options: [] },
+                        { id: 5, type: 'text', label: 'Job Title', placeholder: 'Your role', required: false, linkedTable: 'Event Attendees', linkedColumn: 'Title', options: [] },
+                        { id: 6, type: 'section', label: 'Event Preferences', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 7, type: 'radio', label: 'Attendance Type', placeholder: '', required: true, linkedTable: 'Event Attendees', linkedColumn: 'Attendance Type', options: ['In-Person', 'Virtual'] },
+                        { id: 8, type: 'checkbox', label: 'Which sessions are you interested in?', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: ['Keynote Address', 'Technical Workshop', 'Panel Discussion', 'Networking Session', 'Product Demo'] },
+                        { id: 9, type: 'dropdown', label: 'Dietary Restrictions (In-Person Only)', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: ['None', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Other'] },
+                        { id: 10, type: 'textarea', label: 'Special Accommodations', placeholder: 'Please let us know if you need any special accommodations', required: false, linkedTable: '', linkedColumn: '', options: [] }
+                    ]
+                },
+                {
+                    title: 'Product Support Ticket',
+                    status: 'open',
+                    lastModified: new Date('2025-10-06').toISOString(),
+                    createdDate: new Date('2025-10-01').toISOString(),
+                    fields: [
+                        { id: 1, type: 'section', label: 'Contact Details', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 2, type: 'text', label: 'Your Name', placeholder: 'Full name', required: true, linkedTable: 'Support Tickets', linkedColumn: 'Customer Name', options: [] },
+                        { id: 3, type: 'email', label: 'Email', placeholder: 'support@yourcompany.com', required: true, linkedTable: 'Support Tickets', linkedColumn: 'Email', options: [] },
+                        { id: 4, type: 'text', label: 'Account ID or Customer Number', placeholder: 'CUST-12345', required: false, linkedTable: 'Support Tickets', linkedColumn: 'Account ID', options: [] },
+                        { id: 5, type: 'section', label: 'Issue Details', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 6, type: 'dropdown', label: 'Priority Level', placeholder: '', required: true, linkedTable: 'Support Tickets', linkedColumn: 'Priority', options: ['Low - General Question', 'Medium - Minor Issue', 'High - Significant Impact', 'Critical - Service Down'] },
+                        { id: 7, type: 'dropdown', label: 'Category', placeholder: '', required: true, linkedTable: 'Support Tickets', linkedColumn: 'Category', options: ['Technical Issue', 'Billing Question', 'Feature Request', 'Account Access', 'Other'] },
+                        { id: 8, type: 'text', label: 'Subject', placeholder: 'Brief description of the issue', required: true, linkedTable: 'Support Tickets', linkedColumn: 'Subject', options: [] },
+                        { id: 9, type: 'textarea', label: 'Detailed Description', placeholder: 'Please describe the issue in detail, including steps to reproduce...', required: true, linkedTable: 'Support Tickets', linkedColumn: 'Description', options: [] },
+                        { id: 10, type: 'file', label: 'Attach Screenshot or Log File', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] }
+                    ]
+                },
+                {
+                    title: 'Employee Onboarding Form',
+                    status: 'shared',
+                    lastModified: new Date('2025-10-02').toISOString(),
+                    createdDate: new Date('2025-09-10').toISOString(),
+                    fields: [
+                        { id: 1, type: 'section', label: 'Personal Details', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 2, type: 'text', label: 'Legal First Name', placeholder: 'First name', required: true, linkedTable: 'Employees', linkedColumn: 'First Name', options: [] },
+                        { id: 3, type: 'text', label: 'Legal Last Name', placeholder: 'Last name', required: true, linkedTable: 'Employees', linkedColumn: 'Last Name', options: [] },
+                        { id: 4, type: 'email', label: 'Personal Email', placeholder: 'personal.email@example.com', required: true, linkedTable: 'Employees', linkedColumn: 'Personal Email', options: [] },
+                        { id: 5, type: 'phone', label: 'Mobile Phone', placeholder: '(555) 123-4567', required: true, linkedTable: 'Employees', linkedColumn: 'Phone', options: [] },
+                        { id: 6, type: 'date', label: 'Date of Birth', placeholder: '', required: true, linkedTable: 'Employees', linkedColumn: 'DOB', options: [] },
+                        { id: 7, type: 'section', label: 'Employment Information', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 8, type: 'text', label: 'Job Title', placeholder: 'Your position', required: true, linkedTable: 'Employees', linkedColumn: 'Job Title', options: [] },
+                        { id: 9, type: 'dropdown', label: 'Department', placeholder: '', required: true, linkedTable: 'Employees', linkedColumn: 'Department', options: ['Engineering', 'Product', 'Sales', 'Marketing', 'Customer Success', 'Operations', 'HR', 'Finance'] },
+                        { id: 10, type: 'date', label: 'Start Date', placeholder: '', required: true, linkedTable: 'Employees', linkedColumn: 'Start Date', options: [] },
+                        { id: 11, type: 'dropdown', label: 'Employment Type', placeholder: '', required: true, linkedTable: 'Employees', linkedColumn: 'Employment Type', options: ['Full-Time', 'Part-Time', 'Contract', 'Intern'] },
+                        { id: 12, type: 'section', label: 'Equipment & Access', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 13, type: 'checkbox', label: 'Required Equipment', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['Laptop', 'Monitor', 'Keyboard & Mouse', 'Headset', 'Mobile Phone'] },
+                        { id: 14, type: 'textarea', label: 'Additional Notes or Requirements', placeholder: 'Any special requests or accommodations', required: false, linkedTable: '', linkedColumn: '', options: [] }
+                    ]
+                },
+                {
+                    title: 'Vendor Information Form',
+                    status: 'draft',
+                    lastModified: new Date('2025-09-28').toISOString(),
+                    createdDate: new Date('2025-09-28').toISOString(),
+                    fields: [
+                        { id: 1, type: 'section', label: 'Company Information', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 2, type: 'text', label: 'Company Legal Name', placeholder: 'Full legal business name', required: true, linkedTable: 'Vendors', linkedColumn: 'Company Name', options: [] },
+                        { id: 3, type: 'text', label: 'Tax ID / EIN', placeholder: 'XX-XXXXXXX', required: true, linkedTable: 'Vendors', linkedColumn: 'Tax ID', options: [] },
+                        { id: 4, type: 'email', label: 'Primary Contact Email', placeholder: 'contact@vendor.com', required: true, linkedTable: 'Vendors', linkedColumn: 'Email', options: [] },
+                        { id: 5, type: 'phone', label: 'Business Phone', placeholder: '(555) 123-4567', required: true, linkedTable: 'Vendors', linkedColumn: 'Phone', options: [] },
+                        { id: 6, type: 'text', label: 'Website', placeholder: 'https://www.vendor.com', required: false, linkedTable: 'Vendors', linkedColumn: 'Website', options: [] },
+                        { id: 7, type: 'section', label: 'Service Details', placeholder: '', required: false, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 8, type: 'checkbox', label: 'Services Provided', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['Software Development', 'Consulting', 'Cloud Services', 'Marketing', 'Legal Services', 'Accounting', 'HR Services'] },
+                        { id: 9, type: 'textarea', label: 'Service Description', placeholder: 'Describe the services you provide', required: true, linkedTable: '', linkedColumn: '', options: [] },
+                        { id: 10, type: 'dropdown', label: 'Insurance Coverage', placeholder: '', required: true, linkedTable: '', linkedColumn: '', options: ['Yes - General Liability', 'Yes - Professional Liability', 'Yes - Both', 'No Insurance'] }
+                    ]
+                }
+            ];
+
+            localStorage.setItem('professionalForms', JSON.stringify(demoForms));
         }
 
         // Initialize demo documents if none exist
