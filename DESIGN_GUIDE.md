@@ -115,6 +115,15 @@ body, p {
 - **White**: `#ffffff` - Cards, contrast elements
 - **Header Title**: `#e0e0e0` - Light gray for contrast on dark backgrounds
 
+#### Persona-Specific Colors
+Different personas use different accent colors for their personal canvas features:
+
+- **Personal Mode** (Green): `#16a34a` - Primary green for buttons, active states
+- **Personal Mode** (Light Green): `#dcfce7` - Background for cards, highlights
+- **Professional Mode** (Blue): Uses primary blue `#0066CC`
+- **Academic Mode** (Purple): Coming soon
+- **Creative Mode** (Orange): Coming soon
+
 ### Color Application
 
 #### Buttons
@@ -371,6 +380,92 @@ body, p {
     /* NO border/stroke - fill only */
 }
 ```
+
+### Hover Tooltips
+**Pattern**: Lightweight alternative to full-page modals for forms, pickers, and quick actions.
+
+```html
+<!-- Button triggers tooltip on hover -->
+<div style="position: relative;">
+    <button id="triggerBtn"
+            onmouseenter="showTooltip()"
+            onmouseleave="hideTooltip()">
+        Trigger Action
+    </button>
+
+    <!-- Tooltip positioned below button -->
+    <div id="tooltip"
+         onmouseenter="keepTooltip()"
+         onmouseleave="hideTooltip()"
+         style="display: none;">
+        <!-- Tooltip content -->
+    </div>
+</div>
+```
+
+```css
+.hover-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid var(--color-neutral-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    z-index: 1000;
+}
+
+/* Simple menu/picker */
+.hover-tooltip.menu {
+    width: 320px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* Form with inputs */
+.hover-tooltip.form {
+    width: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+```
+
+```javascript
+// Tooltip state management
+let tooltipTimeout;
+
+function showTooltip() {
+    clearTimeout(tooltipTimeout);
+    document.getElementById('tooltip').style.display = 'block';
+}
+
+function hideTooltip() {
+    tooltipTimeout = setTimeout(() => {
+        document.getElementById('tooltip').style.display = 'none';
+    }, 200);  // Delay prevents flickering when moving mouse
+}
+
+function keepTooltip() {
+    clearTimeout(tooltipTimeout);
+}
+```
+
+#### Use Cases
+- **Institution pickers**: Lists of banks, insurance providers, payment services
+- **Account creation**: Quick forms with dynamic field visibility
+- **Quick actions**: Status changes, category selection, filters
+- **Contextual help**: Hover explanations without page navigation
+
+#### Best Practices
+1. **Positioning**: Use `position: relative` on parent, `position: absolute` on tooltip
+2. **Timeout delay**: 200ms prevents flickering when moving between button and tooltip
+3. **Scrollable content**: Always set max-height and `overflow-y: auto`
+4. **Close behavior**: Form submission should clear form and hide tooltip
+5. **Accessibility**: Ensure keyboard navigation support (Tab, Escape key)
+6. **Mobile**: Consider replacing with modal on small screens (≤768px)
 
 ### D3 Network Navigation
 **Reference implementation**: `experience-tagger-d3.html`

@@ -260,6 +260,49 @@ To ensure fast, consistent rebranding across the platform:
   - Overflow prevention: `overflow: hidden` on modal content, `min-height: 0` on modal body
   - D3 transitions (400ms duration) for smooth expand/collapse
 
+**Personal Canvas Features** (`index.html` - Slideout Panels)
+- **Purpose**: Persona-specific content management (Personal mode uses green theme #16a34a)
+- **Slideout Panel Pattern**:
+  - 60% width slideout from right side
+  - Dark header with title and close button
+  - Scrollable body with content-specific sections
+  - Multiple content sections share single slideout (toggle visibility)
+- **Recipes System**:
+  - Read-only recipe browser with search and filtering
+  - Search: Titles, ingredients, instructions
+  - Filters: Cuisine type (Mexican, Italian, etc.), Meal type (Breakfast, Dinner, Snack, Drink)
+  - Multi-column card grid (300px min cards)
+  - Example recipes with prep time, cook time, servings, ingredients, instructions
+  - Green theme buttons and active states (#16a34a)
+  - localStorage: `cleansheet_recipes_personal`
+- **Finance System**:
+  - Financial account management with summary cards (Total Assets, Liabilities, Net Worth)
+  - **Connect Institution** - hover tooltip (320px width, 250px max-height scrollable)
+  - **Manual Account** - hover tooltip (400px width, 500px max-height scrollable)
+  - Five account types with dynamic form fields:
+    - **Asset**: Category (Real Estate, Vehicle, Savings, Checking)
+    - **Investment**: Type (401k, IRA, Brokerage, Stocks, Bonds, Crypto)
+    - **Cash Flow**: Flow type (Income/Expense), Frequency (Monthly/Weekly/Quarterly/Annual)
+    - **Insurance**: Type (Auto/Home/Life/Health), Policy number, Premium
+    - **Liability**: Type (Mortgage/Auto Loan/Credit Card/Student Loan/Personal Loan), Interest rate, Monthly payment
+  - Institution list (50+ companies):
+    - **Banks** (10): Chase, Bank of America, Wells Fargo, Citi, Capital One, US Bank, PNC, TD Bank, Truist, Ally
+    - **Credit Cards** (2): American Express, Discover
+    - **Investment** (8): Fidelity, Vanguard, Schwab, E*TRADE, TD Ameritrade, Robinhood, Betterment, Wealthfront
+    - **Payment/Transfer** (6): PayPal, Venmo, Cash App, Zelle, Apple Pay, Google Pay
+    - **Insurance** (10): State Farm, Geico, Allstate, Progressive, Liberty Mutual, USAA, Farmers, Nationwide, Travelers, MetLife
+  - Category headers with gray backgrounds, appropriate Phosphor icons
+  - localStorage: `cleansheet_finance_personal`
+- **Hover Tooltip Pattern**:
+  - Triggered by `onmouseenter` on button, `onmouseleave` for hide
+  - Tooltip has matching enter/leave handlers to keep visible
+  - setTimeout with 200ms delay on hide to prevent flickering
+  - Position: `absolute`, `top: 100%`, `left: 0`, `margin-top: 8px`
+  - Styling: White background, border, rounded corners, box-shadow
+  - z-index: 1000 for proper stacking
+  - Scrollable content with max-height constraints
+  - Form submission clears form and hides tooltip
+
 **Legal Documents:**
 - `privacy-policy.html` - Privacy policy
 - `terms-of-service.html` - Terms of service
@@ -514,6 +557,50 @@ Cleansheet/
 - List builders with add/remove functionality
 - Date linking dropdowns for chronological data entry
 - Modal forms with sticky header/footer for long forms
+
+**Hover Tooltip Pattern:**
+- Lightweight alternative to full-page modals for forms and menus
+- Triggered by mouse events on parent button
+- Keep visible when hovering over tooltip itself
+- Implementation:
+  ```javascript
+  let tooltipTimeout;
+
+  function showTooltip() {
+      clearTimeout(tooltipTimeout);
+      document.getElementById('tooltip').style.display = 'block';
+  }
+
+  function hideTooltip() {
+      tooltipTimeout = setTimeout(() => {
+          document.getElementById('tooltip').style.display = 'none';
+      }, 200);  // Delay prevents flickering
+  }
+
+  function keepTooltip() {
+      clearTimeout(tooltipTimeout);
+  }
+  ```
+- HTML structure:
+  ```html
+  <button onmouseenter="showTooltip()" onmouseleave="hideTooltip()">
+      Button Text
+  </button>
+  <div id="tooltip"
+       onmouseenter="keepTooltip()"
+       onmouseleave="hideTooltip()"
+       style="display: none; position: absolute; top: 100%; left: 0;
+              margin-top: 8px; background: white; border: 1px solid #e5e5e7;
+              border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              padding: 16px; width: 320px; z-index: 1000;">
+      <!-- Tooltip content -->
+  </div>
+  ```
+- Sizing guidelines:
+  - Simple menus/pickers: 320px width, max-height 250px
+  - Forms with inputs: 400px width, max-height 500px
+  - Always scrollable if content exceeds max-height
+- Use cases: Institution picker, account creation forms, quick actions
 
 **D3.js Visualization Patterns:**
 - **Tree Layout with Fixed Spacing**:
