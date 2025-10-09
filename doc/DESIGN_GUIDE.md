@@ -467,6 +467,349 @@ function keepTooltip() {
 5. **Accessibility**: Ensure keyboard navigation support (Tab, Escape key)
 6. **Mobile**: Consider replacing with modal on small screens (≤768px)
 
+### Data Visualization Libraries
+
+The Cleansheet platform uses two complementary JavaScript libraries for different visualization needs:
+
+- **D3.js v7** - Low-level visualization primitives for custom interactive visualizations (mindmaps, force networks)
+- **Observable Plot** - High-level declarative charting library for standard data visualizations (charts, graphs, plots)
+
+#### When to Use Each Library
+
+**Use D3.js for:**
+- Custom interactive visualizations (mindmaps, network diagrams)
+- Force-directed layouts
+- Non-standard visualization patterns
+- Fine-grained control over rendering
+
+**Use Observable Plot for:**
+- Standard chart types (bar, line, scatter, area, etc.)
+- Data exploration dashboards
+- User-generated visualizations
+- Rapid prototyping of data views
+
+#### Dependencies
+```html
+<!-- D3.js for custom visualizations -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<!-- Observable Plot for declarative charts -->
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+```
+
+---
+
+### Observable Plot Integration
+
+**Official Docs**: [observablehq.com/plot](https://observablehq.com/plot)
+
+Observable Plot is a high-level JavaScript library for exploratory data visualization. It provides a concise, declarative API for creating common chart types while maintaining the flexibility and composability of D3.
+
+#### Basic Usage Pattern
+
+```javascript
+// Basic bar chart
+const plot = Plot.plot({
+    marks: [
+        Plot.barY(data, {x: "category", y: "value", fill: "var(--color-primary-blue)"})
+    ],
+    marginLeft: 60,
+    marginBottom: 40
+});
+
+// Add to DOM
+document.getElementById('chart-container').appendChild(plot);
+```
+
+#### Cleansheet Styling for Plot
+
+Apply Corporate Professional theme colors to all Plot visualizations:
+
+```javascript
+// Color palette for multi-series charts
+const CLEANSHEET_COLORS = [
+    '#0066CC',  // Primary Blue
+    '#004C99',  // Accent Blue
+    '#16a34a',  // Green (Personal mode)
+    '#dc3545',  // Red (alerts)
+    '#ffc107',  // Amber (warnings)
+    '#17a2b8',  // Teal (info)
+    '#6c757d'   // Gray (neutral)
+];
+
+// Standard Plot configuration
+const PLOT_DEFAULTS = {
+    style: {
+        fontFamily: "var(--font-family-ui)",
+        fontSize: "12px"
+    },
+    marginLeft: 60,
+    marginRight: 20,
+    marginTop: 20,
+    marginBottom: 40,
+    grid: true,
+    color: {
+        scheme: CLEANSHEET_COLORS
+    }
+};
+
+// Apply defaults to any plot
+const myPlot = Plot.plot({
+    ...PLOT_DEFAULTS,
+    marks: [
+        Plot.lineY(data, {x: "date", y: "value", stroke: CLEANSHEET_COLORS[0]})
+    ]
+});
+```
+
+#### Common Chart Patterns
+
+**Line Chart with Area Fill**
+```javascript
+Plot.plot({
+    ...PLOT_DEFAULTS,
+    marks: [
+        Plot.areaY(data, {
+            x: "date",
+            y: "value",
+            fill: "var(--color-primary-blue)",
+            fillOpacity: 0.1
+        }),
+        Plot.lineY(data, {
+            x: "date",
+            y: "value",
+            stroke: "var(--color-primary-blue)",
+            strokeWidth: 2
+        }),
+        Plot.dot(data, {
+            x: "date",
+            y: "value",
+            fill: "var(--color-primary-blue)",
+            r: 3
+        })
+    ]
+});
+```
+
+**Grouped Bar Chart**
+```javascript
+Plot.plot({
+    ...PLOT_DEFAULTS,
+    marks: [
+        Plot.barY(data, {
+            x: "category",
+            y: "value",
+            fill: "series",
+            tip: true  // Interactive tooltips
+        }),
+        Plot.ruleY([0])  // Baseline at zero
+    ],
+    color: {
+        domain: ["Series A", "Series B", "Series C"],
+        range: [CLEANSHEET_COLORS[0], CLEANSHEET_COLORS[1], CLEANSHEET_COLORS[2]]
+    }
+});
+```
+
+**Scatter Plot with Color Scale**
+```javascript
+Plot.plot({
+    ...PLOT_DEFAULTS,
+    marks: [
+        Plot.dot(data, {
+            x: "xValue",
+            y: "yValue",
+            fill: "category",
+            r: 5,
+            tip: true
+        })
+    ],
+    color: {
+        legend: true,
+        scheme: "blues"  // Use D3 color schemes or custom
+    }
+});
+```
+
+**Histogram**
+```javascript
+Plot.plot({
+    ...PLOT_DEFAULTS,
+    marks: [
+        Plot.rectY(data,
+            Plot.binX(
+                {y: "count"},
+                {x: "value", fill: "var(--color-primary-blue)", thresholds: 20}
+            )
+        ),
+        Plot.ruleY([0])
+    ]
+});
+```
+
+#### Interactive Features
+
+**Tooltips**
+```javascript
+// Enable built-in tooltips
+Plot.plot({
+    marks: [
+        Plot.dot(data, {
+            x: "date",
+            y: "value",
+            tip: true,  // Shows data on hover
+            title: d => `${d.label}: ${d.value}`  // Custom tooltip text
+        })
+    ]
+});
+```
+
+**Clickable Elements**
+```javascript
+// Add click handlers to marks
+const plot = Plot.plot({
+    marks: [
+        Plot.barY(data, {
+            x: "category",
+            y: "value",
+            fill: "var(--color-primary-blue)"
+        })
+    ]
+});
+
+// Attach event listeners after rendering
+plot.querySelectorAll('rect').forEach((rect, i) => {
+    rect.style.cursor = 'pointer';
+    rect.addEventListener('click', () => {
+        console.log('Clicked:', data[i]);
+    });
+});
+```
+
+#### Responsive Sizing
+
+```css
+.plot-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.plot-container svg {
+    max-width: 100%;
+    height: auto;
+}
+```
+
+```javascript
+// Calculate width based on container
+function createResponsivePlot(containerId, data) {
+    const container = document.getElementById(containerId);
+    const width = container.offsetWidth;
+
+    const plot = Plot.plot({
+        width: width,
+        height: Math.min(400, width * 0.6),  // Maintain aspect ratio
+        marks: [
+            Plot.lineY(data, {x: "date", y: "value"})
+        ]
+    });
+
+    container.innerHTML = '';
+    container.appendChild(plot);
+}
+
+// Update on resize
+window.addEventListener('resize', () => {
+    createResponsivePlot('chart', data);
+});
+```
+
+#### User-Generated Visualizations
+
+For features that allow users to create their own visualizations:
+
+```javascript
+// Simple visualization builder
+function createUserPlot(config) {
+    const { data, chartType, xColumn, yColumn, colorColumn } = config;
+
+    const marks = [];
+
+    switch(chartType) {
+        case 'bar':
+            marks.push(Plot.barY(data, {
+                x: xColumn,
+                y: yColumn,
+                fill: colorColumn || "var(--color-primary-blue)",
+                tip: true
+            }));
+            break;
+        case 'line':
+            marks.push(Plot.lineY(data, {
+                x: xColumn,
+                y: yColumn,
+                stroke: colorColumn || "var(--color-primary-blue)",
+                tip: true
+            }));
+            break;
+        case 'scatter':
+            marks.push(Plot.dot(data, {
+                x: xColumn,
+                y: yColumn,
+                fill: colorColumn || "var(--color-primary-blue)",
+                tip: true
+            }));
+            break;
+    }
+
+    marks.push(Plot.ruleY([0]));  // Always add baseline
+
+    return Plot.plot({
+        ...PLOT_DEFAULTS,
+        marks: marks
+    });
+}
+
+// Usage
+const userChart = createUserPlot({
+    data: myData,
+    chartType: 'bar',
+    xColumn: 'month',
+    yColumn: 'revenue',
+    colorColumn: 'region'
+});
+
+document.getElementById('user-chart').appendChild(userChart);
+```
+
+#### Best Practices
+
+1. **Consistent Styling**: Always use Cleansheet color palette (`CLEANSHEET_COLORS`)
+2. **Responsive**: Set width dynamically based on container size
+3. **Accessibility**: Include meaningful labels and titles
+4. **Performance**: Limit data points for large datasets (aggregate or sample)
+5. **Interactivity**: Enable tooltips (`tip: true`) for data exploration
+6. **Clear Baselines**: Use `Plot.ruleY([0])` for bar/area charts
+7. **Legend Positioning**: Place legends on right or bottom to avoid overlap
+8. **Grid Lines**: Enable grid for easier reading (`grid: true`)
+9. **Font Consistency**: Always use `var(--font-family-ui)` for labels
+
+#### Observable Plot vs D3.js Decision Matrix
+
+| Use Case | Library | Reason |
+|----------|---------|--------|
+| Standard bar/line/scatter chart | Observable Plot | Declarative, concise, faster development |
+| Custom mindmap layout | D3.js | Requires force simulation and custom positioning |
+| Dashboard with 5+ charts | Observable Plot | Consistent API, easier to maintain |
+| Interactive network diagram | D3.js | Fine-grained control over node/link behavior |
+| User creates chart from CSV | Observable Plot | Simple API for non-developers |
+| Career path force network | D3.js | Custom force layout with percentage positioning |
+| Time series with annotations | Observable Plot | Built-in support for annotations |
+| Collapsible tree mindmap | D3.js | Complex hierarchy with expand/collapse logic |
+
+---
+
 ### D3 Network Navigation
 **Reference implementation**: `experience-tagger-d3.html`
 

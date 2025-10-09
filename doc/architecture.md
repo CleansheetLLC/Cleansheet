@@ -1,0 +1,83 @@
+```plantuml
+@startuml
+!theme plain
+
+skinparam backgroundColor white
+skinparam roundcorner 5
+skinparam shadowing false
+
+title Cleansheet Platform Architecture
+
+actor Users
+
+rectangle "DNS" {
+  [cleansheet.info]
+  [www.cleansheet.info]
+}
+
+rectangle "Azure CDN" #0078D4 {
+  [CDN Endpoint\ncleansheet.azureedge.net] as CDN
+}
+
+rectangle "Azure Storage\ncleansheetcorpus" #0078D4 {
+  rectangle "$web Container" #50E6FF {
+    folder "Root Files" {
+      [index.html]
+      [career-paths.html]
+      [role-translator.html]
+    }
+    folder "corpus/" {
+      [index.html (generated)]
+      [195+ blogs]
+    }
+    folder "assets/" {
+      [logos]
+      [images]
+    }
+  }
+  [Static Website\nz13.web.core.windows.net] as StaticWeb
+}
+
+rectangle "Azure Application Insights" #0078D4 {
+  [Telemetry Ingestion\neastus-8.in.applicationinsights.azure.com] as Telemetry
+  database "Analytics\n(Anonymized)" as Analytics
+  [Live Metrics] as LiveMetrics
+}
+
+rectangle "<color:white>Development</color>" #1a1a1a {
+  [GitHub\nCleansheetLLC/Cleansheet] as GitHub
+  [generate_corpus_index.py] as Generator
+  database "meta.csv\n195 articles" as Metadata
+}
+
+Users --> [cleansheet.info] : HTTPS
+Users --> [www.cleansheet.info] : HTTPS
+[cleansheet.info] --> CDN : DNS CNAME
+[www.cleansheet.info] --> CDN : DNS CNAME
+CDN --> StaticWeb : Origin fetch
+StaticWeb --> "$web Container" : Serve files
+
+Users ..> Telemetry : Client JS SDK
+Telemetry --> Analytics : Store metrics
+Analytics --> LiveMetrics : Dashboard
+
+Metadata --> Generator : <color:white>Read</color>
+Generator --> [index.html (generated)] : Generate
+GitHub --> "$web Container" : <color:white>Deploy</color>
+
+note right of "Azure Application Insights"
+  Privacy-Compliant:
+  • First-party only
+  • Anonymized data
+  • No third-party sharing
+end note
+
+note right of GitHub
+  Content Pipeline:
+  • Metadata-driven
+  • Python generator
+  • Version controlled
+end note
+
+@enduml
+```

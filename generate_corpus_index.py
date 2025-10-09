@@ -6,6 +6,8 @@ Regenerates the library browser interface on demand.
 
 import csv
 import json
+import re
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -14,6 +16,30 @@ SCRIPT_DIR = Path(__file__).parent
 CORPUS_DIR = SCRIPT_DIR / "corpus"
 METADATA_PATH = SCRIPT_DIR / "meta" / "meta.csv"
 OUTPUT_PATH = CORPUS_DIR / "index.html"
+
+def normalize_csv_status():
+    """Normalize all Status values to 'PUBLISHED' (uppercase)"""
+    rows = []
+    fieldnames = None
+
+    # Read all rows
+    with open(METADATA_PATH, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        for row in reader:
+            # Normalize Status field
+            if row.get('Status') and row['Status'].upper() == 'PUBLISHED':
+                row['Status'] = 'PUBLISHED'
+            rows.append(row)
+
+    # Write back normalized data
+    with open(METADATA_PATH, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"[OK] Normalized Status field in {METADATA_PATH}")
+    print(f"  Total rows: {len(rows)}")
 
 def load_metadata():
     """Load and parse metadata.csv"""
@@ -1006,31 +1032,262 @@ def generate_html(articles, all_tags, all_career_paths):
 
     return html
 
+def calculate_word_count_from_html(file_key):
+    """Calculate accurate word count by reading HTML corpus file"""
+    if not file_key:
+        return 0
+
+    corpus_file = CORPUS_DIR / file_key
+    if not corpus_file.exists():
+        return 0
+
+    try:
+        with open(corpus_file, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+            # Simple HTML tag removal for word counting
+            text_content = re.sub(r'<[^>]+>', ' ', html_content)
+            text_content = re.sub(r'\s+', ' ', text_content)
+            return len(text_content.split())
+    except Exception as e:
+        print(f"Warning: Could not read {file_key}: {e}")
+        return 0
+
+def generate_library_data(articles):
+    """Generate library data for learner.html with accurate word counts"""
+    print("\n" + "="*60)
+    print("Generating library data for Learner app...")
+    print("="*60)
+
+    library_articles = []
+
+    for row in articles:
+        # Only include published articles (case-insensitive)
+        status = row.get('Status', '').upper()
+        if status != 'PUBLISHED':
+            continue
+
+        # Parse JSON fields
+        try:
+            audience_levels = json.loads(row.get('Audience_Level', '[]'))
+        except:
+            audience_levels = []
+
+        try:
+            tags = json.loads(row.get('Tags', '[]'))
+        except:
+            tags = []
+
+        try:
+            keywords = json.loads(row.get('Keywords', '[]'))
+        except:
+            keywords = []
+
+        try:
+            career_paths = json.loads(row.get('Career_Paths', '[]'))
+        except:
+            career_paths = []
+
+        # Get primary level (first one)
+        level = audience_levels[0] if audience_levels else 'Operator'
+
+        # Calculate accurate word count from corpus file
+        file_key = row.get('FileKey', '')
+        corpus_file_exists = bool(file_key and (CORPUS_DIR / file_key).exists())
+
+        if corpus_file_exists:
+            word_count = calculate_word_count_from_html(file_key)
+        else:
+            # Fallback to summary word count
+            content_text = row.get('Comprehensive_Abstract', '')
+            exec_summary = row.get('Executive_Summary', '')
+            detailed_summary = row.get('Detailed_Summary', '')
+            all_text = f"{exec_summary} {detailed_summary} {content_text}"
+            word_count = len(all_text.split())
+
+        # Calculate reading time (200 words per minute)
+        reading_time = max(1, round(word_count / 200))
+
+        # Build article object
+        article = {
+            'id': row.get('ID', ''),
+            'title': row.get('Title', ''),
+            'subtitle': row.get('Subtitle', ''),
+            'content': row.get('Comprehensive_Abstract', ''),
+            'executiveSummary': row.get('Executive_Summary', ''),
+            'detailedSummary': row.get('Detailed_Summary', ''),
+            'overviewSummary': row.get('Overview_Summary', ''),
+            'tags': tags,
+            'keywords': keywords,
+            'level': level,
+            'allLevels': audience_levels,
+            'careerPaths': career_paths,
+            'fileKey': file_key,
+            'corpusFileExists': corpus_file_exists,
+            'wordCount': word_count,
+            'readingTime': reading_time,
+            'createdAt': row.get('Created_Date', ''),
+            'updatedAt': row.get('Updated_Date', ''),
+            'publishDate': row.get('Publish_Date', '')
+        }
+
+        library_articles.append(article)
+
+    # Generate JavaScript file
+    output_js = SCRIPT_DIR / "shared" / "library-data.js"
+
+    js_content = f"""/**
+ * Cleansheet Library Data
+ * Auto-generated from meta/meta.csv
+ * Total articles: {len(library_articles)}
+ * Generated: {os.popen('date').read().strip()}
+ */
+
+const LIBRARY_DATA = {json.dumps(library_articles, indent=2)};
+const LIBRARY_VERSION = {len(library_articles)}; // Article count as version
+
+// Function to seed localStorage with library data
+function seedLibraryData() {{
+    if (typeof localStorage === 'undefined') {{
+        console.warn('localStorage not available');
+        return;
+    }}
+
+    // Store articles and version
+    localStorage.setItem('cleansheet_library_articles', JSON.stringify(LIBRARY_DATA));
+    localStorage.setItem('cleansheet_library_version', LIBRARY_VERSION.toString());
+    console.log(`[OK] Seeded ${{LIBRARY_DATA.length}} articles to localStorage`);
+}}
+
+// Auto-seed on load if not already seeded or version mismatch
+if (typeof window !== 'undefined') {{
+    const existing = localStorage.getItem('cleansheet_library_articles');
+    const existingVersion = parseInt(localStorage.getItem('cleansheet_library_version') || '0');
+
+    // Re-seed if: no data, empty array, or version mismatch (article count changed)
+    if (!existing || existing === '[]' || JSON.parse(existing).length === 0 || existingVersion !== LIBRARY_VERSION) {{
+        seedLibraryData();
+        console.log(`[OK] Library data seeded/updated (${{LIBRARY_VERSION}} articles)`);
+    }} else {{
+        console.log(`[OK] Library data already exists (${{JSON.parse(existing).length}} articles)`);
+    }}
+}}
+
+// Export for use in HTML pages
+if (typeof window !== 'undefined') {{
+    window.LIBRARY_DATA = LIBRARY_DATA;
+    window.seedLibraryData = seedLibraryData;
+}}
+
+// Export for Node.js
+if (typeof module !== 'undefined' && module.exports) {{
+    module.exports = {{ LIBRARY_DATA, seedLibraryData }};
+}}
+"""
+
+    with open(output_js, 'w', encoding='utf-8') as f:
+        f.write(js_content)
+
+    print(f"[OK] Generated {output_js}")
+    print(f"[OK] Total articles: {len(library_articles)}")
+
+    # Print statistics
+    levels = {}
+    for article in library_articles:
+        level = article['level']
+        levels[level] = levels.get(level, 0) + 1
+
+    print("\nArticles by level:")
+    for level, count in sorted(levels.items()):
+        print(f"  {level}: {count}")
+
+    # Print tags
+    all_tags = set()
+    for article in library_articles:
+        all_tags.update(article['tags'])
+
+    print(f"\nUnique tags: {len(all_tags)}")
+    print(f"Tags: {', '.join(sorted(all_tags))}")
+
+    # Print career paths
+    all_paths = set()
+    for article in library_articles:
+        all_paths.update(article['careerPaths'])
+
+    print(f"\nUnique career paths: {len(all_paths)}")
+    print(f"Paths: {', '.join(sorted(all_paths))}")
+
+    # Print word count statistics
+    total_words = sum(a['wordCount'] for a in library_articles)
+    avg_words = total_words // len(library_articles) if library_articles else 0
+    min_words = min(a['wordCount'] for a in library_articles) if library_articles else 0
+    max_words = max(a['wordCount'] for a in library_articles) if library_articles else 0
+
+    print(f"\nWord count statistics:")
+    print(f"  Total words: {total_words:,}")
+    print(f"  Average per article: {avg_words:,}")
+    print(f"  Range: {min_words:,} - {max_words:,}")
+
+    # Print reading time statistics
+    total_minutes = sum(a['readingTime'] for a in library_articles)
+    avg_minutes = total_minutes // len(library_articles) if library_articles else 0
+
+    print(f"\nReading time statistics:")
+    print(f"  Total reading time: {total_minutes:,} minutes ({total_minutes // 60} hours)")
+    print(f"  Average per article: {avg_minutes} minutes")
+
+    # Check corpus files
+    with_corpus = sum(1 for a in library_articles if a['corpusFileExists'])
+    print(f"\nCorpus files:")
+    print(f"  Articles with corpus file: {with_corpus}/{len(library_articles)}")
+    if with_corpus < len(library_articles):
+        print(f"  Missing corpus files: {len(library_articles) - with_corpus}")
+
 def main():
-    print("Loading metadata...")
+    print("="*60)
+    print("CORPUS INDEX GENERATION")
+    print("="*60)
+
+    print("\nNormalizing CSV Status field...")
+    normalize_csv_status()
+
+    print("\nLoading metadata...")
     articles = load_metadata()
     print(f"Loaded {len(articles)} articles")
 
-    print("Extracting tags...")
+    print("\nExtracting tags...")
     all_tags = extract_all_tags(articles)
     print(f"Found {len(all_tags)} unique tags")
 
-    print("Extracting career paths...")
+    print("\nExtracting career paths...")
     all_career_paths = extract_all_career_paths(articles)
     print(f"Found {len(all_career_paths)} unique career paths")
 
-    print("Generating HTML...")
+    print("\nGenerating corpus/index.html...")
     html = generate_html(articles, all_tags, all_career_paths)
 
     print(f"Writing to {OUTPUT_PATH}...")
     with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
         f.write(html)
 
-    print(f"Generated {OUTPUT_PATH}")
+    print(f"\n[OK] Generated {OUTPUT_PATH}")
     print(f"  - {len(articles)} articles")
     print(f"  - {len(all_tags)} tags")
     print(f"  - {len(all_career_paths)} career paths")
     print(f"  - File size: {len(html):,} bytes")
+
+    # Generate library data for learner.html and app.html
+    generate_library_data(articles)
+
+    print("\n" + "="*60)
+    print("ALL GENERATION COMPLETE")
+    print("="*60)
+    print("\nGenerated files:")
+    print(f"  1. {OUTPUT_PATH} (corpus browser)")
+    print(f"  2. shared/library-data.js (learner/app data)")
+    print("\nYou can now use:")
+    print("  - corpus/index.html (full library browser)")
+    print("  - learner.html (modern learner interface)")
+    print("  - app.html (unified app with library)")
 
 if __name__ == "__main__":
     main()

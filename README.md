@@ -28,6 +28,9 @@ Cleansheet is an enterprise-grade content curation and career development platfo
 ```
 Cleansheet/
 ├── index.html                    # Main landing page
+├── learner.html                  # Modern learner interface ✨ NEW
+├── job-seeker.html               # Job search app (pending)
+├── professional.html             # Professional work app (pending)
 ├── career-paths.html             # Career progression navigator
 ├── experience-tagger-d3.html     # D3 network navigation demo
 ├── role-translator.html          # Role discovery tool
@@ -36,8 +39,14 @@ Cleansheet/
 ├── privacy-principles.html       # Privacy commitments
 ├── terms-of-service.html         # Terms of service
 │
+├── shared/                       # Shared infrastructure ✨ NEW
+│   ├── cleansheet-core.js        # Core utilities and design tokens
+│   ├── data-service.js           # Data abstraction layer (localStorage/API)
+│   ├── api-schema.js             # API contract definitions
+│   └── library-data.js           # Auto-generated article data
+│
 ├── corpus/                       # Content library (generated)
-│   ├── index.html                # Library interface with search/filter
+│   ├── index.html                # Traditional library browser
 │   └── [article-slug].html       # Individual curated articles
 │
 ├── assets/                       # Brand assets and logos
@@ -49,8 +58,10 @@ Cleansheet/
 │   └── sample-logo/
 │
 ├── meta/                         # Metadata and configuration
+│   └── meta.csv                  # Article metadata (195 articles)
 │
-├── generate_corpus_index.py     # Python generator for corpus library
+├── generate_corpus_index.py     # Unified generator (corpus + learner data)
+├── seed-library-data.py          # Library data generator (called by above)
 ├── DESIGN_GUIDE.md              # Comprehensive design system documentation
 ├── CLAUDE.md                    # Project context and development guidelines
 ├── .gitignore                   # Git ignore patterns
@@ -79,7 +90,7 @@ Cleansheet/
 - More professional and modern icon library with 6,000+ icons
 - Consistent 60px × 60px icon containers
 
-For complete design guidelines, see [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
+For complete design guidelines, see [`DESIGN_GUIDE.md`](doc/DESIGN_GUIDE.md).
 
 ---
 
@@ -143,21 +154,56 @@ For complete design guidelines, see [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md).
 
 ## Platform Features
 
-### 1. Content Library (`corpus/index.html`)
+### 1. Modern Learner Interface (`learner.html`) ✨ NEW
+
+**Production-ready learning platform with modern UX**
+
+**Features:**
+- **Tab Navigation**: Home and Library tabs with Phosphor icons
+- **Search & Filter**: Debounced search across 189 articles
+  - 5 expertise levels (Neophyte → Academic)
+  - 14 topic tags (AI/ML, Architecture, Career, etc.)
+  - 9 career paths (Citizen Developer, Cloud Computing, etc.)
+- **Article Cards**: Smart summaries, reading time, level badges
+- **Reading View**: Executive summary, detailed overview, full content
+- **Bookmarks**: Save articles with toast notifications
+- **Links to Corpus**: Deep-dive into full articles
+- **Responsive**: Mobile-first design (single column ≤768px)
+- **API-Ready**: Uses DataService abstraction layer
+
+**Architecture:**
+- Shared infrastructure (`cleansheet-core.js`, `data-service.js`, `library-data.js`)
+- Auto-seeded from generated article data
+- Switch to REST API: `new DataService('api')` (no code changes needed)
+
+**Color Scheme:**
+- Active tabs/states: #11304f (highlight color)
+- User avatar: #11304f background
+
+### 2. Traditional Content Library (`corpus/index.html`)
+
+**Classic full-featured library browser**
 
 **Features:**
 - Search across titles, keywords, and content
-- Expertise level filtering (Beginner → Expert)
+- Expertise level filtering (Neophyte → Academic)
 - Multi-select tag filtering (14 technical topics)
-- 188 curated articles embedded in HTML
+- 189 published articles + 6 drafts = 195 total
 - Mobile-responsive with collapsible filters
 - 60% slideout panel for article viewing
 
-**Generation:**
+**Unified Generation Workflow:**
 ```bash
 python generate_corpus_index.py
 ```
-Reads `corpus/metadata.csv` and generates complete static HTML (810KB).
+
+**What it does:**
+1. Reads `meta/meta.csv` (195 articles)
+2. Generates `corpus/index.html` (~1.1MB)
+3. Generates `shared/library-data.js` (189 published articles)
+4. Updates both traditional and modern interfaces
+
+**Single command updates everything!**
 
 ### 2. Career Paths Tool
 
@@ -246,7 +292,7 @@ All new pages must:
 5. Include proper accessibility attributes
 6. Reference correct asset paths (lowercase, dashes)
 
-See [`DESIGN_GUIDE.md`](DESIGN_GUIDE.md) for complete specifications.
+See [`DESIGN_GUIDE.md`](doc/DESIGN_GUIDE.md) for complete specifications.
 
 ### Code Standards
 
@@ -323,7 +369,7 @@ The platform is designed for static hosting:
 
 ## Documentation
 
-- **[DESIGN_GUIDE.md](DESIGN_GUIDE.md)** - Comprehensive design system and style guide
+- **[DESIGN_GUIDE.md](doc/DESIGN_GUIDE.md)** - Comprehensive design system and style guide
 - **[assets/README.md](assets/README.md)** - Asset usage and brand guidelines
 - **[CLAUDE.md](CLAUDE.md)** - Project context and AI development guidelines
 - **[.gitignore](.gitignore)** - Version control exclusions
@@ -357,7 +403,7 @@ The platform is designed for static hosting:
 Contributions are welcome! This repository is open to community contributions while maintaining proprietary licensing.
 
 **Before contributing:**
-- Review our [Code of Conduct](CODE_OF_CONDUCT.md)
+- Review our [Code of Conduct](doc/CODE_OF_CONDUCT.md)
 - Read the [Contributing Guidelines](CONTRIBUTING.md)
 - Check existing issues and pull requests
 - Review `DESIGN_GUIDE.md` for technical standards

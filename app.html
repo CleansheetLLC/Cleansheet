@@ -1,0 +1,3153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleansheet - Your Technical Career Platform</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&family=Questrial&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/high-resolution-logo-files/white-on-transparent.png">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Data Visualization Libraries -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+
+    <!-- Shared Infrastructure -->
+    <script src="shared/cleansheet-core.js"></script>
+    <script src="shared/data-service.js"></script>
+    <script src="shared/feature-flags.js"></script>
+    <script src="shared/library-data.js"></script>
+
+    <style>
+        /* Cleansheet Design System - Corporate Professional */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-highlight: #11304f;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Status Colors */
+            --color-success: #28a745;
+            --color-warning: #ffc107;
+            --color-error: #dc3545;
+            --color-info: #17a2b8;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            --font-size-h1: clamp(28px, 4vw, 32px);
+            --font-size-h2: clamp(24px, 3.5vw, 28px);
+            --font-size-h3: clamp(18px, 3vw, 24px);
+            --font-size-body: clamp(14px, 2.5vw, 16px);
+            --font-size-small: clamp(12px, 2.2vw, 14px);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            line-height: 1.6;
+            color: var(--color-neutral-text);
+            background: var(--color-neutral-background);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-dark);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            height: 60px;
+        }
+
+        .logo h1 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .view-mode-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .view-mode-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .view-mode-btn.active {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .view-mode-btn i {
+            font-size: 16px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--color-highlight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Main Navigation Tabs */
+        .main-navigation {
+            background: white;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            overflow-x: auto;
+            position: sticky;
+            top: 72px;
+            z-index: 999;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 20px;
+            border: none;
+            background: none;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: var(--color-primary-blue);
+            background: var(--color-neutral-background);
+        }
+
+        .nav-tab.active {
+            color: var(--color-highlight);
+            border-bottom-color: var(--color-highlight);
+        }
+
+        .nav-tab i {
+            font-size: 18px;
+        }
+
+        /* Main Container */
+        .main-container {
+            width: 100%;
+            height: calc(100vh - 144px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* View Panels */
+        .view-panel {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .view-panel.active {
+            display: flex;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-neutral-text-light);
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--color-dark);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid var(--color-neutral-border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-blue);
+        }
+
+        .btn-secondary {
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-neutral-border);
+        }
+
+        .btn-accent {
+            background: var(--color-accent-blue);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #003d7a;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success { border-left: 4px solid var(--color-success); }
+        .toast.error { border-left: 4px solid var(--color-error); }
+        .toast.warning { border-left: 4px solid var(--color-warning); }
+        .toast.info { border-left: 4px solid var(--color-info); }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Spinner */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Library Styles */
+        .library-container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .library-sidebar {
+            width: 280px;
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+        }
+
+        .library-sidebar-content {
+            padding: 16px 20px;
+        }
+
+        .library-sidebar h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .library-search {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .library-search::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .library-search:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Questrial', sans-serif;
+        }
+
+        /* Expertise Level Slider */
+        .expertise-levels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .slider-container {
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .range-track {
+            position: absolute;
+            height: 4px;
+            background: var(--primary-blue);
+            border-radius: 2px;
+            top: 10px;
+        }
+
+        .range-input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            position: absolute;
+            top: 10px;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            pointer-events: all;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .range-input::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            pointer-events: all;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .filter-pill {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Barlow', sans-serif;
+        }
+
+        .filter-pill:hover {
+            background: rgba(0, 102, 204, 0.3);
+        }
+
+        .filter-pill.active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        .library-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .library-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e7;
+            background: white;
+        }
+
+        .library-header h2 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin: 0 0 8px 0;
+        }
+
+        .results-count {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .article-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        .article-card {
+            background: white;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .article-card h3 {
+            font-size: 18px;
+            color: #1a1a1a;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .article-card .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .article-card .metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 12px;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #f5f5f7;
+            color: #666;
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .reading-time {
+            color: #999;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+
+        .reading-view {
+            position: absolute;
+            top: 0;
+            right: -60%;
+            width: 60%;
+            height: 100%;
+            background: white;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reading-view.active {
+            right: 0;
+        }
+
+        .reading-view-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .reading-view-header h2 {
+            font-size: 20px;
+            color: #1a1a1a;
+            margin: 0;
+            flex: 1;
+            padding-right: 16px;
+        }
+
+        .reading-view-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reading-view-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .close-reading-btn {
+            background: #f5f5f7;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .close-reading-btn:hover {
+            background: #e5e5e7;
+        }
+
+        /* Left Panel (Collapsible) */
+        .canvas-container {
+            display: flex;
+            gap: 0;
+            width: 100%;
+            height: 100%;
+            transition: gap 0.3s ease;
+        }
+
+        .canvas-container.expanded {
+            gap: 16px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: width 0.3s ease, opacity 0.3s ease;
+            width: 0;
+            opacity: 0;
+            pointer-events: none;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .canvas-container.expanded .left-panel {
+            width: 380px;
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .panel-toggle-btn {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: white;
+            border: 1px solid #e5e5e7;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            padding: 12px 8px;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+            color: #1a1a1a;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .canvas-container.expanded .panel-toggle-btn {
+            left: 380px;
+        }
+
+        .panel-toggle-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .canvas-content {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: auto;
+            position: relative;
+        }
+
+        .left-panel-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            background: var(--color-neutral-background-secondary);
+            flex-shrink: 0;
+        }
+
+        .left-panel-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-neutral-text-light);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .left-panel-tab:hover {
+            background: rgba(0, 102, 204, 0.1);
+            color: var(--color-primary-blue);
+        }
+
+        .left-panel-tab.active {
+            background: var(--color-primary-blue);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+        }
+
+        .left-panel-tab i {
+            font-size: 16px;
+        }
+
+        .left-panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .left-tab-content {
+            display: none;
+        }
+
+        .left-tab-content.active {
+            display: block;
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .calendar-sync-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px;
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+
+        .sync-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid #e5e5e7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .sync-button:hover {
+            border-color: var(--primary-blue);
+            background: #f8f9fa;
+        }
+
+        .sync-button i {
+            font-size: 20px;
+            color: var(--primary-blue);
+        }
+
+        .calendar-placeholder {
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+            background: #f8f8f8;
+            border-radius: 8px;
+            border: 2px dashed #e5e5e7;
+        }
+
+        /* AI Agent Styles */
+        .ai-chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .ai-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 85%;
+            line-height: 1.5;
+        }
+
+        .ai-message.user {
+            background: var(--primary-blue);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message.assistant {
+            background: #f8f8f8;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-message.system {
+            background: #fff3cd;
+            color: #856404;
+            align-self: center;
+            font-size: 13px;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #e5e5e7;
+            border-radius: 6px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            resize: none;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .ai-send-btn {
+            padding: 10px 20px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .ai-send-btn:hover {
+            background: var(--accent-blue);
+        }
+
+        .ai-send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: var(--color-neutral-white);
+            border-radius: var(--spacing-md);
+            padding: var(--spacing-xxxl);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h3);
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .feature-card p {
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-body);
+            color: var(--color-neutral-text);
+            line-height: 1.6;
+        }
+
+        /* Floating Action Button */
+        .floating-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background: rgba(26, 26, 26, 0.85);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid var(--color-primary-blue);
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            font-size: var(--font-size-small);
+            z-index: 1000;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .floating-home-btn:hover {
+            background: rgba(26, 26, 26, 0.95);
+            transform: translateY(-2px);
+        }
+
+        /* Tag Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 16px;
+            font-size: var(--font-size-small);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-family-body);
+        }
+
+        .tag-pill:hover {
+            background: rgba(0, 102, 204, 0.1);
+            border-color: var(--color-primary-blue);
+        }
+
+        .tag-pill.active {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
+
+        /* Expertise Badges */
+        .expertise-badge {
+            background: var(--color-primary-blue);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: var(--font-family-ui);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Count Badges */
+        .count-badge {
+            background: #e3f2fd;
+            color: var(--color-dark);
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-family: var(--font-family-ui);
+        }
+
+        /* Canvas Slideout */
+        .canvas-slideout {
+            position: absolute;
+            top: 0;
+            right: -60%;
+            width: 60%;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 16px rgba(0,0,0,0.2);
+            z-index: 100;
+            transition: right 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-slideout.active {
+            right: 0;
+        }
+
+        .slideout-header {
+            padding: 24px;
+            background: var(--color-dark);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-neutral-border);
+            flex-shrink: 0;
+        }
+
+        .slideout-header h2 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .slideout-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slideout-close:hover {
+            opacity: 0.7;
+        }
+
+        .slideout-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--color-neutral-background);
+        }
+
+        /* Job Cards in Slideout */
+        .job-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--color-neutral-border);
+            transition: all 0.2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .job-card-header {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .job-card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--color-primary-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .job-card-title {
+            flex: 1;
+        }
+
+        .job-card-title h3 {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 4px 0;
+        }
+
+        .job-card-title p {
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            color: var(--color-neutral-text-light);
+            margin: 0;
+        }
+
+        .job-card-meta {
+            display: flex;
+            gap: 16px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            color: var(--color-neutral-text-light);
+            margin-bottom: 12px;
+        }
+
+        .job-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .job-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .job-card-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .job-card-btn.primary {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .job-card-btn.primary:hover {
+            background: var(--color-accent-blue);
+        }
+
+        .job-card-btn.secondary {
+            background: var(--color-neutral-background);
+            color: var(--color-dark);
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .job-card-btn.secondary:hover {
+            background: var(--color-neutral-border);
+        }
+
+        /* Canvas container needs position relative for slideout */
+        .canvas-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .logo img {
+                height: 40px;
+            }
+
+            .logo h1 {
+                display: none;
+            }
+
+            .logo img {
+                height: 30px;
+            }
+
+            .role-indicator {
+                display: none;
+            }
+
+            .main-navigation {
+                padding: 0 16px;
+            }
+
+            .nav-tab {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            .main-container {
+                height: calc(100vh - 112px);
+            }
+
+            /* Mobile mindmap adjustments */
+            .left-panel {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .left-panel.collapsed {
+                width: 0;
+            }
+
+            .canvas-content {
+                padding: 8px;
+            }
+
+            /* Mobile slideout - full width */
+            .canvas-slideout.active {
+                width: 100%;
+            }
+
+            /* Article grid mobile */
+            .article-grid {
+                grid-template-columns: 1fr;
+                padding: 16px;
+                gap: 16px;
+            }
+
+            /* Library sidebar mobile */
+            .library-sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .library-sidebar.mobile-open {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <img src="assets/high-resolution-logo-files/white-on-transparent.png" alt="Cleansheet">
+        </div>
+        <div class="header-actions">
+            <!-- View Mode Toggle -->
+            <div style="display: flex; gap: 4px; background: rgba(255, 255, 255, 0.1); padding: 4px; border-radius: 8px;">
+                <button class="view-mode-btn" data-mode="seeker" onclick="switchViewMode('seeker')">
+                    <i class="ph ph-briefcase"></i>
+                    Seeker
+                </button>
+                <button class="view-mode-btn active" data-mode="learner" onclick="switchViewMode('learner')">
+                    <i class="ph ph-graduation-cap"></i>
+                    Learner
+                </button>
+                <button class="view-mode-btn" data-mode="professional" onclick="switchViewMode('professional')">
+                    <i class="ph ph-code"></i>
+                    Professional
+                </button>
+            </div>
+            <div class="user-menu">
+                <button class="icon-button" onclick="openNotifications()" title="Notifications" aria-label="Open notifications">
+                    <i class="ph ph-bell"></i>
+                </button>
+                <button class="icon-button" onclick="openSettings()" title="Settings" aria-label="Open settings">
+                    <i class="ph ph-gear"></i>
+                </button>
+                <div class="user-avatar" onclick="openProfile()" role="button" tabindex="0" aria-label="Open user profile" id="userAvatar">AM</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="main-navigation" id="mainNavigation">
+        <button class="nav-tab active" onclick="switchTab('canvas')" data-tab="canvas">
+            <i class="ph ph-house"></i>
+            <span>Home</span>
+        </button>
+        <button class="nav-tab" onclick="switchTab('job-search')" data-tab="job-search" style="display: none;">
+            <i class="ph ph-briefcase"></i>
+            <span>Search Tools</span>
+        </button>
+        <button class="nav-tab" onclick="switchTab('library')" data-tab="library">
+            <i class="ph ph-books"></i>
+            <span>Library</span>
+        </button>
+        <button class="nav-tab" onclick="switchTab('projects')" data-tab="projects" style="display: none;">
+            <i class="ph ph-folders"></i>
+            <span>Projects</span>
+        </button>
+        <button class="nav-tab" onclick="switchTab('integrations')" data-tab="integrations" style="display: none;">
+            <i class="ph ph-plugs"></i>
+            <span>Integrations</span>
+        </button>
+    </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Canvas View (D3 Mindmap/Network) -->
+        <div id="canvasView" class="view-panel active" style="position: relative; width: 100%; height: 100%; background: white;">
+            <div class="canvas-container" id="canvasContainer">
+                <!-- Panel Toggle Button -->
+                <button class="panel-toggle-btn" id="panelToggleBtn" onclick="toggleLeftPanel()">
+                    <i class="ph ph-caret-right"></i>
+                </button>
+
+                <!-- Left Panel (Calendar & AI) -->
+                <div class="left-panel" id="leftPanel">
+                    <div class="left-panel-tabs">
+                        <button class="left-panel-tab active" onclick="switchLeftTab('calendar')" data-left-tab="calendar">
+                            <i class="ph ph-calendar"></i> Calendar
+                        </button>
+                        <button class="left-panel-tab" onclick="switchLeftTab('ai')" data-left-tab="ai">
+                            <i class="ph ph-chats-circle"></i> AI Agent
+                        </button>
+                    </div>
+
+                    <div class="left-panel-content">
+                        <!-- Calendar Tab -->
+                        <div id="calendarTab" class="left-tab-content active">
+                            <div class="calendar-sync-options">
+                                <h3 style="font-family: 'Questrial', sans-serif; font-size: 14px; margin-bottom: 12px; color: #333;">Sync Calendar</h3>
+                                <button class="sync-button" onclick="syncGoogleCalendar()">
+                                    <i class="ph ph-google-logo"></i>
+                                    <span>Connect Google Calendar</span>
+                                </button>
+                                <button class="sync-button" onclick="syncOutlookCalendar()">
+                                    <i class="ph ph-microsoft-outlook-logo"></i>
+                                    <span>Connect Outlook Calendar</span>
+                                </button>
+                            </div>
+                            <div class="calendar-placeholder" style="margin-top: 20px; padding: 20px; background: #f5f5f7; border-radius: 8px; text-align: center; color: #666;">
+                                <i class="ph ph-calendar-blank" style="font-size: 48px; margin-bottom: 8px;"></i>
+                                <p style="font-size: 14px;">Calendar integration coming soon</p>
+                            </div>
+                        </div>
+
+                        <!-- AI Agent Tab -->
+                        <div id="aiTab" class="left-tab-content" style="display: none;">
+                            <div class="ai-chat-container">
+                                <div class="ai-chat-messages" id="aiMessages">
+                                    <div class="ai-message ai-assistant">
+                                        <strong>Cleansheet AI:</strong> Hello! I'm here to help you navigate your career journey. How can I assist you today?
+                                    </div>
+                                </div>
+                                <div class="ai-input-container">
+                                    <textarea class="ai-input" id="aiInput" placeholder="Type your message..." rows="3"></textarea>
+                                    <button class="ai-send-btn" onclick="sendAIMessage()">
+                                        <i class="ph ph-paper-plane-tilt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Content (D3 Visualization) -->
+                <div class="canvas-content" id="canvasContent">
+                    <!-- D3 visualization will be rendered here -->
+                </div>
+
+                <!-- Right Slideout for Canvas Content -->
+                <div class="canvas-slideout" id="canvasSlideout">
+                    <div class="slideout-header">
+                        <h2 id="slideoutTitle">Content</h2>
+                        <button class="slideout-close" onclick="closeCanvasSlideout()" aria-label="Close slideout">&times;</button>
+                    </div>
+                    <div class="slideout-body" id="slideoutBody">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Search View (Seeker mode) -->
+        <div id="job-searchView" class="view-panel">
+            <div style="padding: 40px; text-align: center;">
+                <i class="ph ph-briefcase" style="font-size: 64px; color: var(--color-neutral-text-muted); margin-bottom: 16px;"></i>
+                <h2 style="font-family: var(--font-family-ui); font-size: 24px; color: var(--color-dark); margin-bottom: 12px;">
+                    Job Search
+                </h2>
+                <p style="color: var(--color-neutral-text-light);">
+                    Browse and track job opportunities
+                </p>
+            </div>
+        </div>
+
+        <!-- Library View (All modes) -->
+        <div id="libraryView" class="view-panel">
+            <div class="library-container">
+                <!-- Sidebar with filters -->
+                <div class="library-sidebar">
+                    <div class="library-sidebar-content">
+                        <h3>Cleansheet Library</h3>
+
+                        <!-- Search -->
+                        <input
+                            type="text"
+                            class="library-search"
+                            id="librarySearch"
+                            placeholder="Search articles..."
+                            oninput="onLibrarySearch()">
+
+                        <!-- Expertise Level Filter -->
+                        <div class="filter-section">
+                            <label>Expertise Level</label>
+                            <div class="expertise-levels">
+                                <span>Neophyte</span>
+                                <span>Novice</span>
+                                <span>Operator</span>
+                                <span>Expert</span>
+                                <span>Academic</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="range-slider">
+                                    <div class="range-track" id="rangeTrack"></div>
+                                </div>
+                                <input type="range" min="0" max="4" value="0" class="range-input" id="rangeMin">
+                                <input type="range" min="0" max="4" value="4" class="range-input" id="rangeMax">
+                            </div>
+                        </div>
+
+                        <!-- Tags Filter -->
+                        <div class="filter-section">
+                            <label>Tags</label>
+                            <div class="filter-pills" id="tagFilters">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Career Paths Filter -->
+                        <div class="filter-section">
+                            <label>Career Paths</label>
+                            <div class="filter-pills" id="pathFilters">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main content area -->
+                <div class="library-content">
+                    <div class="library-header">
+                        <h2>Content Library</h2>
+                        <div class="results-count" id="resultsCount">Loading articles...</div>
+                    </div>
+
+                    <div class="article-grid" id="articleGrid">
+                        <!-- Article cards will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Reading view (slides in from right) -->
+                <div class="reading-view" id="readingView">
+                    <div class="reading-view-header">
+                        <h2 id="readingTitle"></h2>
+                        <div class="reading-view-actions">
+                            <button class="close-reading-btn" onclick="closeReading()">
+                                <i class="ph ph-x"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reading-view-content" id="readingContent">
+                        <!-- Article content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects View (Professional mode) -->
+        <div id="projectsView" class="view-panel">
+            <div style="padding: 40px; text-align: center;">
+                <i class="ph ph-folders" style="font-size: 64px; color: var(--color-neutral-text-muted); margin-bottom: 16px;"></i>
+                <h2 style="font-family: var(--font-family-ui); font-size: 24px; color: var(--color-dark); margin-bottom: 12px;">
+                    Projects Dashboard
+                </h2>
+                <p style="color: var(--color-neutral-text-light);">
+                    Manage your professional projects
+                </p>
+            </div>
+        </div>
+
+        <!-- Integrations View (Professional mode) -->
+        <div id="integrationsView" class="view-panel">
+            <div style="padding: 40px; text-align: center;">
+                <i class="ph ph-plugs" style="font-size: 64px; color: var(--color-neutral-text-muted); margin-bottom: 16px;"></i>
+                <h2 style="font-family: var(--font-family-ui); font-size: 24px; color: var(--color-dark); margin-bottom: 12px;">
+                    Integrations
+                </h2>
+                <p style="color: var(--color-neutral-text-light);">
+                    Connect external tools and APIs
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Profile</h2>
+                <button class="modal-close" onclick="closeModal('profileModal')" aria-label="Close profile modal">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-input" id="profileName" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-input" id="profileEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Preferred View Mode</label>
+                    <select class="form-input" id="profileViewMode">
+                        <option value="learner">Learner - Building Skills</option>
+                        <option value="seeker">Job Seeker - Looking for Opportunities</option>
+                        <option value="professional">Professional - Managing Work</option>
+                    </select>
+                    <small style="color: var(--color-neutral-text-muted); font-size: 12px; display: block; margin-top: 4px;">
+                        You can switch modes anytime using the toggle in the header.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea class="form-input" id="profileBio" rows="4" placeholder="Tell us about yourself..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('profileModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" onclick="closeModal('settingsModal')" aria-label="Close settings modal">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Data Storage Mode</label>
+                    <select class="form-input" id="storageMode">
+                        <option value="localStorage">Local Storage (Demo)</option>
+                        <option value="api">API Backend (Production)</option>
+                    </select>
+                    <small style="color: var(--color-neutral-text-muted); font-size: 12px; display: block; margin-top: 4px;">
+                        Local storage keeps data in your browser. API mode syncs across devices.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label>Theme</label>
+                    <select class="form-input" id="theme">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark (Coming Soon)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notifications</label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="checkbox" id="notificationsEnabled" style="width: auto;">
+                        <label for="notificationsEnabled" style="margin: 0;">Enable browser notifications</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>About</label>
+                    <div style="background: var(--color-neutral-background); padding: 12px; border-radius: 6px; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: var(--color-neutral-text-muted);">Version:</span>
+                            <strong>1.0.0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--color-neutral-text-muted);">Current View Mode:</span>
+                            <strong id="currentViewModeSetting">Learner</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notificationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Notifications</h2>
+                <button class="modal-close" onclick="closeModal('notificationsModal')" aria-label="Close notifications modal">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--color-neutral-text-light); text-align: center; padding: 40px 20px;">
+                    No new notifications
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Cleansheet Color Palette for Data Visualizations
+        const CLEANSHEET_COLORS = [
+            '#0066CC',  // Primary Blue
+            '#004C99',  // Accent Blue
+            '#16a34a',  // Green (Personal mode)
+            '#dc3545',  // Red (alerts)
+            '#ffc107',  // Amber (warnings)
+            '#17a2b8',  // Teal (info)
+            '#6c757d'   // Gray (neutral)
+        ];
+
+        // Observable Plot Default Configuration
+        const PLOT_DEFAULTS = {
+            style: {
+                fontFamily: "var(--font-family-ui)",
+                fontSize: "12px"
+            },
+            marginLeft: 60,
+            marginRight: 20,
+            marginTop: 20,
+            marginBottom: 40,
+            grid: true,
+            color: {
+                scheme: CLEANSHEET_COLORS
+            }
+        };
+
+        // Utility function to create responsive plots
+        function createResponsivePlot(containerId, plotConfig) {
+            const container = document.getElementById(containerId);
+            if (!container) return null;
+
+            const width = container.offsetWidth;
+            const height = Math.min(400, width * 0.6);
+
+            const plot = Plot.plot({
+                ...PLOT_DEFAULTS,
+                width: width,
+                height: height,
+                ...plotConfig
+            });
+
+            container.innerHTML = '';
+            container.appendChild(plot);
+            return plot;
+        }
+
+        // Initialize app
+        let dataService;
+        let currentViewMode = 'learner'; // seeker, learner, or professional
+        let currentTab = 'canvas'; // canvas, job-search, library, projects, integrations
+
+        // View mode configuration
+        const VIEW_MODES = {
+            seeker: {
+                tabs: ['canvas', 'job-search', 'library'],
+                canvasType: 'mindmap',
+                nodes: [] // Will be populated with seeker-specific nodes
+            },
+            learner: {
+                tabs: ['canvas', 'library'],
+                canvasType: 'network',
+                nodes: [] // Will be populated with learner-specific nodes
+            },
+            professional: {
+                tabs: ['canvas', 'projects', 'integrations'],
+                canvasType: 'mindmap',
+                nodes: [] // Will be populated with professional-specific nodes
+            }
+        };
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Initialize data service
+            dataService = new DataService('localStorage');
+
+            // Load user profile
+            await loadUserProfile();
+
+            // Initialize view mode
+            const savedMode = localStorage.getItem('cleansheet_view_mode');
+            if (savedMode && VIEW_MODES[savedMode]) {
+                currentViewMode = savedMode;
+            }
+
+            // Update UI based on view mode
+            updateViewModeUI();
+
+            // Initialize canvas (placeholder for now - will add D3 later)
+            initializeCanvas();
+        });
+
+        // View Mode Management
+        function switchViewMode(mode) {
+            if (!VIEW_MODES[mode]) return;
+
+            currentViewMode = mode;
+            localStorage.setItem('cleansheet_view_mode', mode);
+
+            // Update UI
+            updateViewModeUI();
+
+            // Redraw canvas
+            initializeCanvas();
+
+            // Switch back to canvas tab
+            switchTab('canvas');
+
+            CleansheetCore.utils.showToast(`Switched to ${getViewModeLabel(mode)} mode`, 'success');
+        }
+
+        function updateViewModeUI() {
+            // Update view mode buttons
+            document.querySelectorAll('.view-mode-btn').forEach(btn => {
+                const mode = btn.getAttribute('data-mode');
+                if (mode === currentViewMode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Show/hide tabs based on view mode
+            const modeConfig = VIEW_MODES[currentViewMode];
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                const tabName = tab.getAttribute('data-tab');
+                if (modeConfig.tabs.includes(tabName)) {
+                    tab.style.display = 'flex';
+                } else {
+                    tab.style.display = 'none';
+                }
+            });
+        }
+
+        function getViewModeLabel(mode) {
+            const labels = {
+                'seeker': 'Job Seeker',
+                'learner': 'Learner',
+                'professional': 'Professional'
+            };
+            return labels[mode] || 'Learner';
+        }
+
+        // Tab Management
+        function switchTab(tabName) {
+            // Hide all view panels
+            document.querySelectorAll('.view-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // Remove active from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected view
+            const viewMap = {
+                'canvas': 'canvasView',
+                'job-search': 'job-searchView',
+                'library': 'libraryView',
+                'projects': 'projectsView',
+                'integrations': 'integrationsView'
+            };
+
+            const viewId = viewMap[tabName];
+            if (viewId) {
+                document.getElementById(viewId).classList.add('active');
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                currentTab = tabName;
+
+                // Load tab content if needed
+                loadTabContent(tabName);
+            }
+        }
+
+        // Seeker Persona Data (from index.html Canvas demo)
+        const SEEKER_PERSONA_DATA = {
+            name: "Alex Martinez's\nCanvas",
+            children: [
+                {
+                    name: 'Job\nOpportunities',
+                    count: 5,
+                    icon: 'briefcase'
+                },
+                {
+                    name: 'Application\nMaterials',
+                    count: 4,
+                    icon: 'file-text'
+                },
+                {
+                    name: 'Career\nExperience',
+                    count: 5,
+                    icon: 'suitcase'
+                },
+                {
+                    name: 'Goals',
+                    count: 6,
+                    icon: 'target'
+                },
+                {
+                    name: 'Portfolio',
+                    count: 2,
+                    icon: 'folder-open'
+                },
+                {
+                    name: 'Interview Prep',
+                    count: 2,
+                    icon: 'chats-circle'
+                }
+            ]
+        };
+
+        // D3 Tree State
+        let treeRoot = null;
+        let svg = null;
+
+        // Canvas Initialization with D3 Mindmap
+        function initializeCanvas() {
+            const container = document.getElementById('canvasContent');
+            const modeConfig = VIEW_MODES[currentViewMode];
+
+            // Clear existing content
+            container.innerHTML = '';
+
+            // Only render mindmap for seeker mode
+            if (currentViewMode === 'seeker' && modeConfig.canvasType === 'mindmap') {
+                renderSeekerMindmap(container);
+            } else {
+                // Placeholder for learner and professional modes
+                const modeLabels = {
+                    'seeker': 'Job Seeker',
+                    'learner': 'Learner',
+                    'professional': 'Professional'
+                };
+
+                const canvasTypes = {
+                    'mindmap': 'D3 Mindmap',
+                    'network': 'D3 Force Network'
+                };
+
+                container.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; text-align: center; padding: 40px;">
+                        <i class="ph ph-graph" style="font-size: 80px; color: var(--color-neutral-text-muted); margin-bottom: 20px;"></i>
+                        <h2 style="font-family: var(--font-family-ui); font-size: 24px; color: var(--color-dark); margin-bottom: 12px;">
+                            ${modeLabels[currentViewMode]} Canvas
+                        </h2>
+                        <p style="color: var(--color-neutral-text-light); margin-bottom: 8px;">
+                            Visualization Type: ${canvasTypes[modeConfig.canvasType]}
+                        </p>
+                        <p style="color: var(--color-neutral-text-muted); font-size: 14px;">
+                            Canvas visualization coming soon
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render D3 Seeker Mindmap
+        function renderSeekerMindmap(container) {
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+            const isMobile = window.innerWidth <= 768;
+
+            // Create SVG
+            svg = d3.select(container)
+                .append('svg')
+                .attr('width', '100%')
+                .attr('height', '100%')
+                .style('min-width', isMobile ? '100%' : '1000px')
+                .style('min-height', isMobile ? '100%' : '600px')
+                .style('background', 'var(--color-neutral-background)');
+
+            const g = svg.append('g')
+                .attr('transform', isMobile
+                    ? `translate(${width / 2}, 120)`
+                    : `translate(${width * 0.25}, ${height / 2})`);
+
+            // Create hierarchy
+            treeRoot = d3.hierarchy(SEEKER_PERSONA_DATA);
+            treeRoot.x0 = 0;
+            treeRoot.y0 = 0;
+
+            // Initial render
+            update(treeRoot, g);
+        }
+
+        // D3 Tree Update Function
+        function update(source, g) {
+            const duration = 400;
+            const isMobile = window.innerWidth <= 768;
+            const visibleNodes = treeRoot.descendants();
+            const neededHeight = Math.max(600, visibleNodes.length * 60);
+
+            svg.style('min-height', neededHeight + 'px');
+
+            // Tree layout with FIXED node spacing
+            const treeLayout = d3.tree()
+                .nodeSize(isMobile ? [150, 120] : [80, 220])
+                .separation((a, b) => {
+                    return a.parent === b.parent ? 1.0 : 1.2;
+                });
+
+            const treeData = treeLayout(treeRoot);
+            const nodes = treeData.descendants();
+            const links = treeData.descendants().slice(1);
+
+            // Normalize for fixed-depth positioning
+            nodes.forEach(d => {
+                d.y = d.depth * (isMobile ? 120 : 220);
+            });
+
+            // Update nodes
+            const node = g.selectAll('g.tree-node')
+                .data(nodes, d => d.id || (d.id = ++i));
+
+            // Enter new nodes
+            const nodeEnter = node.enter().append('g')
+                .attr('class', 'tree-node')
+                .attr('transform', d => `translate(${source.y0},${source.x0})`)
+                .on('click', (event, d) => toggleNode(d, g));
+
+            // Add rectangles for nodes
+            nodeEnter.append('rect')
+                .attr('width', d => d.depth === 0 ? 170 : 160)  // Root: 200 * 0.85 = 170
+                .attr('height', d => d.depth === 0 ? 80 : 70)
+                .attr('x', d => d.depth === 0 ? -85 : -80)  // Root: 170 / 2 = 85
+                .attr('y', d => d.depth === 0 ? -40 : -35)
+                .attr('rx', 12)
+                .attr('ry', 12)
+                .style('fill', d => d.depth === 0 ? 'var(--color-primary-blue)' : 'white')
+                .style('stroke', d => d.depth === 0 ? 'none' : '#e0e0e0')
+                .style('stroke-width', 1)
+                .style('cursor', d => d.depth === 1 ? 'pointer' : 'default')
+                .style('filter', d => d.depth === 1 ? 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))' : 'none');
+
+            // Add icons to category nodes using Phosphor class
+            nodeEnter.filter(d => d.depth === 1 && d.data.icon)
+                .append('foreignObject')
+                .attr('x', -65)
+                .attr('y', -25)
+                .attr('width', 28)
+                .attr('height', 28)
+                .append('xhtml:div')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .html(d => `<i class="ph ph-${d.data.icon}" style="font-size: 28px; color: var(--color-primary-blue);"></i>`);
+
+            // Add text to nodes
+            nodeEnter.append('text')
+                .attr('x', d => d.depth === 1 ? -25 : 0)
+                .attr('y', d => d.depth === 0 ? 0 : 0)
+                .attr('text-anchor', d => d.depth === 1 ? 'start' : 'middle')
+                .attr('dominant-baseline', 'central')
+                .style('font-family', 'var(--font-family-ui)')
+                .style('font-size', d => d.depth === 0 ? '16px' : '14px')
+                .style('font-weight', d => d.depth === 0 ? 700 : 400)
+                .style('fill', d => d.depth === 0 ? 'white' : 'var(--color-dark)')
+                .style('pointer-events', 'none')
+                .each(function(d) {
+                    const text = d3.select(this);
+                    const lines = d.data.name.split('\n');
+
+                    if (lines.length > 1) {
+                        text.text('');
+
+                        if (d.depth === 0) {
+                            // Root node: center multi-line text vertically
+                            const lineHeight = 1.2;
+                            const totalHeight = (lines.length - 1) * lineHeight;
+                            const startY = -totalHeight / 2;
+
+                            lines.forEach((line, i) => {
+                                text.append('tspan')
+                                    .attr('x', 0)
+                                    .attr('dy', i === 0 ? `${startY}em` : `${lineHeight}em`)
+                                    .text(line);
+                            });
+                        } else {
+                            // Child nodes: center multi-line text with reduced padding
+                            const lineHeight = 1.1;
+                            const totalHeight = (lines.length - 1) * lineHeight;
+                            const startY = -totalHeight / 2;
+
+                            lines.forEach((line, i) => {
+                                text.append('tspan')
+                                    .attr('x', -25)
+                                    .attr('dy', i === 0 ? `${startY}em` : `${lineHeight}em`)
+                                    .text(line);
+                            });
+                        }
+                    } else {
+                        text.text(d.data.name);
+                    }
+                });
+
+            // Add count badges to second-level nodes
+            nodeEnter.filter(d => d.depth === 1 && d.data.count)
+                .each(function(d) {
+                    const badge = d3.select(this);
+
+                    badge.append('circle')
+                        .attr('cx', 65)
+                        .attr('cy', -20)
+                        .attr('r', 14)
+                        .attr('fill', '#e3f2fd')
+                        .style('pointer-events', 'none');
+
+                    badge.append('text')
+                        .attr('x', 65)
+                        .attr('y', -20)
+                        .attr('dy', '0.35em')
+                        .attr('text-anchor', 'middle')
+                        .style('font-size', '13px')
+                        .style('font-weight', 600)
+                        .style('fill', 'var(--color-dark)')
+                        .style('font-family', 'var(--font-family-ui)')
+                        .style('pointer-events', 'none')
+                        .text(d.data.count);
+                });
+
+            // Transition nodes to their new position
+            const nodeUpdate = nodeEnter.merge(node);
+
+            nodeUpdate.transition()
+                .duration(duration)
+                .attr('transform', d => `translate(${d.y},${d.x})`);
+
+            // Transition exiting nodes
+            const nodeExit = node.exit().transition()
+                .duration(duration)
+                .attr('transform', d => `translate(${source.y},${source.x})`)
+                .remove();
+
+            // Update links
+            const link = g.selectAll('path.tree-link')
+                .data(links, d => d.id);
+
+            const linkEnter = link.enter().insert('path', 'g')
+                .attr('class', 'tree-link')
+                .attr('d', d => {
+                    const o = {x: source.x0, y: source.y0};
+                    return diagonal(o, o);
+                })
+                .style('fill', 'none')
+                .style('stroke', '#999')
+                .style('stroke-width', 2);
+
+            const linkUpdate = linkEnter.merge(link);
+
+            linkUpdate.transition()
+                .duration(duration)
+                .attr('d', d => diagonal(d, d.parent));
+
+            link.exit().transition()
+                .duration(duration)
+                .attr('d', d => {
+                    const o = {x: source.x, y: source.y};
+                    return diagonal(o, o);
+                })
+                .remove();
+
+            // Store old positions for transition
+            nodes.forEach(d => {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        // Handle node clicks
+        let i = 0;
+        function toggleNode(d, g) {
+            // Only open slideout for second-level category nodes
+            if (d.depth === 1) {
+                openCanvasSlideout(d.data.name);
+            }
+        }
+
+        // Open canvas slideout with content
+        function openCanvasSlideout(category) {
+            const slideout = document.getElementById('canvasSlideout');
+            const title = document.getElementById('slideoutTitle');
+            const body = document.getElementById('slideoutBody');
+
+            // Remove line breaks from category name for matching
+            const cleanCategory = category.replace(/\n/g, ' ');
+
+            // Set title
+            title.textContent = cleanCategory;
+
+            // Load content based on category
+            body.innerHTML = '';
+
+            switch(cleanCategory) {
+                case 'Job Opportunities':
+                    loadJobOpportunities(body);
+                    break;
+                case 'Application Materials':
+                    loadApplicationMaterials(body);
+                    break;
+                case 'Career Experience':
+                    loadCareerExperience(body);
+                    break;
+                case 'Goals':
+                    loadSkillsGoals(body);
+                    break;
+                case 'Portfolio':
+                    loadPortfolio(body);
+                    break;
+                case 'Interview Prep':
+                    loadInterviewPrep(body);
+                    break;
+                default:
+                    body.innerHTML = `<p style="color: var(--color-neutral-text-light);">Content coming soon</p>`;
+            }
+
+            // Show slideout
+            slideout.classList.add('active');
+        }
+
+        // Close canvas slideout
+        function closeCanvasSlideout() {
+            const slideout = document.getElementById('canvasSlideout');
+            slideout.classList.remove('active');
+        }
+
+        // Load Job Opportunities
+        function loadJobOpportunities(container) {
+            const jobs = [
+                {
+                    title: 'Operations Manager',
+                    company: 'Amazon',
+                    location: 'Seattle, WA',
+                    salary: '$125K',
+                    icon: 'briefcase'
+                },
+                {
+                    title: 'Business Analyst',
+                    company: 'Target HQ',
+                    location: 'Minneapolis, MN',
+                    salary: '$95K',
+                    icon: 'chart-line'
+                },
+                {
+                    title: 'Data Analyst',
+                    company: 'Walmart eCommerce',
+                    location: 'Bentonville, AR',
+                    salary: '$85K',
+                    icon: 'database'
+                },
+                {
+                    title: 'Supply Chain Analyst',
+                    company: 'Nike',
+                    location: 'Portland, OR',
+                    salary: '$90K',
+                    icon: 'package'
+                },
+                {
+                    title: 'Ops Coordinator',
+                    company: 'Instacart',
+                    location: 'San Francisco, CA',
+                    salary: '$80K',
+                    icon: 'users'
+                }
+            ];
+
+            jobs.forEach(job => {
+                const card = document.createElement('div');
+                card.className = 'job-card';
+                card.innerHTML = `
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-${job.icon}"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>${job.title}</h3>
+                            <p>${job.company}</p>
+                        </div>
+                    </div>
+                    <div class="job-card-meta">
+                        <span><i class="ph ph-map-pin"></i> ${job.location}</span>
+                        <span><i class="ph ph-currency-dollar"></i> ${job.salary}</span>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">View Details</button>
+                        <button class="job-card-btn secondary">Save</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Load Application Materials
+        function loadApplicationMaterials(container) {
+            container.innerHTML = `
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-file-text"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Resume v3.2 - Analytics Focus</h3>
+                            <p>Updated 10/2</p>
+                        </div>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">View</button>
+                        <button class="job-card-btn secondary">Edit</button>
+                    </div>
+                </div>
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-envelope"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Cover Letter - Amazon Ops Role</h3>
+                            <p>Draft</p>
+                        </div>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">View</button>
+                        <button class="job-card-btn secondary">Edit</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Career Experience
+        function loadCareerExperience(container) {
+            container.innerHTML = `
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-suitcase"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Store Manager</h3>
+                            <p>RetailMart • 2019-2024</p>
+                        </div>
+                    </div>
+                    <div class="job-card-meta">
+                        <span><i class="ph ph-users"></i> Managed 15-20 employees</span>
+                        <span><i class="ph ph-currency-dollar"></i> $2.5M P&L</span>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">View Details</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Skills & Goals
+        function loadSkillsGoals(container) {
+            container.innerHTML = `
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-lightning"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Excel (Advanced)</h3>
+                            <p>Power Query, Pivot Tables</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-chart-bar"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Power BI (Intermediate)</h3>
+                            <p>Building dashboards</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-target"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Goal: Transition to Business Analytics</h3>
+                            <p>In progress</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Portfolio
+        function loadPortfolio(container) {
+            container.innerHTML = `
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-chart-line-up"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Power BI Sales Dashboard</h3>
+                            <p>Interactive visualization</p>
+                        </div>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">View</button>
+                        <button class="job-card-btn secondary">Share</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Interview Prep
+        function loadInterviewPrep(container) {
+            container.innerHTML = `
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-chats-circle"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Behavioral Questions</h3>
+                            <p>5 STAR stories prepared</p>
+                        </div>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">Practice</button>
+                    </div>
+                </div>
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-card-icon">
+                            <i class="ph ph-code"></i>
+                        </div>
+                        <div class="job-card-title">
+                            <h3>Technical Prep</h3>
+                            <p>SQL and Excel scenarios</p>
+                        </div>
+                    </div>
+                    <div class="job-card-actions">
+                        <button class="job-card-btn primary">Practice</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Diagonal path generator for curved links
+        // Note: In D3 tree layout, x is vertical position, y is horizontal position
+        function diagonal(child, parent) {
+            if (!parent) return '';
+
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // Mobile: vertical layout (top to bottom)
+                // Source: bottom center of parent node
+                const sourceX = parent.x;
+                const sourceY = parent.y + 40; // Bottom edge of root (80px height / 2 = 40)
+
+                // Target: top center of child node
+                const targetX = child.x;
+                const targetY = child.y - 35; // Top edge of child (70px height / 2 = 35)
+
+                // Control points for vertical bezier curve
+                const midY = (sourceY + targetY) / 2;
+
+                return `M ${sourceX},${sourceY}
+                        C ${targetX},${midY} ${targetX},${midY} ${targetX},${targetY}`;
+            } else {
+                // Desktop: horizontal layout (left to right)
+                // Source: right edge horizontal center of parent (root) node
+                const sourceX = parent.x; // Vertical position (up/down)
+                const sourceY = parent.y + 85; // Horizontal position + right edge offset (170px width / 2 = 85)
+
+                // Target: left edge horizontal center of child node
+                const targetX = child.x; // Vertical position (up/down)
+                const targetY = child.y - 80; // Horizontal position - left edge offset (160px width / 2 = 80)
+
+                // Control points for smooth bezier curve
+                const midY = (sourceY + targetY) / 2;
+
+                return `M ${sourceY},${sourceX}
+                        C ${midY},${sourceX} ${midY},${targetX} ${targetY},${targetX}`;
+            }
+        }
+
+        // Text wrapping function
+        function wrapText(text, maxWidth, maxLines = 999) {
+            const words = text.text().split(/\s+/).reverse();
+            let line = [];
+            let lineNumber = 0;
+            const lineHeight = 1.1;
+            const y = text.attr('y') || 0;
+            const dy = parseFloat(text.attr('dy')) || 0;
+
+            let tspan = text.text(null).append('tspan')
+                .attr('x', 0)
+                .attr('y', y)
+                .attr('dy', dy + 'em');
+
+            let word;
+            while (word = words.pop()) {
+                if (lineNumber >= maxLines) break;
+
+                line.push(word);
+                tspan.text(line.join(' '));
+
+                if (tspan.node().getComputedTextLength() > maxWidth) {
+                    line.pop();
+
+                    // Add ellipsis if this is the last line
+                    if (lineNumber === maxLines - 1 && words.length > 0) {
+                        tspan.text(line.join(' ') + '...');
+                    } else {
+                        tspan.text(line.join(' '));
+                    }
+
+                    line = [word];
+                    tspan = text.append('tspan')
+                        .attr('x', 0)
+                        .attr('y', y)
+                        .attr('dy', ++lineNumber * lineHeight + dy + 'em')
+                        .text(word);
+                }
+            }
+        }
+
+        // Tab Content Loading
+        function loadTabContent(tabName) {
+            console.log(`Loading content for ${tabName} tab`);
+
+            // Initialize library when switching to library tab
+            if (tabName === 'library') {
+                initializeLibrary();
+            }
+
+            // TODO: Implement content loading for other tabs
+        }
+
+        // Modal Management
+        function openProfile() {
+            document.getElementById('profileModal').classList.add('active');
+            loadProfileData();
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            loadSettingsData();
+        }
+
+        function openNotifications() {
+            document.getElementById('notificationsModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal on backdrop click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Profile Management
+        async function loadUserProfile() {
+            const profile = await dataService.backend.get('user_profile');
+            if (profile) {
+                document.getElementById('userAvatar').textContent = getInitials(profile.name || 'Anonymous User');
+                if (profile.viewMode && VIEW_MODES[profile.viewMode]) {
+                    currentViewMode = profile.viewMode;
+                }
+            }
+        }
+
+        function loadProfileData() {
+            dataService.backend.get('user_profile').then(profile => {
+                if (profile) {
+                    document.getElementById('profileName').value = profile.name || '';
+                    document.getElementById('profileEmail').value = profile.email || '';
+                    document.getElementById('profileViewMode').value = profile.viewMode || currentViewMode;
+                    document.getElementById('profileBio').value = profile.bio || '';
+                }
+            });
+        }
+
+        async function saveProfile() {
+            const profile = {
+                name: document.getElementById('profileName').value,
+                email: document.getElementById('profileEmail').value,
+                viewMode: document.getElementById('profileViewMode').value,
+                bio: document.getElementById('profileBio').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            await dataService.backend.set('user_profile', profile);
+
+            // Update UI
+            document.getElementById('userAvatar').textContent = getInitials(profile.name || 'Anonymous User');
+
+            // Switch view mode if changed
+            if (profile.viewMode !== currentViewMode) {
+                switchViewMode(profile.viewMode);
+            }
+
+            closeModal('profileModal');
+            CleansheetCore.utils.showToast('Profile saved successfully', 'success');
+        }
+
+        function getInitials(name) {
+            return name.split(' ')
+                .map(part => part[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+        }
+
+        // Settings Management
+        function loadSettingsData() {
+            dataService.backend.get('user_settings').then(settings => {
+                if (settings) {
+                    document.getElementById('storageMode').value = settings.storageMode || 'localStorage';
+                    document.getElementById('theme').value = settings.theme || 'light';
+                    document.getElementById('notificationsEnabled').checked = settings.notifications || false;
+                }
+            });
+
+            // Update current view mode display
+            document.getElementById('currentViewModeSetting').textContent = getViewModeLabel(currentViewMode);
+        }
+
+        async function saveSettings() {
+            const settings = {
+                storageMode: document.getElementById('storageMode').value,
+                theme: document.getElementById('theme').value,
+                notifications: document.getElementById('notificationsEnabled').checked,
+                updatedAt: new Date().toISOString()
+            };
+
+            await dataService.backend.set('user_settings', settings);
+
+            // Reinitialize data service if storage mode changed
+            if (settings.storageMode !== dataService.mode) {
+                dataService = new DataService(settings.storageMode);
+            }
+
+            closeModal('settingsModal');
+            CleansheetCore.utils.showToast('Settings saved successfully', 'success');
+        }
+
+        // Library Management
+        let currentArticleId = null;
+        let minLevel = 0; // 0 = Neophyte, 1 = Novice, 2 = Operator, 3 = Expert, 4 = Academic
+        let maxLevel = 4;
+        let selectedTags = [];
+        let selectedPath = null;
+        let searchQuery = '';
+        let searchDebounceTimer = null;
+
+        function initializeLibrary() {
+            // Setup range sliders
+            const rangeMin = document.getElementById('rangeMin');
+            const rangeMax = document.getElementById('rangeMax');
+            const rangeTrack = document.getElementById('rangeTrack');
+
+            function updateRangeTrack() {
+                const min = parseInt(rangeMin.value);
+                const max = parseInt(rangeMax.value);
+
+                // Prevent crossing
+                if (min > max) {
+                    if (this === rangeMin) {
+                        rangeMax.value = min;
+                    } else {
+                        rangeMin.value = max;
+                    }
+                }
+
+                minLevel = parseInt(rangeMin.value);
+                maxLevel = parseInt(rangeMax.value);
+
+                const percentMin = (minLevel / 4) * 100;
+                const percentMax = (maxLevel / 4) * 100;
+
+                rangeTrack.style.left = percentMin + '%';
+                rangeTrack.style.width = (percentMax - percentMin) + '%';
+
+                loadArticles();
+            }
+
+            rangeMin.addEventListener('input', updateRangeTrack);
+            rangeMax.addEventListener('input', updateRangeTrack);
+            updateRangeTrack();
+
+            // Tag filters
+            const tagFilters = document.getElementById('tagFilters');
+            tagFilters.innerHTML = '';
+            CleansheetCore.tags.slice(0, 12).forEach(tag => {
+                const pill = document.createElement('div');
+                pill.className = 'filter-pill';
+                pill.textContent = tag;
+                pill.onclick = () => toggleTag(tag, pill);
+                tagFilters.appendChild(pill);
+            });
+
+            // Path filters
+            const pathFilters = document.getElementById('pathFilters');
+            pathFilters.innerHTML = '';
+            CleansheetCore.careerPaths.slice(0, 8).forEach(path => {
+                const pill = document.createElement('div');
+                pill.className = 'filter-pill';
+                pill.textContent = path;
+                pill.onclick = () => togglePath(path, pill);
+                pathFilters.appendChild(pill);
+            });
+
+            // Load articles
+            loadArticles();
+        }
+
+        function toggleTag(tag, element) {
+            if (selectedTags.includes(tag)) {
+                selectedTags = selectedTags.filter(t => t !== tag);
+                element.classList.remove('active');
+            } else {
+                selectedTags.push(tag);
+                element.classList.add('active');
+            }
+            loadArticles();
+        }
+
+        function togglePath(path, element) {
+            if (selectedPath === path) {
+                selectedPath = null;
+                element.classList.remove('active');
+            } else {
+                document.querySelectorAll('#pathFilters .filter-pill').forEach(p => p.classList.remove('active'));
+                selectedPath = path;
+                element.classList.add('active');
+            }
+            loadArticles();
+        }
+
+        function onLibrarySearch() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                searchQuery = document.getElementById('librarySearch').value;
+                loadArticles();
+            }, 300);
+        }
+
+        async function loadArticles() {
+            const filters = {
+                search: searchQuery,
+                tags: selectedTags,
+                careerPath: selectedPath
+            };
+
+            const result = await dataService.getArticles(filters);
+            const articleGrid = document.getElementById('articleGrid');
+            const resultsCount = document.getElementById('resultsCount');
+
+            // Map level names to indices
+            const levelMap = {
+                'Neophyte': 0,
+                'Novice': 1,
+                'Operator': 2,
+                'Expert': 3,
+                'Academic': 4
+            };
+
+            // Filter by level range locally
+            let filteredArticles = result.articles.filter(article => {
+                const articleLevelIndex = levelMap[article.level] || 2; // Default to Operator if unknown
+                return articleLevelIndex >= minLevel && articleLevelIndex <= maxLevel;
+            });
+
+            // Update results count
+            const totalArticles = await dataService.getArticles({});
+            const isFiltered = (minLevel > 0 || maxLevel < 4) || selectedTags.length > 0 || selectedPath || searchQuery;
+            if (isFiltered) {
+                resultsCount.textContent = `Showing ${filteredArticles.length} of ${totalArticles.articles.length} articles`;
+            } else {
+                resultsCount.textContent = `${totalArticles.articles.length} curated technical articles`;
+            }
+
+            if (filteredArticles.length === 0) {
+                articleGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--color-neutral-text-muted);">
+                        <i class="ph ph-books" style="font-size: 64px; margin-bottom: 16px; display: block;"></i>
+                        <h3 style="margin: 0 0 8px 0; color: var(--color-neutral-text);">No articles found</h3>
+                        <p style="margin: 0;">Try adjusting your filters or search query</p>
+                    </div>
+                `;
+                return;
+            }
+
+            articleGrid.innerHTML = filteredArticles.map(article => {
+                const summary = article.executiveSummary || article.overviewSummary || article.subtitle || '';
+                const readingTime = article.readingTime || CleansheetCore.utils.calculateReadingTime(article.content || '');
+
+                return `
+                    <div class="article-card" onclick="openArticle('${article.id}')">
+                        <h3>${CleansheetCore.utils.sanitizeHTML(article.title)}</h3>
+                        <p class="subtitle">${CleansheetCore.utils.sanitizeHTML(CleansheetCore.utils.truncate(summary, 120))}</p>
+                        <div class="metadata">
+                            <span class="level-badge">${article.level || 'Operator'}</span>
+                            ${(article.tags || []).slice(0, 3).map(tag => `<span class="tag-badge">${CleansheetCore.utils.sanitizeHTML(tag)}</span>`).join('')}
+                            <span class="reading-time"><i class="ph ph-clock"></i> ${readingTime} min</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openArticle(articleId) {
+            currentArticleId = articleId;
+            const article = await dataService.getArticle(articleId);
+
+            if (!article) {
+                CleansheetCore.utils.showToast('Article not found', 'error');
+                return;
+            }
+
+            document.getElementById('readingTitle').textContent = article.title;
+
+            // Build article content
+            let contentHtml = '';
+
+            // Article metadata
+            const readingTime = article.readingTime || CleansheetCore.utils.calculateReadingTime(article.content || '');
+            const wordCount = article.wordCount || 0;
+            const publishDate = article.publishDate ? CleansheetCore.utils.formatDate(article.publishDate) : null;
+
+            contentHtml += `
+                <div style="display: flex; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--color-neutral-border); margin-bottom: 24px; font-size: 14px; color: var(--color-neutral-text-light); flex-wrap: wrap;">
+                    <span><i class="ph ph-clock"></i> ${readingTime} min read</span>
+                    ${wordCount > 0 ? `<span><i class="ph ph-text-align-left"></i> ${wordCount.toLocaleString()} words</span>` : ''}
+                    <span><i class="ph ph-graduation-cap"></i> ${article.level || 'Operator'}</span>
+                    ${publishDate ? `<span><i class="ph ph-calendar"></i> ${publishDate}</span>` : ''}
+                </div>
+            `;
+
+            // Check if corpus file exists and embed full article
+            if (article.fileKey && article.corpusFileExists !== false) {
+                // Use iframe to embed the full corpus article (avoids CORS issues with file:// protocol)
+                contentHtml += `
+                    <iframe
+                        src="corpus/${article.fileKey}"
+                        style="width: 100%; border: none; min-height: 2000px; background: white;"
+                        onload="this.style.height = (this.contentWindow.document.body.scrollHeight + 40) + 'px';"
+                        title="${CleansheetCore.utils.sanitizeHTML(article.title)}">
+                    </iframe>
+                `;
+
+                // Add metadata footer
+                contentHtml += `<div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--color-neutral-border);">`;
+
+                if (article.tags && article.tags.length > 0) {
+                    contentHtml += `
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="font-size: 14px; text-transform: uppercase; color: var(--color-neutral-text-muted); margin-bottom: 12px;">Topics</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${article.tags.map(tag => `<span class="tag-badge">${CleansheetCore.utils.sanitizeHTML(tag)}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (article.keywords && article.keywords.length > 0) {
+                    contentHtml += `
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="font-size: 14px; text-transform: uppercase; color: var(--color-neutral-text-muted); margin-bottom: 12px;">Keywords</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${article.keywords.map(kw => `<span class="tag-badge" style="background: #f0f0f0; color: #666;">${CleansheetCore.utils.sanitizeHTML(kw)}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (article.careerPaths && article.careerPaths.length > 0) {
+                    contentHtml += `
+                        <div>
+                            <h3 style="font-size: 14px; text-transform: uppercase; color: var(--color-neutral-text-muted); margin-bottom: 12px;">Relevant Career Paths</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${article.careerPaths.map(path => `<span class="tag-badge">${CleansheetCore.utils.sanitizeHTML(path)}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                contentHtml += `</div>`;
+            } else {
+                // No corpus file, show summary content
+                if (article.executiveSummary) {
+                    contentHtml += `
+                        <div style="margin-bottom: 32px;">
+                            <h2 style="color: var(--color-primary-blue); margin-bottom: 16px;">Summary</h2>
+                            <p style="line-height: 1.8;">${article.executiveSummary}</p>
+                        </div>
+                    `;
+                }
+
+                if (article.detailedSummary) {
+                    contentHtml += `
+                        <div style="margin-bottom: 32px;">
+                            <h2 style="color: var(--color-primary-blue); margin-bottom: 16px;">Overview</h2>
+                            <p style="line-height: 1.8;">${article.detailedSummary}</p>
+                        </div>
+                    `;
+                }
+
+                contentHtml += contentHtml || '<p>Content not available.</p>';
+            }
+
+            document.getElementById('readingContent').innerHTML = contentHtml;
+            document.getElementById('readingView').classList.add('active');
+        }
+
+        function closeReading() {
+            document.getElementById('readingView').classList.remove('active');
+            currentArticleId = null;
+        }
+
+        // Left Panel Functions
+        function toggleLeftPanel() {
+            const canvasContainer = document.getElementById('canvasContainer');
+            const toggleBtn = document.getElementById('panelToggleBtn');
+            const isExpanded = canvasContainer.classList.toggle('expanded');
+
+            // Update arrow icon direction
+            const icon = toggleBtn.querySelector('i');
+            icon.className = isExpanded ? 'ph ph-caret-left' : 'ph ph-caret-right';
+        }
+
+        function switchLeftTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.left-panel-tab').forEach(tab => {
+                if (tab.getAttribute('data-left-tab') === tabName) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Update tab content
+            const calendarTab = document.getElementById('calendarTab');
+            const aiTab = document.getElementById('aiTab');
+
+            if (tabName === 'calendar') {
+                calendarTab.classList.add('active');
+                aiTab.classList.remove('active');
+            } else {
+                aiTab.classList.add('active');
+                calendarTab.classList.remove('active');
+            }
+        }
+
+        // Calendar Functions
+        function syncGoogleCalendar() {
+            CleansheetCore.utils.showToast('Google Calendar sync coming soon', 'info');
+            console.log('Google Calendar OAuth flow would start here');
+            // TODO: Implement Google Calendar OAuth
+            // 1. Redirect to Google OAuth consent screen
+            // 2. Get authorization code
+            // 3. Exchange for access token
+            // 4. Fetch calendar events
+        }
+
+        function syncOutlookCalendar() {
+            CleansheetCore.utils.showToast('Outlook Calendar sync coming soon', 'info');
+            console.log('Outlook Calendar OAuth flow would start here');
+            // TODO: Implement Microsoft Graph API OAuth
+            // 1. Redirect to Microsoft OAuth consent screen
+            // 2. Get authorization code
+            // 3. Exchange for access token
+            // 4. Fetch calendar events via Graph API
+        }
+
+        // AI Agent Functions
+        let aiConversationHistory = [];
+
+        async function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const messagesContainer = document.getElementById('aiMessages');
+            const sendBtn = document.getElementById('aiSendBtn');
+
+            // Add user message to UI
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'ai-message user';
+            userMsgDiv.textContent = message;
+            messagesContainer.appendChild(userMsgDiv);
+
+            // Clear input and disable button
+            input.value = '';
+            sendBtn.disabled = true;
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Add to conversation history
+            aiConversationHistory.push({
+                role: 'user',
+                content: message
+            });
+
+            try {
+                // TODO: Replace with actual AI API call
+                // For now, show a placeholder response
+                const response = await simulateAIResponse(message);
+
+                // Add assistant message to UI
+                const assistantMsgDiv = document.createElement('div');
+                assistantMsgDiv.className = 'ai-message assistant';
+                assistantMsgDiv.textContent = response;
+                messagesContainer.appendChild(assistantMsgDiv);
+
+                // Add to conversation history
+                aiConversationHistory.push({
+                    role: 'assistant',
+                    content: response
+                });
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            } catch (error) {
+                console.error('AI response error:', error);
+                CleansheetCore.utils.showToast('Failed to get AI response', 'error');
+            } finally {
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        async function simulateAIResponse(userMessage) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Simple response logic (replace with actual AI API call)
+            const lowerMessage = userMessage.toLowerCase();
+
+            if (lowerMessage.includes('job') || lowerMessage.includes('career')) {
+                return "I can help you with your job search! Based on your profile and the Cleansheet library, I can suggest relevant articles, help you identify skills gaps, and recommend learning paths. What specific aspect of your career would you like to focus on?";
+            } else if (lowerMessage.includes('learn') || lowerMessage.includes('skill')) {
+                return "Great! Learning new skills is key to career advancement. I can recommend articles from our library based on your current level and goals. What technical areas are you interested in exploring?";
+            } else if (lowerMessage.includes('resume') || lowerMessage.includes('cv')) {
+                return "I can help you optimize your resume! Consider highlighting projects from your portfolio, quantifying your achievements, and tailoring your skills to match job descriptions. Would you like specific tips for your target role?";
+            } else {
+                return "I'm here to help with your career development! I can assist with job search strategies, learning paths, skill assessments, and more. What would you like to know?";
+            }
+        }
+
+        // Handle window resize to redraw mindmap
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Only redraw if we're in seeker mode with mindmap visible
+                if (currentViewMode === 'seeker') {
+                    initializeCanvas();
+                }
+            }, 250);
+        });
+
+    </script>
+</body>
+</html>
