@@ -1,0 +1,610 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ML Pipeline Management Schema",
+  "description": "Schema for managing AI-powered content transformation pipeline",
+  "type": "object",
+  "required": ["pipeline", "stages", "settings"],
+  "properties": {
+    "pipeline": {
+      "type": "object",
+      "description": "Pipeline-level configuration",
+      "required": ["id", "name", "status", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "paused", "maintenance", "testing"]
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "stages": {
+      "type": "object",
+      "description": "Configuration for each pipeline stage",
+      "properties": {
+        "corpus": {
+          "$ref": "#/definitions/corpusStage"
+        },
+        "ml_processing": {
+          "$ref": "#/definitions/mlProcessingStage"
+        },
+        "generation": {
+          "$ref": "#/definitions/generationStage"
+        },
+        "interactive": {
+          "$ref": "#/definitions/interactiveStage"
+        },
+        "rag": {
+          "$ref": "#/definitions/ragStage"
+        },
+        "delivery": {
+          "$ref": "#/definitions/deliveryStage"
+        },
+        "feedback": {
+          "$ref": "#/definitions/feedbackStage"
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "description": "Global pipeline settings",
+      "properties": {
+        "processing": {
+          "$ref": "#/definitions/processingSettings"
+        },
+        "quality": {
+          "$ref": "#/definitions/qualitySettings"
+        },
+        "monitoring": {
+          "$ref": "#/definitions/monitoringSettings"
+        },
+        "security": {
+          "$ref": "#/definitions/securitySettings"
+        }
+      }
+    },
+    "content_sources": {
+      "type": "array",
+      "description": "Content sources feeding into the pipeline",
+      "items": {
+        "$ref": "#/definitions/contentSource"
+      }
+    },
+    "output_channels": {
+      "type": "array",
+      "description": "Delivery channels for processed content",
+      "items": {
+        "$ref": "#/definitions/outputChannel"
+      }
+    }
+  },
+  "definitions": {
+    "corpusStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "type": {
+                "type": "string",
+                "enum": ["cms", "database", "api", "file_system"]
+              },
+              "connection_string": {"type": "string"},
+              "sync_frequency": {
+                "type": "string",
+                "enum": ["realtime", "hourly", "daily", "weekly", "manual"]
+              }
+            }
+          }
+        },
+        "metadata_schema": {
+          "type": "object",
+          "properties": {
+            "required_fields": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "taxonomy": {
+              "type": "object",
+              "properties": {
+                "topics": {"type": "array", "items": {"type": "string"}},
+                "difficulty_levels": {"type": "array", "items": {"type": "string"}},
+                "content_types": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          }
+        },
+        "summary_levels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "max_tokens": {"type": "integer"},
+              "target_audience": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "mlProcessingStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "models": {
+          "type": "object",
+          "properties": {
+            "content_analyzer": {
+              "$ref": "#/definitions/modelConfig"
+            },
+            "language_processor": {
+              "$ref": "#/definitions/modelConfig"
+            },
+            "audio_generator": {
+              "$ref": "#/definitions/modelConfig"
+            }
+          }
+        },
+        "processing_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "content_type": {"type": "string"},
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["analyze", "summarize", "extract_concepts", "generate_questions", "create_audio"]
+                }
+              }
+            }
+          }
+        },
+        "batch_settings": {
+          "type": "object",
+          "properties": {
+            "batch_size": {"type": "integer", "minimum": 1},
+            "parallel_workers": {"type": "integer", "minimum": 1},
+            "timeout_seconds": {"type": "integer", "minimum": 60}
+          }
+        }
+      }
+    },
+    "generationStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["mobile", "tablet", "desktop", "audio", "video"]
+              },
+              "enabled": {"type": "boolean"},
+              "settings": {
+                "type": "object",
+                "properties": {
+                  "max_section_length": {"type": "integer"},
+                  "include_media": {"type": "boolean"},
+                  "interaction_mode": {
+                    "type": "string",
+                    "enum": ["read", "interactive", "immersive"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {"type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$"},
+              "enabled": {"type": "boolean"},
+              "translation_service": {"type": "string"},
+              "quality_threshold": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        },
+        "audio_settings": {
+          "type": "object",
+          "properties": {
+            "voice_provider": {
+              "type": "string",
+              "enum": ["azure", "google", "amazon", "elevenlabs"]
+            },
+            "default_voice": {"type": "string"},
+            "speed": {"type": "number", "minimum": 0.5, "maximum": 2},
+            "pitch": {"type": "number", "minimum": -20, "maximum": 20}
+          }
+        }
+      }
+    },
+    "interactiveStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "systems": {
+          "type": "object",
+          "properties": {
+            "learner": {
+              "type": "object",
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "model": {"type": "string"},
+                "max_context_tokens": {"type": "integer"},
+                "personalization_level": {
+                  "type": "string",
+                  "enum": ["none", "basic", "advanced", "full"]
+                }
+              }
+            },
+            "coach": {
+              "type": "object",
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "model": {"type": "string"},
+                "coaching_styles": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                }
+              }
+            },
+            "expert": {
+              "type": "object",
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "model": {"type": "string"},
+                "knowledge_domains": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "conversation_settings": {
+          "type": "object",
+          "properties": {
+            "max_turns": {"type": "integer"},
+            "context_window": {"type": "integer"},
+            "memory_persistence": {"type": "boolean"},
+            "safety_filters": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "ragStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "vector_store": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": ["pinecone", "weaviate", "qdrant", "chroma", "azure_search"]
+            },
+            "connection_string": {"type": "string"},
+            "index_name": {"type": "string"},
+            "dimensions": {"type": "integer"}
+          }
+        },
+        "embedding": {
+          "type": "object",
+          "properties": {
+            "model": {"type": "string"},
+            "chunk_size": {"type": "integer"},
+            "chunk_overlap": {"type": "integer"},
+            "batch_size": {"type": "integer"}
+          }
+        },
+        "retrieval": {
+          "type": "object",
+          "properties": {
+            "top_k": {"type": "integer", "minimum": 1, "maximum": 100},
+            "similarity_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+            "rerank": {"type": "boolean"},
+            "hybrid_search": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "deliveryStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["mobile_app", "tablet_app", "web_portal", "api", "podcast", "email"]
+              },
+              "enabled": {"type": "boolean"},
+              "endpoint": {"type": "string"},
+              "authentication": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "type": "string",
+                    "enum": ["none", "api_key", "oauth", "jwt"]
+                  },
+                  "config": {"type": "object"}
+                }
+              },
+              "caching": {
+                "type": "object",
+                "properties": {
+                  "enabled": {"type": "boolean"},
+                  "ttl_seconds": {"type": "integer"},
+                  "cdn_enabled": {"type": "boolean"}
+                }
+              }
+            }
+          }
+        },
+        "personalization": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "user_profile_source": {"type": "string"},
+            "recommendation_engine": {"type": "string"},
+            "a_b_testing": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "feedbackStage": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "collection": {
+          "type": "object",
+          "properties": {
+            "quality_ratings": {"type": "boolean"},
+            "engagement_metrics": {"type": "boolean"},
+            "completion_tracking": {"type": "boolean"},
+            "user_feedback": {"type": "boolean"}
+          }
+        },
+        "analytics": {
+          "type": "object",
+          "properties": {
+            "anonymization_level": {
+              "type": "string",
+              "enum": ["none", "partial", "full"]
+            },
+            "aggregation_window": {
+              "type": "string",
+              "enum": ["hourly", "daily", "weekly", "monthly"]
+            },
+            "retention_days": {"type": "integer", "minimum": 1}
+          }
+        },
+        "improvement": {
+          "type": "object",
+          "properties": {
+            "auto_tuning": {"type": "boolean"},
+            "retraining_schedule": {
+              "type": "string",
+              "enum": ["continuous", "daily", "weekly", "monthly", "manual"]
+            },
+            "minimum_samples": {"type": "integer"},
+            "confidence_threshold": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      }
+    },
+    "modelConfig": {
+      "type": "object",
+      "properties": {
+        "provider": {"type": "string"},
+        "model_name": {"type": "string"},
+        "version": {"type": "string"},
+        "endpoint": {"type": "string"},
+        "api_key": {"type": "string"},
+        "parameters": {"type": "object"}
+      }
+    },
+    "processingSettings": {
+      "type": "object",
+      "properties": {
+        "max_concurrent_jobs": {"type": "integer"},
+        "queue_type": {
+          "type": "string",
+          "enum": ["fifo", "priority", "deadline"]
+        },
+        "retry_policy": {
+          "type": "object",
+          "properties": {
+            "max_retries": {"type": "integer"},
+            "backoff_multiplier": {"type": "number"}
+          }
+        }
+      }
+    },
+    "qualitySettings": {
+      "type": "object",
+      "properties": {
+        "content_validation": {
+          "type": "object",
+          "properties": {
+            "fact_checking": {"type": "boolean"},
+            "plagiarism_detection": {"type": "boolean"},
+            "toxicity_filtering": {"type": "boolean"},
+            "quality_score_threshold": {"type": "number"}
+          }
+        },
+        "output_validation": {
+          "type": "object",
+          "properties": {
+            "format_checking": {"type": "boolean"},
+            "completeness_check": {"type": "boolean"},
+            "consistency_check": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "monitoringSettings": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {
+                "type": "string",
+                "enum": ["counter", "gauge", "histogram", "summary"]
+              },
+              "unit": {"type": "string"},
+              "alert_threshold": {"type": "number"}
+            }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "string",
+              "enum": ["debug", "info", "warning", "error"]
+            },
+            "destinations": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "alerting": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["email", "slack", "teams", "pagerduty", "webhook"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySettings": {
+      "type": "object",
+      "properties": {
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "at_rest": {"type": "boolean"},
+            "in_transit": {"type": "boolean"},
+            "key_management": {
+              "type": "string",
+              "enum": ["managed", "customer", "hsm"]
+            }
+          }
+        },
+        "access_control": {
+          "type": "object",
+          "properties": {
+            "authentication_required": {"type": "boolean"},
+            "rbac_enabled": {"type": "boolean"},
+            "ip_whitelist": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "compliance": {
+          "type": "object",
+          "properties": {
+            "gdpr": {"type": "boolean"},
+            "ccpa": {"type": "boolean"},
+            "hipaa": {"type": "boolean"},
+            "sox": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "contentSource": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "type": {
+          "type": "string",
+          "enum": ["cms", "database", "api", "file", "streaming"]
+        },
+        "config": {"type": "object"},
+        "schedule": {"type": "string"},
+        "filters": {"type": "object"}
+      }
+    },
+    "outputChannel": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "type": {
+          "type": "string",
+          "enum": ["mobile", "web", "api", "file", "streaming"]
+        },
+        "endpoint": {"type": "string"},
+        "format": {"type": "string"},
+        "schedule": {"type": "string"}
+      }
+    }
+  }
+}

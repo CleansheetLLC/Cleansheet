@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Pipeline Operator - Cleansheet</title>
+    <link rel="icon" type="image/png" href="assets/high-resolution-logo-files/white-on-transparent.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <style>
+        /* Cleansheet Design System - Corporate Professional */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+            --color-highlight: #11304f;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Status Colors */
+            --color-success: #16a34a;
+            --color-warning: #d97706;
+            --color-error: #dc2626;
+            --color-info: #0284c7;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+        }
+
+        /* Header - Removed */
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 24px;
+            padding: 24px;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 24px;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-neutral-text-muted);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            margin-bottom: 4px;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            color: var(--color-neutral-text-light);
+        }
+
+        .nav-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .nav-item.active {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .nav-item.active i {
+            color: white;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .content-header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-title {
+            font-family: var(--font-family-ui);
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+        }
+
+        .content-description {
+            font-size: 14px;
+            color: var(--color-neutral-text-light);
+            line-height: 1.6;
+        }
+
+        .content-body {
+            display: none;
+        }
+
+        .content-body.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title i {
+            font-size: 24px;
+            color: var(--color-primary-blue);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            margin-bottom: 6px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            font-weight: 300;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-neutral-border);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--color-success);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .toggle-group:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-title {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            margin-bottom: 2px;
+        }
+
+        .toggle-description {
+            font-size: 12px;
+            color: var(--color-neutral-text-light);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-blue);
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-neutral-border);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: var(--color-error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-family: var(--font-family-ui);
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--color-primary-blue);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--color-neutral-text-light);
+            font-family: var(--font-family-ui);
+        }
+
+        /* Stage Cards */
+        .stage-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .stage-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--color-primary-blue);
+            transition: all 0.2s;
+        }
+
+        .stage-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stage-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .stage-card-title {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .stage-card-icon {
+            font-size: 24px;
+            color: var(--color-primary-blue);
+        }
+
+        .stage-card-description {
+            font-size: 13px;
+            color: var(--color-neutral-text-light);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .stage-card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+        }
+
+        .stage-card-status.enabled {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--color-success);
+        }
+
+        .stage-card-status.disabled {
+            background: rgba(153, 153, 153, 0.1);
+            color: var(--color-neutral-text-muted);
+        }
+
+        /* Config List */
+        .config-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--color-neutral-background-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .config-item-label {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+        }
+
+        .config-item-value {
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            color: var(--color-neutral-text-light);
+            font-weight: 300;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+        }
+
+        .badge-blue {
+            background: #e3f2fd;
+            color: var(--color-primary-blue);
+        }
+
+        .badge-green {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge-orange {
+            background: rgba(217, 119, 6, 0.1);
+            color: var(--color-warning);
+        }
+
+        .badge-red {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--color-error);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-family: var(--font-family-ui);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--color-neutral-text-light);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-neutral-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-message {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                padding: 16px;
+                gap: 16px;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stage-cards {
+                grid-template-columns: 1fr;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="ph ph-gauge"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="pipeline-config">
+                    <i class="ph ph-gear"></i>
+                    <span>Pipeline Config</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Pipeline Stages</div>
+                <div class="nav-item" data-section="corpus">
+                    <i class="ph ph-books"></i>
+                    <span>Corpus</span>
+                </div>
+                <div class="nav-item" data-section="ml-processing">
+                    <i class="ph ph-cpu"></i>
+                    <span>ML Processing</span>
+                </div>
+                <div class="nav-item" data-section="generation">
+                    <i class="ph ph-magic-wand"></i>
+                    <span>Generation</span>
+                </div>
+                <div class="nav-item" data-section="interactive">
+                    <i class="ph ph-chats"></i>
+                    <span>Interactive</span>
+                </div>
+                <div class="nav-item" data-section="rag">
+                    <i class="ph ph-database"></i>
+                    <span>RAG</span>
+                </div>
+                <div class="nav-item" data-section="delivery">
+                    <i class="ph ph-rocket-launch"></i>
+                    <span>Delivery</span>
+                </div>
+                <div class="nav-item" data-section="feedback">
+                    <i class="ph ph-arrows-clockwise"></i>
+                    <span>Feedback</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <div class="nav-item" data-section="monitoring">
+                    <i class="ph ph-chart-line"></i>
+                    <span>Monitoring</span>
+                </div>
+                <div class="nav-item" data-section="security">
+                    <i class="ph ph-shield"></i>
+                    <span>Security</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Dashboard -->
+            <div class="content-body active" id="dashboard">
+                <div class="content-header">
+                    <h1 class="content-title">Pipeline Dashboard</h1>
+                    <p class="content-description">Monitor and manage your AI-powered content transformation pipeline</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statContentProcessed">1,247</div>
+                        <div class="stat-label">Content Items Processed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statFormatsGenerated">3,741</div>
+                        <div class="stat-label">Formats Generated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statActiveJobs">12</div>
+                        <div class="stat-label">Active Processing Jobs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statAvgProcessTime">2.3s</div>
+                        <div class="stat-label">Avg Processing Time</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-flow-arrow"></i>
+                        Pipeline Stages
+                    </h2>
+                    <div class="stage-cards">
+                        <div class="stage-card" data-stage="corpus">
+                            <div class="stage-card-header">
+                                <h3 class="stage-card-title">Corpus</h3>
+                                <i class="ph ph-books stage-card-icon"></i>
+                            </div>
+                            <p class="stage-card-description">Published content with metadata, tags, and multi-level summaries</p>
+                            <span class="stage-card-status enabled">
+                                <i class="ph ph-check-circle"></i>
+                                Enabled
+                            </span>
+                        </div>
+
+                        <div class="stage-card" data-stage="ml-processing">
+                            <div class="stage-card-header">
+                                <h3 class="stage-card-title">ML Processing</h3>
+                                <i class="ph ph-cpu stage-card-icon"></i>
+                            </div>
+                            <p class="stage-card-description">AI-powered semantic analysis and content processing</p>
+                            <span class="stage-card-status enabled">
+                                <i class="ph ph-check-circle"></i>
+                                Enabled
+                            </span>
+                        </div>
+
+                        <div class="stage-card" data-stage="generation">
+                            <div class="stage-card-header">
+                                <h3 class="stage-card-title">Generation</h3>
+                                <i class="ph ph-magic-wand stage-card-icon"></i>
+                            </div>
+                            <p class="stage-card-description">Multi-format, multi-language content generation</p>
+                            <span class="stage-card-status enabled">
+                                <i class="ph ph-check-circle"></i>
+                                Enabled
+                            </span>
+                        </div>
+
+                        <div class="stage-card" data-stage="interactive">
+                            <div class="stage-card-header">
+                                <h3 class="stage-card-title">Interactive</h3>
+                                <i class="ph ph-chats stage-card-icon"></i>
+                            </div>
+                            <p class="stage-card-description">Natural language interfaces for learner, coach, and expert</p>
+                            <span class="stage-card-status disabled">
+                                <i class="ph ph-x-circle"></i>
+                                Disabled
+                            </span>
+                        </div>
+
+                        <div class="stage-card" data-stage="rag">
+                            <div class="stage-card-header">
+                                <h3 class="stage-card-title">RAG</h3>
+                                <i class="ph ph-database stage-card-icon"></i>
+                            </div>
+                            <p class="stage-card-description">Vector embeddings and semantic search for LLM enhancement</p>
+                            <span class="stage-card-status disabled">
+                                <i class="ph ph-x-circle"></i>
+                                Disabled
+                            </span>
+                        </div>
+
+                        <div class="stage-card" data-stage="delivery">
+                            <div class="stage-card-header">
+                                <h3 class="stage-card-title">Delivery</h3>
+                                <i class="ph ph-rocket-launch stage-card-icon"></i>
+                            </div>
+                            <p class="stage-card-description">Multi-channel content delivery with personalization</p>
+                            <span class="stage-card-status enabled">
+                                <i class="ph ph-check-circle"></i>
+                                Enabled
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Config -->
+            <div class="content-body" id="pipeline-config">
+                <div class="content-header">
+                    <h1 class="content-title">Pipeline Configuration</h1>
+                    <p class="content-description">Configure global pipeline settings and metadata</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-info"></i>
+                        Pipeline Information
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Pipeline Name</label>
+                        <input type="text" class="form-input" value="Cleansheet Content Pipeline" id="pipelineName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="pipelineDescription">AI-powered content transformation pipeline for multi-format, multi-language educational content delivery</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="pipelineStatus">
+                                <option value="active">Active</option>
+                                <option value="paused">Paused</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="testing">Testing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Version</label>
+                            <input type="text" class="form-input" value="1.0.0" id="pipelineVersion">
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="savePipelineConfig()">
+                            <i class="ph ph-floppy-disk"></i>
+                            Save Configuration
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportConfig()">
+                            <i class="ph ph-download"></i>
+                            Export JSON
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-sliders"></i>
+                        Processing Settings
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max Concurrent Jobs</label>
+                            <input type="number" class="form-input" value="10" id="maxConcurrentJobs">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Queue Type</label>
+                            <select class="form-select" id="queueType">
+                                <option value="fifo">FIFO (First In First Out)</option>
+                                <option value="priority">Priority-based</option>
+                                <option value="deadline">Deadline-driven</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max Retries</label>
+                            <input type="number" class="form-input" value="3" id="maxRetries">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Backoff Multiplier</label>
+                            <input type="number" class="form-input" value="2" step="0.1" id="backoffMultiplier">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Corpus Stage -->
+            <div class="content-body" id="corpus">
+                <div class="content-header">
+                    <h1 class="content-title">Corpus Stage</h1>
+                    <p class="content-description">Configure content sources and metadata schema</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Corpus Stage</div>
+                            <div class="toggle-description">Process content from configured sources</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked id="corpusEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-database"></i>
+                        Content Sources
+                    </h2>
+                    <div class="config-list">
+                        <div class="config-item">
+                            <span class="config-item-label">Primary CMS</span>
+                            <span class="badge badge-green">Connected</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-item-label">Sync Frequency</span>
+                            <span class="config-item-value">Daily at 02:00 UTC</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-item-label">Last Sync</span>
+                            <span class="config-item-value">2025-10-10 02:15 UTC</span>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="openModal('addSourceModal')">
+                            <i class="ph ph-plus"></i>
+                            Add Content Source
+                        </button>
+                        <button class="btn btn-secondary" onclick="syncNow()">
+                            <i class="ph ph-arrows-clockwise"></i>
+                            Sync Now
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-tag"></i>
+                        Metadata Schema
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Required Fields</label>
+                        <div class="badge badge-blue" style="margin-right: 6px;">Title</div>
+                        <div class="badge badge-blue" style="margin-right: 6px;">FileKey</div>
+                        <div class="badge badge-blue" style="margin-right: 6px;">Status</div>
+                        <div class="badge badge-blue" style="margin-right: 6px;">Keywords</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags (20 total)</label>
+                        <textarea class="form-textarea" rows="3" readonly>Project Management, Security, Cloud, DevOps, Career Development, Technical Skills, Professional Skills, Data Analysis, Networking, Development, Testing, Automation, System Design, Architecture</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Career Paths (9 total)</label>
+                        <textarea class="form-textarea" rows="2" readonly>Citizen Developer, Cloud Computing, Project Management, Cloud Operations, Network Operations, Security Operations, Full Stack Developer, AI/ML, Analytics</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ML Processing Stage -->
+            <div class="content-body" id="ml-processing">
+                <div class="content-header">
+                    <h1 class="content-title">ML Processing Stage</h1>
+                    <p class="content-description">Configure AI models and processing rules</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable ML Processing</div>
+                            <div class="toggle-description">AI-powered semantic analysis and content processing</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked id="mlProcessingEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-brain"></i>
+                        Model Configuration
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Content Analyzer</div>
+                            <div class="toggle-description">Azure OpenAI GPT-4</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Language Processor</div>
+                            <div class="toggle-description">Azure OpenAI GPT-4</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Audio Generator</div>
+                            <div class="toggle-description">Azure Speech Services</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-faders"></i>
+                        Batch Processing
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Batch Size</label>
+                            <input type="number" class="form-input" value="10" id="batchSize">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Parallel Workers</label>
+                            <input type="number" class="form-input" value="4" id="parallelWorkers">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Timeout (seconds)</label>
+                        <input type="number" class="form-input" value="300" id="timeoutSeconds">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generation Stage -->
+            <div class="content-body" id="generation">
+                <div class="content-header">
+                    <h1 class="content-title">Generation Stage</h1>
+                    <p class="content-description">Configure multi-format and multi-language output</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Generation Stage</div>
+                            <div class="toggle-description">Generate content in multiple formats and languages</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked id="generationEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-device-mobile"></i>
+                        Output Formats
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Mobile Format</div>
+                            <div class="toggle-description">Touch-friendly layouts with progressive disclosure</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Tablet Format</div>
+                            <div class="toggle-description">Enhanced layouts with rich media</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Desktop Format</div>
+                            <div class="toggle-description">Full-featured web application</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Audio Format</div>
+                            <div class="toggle-description">Natural narration for accessibility</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-translate"></i>
+                        Languages
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Enabled Languages</label>
+                        <select class="form-select" id="languageSelect" multiple style="height: 120px;">
+                            <option value="en" selected>English (en)</option>
+                            <option value="es">Spanish (es)</option>
+                            <option value="fr">French (fr)</option>
+                            <option value="de">German (de)</option>
+                            <option value="zh">Chinese (zh)</option>
+                            <option value="ja">Japanese (ja)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Translation Service</label>
+                        <select class="form-select">
+                            <option value="azure">Azure Translator</option>
+                            <option value="google">Google Translate</option>
+                            <option value="deepl">DeepL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-speaker-high"></i>
+                        Audio Settings
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Voice Provider</label>
+                        <select class="form-select">
+                            <option value="azure" selected>Azure Speech Services</option>
+                            <option value="google">Google Text-to-Speech</option>
+                            <option value="amazon">Amazon Polly</option>
+                            <option value="elevenlabs">ElevenLabs</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Default Voice</label>
+                            <input type="text" class="form-input" value="en-US-JennyNeural">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Speed</label>
+                            <input type="number" class="form-input" value="1.0" step="0.1" min="0.5" max="2.0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Stage -->
+            <div class="content-body" id="interactive">
+                <div class="content-header">
+                    <h1 class="content-title">Interactive Systems</h1>
+                    <p class="content-description">Configure natural language interfaces</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Interactive Systems</div>
+                            <div class="toggle-description">Natural language learner, coach, and expert interfaces</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="interactiveEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-chats-circle"></i>
+                        System Configuration
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Natural Language Learner</div>
+                            <div class="toggle-description">AI tutor adapting explanations to learner knowledge</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Natural Language Coach</div>
+                            <div class="toggle-description">Coaching interface for skill development</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Expert System</div>
+                            <div class="toggle-description">Advanced Q&A for technical deep-dives</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-chat-centered-dots"></i>
+                        Conversation Settings
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max Turns</label>
+                            <input type="number" class="form-input" value="20">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Context Window</label>
+                            <input type="number" class="form-input" value="4096">
+                        </div>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Memory Persistence</div>
+                            <div class="toggle-description">Remember conversation context across sessions</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Safety Filters</div>
+                            <div class="toggle-description">Content moderation and safety checks</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAG Stage -->
+            <div class="content-body" id="rag">
+                <div class="content-header">
+                    <h1 class="content-title">RAG Integration</h1>
+                    <p class="content-description">Configure vector store and semantic search</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable RAG Integration</div>
+                            <div class="toggle-description">Vector embeddings and semantic search for LLM enhancement</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="ragEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-database"></i>
+                        Vector Store
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Provider</label>
+                        <select class="form-select">
+                            <option value="azure_search">Azure AI Search</option>
+                            <option value="pinecone">Pinecone</option>
+                            <option value="weaviate">Weaviate</option>
+                            <option value="qdrant">Qdrant</option>
+                            <option value="chroma">Chroma</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Index Name</label>
+                            <input type="text" class="form-input" value="cleansheet-content">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dimensions</label>
+                            <input type="number" class="form-input" value="1536">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-chart-scatter"></i>
+                        Embedding Configuration
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Embedding Model</label>
+                        <select class="form-select">
+                            <option value="text-embedding-3-large" selected>Azure OpenAI text-embedding-3-large</option>
+                            <option value="text-embedding-ada-002">Azure OpenAI text-embedding-ada-002</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Chunk Size</label>
+                            <input type="number" class="form-input" value="512">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Chunk Overlap</label>
+                            <input type="number" class="form-input" value="50">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-magnifying-glass"></i>
+                        Retrieval Settings
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Top K Results</label>
+                            <input type="number" class="form-input" value="5" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Similarity Threshold</label>
+                            <input type="number" class="form-input" value="0.7" step="0.1" min="0" max="1">
+                        </div>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Rerank Results</div>
+                            <div class="toggle-description">Apply reranking model to improve relevance</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Hybrid Search</div>
+                            <div class="toggle-description">Combine vector and keyword search</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Stage -->
+            <div class="content-body" id="delivery">
+                <div class="content-header">
+                    <h1 class="content-title">Delivery Channels</h1>
+                    <p class="content-description">Configure multi-channel content delivery</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Delivery Stage</div>
+                            <div class="toggle-description">Deliver content across configured channels</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked id="deliveryEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-broadcast"></i>
+                        Delivery Channels
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Mobile App</div>
+                            <div class="toggle-description">iOS and Android native applications</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Tablet App</div>
+                            <div class="toggle-description">Enhanced tablet experience</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Web Portal</div>
+                            <div class="toggle-description">Full-featured web application</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">API Access</div>
+                            <div class="toggle-description">RESTful API for third-party integration</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Podcast Feed</div>
+                            <div class="toggle-description">Audio content delivery via podcast platforms</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-user-focus"></i>
+                        Personalization
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Personalization</div>
+                            <div class="toggle-description">Adapt content based on user preferences and behavior</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">A/B Testing</div>
+                            <div class="toggle-description">Test different content variations</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Stage -->
+            <div class="content-body" id="feedback">
+                <div class="content-header">
+                    <h1 class="content-title">Feedback & Improvement</h1>
+                    <p class="content-description">Configure feedback collection and model retraining</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-toggle-right"></i>
+                        Stage Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Feedback Stage</div>
+                            <div class="toggle-description">Collect feedback and continuously improve the pipeline</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked id="feedbackEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-clipboard-text"></i>
+                        Data Collection
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Quality Ratings</div>
+                            <div class="toggle-description">Collect user feedback on content quality</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Engagement Metrics</div>
+                            <div class="toggle-description">Track time spent, interactions, and engagement</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Completion Tracking</div>
+                            <div class="toggle-description">Monitor content completion rates</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-shield-check"></i>
+                        Privacy & Analytics
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Anonymization Level</label>
+                        <select class="form-select">
+                            <option value="partial">Partial - Basic anonymization</option>
+                            <option value="full" selected>Full - Complete anonymization</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Aggregation Window</label>
+                        <select class="form-select">
+                            <option value="hourly">Hourly</option>
+                            <option value="daily" selected>Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data Retention (days)</label>
+                        <input type="number" class="form-input" value="90">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-arrows-clockwise"></i>
+                        Model Retraining
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Auto-tuning</div>
+                            <div class="toggle-description">Automatically adjust models based on feedback</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Retraining Schedule</label>
+                        <select class="form-select">
+                            <option value="continuous">Continuous</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="manual">Manual Only</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Minimum Samples</label>
+                            <input type="number" class="form-input" value="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confidence Threshold</label>
+                            <input type="number" class="form-input" value="0.85" step="0.05" min="0" max="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring -->
+            <div class="content-body" id="monitoring">
+                <div class="content-header">
+                    <h1 class="content-title">Monitoring & Metrics</h1>
+                    <p class="content-description">Configure pipeline monitoring and alerting</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-chart-line-up"></i>
+                        Metrics Collection
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Processing Throughput</div>
+                            <div class="toggle-description">Track items processed per hour</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Error Rates</div>
+                            <div class="toggle-description">Monitor processing failures</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Latency Metrics</div>
+                            <div class="toggle-description">Track processing time per stage</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Resource Utilization</div>
+                            <div class="toggle-description">Monitor CPU, memory, and API usage</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-file-text"></i>
+                        Logging
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Log Level</label>
+                        <select class="form-select">
+                            <option value="debug">Debug</option>
+                            <option value="info" selected>Info</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Log Destinations</label>
+                        <div class="badge badge-blue" style="margin-right: 6px;">Azure Monitor</div>
+                        <div class="badge badge-blue" style="margin-right: 6px;">Application Insights</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-bell"></i>
+                        Alerting
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable Alerts</div>
+                            <div class="toggle-description">Send notifications when thresholds are exceeded</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Alert Channels</label>
+                        <div>
+                            <label style="display: inline-flex; align-items: center; margin-right: 16px; margin-bottom: 8px;">
+                                <input type="checkbox" checked style="margin-right: 6px;">
+                                <span style="font-size: 13px;">Email</span>
+                            </label>
+                            <label style="display: inline-flex; align-items: center; margin-right: 16px; margin-bottom: 8px;">
+                                <input type="checkbox" style="margin-right: 6px;">
+                                <span style="font-size: 13px;">Slack</span>
+                            </label>
+                            <label style="display: inline-flex; align-items: center; margin-right: 16px; margin-bottom: 8px;">
+                                <input type="checkbox" style="margin-right: 6px;">
+                                <span style="font-size: 13px;">Microsoft Teams</span>
+                            </label>
+                            <label style="display: inline-flex; align-items: center; margin-bottom: 8px;">
+                                <input type="checkbox" style="margin-right: 6px;">
+                                <span style="font-size: 13px;">Webhook</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="content-body" id="security">
+                <div class="content-header">
+                    <h1 class="content-title">Security Settings</h1>
+                    <p class="content-description">Configure encryption, access control, and compliance</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-lock"></i>
+                        Encryption
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Encryption at Rest</div>
+                            <div class="toggle-description">Encrypt data stored in databases and storage</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Encryption in Transit</div>
+                            <div class="toggle-description">Use TLS/SSL for all network communication</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Key Management</label>
+                        <select class="form-select">
+                            <option value="managed" selected>Azure Managed Keys</option>
+                            <option value="customer">Customer Managed Keys</option>
+                            <option value="hsm">Hardware Security Module (HSM)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-user-check"></i>
+                        Access Control
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Authentication Required</div>
+                            <div class="toggle-description">Require authentication for pipeline access</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Role-Based Access Control</div>
+                            <div class="toggle-description">Enforce RBAC for fine-grained permissions</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IP Whitelist</label>
+                        <textarea class="form-textarea" rows="3" placeholder="Enter IP addresses (one per line)"></textarea>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="ph ph-check-square"></i>
+                        Compliance
+                    </h2>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">GDPR Compliance</div>
+                            <div class="toggle-description">European data protection regulation</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">CCPA Compliance</div>
+                            <div class="toggle-description">California consumer privacy act</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">HIPAA Compliance</div>
+                            <div class="toggle-description">Health insurance portability (if applicable)</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">SOX Compliance</div>
+                            <div class="toggle-description">Sarbanes-Oxley financial controls</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Add Source) -->
+    <div class="modal" id="addSourceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Content Source</h2>
+                <button class="modal-close" onclick="closeModal('addSourceModal')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Source Name</label>
+                    <input type="text" class="form-input" placeholder="My CMS">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Source Type</label>
+                    <select class="form-select">
+                        <option value="cms">Content Management System</option>
+                        <option value="database">Database</option>
+                        <option value="api">REST API</option>
+                        <option value="file_system">File System</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Connection String</label>
+                    <input type="text" class="form-input" placeholder="https://api.example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sync Frequency</label>
+                    <select class="form-select">
+                        <option value="realtime">Real-time</option>
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addSourceModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addSource()">Add Source</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="ph ph-check-circle toast-icon" style="color: var(--color-success);"></i>
+        <span class="toast-message" id="toastMessage">Changes saved successfully</span>
+    </div>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Update active nav item
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show corresponding content
+                const section = this.dataset.section;
+                document.querySelectorAll('.content-body').forEach(content => content.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+
+                // Scroll to top
+                window.scrollTo(0, 0);
+            });
+        });
+
+        // Stage cards click handler
+        document.querySelectorAll('.stage-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const stage = this.dataset.stage;
+                const navItem = document.querySelector(`.nav-item[data-section="${stage}"]`);
+                if (navItem) {
+                    navItem.click();
+                }
+            });
+        });
+
+        // Pipeline status - Header removed, status tracking disabled
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = toast.querySelector('.toast-icon');
+
+            toastMessage.textContent = message;
+
+            // Update icon based on type
+            toastIcon.className = 'toast-icon ph ';
+            if (type === 'success') {
+                toastIcon.classList.add('ph-check-circle');
+                toastIcon.style.color = 'var(--color-success)';
+            } else if (type === 'error') {
+                toastIcon.classList.add('ph-x-circle');
+                toastIcon.style.color = 'var(--color-error)';
+            } else if (type === 'warning') {
+                toastIcon.classList.add('ph-warning-circle');
+                toastIcon.style.color = 'var(--color-warning)';
+            } else if (type === 'info') {
+                toastIcon.classList.add('ph-info');
+                toastIcon.style.color = 'var(--color-info)';
+            }
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Save functions
+        function savePipelineConfig() {
+            // In production, this would make an API call
+            showToast('Pipeline configuration saved successfully', 'success');
+        }
+
+        function exportConfig() {
+            // Create JSON config object
+            const config = {
+                pipeline: {
+                    name: document.getElementById('pipelineName').value,
+                    description: document.getElementById('pipelineDescription').value,
+                    status: document.getElementById('pipelineStatus').value,
+                    version: document.getElementById('pipelineVersion').value,
+                },
+                settings: {
+                    processing: {
+                        max_concurrent_jobs: parseInt(document.getElementById('maxConcurrentJobs').value),
+                        queue_type: document.getElementById('queueType').value,
+                        retry_policy: {
+                            max_retries: parseInt(document.getElementById('maxRetries').value),
+                            backoff_multiplier: parseFloat(document.getElementById('backoffMultiplier').value)
+                        }
+                    }
+                },
+                stages: {
+                    corpus: {
+                        enabled: document.getElementById('corpusEnabled').checked
+                    },
+                    ml_processing: {
+                        enabled: document.getElementById('mlProcessingEnabled').checked,
+                        batch_settings: {
+                            batch_size: parseInt(document.getElementById('batchSize').value),
+                            parallel_workers: parseInt(document.getElementById('parallelWorkers').value),
+                            timeout_seconds: parseInt(document.getElementById('timeoutSeconds').value)
+                        }
+                    },
+                    generation: {
+                        enabled: document.getElementById('generationEnabled').checked
+                    },
+                    interactive: {
+                        enabled: document.getElementById('interactiveEnabled').checked
+                    },
+                    rag: {
+                        enabled: document.getElementById('ragEnabled').checked
+                    },
+                    delivery: {
+                        enabled: document.getElementById('deliveryEnabled').checked
+                    },
+                    feedback: {
+                        enabled: document.getElementById('feedbackEnabled').checked
+                    }
+                }
+            };
+
+            // Convert to JSON and download
+            const dataStr = JSON.stringify(config, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ml-pipeline-config.json';
+            link.click();
+
+            showToast('Configuration exported successfully', 'success');
+        }
+
+        function syncNow() {
+            showToast('Content sync initiated...', 'info');
+            // Simulate sync process
+            setTimeout(() => {
+                showToast('Content sync completed successfully', 'success');
+            }, 2000);
+        }
+
+        function addSource() {
+            closeModal('addSourceModal');
+            showToast('Content source added successfully', 'success');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('ML Pipeline Operator initialized');
+        });
+    </script>
+</body>
+</html>
