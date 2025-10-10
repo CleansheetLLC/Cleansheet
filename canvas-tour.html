@@ -28,6 +28,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -679,6 +682,36 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .upload-resume-btn:hover {
             background: var(--color-dark);
             box-shadow: 0 2px 8px rgba(0,70,153,0.3);
+        }
+
+        .data-source-btn {
+            padding: 12px 16px;
+            background: white;
+            color: var(--color-dark);
+            border: 2px solid var(--color-neutral-border);
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .data-source-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: var(--color-neutral-background);
+            color: var(--color-primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 102, 204, 0.15);
+        }
+
+        .data-source-btn i {
+            font-size: 18px;
         }
 
         .stories-container {
@@ -2133,6 +2166,127 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .document-block:focus .drag-handle {
             opacity: 1 !important;
         }
+
+        /* Markdown Preview Styles */
+        .markdown-preview {
+            color: var(--color-dark);
+        }
+
+        .markdown-preview h1,
+        .markdown-preview h2,
+        .markdown-preview h3,
+        .markdown-preview h4,
+        .markdown-preview h5,
+        .markdown-preview h6 {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: var(--color-dark);
+        }
+
+        .markdown-preview h1 { font-size: 28px; }
+        .markdown-preview h2 { font-size: 24px; }
+        .markdown-preview h3 { font-size: 20px; }
+        .markdown-preview h4 { font-size: 18px; }
+        .markdown-preview h5 { font-size: 16px; }
+        .markdown-preview h6 { font-size: 14px; }
+
+        .markdown-preview p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .markdown-preview ul,
+        .markdown-preview ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .markdown-preview li {
+            margin-bottom: 4px;
+        }
+
+        .markdown-preview code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .markdown-preview pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+        }
+
+        .markdown-preview pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .markdown-preview blockquote {
+            border-left: 4px solid var(--color-primary-blue);
+            padding-left: 16px;
+            margin-left: 0;
+            margin-bottom: 12px;
+            color: var(--color-neutral-text);
+        }
+
+        .markdown-preview a {
+            color: var(--color-primary-blue);
+            text-decoration: none;
+        }
+
+        .markdown-preview a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-preview table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .markdown-preview th,
+        .markdown-preview td {
+            border: 1px solid var(--color-neutral-border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .markdown-preview th {
+            background: var(--color-neutral-background);
+            font-weight: 600;
+        }
+
+        .markdown-preview img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Preview button active state */
+        .markdown-preview-btn[data-mode="preview"] {
+            background: var(--color-primary-blue) !important;
+            color: white !important;
+        }
+
+        .markdown-preview-btn[data-mode="preview"] i {
+            color: white;
+        }
+
+        /* Table Selector Cards */
+        .document-block [onclick^="createCleansheetTable"]:hover,
+        .document-block [onclick^="connectCleansheetTable"]:hover,
+        .document-block [onclick^="connectDataSource"]:hover {
+            border-color: var(--color-primary-blue) !important;
+            background: var(--color-neutral-background) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 102, 204, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -2190,10 +2344,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <button class="main-menu-item" id="projectsMenuItem" onclick="setActiveMenu(this); showProjectsView();" style="display: none;">
                         <i class="ph ph-folder-open"></i>
                         <span>Projects</span>
-                    </button>
-                    <button class="main-menu-item" id="integrationsMenuItem" onclick="setActiveMenu(this); showIntegrationsView();" style="display: none;">
-                        <i class="ph ph-plugs-connected"></i>
-                        <span>Integrations</span>
                     </button>
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
                         <!-- Profile Circle -->
@@ -2363,653 +2513,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     </div>
                 </div>
-
-                <!-- Integrations View -->
-                <div id="integrations-view" style="display: none; padding: 40px; overflow-y: auto; height: 100%;">
-                    <h2 style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Integrations</h2>
-                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 32px;">Configure API keys and workflow integrations for external services.</p>
-
-                    <!-- Single Column Layout with Collapsible Category Groups -->
-                    <div style="max-width: 900px;">
-
-                        <!-- LLM Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('llm')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-brain" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">LLM</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="llm-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="llm-category-content" style="display: none; padding: 24px; background: white;">
-                                <!-- Cleansheet AI Toggle -->
-                                <div id="cleansheetAiBox" style="margin-bottom: 20px; padding: 20px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: var(--color-neutral-background-secondary); transition: all 0.3s;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0;">
-                                        <div>
-                                            <div style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Enable Cleansheet AI</div>
-                                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text);">Use Cleansheet's managed AI services</div>
-                                        </div>
-                                        <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
-                                            <input type="checkbox" id="cleansheetAiToggle" onchange="toggleCleansheetAI()" style="opacity: 0; width: 0; height: 0;">
-                                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
-                                            <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
-                                        </label>
-                                    </div>
-                                    <div id="aiBrokerSection" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 102, 204, 0.2);">
-                                        <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">AI Model Broker</div>
-                                        <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-bottom: 12px;">By enabling this feature, you authorize anonymous data to be sent to Cleansheet AI partners for processing.</div>
-                                        <select id="aiBrokerSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; background: white;">
-                                            <option value="openai">OpenAI (GPT-4)</option>
-                                            <option value="anthropic">Anthropic (Claude)</option>
-                                            <option value="azure">Azure OpenAI</option>
-                                            <option value="generic">Generic LLM</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                                    <!-- OpenAI -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div class="integration-header" onclick="toggleIntegrationSection('openai')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-brain" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark);">OpenAI</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="openai-caret" style="font-size: 18px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div class="integration-content" id="openai-content" style="display: none; padding: 16px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 12px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
-                                                <input type="password" placeholder="sk-..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
-                                            </div>
-                                            <button style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Anthropic -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div class="integration-header" onclick="toggleIntegrationSection('anthropic')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-robot" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark);">Anthropic</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="anthropic-caret" style="font-size: 18px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div class="integration-content" id="anthropic-content" style="display: none; padding: 16px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 12px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
-                                                <input type="password" placeholder="sk-ant-..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
-                                            </div>
-                                            <button style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CRM/ERP Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('crm')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-database" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">CRM / ERP</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="crm-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="crm-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Dataverse -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('dataverse')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-database" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Dataverse</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="dataverse-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="dataverse-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Environment URL</label>
-                                                <input type="text" placeholder="org.crm.dynamics.com" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client ID</label>
-                                                <input type="text" placeholder="Client ID" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Salesforce -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('salesforce')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-cloud" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Salesforce</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="salesforce-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="salesforce-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Instance URL</label>
-                                                <input type="text" placeholder="yourinstance.salesforce.com" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Atlassian -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('atlassian')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-kanban" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Atlassian</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="atlassian-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="atlassian-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Site URL</label>
-                                                <input type="text" placeholder="yoursite.atlassian.net" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data Services Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('data')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-chart-bar" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">Data Services</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="data-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="data-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Snowflake -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('snowflake')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-snowflake" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Snowflake</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="snowflake-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="snowflake-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Account</label>
-                                                <input type="text" placeholder="account.snowflakecomputing.com" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Databricks -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('databricks')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-cube" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Databricks</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="databricks-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="databricks-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Workspace URL</label>
-                                                <input type="text" placeholder="adb-xxx.azuredatabricks.net" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- PowerBI -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('powerbi')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-chart-line-up" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Power BI</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="powerbi-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="powerbi-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Workspace ID</label>
-                                                <input type="text" placeholder="Workspace ID" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Finance Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('finance')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-chart-line" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">Finance</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="finance-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="finance-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Bloomberg -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('bloomberg')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-currency-dollar" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Bloomberg</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="bloomberg-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="bloomberg-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
-                                                <input type="password" placeholder="Bloomberg API key" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- FactSet -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('factset')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-chart-bar" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">FactSet</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="factset-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="factset-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
-                                                <input type="password" placeholder="FactSet API key" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Morningstar -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('morningstar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-sun-horizon" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Morningstar</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="morningstar-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="morningstar-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
-                                                <input type="password" placeholder="Morningstar API key" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Yahoo! Finance -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('yahoo-finance')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-trend-up" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Yahoo! Finance</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="yahoo-finance-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="yahoo-finance-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
-                                                <input type="password" placeholder="Yahoo Finance API key" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- File Services Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('fileservices')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-folder-open" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">File Services</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="fileservices-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="fileservices-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Dropbox -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('dropbox')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-dropbox-logo" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Dropbox</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="dropbox-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="dropbox-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Access Token</label>
-                                                <input type="password" placeholder="sl...." style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- OneDrive -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('onedrive')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-microsoft-outlook-logo" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">OneDrive</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="onedrive-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="onedrive-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client ID</label>
-                                                <input type="text" placeholder="Microsoft application client ID" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client Secret</label>
-                                                <input type="password" placeholder="Client secret value" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Google Drive -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('googledrive')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-google-drive-logo" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Google Drive</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="googledrive-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="googledrive-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">OAuth Client ID</label>
-                                                <input type="text" placeholder="Client ID from Google Console" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">OAuth Client Secret</label>
-                                                <input type="password" placeholder="Client secret value" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Box -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('box')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-package" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Box</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="box-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="box-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Developer Token</label>
-                                                <input type="password" placeholder="Developer token from Box Console" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- SharePoint -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('sharepoint')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-share-network" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">SharePoint</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="sharepoint-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="sharepoint-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Site URL</label>
-                                                <input type="text" placeholder="https://yourtenant.sharepoint.com/sites/..." style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Access Token</label>
-                                                <input type="password" placeholder="Bearer token" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- iCloud Drive -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('icloud')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-cloud" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">iCloud Drive</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="icloud-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="icloud-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">CloudKit API Token</label>
-                                                <input type="password" placeholder="CloudKit API token" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Payments & Processing Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('payments')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-credit-card" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">Payments & Processing</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="payments-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="payments-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Stripe -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('stripe')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-credit-card" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Stripe</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="stripe-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="stripe-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Secret Key</label>
-                                                <input type="password" placeholder="sk_..." style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Plaid -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('plaid')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-bank" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Plaid</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="plaid-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="plaid-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client ID</label>
-                                                <input type="text" placeholder="Plaid client ID" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Healthcare Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('healthcare')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-hospital" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">Healthcare</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="healthcare-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="healthcare-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Epic -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('epic')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-heartbeat" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Epic EHR</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="epic-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="epic-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">FHIR Endpoint</label>
-                                                <input type="text" placeholder="https://fhir.epic.com/..." style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Cerner -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('cerner')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-first-aid" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Cerner</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="cerner-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="cerner-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">FHIR Server</label>
-                                                <input type="text" placeholder="https://fhir.cerner.com/..." style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Retail Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('retail')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-storefront" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">Retail</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="retail-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="retail-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Shopify -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('shopify')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-shopping-bag" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Shopify</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="shopify-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="shopify-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Store URL</label>
-                                                <input type="text" placeholder="yourstore.myshopify.com" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Square -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('square')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-square-logo" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Square</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="square-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="square-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Access Token</label>
-                                                <input type="password" placeholder="Square access token" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Insurance Category -->
-                        <div style="margin-bottom: 24px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
-                            <div onclick="toggleIntegrationCategory('insurance')" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--color-neutral-background); cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="ph ph-shield-check" style="font-size: 28px; color: var(--color-primary-blue);"></i>
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0;">Insurance</h3>
-                                </div>
-                                <i class="ph ph-caret-down" id="insurance-category-caret" style="font-size: 24px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                            </div>
-                            <div id="insurance-category-content" style="display: none; padding: 24px; background: white;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                                    <!-- Guidewire -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('guidewire')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-shield-chevron" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Guidewire</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="guidewire-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="guidewire-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Instance URL</label>
-                                                <input type="text" placeholder="yourinstance.guidewire.com" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Duck Creek -->
-                                    <div class="integration-section" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: hidden;">
-                                        <div onclick="toggleIntegrationSection('duckcreek')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: white; cursor: pointer;">
-                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                <i class="ph ph-shield-star" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                                <span style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Duck Creek</span>
-                                            </div>
-                                            <i class="ph ph-caret-down" id="duckcreek-caret" style="font-size: 16px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
-                                        </div>
-                                        <div id="duckcreek-content" style="display: none; padding: 14px; background: var(--color-neutral-background-secondary);">
-                                            <div style="margin-bottom: 10px;">
-                                                <label style="display: block; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Tenant ID</label>
-                                                <input type="text" placeholder="Tenant ID" style="width: 100%; padding: 6px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px;">
-                                            </div>
-                                            <button style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div> <!-- End Single Column Layout -->
-
-                </div> <!-- End integrations-view -->
 
                 <!-- Document Editor Modal -->
                 <div class="modal" id="documentEditorModal">
@@ -3546,6 +3049,287 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     © 2025 Cleansheet LLC. All rights reserved.
                 </div>
             </div>
+
+        <!-- Data Source Selection Modal -->
+        <div class="modal" id="dataSourceModal" style="display: none;">
+            <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Connect Data Source</h2>
+                    <button class="modal-close" onclick="closeDataSourceModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                        Select a data source to import data into your table.
+                    </p>
+
+                    <!-- Two Column Layout -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+                        <!-- Left Column -->
+                        <div>
+                            <!-- CRM & ERP Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('crm')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-buildings" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">CRM & ERP</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="crm-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="crm-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('CRM & ERP', 'Salesforce')" class="data-source-btn">
+                                            <i class="ph ph-cloud"></i> Salesforce
+                                        </button>
+                                        <button onclick="selectDataSource('CRM & ERP', 'Oracle ERP')" class="data-source-btn">
+                                            <i class="ph ph-database"></i> Oracle ERP
+                                        </button>
+                                        <button onclick="selectDataSource('CRM & ERP', 'Microsoft Dynamics')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-logo"></i> MS Dynamics
+                                        </button>
+                                        <button onclick="selectDataSource('CRM & ERP', 'SAP')" class="data-source-btn">
+                                            <i class="ph ph-factory"></i> SAP
+                                        </button>
+                                        <button onclick="selectDataSource('CRM & ERP', 'HubSpot')" class="data-source-btn">
+                                            <i class="ph ph-funnel"></i> HubSpot
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Services Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('data')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-database" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Data Services</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="data-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="data-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('Data Services', 'Snowflake')" class="data-source-btn">
+                                            <i class="ph ph-snowflake"></i> Snowflake
+                                        </button>
+                                        <button onclick="selectDataSource('Data Services', 'Microsoft Dataverse')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-logo"></i> Dataverse
+                                        </button>
+                                        <button onclick="selectDataSource('Data Services', 'AWS S3')" class="data-source-btn">
+                                            <i class="ph ph-amazon-logo"></i> AWS S3
+                                        </button>
+                                        <button onclick="selectDataSource('Data Services', 'Azure Data Lake')" class="data-source-btn">
+                                            <i class="ph ph-cloud"></i> Azure Data Lake
+                                        </button>
+                                        <button onclick="selectDataSource('Data Services', 'Google BigQuery')" class="data-source-btn">
+                                            <i class="ph ph-google-logo"></i> BigQuery
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Services Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('file')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-folder-open" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">File Services</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="file-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="file-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('File Services', 'OneDrive')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-onedrive-logo"></i> OneDrive
+                                        </button>
+                                        <button onclick="selectDataSource('File Services', 'Dropbox')" class="data-source-btn">
+                                            <i class="ph ph-dropbox-logo"></i> Dropbox
+                                        </button>
+                                        <button onclick="selectDataSource('File Services', 'Box')" class="data-source-btn">
+                                            <i class="ph ph-package"></i> Box
+                                        </button>
+                                        <button onclick="selectDataSource('File Services', 'Google Drive')" class="data-source-btn">
+                                            <i class="ph ph-google-drive-logo"></i> Google Drive
+                                        </button>
+                                        <button onclick="selectDataSource('File Services', 'SharePoint')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-sharepoint-logo"></i> SharePoint
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Finance Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('finance')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-chart-line" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Finance</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="finance-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="finance-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('Finance', 'Bloomberg')" class="data-source-btn">
+                                            <i class="ph ph-trend-up"></i> Bloomberg
+                                        </button>
+                                        <button onclick="selectDataSource('Finance', 'Morningstar')" class="data-source-btn">
+                                            <i class="ph ph-star"></i> Morningstar
+                                        </button>
+                                        <button onclick="selectDataSource('Finance', 'Refinitiv')" class="data-source-btn">
+                                            <i class="ph ph-globe"></i> Refinitiv
+                                        </button>
+                                        <button onclick="selectDataSource('Finance', 'FactSet')" class="data-source-btn">
+                                            <i class="ph ph-briefcase"></i> FactSet
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div>
+                            <!-- Payments Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('payments')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-credit-card" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Payments</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="payments-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="payments-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('Payments', 'Stripe')" class="data-source-btn">
+                                            <i class="ph ph-stripe-logo"></i> Stripe
+                                        </button>
+                                        <button onclick="selectDataSource('Payments', 'Plaid')" class="data-source-btn">
+                                            <i class="ph ph-bank"></i> Plaid
+                                        </button>
+                                        <button onclick="selectDataSource('Payments', 'PayPal')" class="data-source-btn">
+                                            <i class="ph ph-paypal-logo"></i> PayPal
+                                        </button>
+                                        <button onclick="selectDataSource('Payments', 'Square')" class="data-source-btn">
+                                            <i class="ph ph-square-logo"></i> Square
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Healthcare Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('healthcare')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-heartbeat" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Healthcare</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="healthcare-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="healthcare-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('Healthcare', 'Epic')" class="data-source-btn">
+                                            <i class="ph ph-hospital"></i> Epic
+                                        </button>
+                                        <button onclick="selectDataSource('Healthcare', 'Cerner')" class="data-source-btn">
+                                            <i class="ph ph-first-aid-kit"></i> Cerner
+                                        </button>
+                                        <button onclick="selectDataSource('Healthcare', 'Meditech')" class="data-source-btn">
+                                            <i class="ph ph-clipboard-text"></i> Meditech
+                                        </button>
+                                        <button onclick="selectDataSource('Healthcare', 'Athenahealth')" class="data-source-btn">
+                                            <i class="ph ph-heartbeat"></i> Athenahealth
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Retail & Ecommerce Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('retail')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-storefront" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Retail & Ecommerce</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="retail-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="retail-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('Retail & Ecommerce', 'Shopify')" class="data-source-btn">
+                                            <i class="ph ph-shopping-bag"></i> Shopify
+                                        </button>
+                                        <button onclick="selectDataSource('Retail & Ecommerce', 'Wix')" class="data-source-btn">
+                                            <i class="ph ph-palette"></i> Wix
+                                        </button>
+                                        <button onclick="selectDataSource('Retail & Ecommerce', 'Square')" class="data-source-btn">
+                                            <i class="ph ph-square-logo"></i> Square
+                                        </button>
+                                        <button onclick="selectDataSource('Retail & Ecommerce', 'WooCommerce')" class="data-source-btn">
+                                            <i class="ph ph-shopping-cart"></i> WooCommerce
+                                        </button>
+                                        <button onclick="selectDataSource('Retail & Ecommerce', 'BigCommerce')" class="data-source-btn">
+                                            <i class="ph ph-storefront"></i> BigCommerce
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Insurance Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden;">
+                                <div onclick="toggleDataSourceCategory('insurance')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-shield-check" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Insurance</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="insurance-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="insurance-content" style="display: none; padding: 16px; background: white;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="selectDataSource('Insurance', 'Guidewire')" class="data-source-btn">
+                                            <i class="ph ph-shield"></i> Guidewire
+                                        </button>
+                                        <button onclick="selectDataSource('Insurance', 'Duck Creek')" class="data-source-btn">
+                                            <i class="ph ph-umbrella"></i> Duck Creek
+                                        </button>
+                                        <button onclick="selectDataSource('Insurance', 'Applied Epic')" class="data-source-btn">
+                                            <i class="ph ph-file-text"></i> Applied Epic
+                                        </button>
+                                        <button onclick="selectDataSource('Insurance', 'Vertafore')" class="data-source-btn">
+                                            <i class="ph ph-buildings"></i> Vertafore
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Source Configuration Modal -->
+        <div class="modal" id="dataSourceConfigModal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px; max-height: 90vh;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="dataSourceConfigTitle">Configure Data Source</h2>
+                    <button class="modal-close" onclick="closeDataSourceConfig()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px; overflow-y: auto; max-height: calc(90vh - 140px);">
+                    <div id="dataSourceConfigForm">
+                        <!-- Form fields will be dynamically generated here -->
+                    </div>
+                </div>
+                <div style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px; background: white;">
+                    <button onclick="closeDataSourceConfig()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer; transition: all 0.2s;">
+                        Cancel
+                    </button>
+                    <button onclick="saveDataSourceConfig()" style="padding: 8px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        <i class="ph ph-check-circle" style="margin-right: 6px;"></i> Save Connection
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Interview Prep Slideout (60% width) - Inside Canvas Modal -->
         <div class="interview-slideout" id="interviewSlideout">
@@ -5664,20 +5448,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const jobSearchMenuItem = document.getElementById('jobSearchMenuItem');
             const libraryMenuItem = document.getElementById('libraryMenuItem');
             const projectsMenuItem = document.getElementById('projectsMenuItem');
-            const integrationsMenuItem = document.getElementById('integrationsMenuItem');
 
             if (mode === 'seeker') {
                 // Seeker mode: Home, Job Search, Library
                 jobSearchMenuItem.style.display = 'flex';
                 libraryMenuItem.style.display = 'flex';
                 projectsMenuItem.style.display = 'none';
-                integrationsMenuItem.style.display = 'none';
             } else if (mode === 'professional') {
-                // Professional mode: Home, Projects, Integrations (no Library, no Job Search)
+                // Professional mode: Home, Projects (no Library, no Job Search)
                 jobSearchMenuItem.style.display = 'none';
                 libraryMenuItem.style.display = 'none';
                 projectsMenuItem.style.display = 'flex';
-                integrationsMenuItem.style.display = 'flex';
 
                 // If currently on Job Search or Library view, switch back to Home
                 const menuName = document.querySelector('.main-menu-item.active span')?.textContent;
@@ -5685,11 +5466,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     document.querySelector('.main-menu-item').click(); // Click Home button
                 }
             } else if (mode === 'learner' || mode === 'personal') {
-                // Learner/Personal mode: Hide Job Search, Projects, and Integrations
+                // Learner/Personal mode: Hide Job Search and Projects
                 jobSearchMenuItem.style.display = 'none';
                 libraryMenuItem.style.display = 'flex';
                 projectsMenuItem.style.display = 'none';
-                integrationsMenuItem.style.display = 'none';
 
                 // If currently on Job Search view, switch back to Home
                 const menuName = document.querySelector('.main-menu-item.active span')?.textContent;
@@ -5897,21 +5677,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             d3.select('#canvas-mindmap').selectAll('*').remove();
         }
 
-        // Integrations View Functions
-        function showIntegrationsView() {
-            // Hide mindmap, show integrations view
-            document.getElementById('canvas-mindmap').style.display = 'none';
-            document.getElementById('projects-view').style.display = 'none';
-            document.getElementById('integrations-view').style.display = 'block';
-        }
-
-        function hideIntegrationsView() {
-            // Show mindmap, hide integrations view
-            document.getElementById('canvas-mindmap').style.display = 'block';
-            document.getElementById('projects-view').style.display = 'none';
-            document.getElementById('integrations-view').style.display = 'none';
-        }
-
         // Projects View Functions
         let projectFolders = [];
         let currentFolderId = null;
@@ -5919,7 +5684,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function showProjectsView() {
             // Hide mindmap and other views, show projects view
             document.getElementById('canvas-mindmap').style.display = 'none';
-            document.getElementById('integrations-view').style.display = 'none';
             document.getElementById('projects-view').style.display = 'flex';
 
             // Load project structure
@@ -6353,15 +6117,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             if (menuName === 'Job Search') {
                 jobSearchView.style.display = 'block';
-                hideIntegrationsView();
                 loadJobSearchView();
             } else if (menuName === 'Library') {
                 libraryView.style.display = 'block';
-                hideIntegrationsView();
                 loadLibraryView();
             } else if (menuName === 'Home') {
                 homeView.style.display = 'contents';
-                hideIntegrationsView();
                 // Redraw mindmap when returning to Home view
                 d3.select('#canvas-mindmap').selectAll('*').remove();
                 if (currentViewMode === 'seeker' || currentViewMode === 'professional') {
@@ -6369,17 +6130,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 } else {
                     setTimeout(() => initializeLearnerNetwork(currentPersona), 50);
                 }
-            } else if (menuName === 'Integrations') {
-                homeView.style.display = 'contents';
-                showIntegrationsView();
             } else if (menuName === 'Projects') {
                 homeView.style.display = 'contents';
-                hideIntegrationsView();
                 // showProjectsView() is called by the onclick handler
             } else {
                 // Reset to home if unimplemented section
                 homeView.style.display = 'contents';
-                hideIntegrationsView();
                 document.querySelector('.main-menu-item').classList.add('active');
                 clickedItem.classList.remove('active');
                 alert(`${menuName} section coming soon! This is a demo of the Canvas interface navigation.`);
@@ -16415,13 +16171,41 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     blockContent = `<div class="quill-container-${blockId}" style="background: white;"></div>`;
                     break;
                 case 'markdown':
-                    blockContent = '<textarea placeholder="Enter markdown content..." style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); outline: none; resize: vertical;"></textarea>';
+                    blockContent = `
+                        <div class="markdown-editor" style="padding-top: 32px;">
+                            <textarea class="markdown-input" placeholder="Enter markdown content..." style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); outline: none; resize: vertical;"></textarea>
+                            <div class="markdown-preview" style="display: none; width: 100%; min-height: 120px; padding: 12px; border: 1px solid var(--color-neutral-border); border-radius: 4px; background: white; font-family: var(--font-family-body); font-size: 14px; line-height: 1.6;"></div>
+                        </div>
+                    `;
                     break;
                 case 'picture':
                     blockContent = '<div style="text-align: center; padding: 40px; background: var(--color-neutral-background); border: 2px dashed var(--color-neutral-border); border-radius: 8px;"><i class="ph ph-image" style="font-size: 48px; color: var(--color-neutral-text-light);"></i><p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 8px 0 0 0;">Click to upload image</p></div>';
                     break;
                 case 'table':
-                    blockContent = '<div style="text-align: center; padding: 40px; background: var(--color-neutral-background); border: 2px dashed var(--color-neutral-border); border-radius: 8px;"><i class="ph ph-table" style="font-size: 48px; color: var(--color-neutral-text-light);"></i><p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 8px 0 0 0;">Click to create table</p></div>';
+                    blockContent = `
+                        <div style="display: flex; gap: 12px; padding: 20px;">
+                            <!-- Create Cleansheet Table -->
+                            <div onclick="createCleansheetTable('${blockId}')" style="flex: 1; text-align: center; padding: 24px 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <i class="ph ph-plus-circle" style="font-size: 32px; color: var(--color-primary-blue); margin-bottom: 8px;"></i>
+                                <p style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Create Cleansheet Table</p>
+                                <p style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); margin: 0;">Build a new table from scratch</p>
+                            </div>
+
+                            <!-- Connect Cleansheet Table -->
+                            <div onclick="connectCleansheetTable('${blockId}')" style="flex: 1; text-align: center; padding: 24px 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <i class="ph ph-link" style="font-size: 32px; color: var(--color-primary-blue); margin-bottom: 8px;"></i>
+                                <p style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Connect Cleansheet Table</p>
+                                <p style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); margin: 0;">Link to existing table</p>
+                            </div>
+
+                            <!-- Connect Data Source -->
+                            <div onclick="connectDataSource('${blockId}')" style="flex: 1; text-align: center; padding: 24px 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                <i class="ph ph-database" style="font-size: 32px; color: var(--color-primary-blue); margin-bottom: 8px;"></i>
+                                <p style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Connect Data Source</p>
+                                <p style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); margin: 0;">Import from external source</p>
+                            </div>
+                        </div>
+                    `;
                     break;
                 case 'code':
                     blockContent = '<textarea placeholder="Enter code..." style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f8f8f8; outline: none; resize: vertical; padding: 12px;"></textarea>';
@@ -16446,11 +16230,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Add control buttons and drag handle (except for divider)
             if (blockType !== 'divider') {
                 block.setAttribute('draggable', 'true');
+
+                // Add preview toggle button for markdown blocks
+                const previewButton = blockType === 'markdown'
+                    ? `<button onclick="toggleMarkdownPreview('${blockId}')" title="Toggle preview" class="block-control-btn markdown-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
+                            <i class="ph ph-eye" style="font-size: 14px;"></i>
+                        </button>`
+                    : '';
+
                 block.innerHTML = `
                     <div class="drag-handle" title="Drag to reorder | Keyboard: Ctrl+Shift+↑/↓" style="position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: grab; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s; opacity: 0;">
                         <i class="ph ph-dots-six-vertical" style="font-size: 16px;"></i>
                     </div>
                     <div class="block-controls" style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
+                        ${previewButton}
                         <button onclick="moveBlockUp('${blockId}')" title="Move up" class="block-control-btn" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
                             <i class="ph ph-arrow-up" style="font-size: 14px;"></i>
                         </button>
@@ -16665,6 +16458,488 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Update button states
             updateBlockControlStates();
+        }
+
+        // Markdown preview toggle
+        function toggleMarkdownPreview(blockId) {
+            const block = document.getElementById(blockId);
+            const editor = block.querySelector('.markdown-editor');
+            const input = editor.querySelector('.markdown-input');
+            const preview = editor.querySelector('.markdown-preview');
+            const toggleBtn = block.querySelector('.markdown-preview-btn');
+            const icon = toggleBtn.querySelector('i');
+
+            const currentMode = toggleBtn.getAttribute('data-mode');
+
+            if (currentMode === 'edit') {
+                // Switch to preview mode
+                const markdownText = input.value;
+
+                // Parse markdown using Marked.js
+                if (typeof marked !== 'undefined') {
+                    // Configure marked for better rendering
+                    marked.setOptions({
+                        breaks: true,
+                        gfm: true,
+                        headerIds: false,
+                        mangle: false
+                    });
+
+                    preview.innerHTML = marked.parse(markdownText);
+                } else {
+                    preview.innerHTML = '<p style="color: red;">Markdown parser not loaded</p>';
+                }
+
+                input.style.display = 'none';
+                preview.style.display = 'block';
+                toggleBtn.setAttribute('data-mode', 'preview');
+                toggleBtn.setAttribute('title', 'Back to edit');
+                icon.className = 'ph ph-pencil-simple';
+            } else {
+                // Switch back to edit mode
+                input.style.display = 'block';
+                preview.style.display = 'none';
+                toggleBtn.setAttribute('data-mode', 'edit');
+                toggleBtn.setAttribute('title', 'Toggle preview');
+                icon.className = 'ph ph-eye';
+            }
+        }
+
+        // Table creation functions
+        function createCleansheetTable(blockId) {
+            alert('Create Cleansheet Table functionality coming soon!\n\nThis will allow you to build a new table from scratch with custom columns and rows.');
+            // TODO: Implement table creation interface
+        }
+
+        function connectCleansheetTable(blockId) {
+            alert('Connect Cleansheet Table functionality coming soon!\n\nThis will allow you to link to an existing Cleansheet table in your workspace.');
+            // TODO: Implement table connection interface
+        }
+
+        function connectDataSource(blockId) {
+            // Store the block ID for later use when connection is established
+            window.currentTableBlockId = blockId;
+
+            // Open the data source selection modal
+            const modal = document.getElementById('dataSourceModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeDataSourceModal() {
+            const modal = document.getElementById('dataSourceModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function toggleDataSourceCategory(category) {
+            const content = document.getElementById(`${category}-content`);
+            const caret = document.getElementById(`${category}-caret`);
+
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                caret.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                caret.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function selectDataSource(category, source) {
+            // Store selected source for configuration
+            window.selectedDataSource = { category, source };
+
+            // Close selection modal and open configuration modal
+            closeDataSourceModal();
+            openDataSourceConfig(category, source);
+        }
+
+        function openDataSourceConfig(category, source) {
+            const modal = document.getElementById('dataSourceConfigModal');
+            const titleEl = document.getElementById('dataSourceConfigTitle');
+            const formEl = document.getElementById('dataSourceConfigForm');
+
+            titleEl.textContent = `Configure ${source}`;
+
+            // Generate form fields based on category and source
+            formEl.innerHTML = getDataSourceConfigFields(category, source);
+
+            modal.style.display = 'flex';
+        }
+
+        function closeDataSourceConfig() {
+            const modal = document.getElementById('dataSourceConfigModal');
+            modal.style.display = 'none';
+        }
+
+        function getDataSourceConfigFields(category, source) {
+            let fields = '';
+
+            // Common authentication section
+            fields += '<div style="margin-bottom: 24px;">';
+            fields += '<h3 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">Authentication</h3>';
+
+            // Category-specific authentication fields
+            if (category === 'CRM & ERP') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Authentication Method</label>
+                        <select id="authMethod" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="oauth">OAuth 2.0</option>
+                            <option value="apikey">API Key</option>
+                            <option value="credentials">Username/Password</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Instance URL</label>
+                        <input type="text" id="instanceUrl" placeholder="https://your-instance.salesforce.com" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client ID</label>
+                        <input type="text" id="clientId" placeholder="Enter client ID" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client Secret</label>
+                        <input type="password" id="clientSecret" placeholder="Enter client secret" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            } else if (category === 'Data Services') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Authentication Method</label>
+                        <select id="authMethod" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="serviceaccount">Service Account</option>
+                            <option value="accesskey">Access Key</option>
+                            <option value="connectionstring">Connection String</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Account/Project ID</label>
+                        <input type="text" id="accountId" placeholder="Enter account or project ID" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Region</label>
+                        <input type="text" id="region" placeholder="us-east-1, us-central1, etc." style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Access Key / Credentials</label>
+                        <textarea id="credentials" placeholder="Paste credentials JSON or access key" style="width: 100%; min-height: 80px; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                    </div>
+                `;
+            } else if (category === 'File Services') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Authentication Method</label>
+                        <select id="authMethod" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="oauth">OAuth 2.0</option>
+                            <option value="token">Access Token</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Access Token</label>
+                        <input type="password" id="accessToken" placeholder="Enter access token" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            } else if (category === 'Finance') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
+                        <input type="password" id="apiKey" placeholder="Enter API key" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Terminal ID / User ID</label>
+                        <input type="text" id="terminalId" placeholder="Enter terminal or user ID" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            } else if (category === 'Payments') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Environment</label>
+                        <select id="environment" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="sandbox">Sandbox (Test)</option>
+                            <option value="live">Live (Production)</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key</label>
+                        <input type="password" id="apiKey" placeholder="Enter API key" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Secret Key</label>
+                        <input type="password" id="secretKey" placeholder="Enter secret key" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            } else if (category === 'Healthcare') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">FHIR Base URL</label>
+                        <input type="text" id="fhirUrl" placeholder="https://fhir.example.com/api/FHIR/R4" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client ID</label>
+                        <input type="text" id="clientId" placeholder="Enter client ID" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Client Secret</label>
+                        <input type="password" id="clientSecret" placeholder="Enter client secret" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Practice ID</label>
+                        <input type="text" id="practiceId" placeholder="Enter practice ID" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            } else if (category === 'Retail & Ecommerce') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Store URL</label>
+                        <input type="text" id="storeUrl" placeholder="https://your-store.myshopify.com" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Key / Access Token</label>
+                        <input type="password" id="apiKey" placeholder="Enter API key or access token" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">API Version</label>
+                        <input type="text" id="apiVersion" placeholder="2024-01" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            } else if (category === 'Insurance') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Environment URL</label>
+                        <input type="text" id="environmentUrl" placeholder="https://api.example.com" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Tenant ID</label>
+                        <input type="text" id="tenantId" placeholder="Enter tenant ID" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Username</label>
+                        <input type="text" id="username" placeholder="Enter username" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Password</label>
+                        <input type="password" id="password" placeholder="Enter password" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                `;
+            }
+
+            fields += '</div>'; // End authentication section
+
+            // Query/Data Selection section
+            fields += '<div style="margin-bottom: 24px;">';
+            fields += '<h3 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px;">Data Selection</h3>';
+
+            if (category === 'CRM & ERP') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Object/Entity Name</label>
+                        <input type="text" id="objectName" placeholder="Account, Contact, Opportunity, etc." style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Fields to Import</label>
+                        <input type="text" id="fields" placeholder="Id, Name, Email, Phone (comma-separated)" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Filter Criteria (SOQL WHERE clause)</label>
+                        <textarea id="filterCriteria" placeholder="CreatedDate > 2024-01-01" style="width: 100%; min-height: 60px; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                    </div>
+                `;
+            } else if (category === 'Data Services') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Database/Schema</label>
+                        <input type="text" id="database" placeholder="Enter database and schema name" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Query Type</label>
+                        <select id="queryType" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="table">Table/View</option>
+                            <option value="sql">SQL Query</option>
+                            <option value="file">File Path</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Table Name or SQL Query</label>
+                        <textarea id="query" placeholder="SELECT * FROM table WHERE..." style="width: 100%; min-height: 80px; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                    </div>
+                `;
+            } else if (category === 'File Services') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Folder Path</label>
+                        <input type="text" id="folderPath" placeholder="/Documents/Data" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">File Name Pattern</label>
+                        <input type="text" id="filePattern" placeholder="*.xlsx, sales_*.csv" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Search Recursively</label>
+                        <input type="checkbox" id="recursive" style="margin-right: 8px;">
+                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark);">Include subfolders</span>
+                    </div>
+                `;
+            } else if (category === 'Finance') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Security Identifiers</label>
+                        <input type="text" id="securities" placeholder="AAPL, MSFT, GOOGL (comma-separated)" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Data Fields</label>
+                        <input type="text" id="dataFields" placeholder="PX_LAST, VOLUME, HIGH, LOW" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Date Range</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="date" id="startDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="date" id="endDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Frequency</label>
+                        <select id="frequency" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                `;
+            } else if (category === 'Payments') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Transaction Type</label>
+                        <select id="transactionType" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="all">All Transactions</option>
+                            <option value="charges">Charges</option>
+                            <option value="refunds">Refunds</option>
+                            <option value="payouts">Payouts</option>
+                            <option value="disputes">Disputes</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Date Range</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="date" id="startDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="date" id="endDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Status Filter</label>
+                        <select id="statusFilter" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="all">All</option>
+                            <option value="succeeded">Succeeded</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                `;
+            } else if (category === 'Healthcare') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">FHIR Resource Type</label>
+                        <select id="resourceType" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="Patient">Patient</option>
+                            <option value="Observation">Observation</option>
+                            <option value="Encounter">Encounter</option>
+                            <option value="Condition">Condition</option>
+                            <option value="MedicationRequest">MedicationRequest</option>
+                            <option value="DiagnosticReport">DiagnosticReport</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Patient ID (Optional)</label>
+                        <input type="text" id="patientId" placeholder="Leave blank for all patients" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Date Range</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="date" id="startDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="date" id="endDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+                    </div>
+                `;
+            } else if (category === 'Retail & Ecommerce') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Resource Type</label>
+                        <select id="resourceType" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="orders">Orders</option>
+                            <option value="products">Products</option>
+                            <option value="customers">Customers</option>
+                            <option value="inventory">Inventory</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Status Filter</label>
+                        <select id="statusFilter" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="all">All</option>
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Date Range</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="date" id="startDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="date" id="endDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+                    </div>
+                `;
+            } else if (category === 'Insurance') {
+                fields += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Query Type</label>
+                        <select id="queryType" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="policies">Policies</option>
+                            <option value="claims">Claims</option>
+                            <option value="quotes">Quotes</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Line of Business</label>
+                        <select id="lineOfBusiness" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="all">All</option>
+                            <option value="personal">Personal Auto</option>
+                            <option value="commercial">Commercial Auto</option>
+                            <option value="property">Property</option>
+                            <option value="workers">Workers Comp</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Date Range</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="date" id="startDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <input type="date" id="endDate" style="padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+                    </div>
+                `;
+            }
+
+            fields += '</div>'; // End data selection section
+
+            return fields;
+        }
+
+        function saveDataSourceConfig() {
+            const config = {
+                source: window.selectedDataSource,
+                // Collect all form values - in real implementation, gather all field values
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('Data Source Configuration:', config);
+            alert('Connection configured successfully!\n\nConfiguration has been saved. Data will be imported into your table.');
+
+            closeDataSourceConfig();
+
+            // TODO: Actually save configuration and initiate data import
         }
 
         function handleDragStart(e) {
