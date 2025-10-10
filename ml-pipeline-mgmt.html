@@ -631,6 +631,110 @@
             color: var(--color-neutral-text);
         }
 
+        /* Hover Tooltips */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text-light);
+            font-size: 12px;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .info-icon:hover {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hover-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-dark);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: normal;
+            width: 320px;
+            max-width: 90vw;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none;
+        }
+
+        .hover-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--color-dark);
+        }
+
+        .info-icon:hover .hover-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip-impact {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .impact-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .impact-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .impact-value {
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .impact-value.high {
+            color: #fca5a5;
+        }
+
+        .impact-value.medium {
+            color: #fcd34d;
+        }
+
+        .impact-value.low {
+            color: #86efac;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .main-container {
@@ -1015,6 +1119,27 @@
                     <h2 class="card-title">
                         <i class="ph ph-brain"></i>
                         Model Configuration
+                        <span class="tooltip-wrapper">
+                            <i class="ph ph-info info-icon">
+                                <span class="hover-tooltip">
+                                    Configure which AI models power each stage of the pipeline. GPT-4 provides highest quality with slower processing and higher cost. Consider model selection impact on accuracy vs. throughput.
+                                    <div class="tooltip-impact">
+                                        <div class="impact-item">
+                                            <div class="impact-label">Cost</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Quality</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Speed</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </i>
+                        </span>
                     </h2>
                     <div class="toggle-group">
                         <div class="toggle-label">
@@ -1052,19 +1177,67 @@
                     <h2 class="card-title">
                         <i class="ph ph-faders"></i>
                         Batch Processing
+                        <span class="tooltip-wrapper">
+                            <i class="ph ph-info info-icon">
+                                <span class="hover-tooltip">
+                                    Control how content is processed in batches. Larger batches improve throughput but increase memory usage and failure risk. More parallel workers increase speed but consume more resources.
+                                    <div class="tooltip-impact">
+                                        <div class="impact-item">
+                                            <div class="impact-label">Memory</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Throughput</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Reliability</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </i>
+                        </span>
                     </h2>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Batch Size</label>
+                            <label class="form-label">
+                                Batch Size
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Items processed together. Higher = faster total throughput but more memory usage. Lower = more reliable with less memory.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="10" id="batchSize">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Parallel Workers</label>
+                            <label class="form-label">
+                                Parallel Workers
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Concurrent processing threads. More workers = faster but higher CPU/memory. Typical: 2-8 based on server capacity.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="4" id="parallelWorkers">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Timeout (seconds)</label>
+                        <label class="form-label">
+                            Timeout (seconds)
+                            <span class="tooltip-wrapper">
+                                <i class="ph ph-info info-icon">
+                                    <span class="hover-tooltip" style="width: 280px;">
+                                        Maximum time per batch before failure. Set based on largest expected item. Too low = false failures, too high = hung processes.
+                                    </span>
+                                </i>
+                            </span>
+                        </label>
                         <input type="number" class="form-input" value="300" id="timeoutSeconds">
                     </div>
                 </div>
@@ -1259,14 +1432,53 @@
                     <h2 class="card-title">
                         <i class="ph ph-chat-centered-dots"></i>
                         Conversation Settings
+                        <span class="tooltip-wrapper">
+                            <i class="ph ph-info info-icon">
+                                <span class="hover-tooltip">
+                                    Configure conversation memory and length limits. These settings balance context quality with token costs and response latency.
+                                    <div class="tooltip-impact">
+                                        <div class="impact-item">
+                                            <div class="impact-label">Context Quality</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Token Cost</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Latency</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </i>
+                        </span>
                     </h2>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Max Turns</label>
+                            <label class="form-label">
+                                Max Turns
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Maximum conversation exchanges before truncation. Higher = longer conversations with full context. Lower = shorter sessions, reduced token costs. Each turn = 1 user message + 1 assistant response.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="20">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Context Window</label>
+                            <label class="form-label">
+                                Context Window
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Total tokens (words + formatting) the model can process. Larger = more conversation history retained but slower and more expensive. GPT-4: 8K-128K. Balance memory needs vs. cost.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="4096">
                         </div>
                     </div>
@@ -1348,9 +1560,39 @@
                     <h2 class="card-title">
                         <i class="ph ph-chart-scatter"></i>
                         Embedding Configuration
+                        <span class="tooltip-wrapper">
+                            <i class="ph ph-info info-icon">
+                                <span class="hover-tooltip">
+                                    Configure how content is converted to vector embeddings for semantic search. Larger models produce better quality but cost more. Chunk size affects granularity vs. context.
+                                    <div class="tooltip-impact">
+                                        <div class="impact-item">
+                                            <div class="impact-label">Storage</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Search Quality</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Processing Time</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </i>
+                        </span>
                     </h2>
                     <div class="form-group">
-                        <label class="form-label">Embedding Model</label>
+                        <label class="form-label">
+                            Embedding Model
+                            <span class="tooltip-wrapper">
+                                <i class="ph ph-info info-icon">
+                                    <span class="hover-tooltip" style="width: 280px;">
+                                        text-embedding-3-large (3072 dims) offers best quality but higher cost and storage. ada-002 (1536 dims) is faster and cheaper with good quality.
+                                    </span>
+                                </i>
+                            </span>
+                        </label>
                         <select class="form-select">
                             <option value="text-embedding-3-large" selected>Azure OpenAI text-embedding-3-large</option>
                             <option value="text-embedding-ada-002">Azure OpenAI text-embedding-ada-002</option>
@@ -1358,11 +1600,29 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Chunk Size</label>
+                            <label class="form-label">
+                                Chunk Size
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Tokens per chunk. Smaller (256-512) = more precise search, more chunks, higher storage. Larger (1024+) = better context, fewer chunks.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="512">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Chunk Overlap</label>
+                            <label class="form-label">
+                                Chunk Overlap
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Tokens shared between consecutive chunks. Prevents information loss at boundaries. Typical: 10-20% of chunk size.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="50">
                         </div>
                     </div>
@@ -1372,20 +1632,82 @@
                     <h2 class="card-title">
                         <i class="ph ph-magnifying-glass"></i>
                         Retrieval Settings
+                        <span class="tooltip-wrapper">
+                            <i class="ph ph-info info-icon">
+                                <span class="hover-tooltip">
+                                    Control semantic search behavior. More results provide better context but increase LLM tokens. Higher threshold = more precise but may miss relevant content.
+                                    <div class="tooltip-impact">
+                                        <div class="impact-item">
+                                            <div class="impact-label">Precision</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Context Size</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Token Cost</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </i>
+                        </span>
                     </h2>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Top K Results</label>
+                            <label class="form-label">
+                                Top K Results
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Number of most similar chunks to retrieve. More = richer context but higher LLM cost. Typical: 3-10 depending on use case.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="5" min="1" max="100">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Similarity Threshold</label>
+                            <label class="form-label">
+                                Similarity Threshold
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Minimum similarity score (0-1) to include. Higher (0.8+) = very relevant only. Lower (0.6) = broader matches. Tune based on precision needs.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="0.7" step="0.1" min="0" max="1">
                         </div>
                     </div>
                     <div class="toggle-group">
                         <div class="toggle-label">
-                            <div class="toggle-title">Rerank Results</div>
+                            <div class="toggle-title">
+                                Rerank Results
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Apply secondary ranking model to initial results. Improves relevance order by re-scoring with specialized model. Adds latency but significantly boosts precision.
+                                            <div class="tooltip-impact">
+                                                <div class="impact-item">
+                                                    <div class="impact-label">Quality</div>
+                                                    <div class="impact-value high">High</div>
+                                                </div>
+                                                <div class="impact-item">
+                                                    <div class="impact-label">Latency</div>
+                                                    <div class="impact-value medium">Medium</div>
+                                                </div>
+                                                <div class="impact-item">
+                                                    <div class="impact-label">Cost</div>
+                                                    <div class="impact-value low">Low</div>
+                                                </div>
+                                            </div>
+                                        </span>
+                                    </i>
+                                </span>
+                            </div>
                             <div class="toggle-description">Apply reranking model to improve relevance</div>
                         </div>
                         <label class="toggle-switch">
@@ -1395,7 +1717,30 @@
                     </div>
                     <div class="toggle-group">
                         <div class="toggle-label">
-                            <div class="toggle-title">Hybrid Search</div>
+                            <div class="toggle-title">
+                                Hybrid Search
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Combine vector similarity with keyword (BM25) search. Vector finds semantic matches, keywords catch exact terms. Improves recall for diverse queries.
+                                            <div class="tooltip-impact">
+                                                <div class="impact-item">
+                                                    <div class="impact-label">Recall</div>
+                                                    <div class="impact-value high">High</div>
+                                                </div>
+                                                <div class="impact-item">
+                                                    <div class="impact-label">Precision</div>
+                                                    <div class="impact-value high">High</div>
+                                                </div>
+                                                <div class="impact-item">
+                                                    <div class="impact-label">Complexity</div>
+                                                    <div class="impact-value medium">Medium</div>
+                                                </div>
+                                            </div>
+                                        </span>
+                                    </i>
+                                </span>
+                            </div>
                             <div class="toggle-description">Combine vector and keyword search</div>
                         </div>
                         <label class="toggle-switch">
@@ -1607,6 +1952,27 @@
                     <h2 class="card-title">
                         <i class="ph ph-arrows-clockwise"></i>
                         Model Retraining
+                        <span class="tooltip-wrapper">
+                            <i class="ph ph-info info-icon">
+                                <span class="hover-tooltip">
+                                    Configure continuous improvement from user feedback. More frequent retraining keeps models current but increases compute costs. Minimum samples prevents overfitting to noise.
+                                    <div class="tooltip-impact">
+                                        <div class="impact-item">
+                                            <div class="impact-label">Accuracy</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Compute Cost</div>
+                                            <div class="impact-value high">High</div>
+                                        </div>
+                                        <div class="impact-item">
+                                            <div class="impact-label">Training Time</div>
+                                            <div class="impact-value medium">Medium</div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </i>
+                        </span>
                     </h2>
                     <div class="toggle-group">
                         <div class="toggle-label">
@@ -1619,7 +1985,16 @@
                         </label>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Retraining Schedule</label>
+                        <label class="form-label">
+                            Retraining Schedule
+                            <span class="tooltip-wrapper">
+                                <i class="ph ph-info info-icon">
+                                    <span class="hover-tooltip" style="width: 280px;">
+                                        How often to retrain models. Continuous = best accuracy, highest cost. Weekly = good balance. Monthly = cost-effective for stable content.
+                                    </span>
+                                </i>
+                            </span>
+                        </label>
                         <select class="form-select">
                             <option value="continuous">Continuous</option>
                             <option value="daily">Daily</option>
@@ -1630,11 +2005,29 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Minimum Samples</label>
+                            <label class="form-label">
+                                Minimum Samples
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Required feedback samples before retraining. Prevents model instability from small datasets. Higher = more stable, slower adaptation.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="100">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Confidence Threshold</label>
+                            <label class="form-label">
+                                Confidence Threshold
+                                <span class="tooltip-wrapper">
+                                    <i class="ph ph-info info-icon">
+                                        <span class="hover-tooltip" style="width: 280px;">
+                                            Minimum confidence to deploy retrained model. Higher (0.9+) = very conservative. Lower (0.75) = faster iteration. Balance risk vs. improvement.
+                                        </span>
+                                    </i>
+                                </span>
+                            </label>
                             <input type="number" class="form-input" value="0.85" step="0.05" min="0" max="1">
                         </div>
                     </div>
