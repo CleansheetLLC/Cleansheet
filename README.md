@@ -520,6 +520,9 @@ For questions, issues, or feature requests:
 - **D3.js** - Data visualization library (BSD 3-Clause License)
 - **Phosphor Icons** - Icon library (6,000+ icons, MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces
+- **Quill** - Rich text editor (BSD 3-Clause License)
+- **Mermaid** - Diagram and flowchart generation (MIT License)
+- **Marked** - Markdown parser and compiler (MIT License)
 - **Azure** - Cloud infrastructure and ML services
 
 ---
