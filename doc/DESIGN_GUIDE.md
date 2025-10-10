@@ -953,8 +953,11 @@ node.append('rect')
 
 ### D3 Tree Visualization (Canvas Modal)
 **Implementation**: `index.html` - Cleansheet Canvas modal
+**Production Reference**: `canvas-tour.html` - See CLAUDE.md "Production Canvas Layout" section for complete specifications
 
 A tree-based mindmap visualization using D3.js for navigating career resources with expand/collapse functionality.
+
+> **Note**: For production implementation details including exact padding, spacing, grid layouts, slideout behavior, and card styling, refer to the comprehensive "Production Canvas Layout" section in CLAUDE.md. The specifications below provide the D3-specific patterns, while CLAUDE.md documents the complete canvas application layout extracted from `canvas-tour.html`.
 
 #### Dependencies
 ```html
@@ -1714,4 +1717,5 @@ For questions about this design system:
 - **Documentation**: This file (`DESIGN_GUIDE.md`)
 - **Project Context**: See `CLAUDE.md`
 
-Last Updated: 2025-10-03
+Last Updated: 2025-10-10
+Version: 2.1 - Added reference to Production Canvas Layout specifications in CLAUDE.md

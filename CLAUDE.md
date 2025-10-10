@@ -214,6 +214,379 @@ Cleansheet/
 
 ---
 
+## Production Canvas Layout
+
+**Reference Implementation:** `canvas-tour.html`
+**Status:** Production-ready styling and behavior (excluding tour header)
+
+This section documents the precise layout, spacing, and interaction patterns for the Cleansheet Canvas production system. All measurements are extracted from `canvas-tour.html` and represent the target implementation.
+
+### Canvas Container
+
+**Full Window Layout:**
+- Width: `100vw` (full browser width)
+- Height: `100vh` (full browser height)
+- Background: `white`
+- No modal overlay, no border radius, no shadow
+- Position: `fixed` at `top: 0, left: 0`
+
+### Canvas Body Grid
+
+**Two-Column Layout:**
+```css
+display: grid;
+grid-template-columns: 350px 1fr;
+gap: 24px;
+padding: 24px;
+background: var(--color-neutral-background); /* #f5f5f7 */
+```
+
+**Collapsed State:**
+```css
+grid-template-columns: 0px 1fr;
+gap: 0;
+```
+
+**Left Column (D3 Mindmap):**
+- Width: `350px` (fixed)
+- Background: `white`
+- Border-radius: `12px`
+- Box-shadow: `inset 0 2px 8px rgba(0, 0, 0, 0.05)`
+- Overflow: `auto`
+
+**Right Column (Widgets):**
+- Flexible width: `1fr`
+- Display: `flex`
+- Flex-direction: `column`
+- Gap: `16px` (between widgets)
+- Overflow-y: `auto`
+- Overflow-x: `hidden`
+
+### Panel Collapse Toggle
+
+**Positioning:**
+- Position: `absolute`
+- Top: `50%` (with `translateY(-50%)`)
+- Left: `374px` (when expanded)
+- Left: `0px` (when collapsed)
+- Z-index: `101`
+
+**Styling:**
+- Background: `white`
+- Border: `1px solid var(--color-neutral-border)`
+- Border-radius: `0 8px 8px 0`
+- Padding: `12px 8px`
+- Box-shadow: `2px 0 8px rgba(0, 0, 0, 0.1)`
+- Font-size: `20px`
+- Transition: `all 0.3s ease`
+
+**Hover State:**
+- Background: `var(--color-primary-blue)`
+- Color: `white`
+- Border-color: `var(--color-primary-blue)`
+
+### Tab Navigation (Main Menu)
+
+**Container:**
+```css
+display: flex;
+gap: 4px;
+padding: 12px 0;
+border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+```
+
+**Tab Items:**
+```css
+padding: 8px 16px;
+background: none;
+border: none;
+color: rgba(255, 255, 255, 0.7);
+font-family: var(--font-family-ui);
+font-size: 13px;
+font-weight: 500;
+border-radius: 6px;
+display: flex;
+align-items: center;
+gap: 6px;
+```
+
+**Hover State:**
+- Background: `rgba(255, 255, 255, 0.1)`
+- Color: `white`
+
+**Active State:**
+- Background: `rgba(0, 102, 204, 0.3)`
+- Color: `white`
+
+**Icon Sizing:**
+- Font-size: `16px`
+
+### D3 Tree Visualization
+
+**Tree Layout Parameters:**
+```javascript
+const treeLayout = d3.tree()
+    .nodeSize([60, 220]) // [vertical, horizontal] - FIXED spacing
+    .separation((a, b) => {
+        // Grandchildren separation
+        if (a.depth === 2 && b.depth === 2) {
+            return a.parent === b.parent ? 1.0 : 1.3;
+        }
+        // Standard separation
+        return a.parent === b.parent ? 1.0 : 1.5;
+    });
+```
+
+**Node Dimensions:**
+- **Root Node:** 140×60px
+- **Child Nodes (Level 1):** 180×50px
+- **Grandchild Nodes (Level 2):** 250×40px
+
+**SVG Container:**
+- Min-width: `100%`
+- Min-height: `100%`
+- Display: `block`
+- Overflow: `auto`
+
+**Transform Origin:**
+- Root positioned at: `translate(150, height/2)`
+
+**Zoom Behavior:**
+- Scale extent: `[0.5, 2]`
+
+**Transitions:**
+- Duration: `500ms`
+
+**Dynamic Sizing:**
+- Needed height: `Math.max(height, visibleNodes.length * 60)`
+- Needed width: `Math.max(width, 1000)`
+
+### Slideout Panels (Right-Side)
+
+**Slideout Container:**
+```css
+position: absolute;
+top: 0;
+right: -60%; /* Hidden state */
+width: 60%;
+height: 100%;
+background: white;
+box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+z-index: 100;
+transition: right 0.4s ease;
+display: flex;
+flex-direction: column;
+```
+
+**Active State:**
+- Right: `0` (slides in from right)
+
+**Slideout Header:**
+```css
+padding: 24px;
+background: var(--color-dark);
+color: white;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid var(--color-neutral-border);
+```
+
+**Slideout Header Title:**
+- Font-family: `var(--font-family-ui)`
+- Font-size: `20px`
+- Margin: `0`
+
+**Slideout Close Button:**
+- Background: `none`
+- Border: `none`
+- Color: `white`
+- Font-size: `32px`
+- Width/Height: `32px`
+- Display: `flex`
+- Align-items: `center`
+- Justify-content: `center`
+- Opacity on hover: `0.7`
+
+**Slideout Body:**
+```css
+flex: 1;
+overflow-y: auto;
+padding: 24px;
+background: var(--color-neutral-background);
+display: flex;
+flex-direction: column;
+```
+
+### Card Grids (Content Sections)
+
+**Stories Container (Default):**
+```css
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 12px;
+```
+
+**Projects Container:**
+```css
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+gap: 16px;
+```
+
+**Professional Cards (Forms/Reports/Documents):**
+```css
+padding: 20px;
+border: 1px solid var(--color-neutral-border);
+border-radius: 8px;
+background: white;
+display: flex;
+flex-direction: column;
+gap: 12px;
+```
+
+**Card Header Row:**
+- Display: `flex`
+- Align-items: `flex-start`
+- Gap: `12px`
+
+**Icon Container:**
+- Width/Height: `48px`
+- Background: `#e3f2fd`
+- Border-radius: `8px`
+- Display: `flex`
+- Align-items/Justify-content: `center`
+- Icon font-size: `24px`
+- Icon color: `var(--color-primary-blue)`
+
+**Card Title:**
+- Font-family: `var(--font-family-ui)`
+- Font-size: `16px`
+- Font-weight: `600`
+- Color: `var(--color-dark)`
+- Margin-bottom: `4px`
+
+**Action Buttons (Edit/Delete/Share):**
+- Padding: `8px`
+- Background: `white`
+- Border: `1px solid var(--color-neutral-border)`
+- Border-radius: `6px`
+- Display: `flex`
+- Icon font-size: `16px`
+- Gap between buttons: `6px`
+
+**Action Button Hover (Edit/Share):**
+- Border-color: `var(--color-primary-blue)`
+- Background: `#e3f2fd`
+
+**Action Button Hover (Delete):**
+- Border-color: `#dc2626`
+- Background: `#fef2f2`
+
+**Description Text:**
+- Font-family: `var(--font-family-body)`
+- Font-size: `13px`
+- Color: `var(--color-neutral-text)`
+- Line-height: `1.5`
+
+**Tags:**
+- Padding: `4px 8px`
+- Background: `#f5f5f7`
+- Border-radius: `4px`
+- Font-family: `var(--font-family-body)`
+- Font-size: `11px`
+- Color: `var(--color-neutral-text)`
+- Gap between tags: `6px`
+
+**Shared With Section:**
+- Margin-top: `8px`
+- Padding-top: `12px`
+- Border-top: `1px solid var(--color-neutral-border)`
+
+**Shared With Label:**
+- Font-family: `var(--font-family-ui)`
+- Font-size: `11px`
+- Font-weight: `600`
+- Color: `var(--color-neutral-text)`
+- Margin-bottom: `6px`
+
+**Avatar Circles:**
+- Width/Height: `24px`
+- Border-radius: `50%`
+- Display: `flex`
+- Align-items/Justify-content: `center`
+- Font-family: `var(--font-family-ui)`
+- Font-size: `10px`
+- Font-weight: `600`
+- Gap between avatars: `6px`
+
+**Card Hover Effect:**
+- Border-color: `var(--color-primary-blue)`
+- Box-shadow: `0 2px 8px rgba(0, 102, 204, 0.15)`
+
+### Widget Styling
+
+**Calendar/AI Assistant Widgets:**
+```css
+background: white;
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+```
+
+**Calendar Widget:**
+- Flex-shrink: `0`
+- Max-height: `280px`
+
+**AI Assistant Widget:**
+- Flex: `1`
+- Display: `flex`
+- Flex-direction: `column`
+
+### Button Styling
+
+**Primary Action Button:**
+```css
+padding: 8px 16px;
+background: var(--color-primary-blue);
+color: white;
+border: none;
+border-radius: 6px;
+font-family: var(--font-family-ui);
+font-size: 12px;
+font-weight: 600;
+display: inline-flex;
+align-items: center;
+gap: 6px;
+margin-bottom: 16px;
+```
+
+**Hover State:**
+- Background: `var(--color-accent-blue)`
+- Box-shadow: `0 2px 8px rgba(0, 102, 204, 0.3)`
+
+**Secondary Button:**
+```css
+padding: 8px 16px;
+background: white;
+color: var(--color-neutral-text);
+border: 1px solid var(--color-neutral-border);
+border-radius: 6px;
+font-family: var(--font-family-ui);
+font-size: 13px;
+font-weight: 600;
+```
+
+### Transitions & Animations
+
+**Standard Transition:** `all 0.2s`
+**Slideout Transition:** `right 0.4s ease`
+**Grid Collapse:** `grid-template-columns 0.3s ease`
+**D3 Node Animation:** `500ms` duration
+**Panel Fade:** `opacity 0.3s ease, transform 0.3s ease`
+
+---
+
 ## Python Generators & Workflow
 
 ### Unified Generation Command
@@ -490,5 +863,5 @@ Before adding ANY service:
 
 ---
 
-**Last Updated:** 2025-10-08
-**Version:** 2.0 - Optimized for AI context efficiency (71% token reduction)
+**Last Updated:** 2025-10-10
+**Version:** 2.1 - Added Production Canvas Layout specifications from canvas-tour.html
