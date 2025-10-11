@@ -1429,7 +1429,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         .simple-wizard-step-content.active {
-            display: block;
+            display: block !important;
             animation: fadeInUp 0.3s ease;
         }
 
@@ -5623,7 +5623,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     Continue
                     <i class="ph ph-arrow-right"></i>
                 </button>
-                <button id="simpleWizardCreateBtn" onclick="finishSimplePipelineWizard()" style="display: none; padding: 10px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <button id="simpleWizardCreateBtn" onclick="finishSimplePipelineWizard()" style="display: none; padding: 10px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; align-items: center; gap: 6px;">
                     <i class="ph ph-check"></i>
                     Create Pipeline
                 </button>
@@ -14395,8 +14395,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('scheduleOptions').style.display = 'none';
             document.getElementById('simpleSourceHelp').style.display = 'none';
 
-            updateSimpleWizardStep(1);
+            // Show modal first
             modal.classList.add('active');
+
+            // Then update step with a small delay to ensure DOM is ready
+            setTimeout(() => {
+                updateSimpleWizardStep(1);
+            }, 10);
         }
 
         function closeSimplePipelineWizard() {
@@ -14407,35 +14412,51 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function updateSimpleWizardStep(step) {
             currentSimpleStep = step;
 
-            // Update progress bar
-            const progressPercent = (step / 4) * 100;
-            document.getElementById('simpleProgressFill').style.width = progressPercent + '%';
-            document.getElementById('simpleProgressText').textContent = `Step ${step} of 4`;
+            try {
+                // Update progress bar
+                const progressPercent = (step / 4) * 100;
+                const progressFill = document.getElementById('simpleProgressFill');
+                const progressText = document.getElementById('simpleProgressText');
 
-            // Update step content visibility
-            document.querySelectorAll('.simple-wizard-step-content').forEach((content, index) => {
-                if (index + 1 === step) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
+                if (progressFill) progressFill.style.width = progressPercent + '%';
+                if (progressText) progressText.textContent = `Step ${step} of 4`;
+
+                // Update step content visibility - be more explicit about which modal
+                const modal = document.getElementById('simplePipelineWizardModal');
+                if (modal) {
+                    const stepContents = modal.querySelectorAll('.simple-wizard-step-content');
+                    stepContents.forEach((content, index) => {
+                        if (index + 1 === step) {
+                            content.style.display = 'block';
+                            content.classList.add('active');
+                        } else {
+                            content.style.display = 'none';
+                            content.classList.remove('active');
+                        }
+                    });
                 }
-            });
 
-            // Update button visibility
-            const backBtn = document.getElementById('simpleWizardBackBtn');
-            const continueBtn = document.getElementById('simpleWizardContinueBtn');
-            const createBtn = document.getElementById('simpleWizardCreateBtn');
+                // Update button visibility
+                const backBtn = document.getElementById('simpleWizardBackBtn');
+                const continueBtn = document.getElementById('simpleWizardContinueBtn');
+                const createBtn = document.getElementById('simpleWizardCreateBtn');
 
-            backBtn.style.display = step === 1 ? 'none' : 'block';
+                if (backBtn) backBtn.style.display = step === 1 ? 'none' : 'block';
 
-            if (step === 4) {
-                continueBtn.style.display = 'none';
-                createBtn.style.display = 'flex';
-                // Update review summary
-                updateReviewSummary();
-            } else {
-                continueBtn.style.display = 'flex';
-                createBtn.style.display = 'none';
+                if (step === 4) {
+                    if (continueBtn) continueBtn.style.display = 'none';
+                    if (createBtn) createBtn.style.display = 'flex';
+                    // Update review summary
+                    updateReviewSummary();
+                } else {
+                    if (continueBtn) continueBtn.style.display = 'flex';
+                    if (createBtn) createBtn.style.display = 'none';
+                }
+
+                console.log(`Simple wizard step ${step} updated - found ${modal?.querySelectorAll('.simple-wizard-step-content').length} step elements`);
+
+            } catch (error) {
+                console.error('Error in updateSimpleWizardStep:', error);
             }
         }
 
