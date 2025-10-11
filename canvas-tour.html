@@ -16212,14 +16212,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Build content from blocks
             blocks.forEach(block => {
-                const blockType = block.querySelector('.block-type-label')?.textContent.toLowerCase();
+                // Use data-block-type attribute (new structure) or fall back to label (old structure)
+                const blockType = block.getAttribute('data-block-type') || block.querySelector('.block-type-label')?.textContent.toLowerCase();
 
-                if (blockType === 'heading') {
+                if (blockType === 'header' || blockType === 'heading') {
                     const input = block.querySelector('input');
+                    const wbsSpan = block.querySelector('.wbs-number');
                     if (input && input.value) {
-                        content += `# ${input.value}\n\n`;
+                        // Include WBS number if present
+                        const wbsPrefix = wbsSpan ? `${wbsSpan.textContent} ` : '';
+                        content += `# ${wbsPrefix}${input.value}\n\n`;
                     }
-                } else if (blockType === 'paragraph') {
+                } else if (blockType === 'paragraph' || blockType === 'text') {
                     const textarea = block.querySelector('textarea');
                     if (textarea && textarea.value) {
                         content += `${textarea.value}\n\n`;
@@ -16261,7 +16265,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     if (textarea && textarea.value) {
                         content += `\`\`\`mermaid\n${textarea.value}\n\`\`\`\n\n`;
                     }
-                } else if (blockType === 'katex') {
+                } else if (blockType === 'katex' || blockType === 'latex') {
                     const textarea = block.querySelector('.latex-edit-area textarea');
                     if (textarea && textarea.value) {
                         content += `$$\n${textarea.value}\n$$\n\n`;
@@ -16662,6 +16666,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const block = document.createElement('div');
             block.id = blockId;
             block.className = 'document-block';
+            block.setAttribute('data-block-type', blockType);
             block.setAttribute('tabindex', '0');
             block.style.cssText = 'margin-bottom: 16px; padding: 16px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white; position: relative;';
 
