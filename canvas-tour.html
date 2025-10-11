@@ -2862,128 +2862,153 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
 
                 <!-- Form Designer Modal -->
-                <div id="formDesignerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; overflow-y: auto;">
-                    <div style="min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px;">
-                        <div style="background: white; border-radius: 12px; width: 100%; max-width: 2750px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
-                            <!-- Modal Header -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--color-neutral-border);">
-                                <div style="flex: 1; max-width: 600px;">
-                                    <input type="text" id="formTitle" placeholder="Untitled Form" style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); padding: 8px 0; outline: none;">
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <!-- Preview Button -->
-                                    <button onclick="openFormPreview()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                                        <i class="ph ph-eye"></i> Preview
-                                    </button>
-                                    <!-- Publish Menu -->
-                                    <div style="position: relative;">
-                                        <button onclick="togglePublishMenu()" id="publishBtn" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                                            <i class="ph ph-paper-plane-tilt"></i>
-                                            Publish
-                                            <i class="ph ph-caret-down"></i>
-                                        </button>
-                                        <div id="publishMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000;">
-                                            <button onclick="publishFormAs('open')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
-                                                <i class="ph ph-globe" style="font-size: 16px; color: var(--color-primary-blue);"></i>
-                                                <span>Publish as Open Form</span>
-                                            </button>
-                                            <button onclick="publishFormAs('specific')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
-                                                <i class="ph ph-users" style="font-size: 16px; color: var(--color-primary-blue);"></i>
-                                                <span>Publish to Specific Users</span>
-                                            </button>
-                                            <button onclick="shareFormWithEditors()" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; border-top: 1px solid var(--color-neutral-border);" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
-                                                <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
-                                                <span>Share with Editors</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <!-- Save Button -->
-                                    <button onclick="saveFormDesign()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
-                                        <i class="ph ph-floppy-disk"></i> Save
-                                    </button>
-                                    <!-- Close Button -->
-                                    <button onclick="closeFormDesigner()" style="padding: 8px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; font-size: 20px;">
-                                        <i class="ph ph-x"></i>
-                                    </button>
-                                </div>
+                <div class="modal" id="formDesignerModal">
+                    <div class="modal-content" style="max-width: 1400px;">
+                        <div class="modal-header">
+                            <div style="flex: 1; max-width: 600px;">
+                                <input type="text" id="formTitle" placeholder="Untitled Form" style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); padding: 8px 0; outline: none;">
                             </div>
-
-                            <!-- Modal Body -->
-                            <div style="flex: 1; overflow-y: auto; display: flex;">
-                                <!-- Left Sidebar - Field Palette -->
-                                <div style="width: 300px; border-right: 1px solid var(--color-neutral-border); padding: 20px; background: var(--color-neutral-background);">
-                                    <h4 style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin: 0 0 16px 0;">Form Fields</h4>
-                                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                                        <button onclick="addFormField('text')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-text-aa"></i>
-                                            Text Input
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <!-- Preview Button -->
+                                <button onclick="openFormPreview()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph ph-eye"></i> Preview
+                                </button>
+                                <!-- Publish Menu -->
+                                <div style="position: relative;">
+                                    <button onclick="togglePublishMenu()" id="publishBtn" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                        <i class="ph ph-paper-plane-tilt"></i>
+                                        Publish
+                                        <i class="ph ph-caret-down"></i>
+                                    </button>
+                                    <div id="publishMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000;">
+                                        <button onclick="publishFormAs('open')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
+                                            <i class="ph ph-globe" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                            <span>Publish as Open Form</span>
                                         </button>
-                                        <button onclick="addFormField('textarea')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-text-align-left"></i>
-                                            Text Area
+                                        <button onclick="publishFormAs('specific')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
+                                            <i class="ph ph-users" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                            <span>Publish to Specific Users</span>
                                         </button>
-                                        <button onclick="addFormField('email')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-envelope"></i>
-                                            Email
-                                        </button>
-                                        <button onclick="addFormField('number')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-hash"></i>
-                                            Number
-                                        </button>
-                                        <button onclick="addFormField('phone')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-phone"></i>
-                                            Phone
-                                        </button>
-                                        <button onclick="addFormField('date')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-calendar-blank"></i>
-                                            Date
-                                        </button>
-                                        <button onclick="addFormField('time')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-clock"></i>
-                                            Time
-                                        </button>
-                                        <button onclick="addFormField('dropdown')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-list"></i>
-                                            Dropdown
-                                        </button>
-                                        <button onclick="addFormField('radio')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-radio-button"></i>
-                                            Radio Buttons
-                                        </button>
-                                        <button onclick="addFormField('checkbox')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-check-square"></i>
-                                            Checkboxes
-                                        </button>
-                                        <button onclick="addFormField('file')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-upload-simple"></i>
-                                            File Upload
-                                        </button>
-                                        <button onclick="addFormField('picture')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-image"></i>
-                                            Picture
-                                        </button>
-                                        <button onclick="addFormField('scale')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-sliders-horizontal"></i>
-                                            Scale
-                                        </button>
-                                        <button onclick="addFormField('likert')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-rows"></i>
-                                            Likert Scale
-                                        </button>
-                                        <button onclick="addFormField('section')" class="block-btn" style="padding: 10px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
-                                            <i class="ph ph-text-h-two"></i>
-                                            Section Header
+                                        <button onclick="shareFormWithEditors()" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; border-top: 1px solid var(--color-neutral-border);" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
+                                            <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                            <span>Share with Editors</span>
                                         </button>
                                     </div>
                                 </div>
+                                <!-- Save Button -->
+                                <button onclick="saveFormDesign()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
+                                    <i class="ph ph-floppy-disk"></i> Save
+                                </button>
+                                <!-- Close Button -->
+                                <button class="modal-close" onclick="closeFormDesigner()">
+                                    <i class="ph ph-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="modal-body" style="padding: 0; display: flex; gap: 0; min-height: 600px;">
+                            <!-- Left Panel - Field Palette (20%) -->
+                            <div style="width: 20%; background: var(--color-neutral-background); border-right: 1px solid var(--color-neutral-border); padding: 20px; overflow-y: auto;">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin: 0 0 16px 0; letter-spacing: 0.5px;">Form Fields</h3>
 
-                                <!-- Main Content Area - Form Builder -->
-                                <div style="flex: 1; background: white; overflow-y: auto; display: flex; justify-content: center;">
-                                    <div id="formFieldsContainer" style="width: 100%; max-width: 1200px; padding: 40px;">
-                                    <div style="text-align: center; color: var(--color-neutral-text); padding: 60px 20px;">
-                                        <i class="ph ph-note-pencil" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 16px;"></i>
-                                        <p style="font-family: var(--font-family-body); font-size: 14px;">Click a field type to start building your form</p>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <!-- Text Input Block -->
+                                    <button onclick="addFormField('text')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-text-aa" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Text Input</span>
+                                    </button>
+
+                                    <!-- Text Area Block -->
+                                    <button onclick="addFormField('textarea')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-text-align-left" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Text Area</span>
+                                    </button>
+
+                                    <!-- Email Block -->
+                                    <button onclick="addFormField('email')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-envelope" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Email</span>
+                                    </button>
+
+                                    <!-- Number Block -->
+                                    <button onclick="addFormField('number')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-hash" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Number</span>
+                                    </button>
+
+                                    <!-- Phone Block -->
+                                    <button onclick="addFormField('phone')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-phone" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Phone</span>
+                                    </button>
+
+                                    <!-- Date Block -->
+                                    <button onclick="addFormField('date')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-calendar-blank" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Date</span>
+                                    </button>
+
+                                    <!-- Time Block -->
+                                    <button onclick="addFormField('time')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-clock" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Time</span>
+                                    </button>
+                                    <!-- Dropdown Block -->
+                                    <button onclick="addFormField('dropdown')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-list" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Dropdown</span>
+                                    </button>
+
+                                    <!-- Radio Buttons Block -->
+                                    <button onclick="addFormField('radio')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-radio-button" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Radio Buttons</span>
+                                    </button>
+
+                                    <!-- Checkboxes Block -->
+                                    <button onclick="addFormField('checkbox')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-check-square" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Checkboxes</span>
+                                    </button>
+
+                                    <!-- File Upload Block -->
+                                    <button onclick="addFormField('file')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>File Upload</span>
+                                    </button>
+
+                                    <!-- Picture Block -->
+                                    <button onclick="addFormField('picture')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-image" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Picture</span>
+                                    </button>
+
+                                    <!-- Scale Block -->
+                                    <button onclick="addFormField('scale')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-sliders-horizontal" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Scale</span>
+                                    </button>
+
+                                    <!-- Likert Scale Block -->
+                                    <button onclick="addFormField('likert')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-rows" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Likert Scale</span>
+                                    </button>
+
+                                    <!-- Section Block -->
+                                    <button onclick="addFormField('section')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+                                        <i class="ph ph-text-h-two" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                                        <span>Section Header</span>
+                                    </button>
                                     </div>
+                                </div>
+
+                                <!-- Main Content Area - Form Builder (80%) -->
+                                <div style="width: 80%; background: white; overflow-y: auto; padding: 24px;">
+                                    <div id="formFieldsContainer" style="width: 100%; min-height: 400px;">
+                                        <div style="text-align: center; color: var(--color-neutral-text); padding: 60px 20px;">
+                                            <i class="ph ph-note-pencil" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 16px;"></i>
+                                            <p style="font-family: var(--font-family-body); font-size: 14px;">Click a field type to start building your form</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -12666,7 +12691,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('y', d => -d.height / 2 + 10)
                 .html('<i class="ph ph-table" style="font-size: 20px; color: #0066CC;"></i>');
 
-            // Table name
+            // Table name (clickable)
             node.append('text')
                 .attr('x', -80)
                 .attr('y', d => -d.height / 2 + 25)
@@ -12674,7 +12699,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('font-size', '16px')
                 .attr('font-weight', '600')
                 .attr('fill', '#0066CC')
-                .text(d => d.name);
+                .attr('cursor', 'pointer')
+                .attr('text-decoration', 'underline')
+                .text(d => d.name)
+                .on('click', function(event, d) {
+                    event.stopPropagation();
+                    openTableEditor(d.name, d.id);
+                })
+                .on('mouseover', function() {
+                    d3.select(this).attr('fill', '#004C99');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).attr('fill', '#0066CC');
+                });
 
             // Table columns
             node.each(function(d) {
@@ -12682,14 +12719,29 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 d.columns.forEach((col, idx) => {
                     const y = -d.height / 2 + 40 + (idx * 24) + 16;
 
-                    // Column name
+                    // Column name (clickable)
                     group.append('text')
                         .attr('x', -108)
                         .attr('y', y)
                         .attr('font-family', 'var(--font-family-body)')
                         .attr('font-size', '12px')
                         .attr('fill', '#333')
-                        .text(col);
+                        .attr('cursor', 'pointer')
+                        .text(col)
+                        .on('click', function(event) {
+                            event.stopPropagation();
+                            openColumnEditor(d.name, d.id, col);
+                        })
+                        .on('mouseover', function() {
+                            d3.select(this)
+                                .attr('fill', '#0066CC')
+                                .attr('text-decoration', 'underline');
+                        })
+                        .on('mouseout', function() {
+                            d3.select(this)
+                                .attr('fill', '#333')
+                                .attr('text-decoration', 'none');
+                        });
 
                     // Show key icon for foreign keys (columns ending in _ID)
                     if (col.endsWith('_ID')) {
@@ -14878,6 +14930,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             currentTableColumnTypes = {};
         }
 
+        // Function to handle column clicks from ERD
+        function openColumnEditor(tableName, tableId, columnName) {
+            // First open the table editor to get the table context
+            openTableEditor(tableName);
+
+            // Wait a moment for the table editor to fully load, then open column type editor
+            setTimeout(() => {
+                if (document.getElementById('tableEditorModal').style.display !== 'none') {
+                    openColumnTypeEditor(columnName);
+                }
+            }, 100);
+
+            // Show a toast notification to indicate what's happening
+            showToast(`Opening ${tableName}.${columnName} editor`, 'info');
+        }
+
         function generateSampleData(tableName, columns) {
             const samples = [];
             const sampleCount = 15;
@@ -15620,8 +15688,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function updateFieldLinkedTable(index, value) {
-            currentFormFields[index].linkedTable = value;
-            currentFormFields[index].linkedColumn = ''; // Reset column when table changes
+            // Handle "Create New Table" option
+            if (value === '+ Create New Table') {
+                // Open the table wizard to create a new table
+                openTableWizard();
+                // Reset to no selection for now
+                currentFormFields[index].linkedTable = '';
+                currentFormFields[index].linkedColumn = '';
+                showToast('Opening table wizard. After creating your table, return here to link it.', 'info');
+            } else {
+                currentFormFields[index].linkedTable = value;
+                currentFormFields[index].linkedColumn = ''; // Reset column when table changes
+            }
             renderFormFields(); // Re-render to update column dropdown
         }
 
@@ -15665,24 +15743,69 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function getAvailableTablesForLinking() {
             const tables = [];
-            // Get all table definitions from localStorage
+
+            // Add default table types from the system
+            const defaultTables = [
+                'Contacts', 'Customers', 'Projects', 'Tasks', 'Inventory',
+                'Vendors', 'Events', 'Assets', 'Issues', 'Expenses'
+            ];
+
+            defaultTables.forEach(tableName => {
+                if (!tables.includes(tableName)) {
+                    tables.push(tableName);
+                }
+            });
+
+            // Get all custom table definitions from localStorage
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith('table_def_')) {
                     const tableName = key.replace('table_def_', '').replace(/_/g, ' ');
-                    tables.push(tableName);
+                    if (!tables.includes(tableName)) {
+                        tables.push(tableName);
+                    }
                 }
             }
-            return tables;
+
+            // Add "Create New Table" option at the end
+            tables.push('+ Create New Table');
+
+            return tables.sort((a, b) => {
+                // Keep "Create New Table" at the end
+                if (a === '+ Create New Table') return 1;
+                if (b === '+ Create New Table') return -1;
+                return a.localeCompare(b);
+            });
         }
 
         function getColumnsForTable(tableName) {
+            // First check for default table columns
+            const defaultTableColumns = {
+                'Contacts': ['ID', 'Name', 'Email', 'Phone', 'Company', 'Role', 'Location', 'Notes'],
+                'Customers': ['Customer_ID', 'Name', 'Email', 'Account_Type', 'Status', 'Contact_ID', 'Created_Date', 'Lifetime_Value'],
+                'Projects': ['Project_ID', 'Project_Name', 'Status', 'Start_Date', 'End_Date', 'Customer_ID', 'Budget', 'Team', 'Priority'],
+                'Tasks': ['Task_ID', 'Task_Name', 'Assigned_To_ID', 'Due_Date', 'Status', 'Project_ID', 'Priority', 'Tags', 'Progress'],
+                'Inventory': ['Item_ID', 'Item_Name', 'SKU', 'Quantity', 'Location', 'Supplier_ID', 'Cost', 'Last_Updated'],
+                'Vendors': ['Vendor_ID', 'Vendor_Name', 'Contact', 'Services', 'Contract_Start', 'Contract_End', 'Rating', 'Notes'],
+                'Events': ['Event_ID', 'Event_Name', 'Date', 'Time', 'Location', 'Project_ID', 'Attendees', 'Status', 'Budget'],
+                'Assets': ['Asset_ID', 'Asset_Name', 'Type', 'Owner_ID', 'Location', 'Vendor_ID', 'Purchase_Date', 'Value', 'Status'],
+                'Issues': ['Issue_ID', 'Title', 'Severity', 'Status', 'Assigned_To_ID', 'Project_ID', 'Created_Date', 'Resolved_Date'],
+                'Expenses': ['Expense_ID', 'Date', 'Category', 'Amount', 'Vendor_ID', 'Project_ID', 'Submitted_By_ID', 'Payment_Method', 'Status', 'Receipt']
+            };
+
+            // Check if it's a default table
+            if (defaultTableColumns[tableName]) {
+                return defaultTableColumns[tableName];
+            }
+
+            // Check for custom table definition in localStorage
             const key = `table_def_${tableName.toLowerCase().replace(/\s+/g, '_')}`;
             const saved = localStorage.getItem(key);
             if (saved) {
                 const def = JSON.parse(saved);
                 return def.columns || [];
             }
+
             return [];
         }
 
