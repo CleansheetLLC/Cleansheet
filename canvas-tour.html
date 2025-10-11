@@ -6170,6 +6170,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadUserExperiences();
             initializeDemoDocuments();
             initializeDemoForms();
+            initializeDemoTableRelationships();
 
             // Add click-outside-to-close handler for slideout
             const slideout = document.getElementById('interviewSlideout');
@@ -12489,12 +12490,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Default table nodes (can be extended with saved schemas)
             const defaultNodes = [
-                { id: 'contacts', name: 'Contacts', columns: ['Name', 'Email', 'Phone', 'Company'] },
-                { id: 'customers', name: 'Customers', columns: ['Name', 'Type', 'Status', 'Contact_ID'] },
-                { id: 'projects', name: 'Projects', columns: ['Name', 'Start Date', 'Status', 'Customer_ID'] },
-                { id: 'tasks', name: 'Tasks', columns: ['Title', 'Due Date', 'Status', 'Project_ID'] },
-                { id: 'vendors', name: 'Vendors', columns: ['Name', 'Category', 'Contact_ID'] },
-                { id: 'expenses', name: 'Expenses', columns: ['Amount', 'Date', 'Vendor_ID', 'Project_ID'] }
+                { id: 'contacts', name: 'Contacts', columns: ['ID', 'Name', 'Email', 'Phone', 'Company', 'Role'] },
+                { id: 'customers', name: 'Customers', columns: ['Customer_ID', 'Name', 'Email', 'Account_Type', 'Status', 'Contact_ID'] },
+                { id: 'projects', name: 'Projects', columns: ['Project_ID', 'Project_Name', 'Status', 'Start_Date', 'End_Date', 'Customer_ID'] },
+                { id: 'tasks', name: 'Tasks', columns: ['Task_ID', 'Task_Name', 'Assigned_To_ID', 'Due_Date', 'Status', 'Project_ID'] },
+                { id: 'inventory', name: 'Inventory', columns: ['Item_ID', 'Item_Name', 'SKU', 'Quantity', 'Location', 'Supplier_ID'] },
+                { id: 'vendors', name: 'Vendors', columns: ['Vendor_ID', 'Vendor_Name', 'Contact', 'Services', 'Contract_Start'] },
+                { id: 'events', name: 'Events', columns: ['Event_ID', 'Event_Name', 'Date', 'Time', 'Location', 'Project_ID'] },
+                { id: 'assets', name: 'Assets', columns: ['Asset_ID', 'Asset_Name', 'Type', 'Owner_ID', 'Location', 'Vendor_ID'] },
+                { id: 'issues', name: 'Issues', columns: ['Issue_ID', 'Title', 'Severity', 'Status', 'Assigned_To_ID', 'Project_ID'] },
+                { id: 'expenses', name: 'Expenses', columns: ['Expense_ID', 'Date', 'Amount', 'Vendor_ID', 'Project_ID', 'Submitted_By_ID'] }
             ];
 
             // Load saved table schemas
@@ -16291,6 +16296,126 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             ];
 
             localStorage.setItem('professionalForms', JSON.stringify(demoForms));
+        }
+
+        // Initialize demo table relationships if none exist
+        function initializeDemoTableRelationships() {
+            // Check if relationships already exist - for now, let's always reinitialize to fix the table names
+            const existingRelationships = localStorage.getItem('tableRelationships');
+
+            // Temporarily always reinitialize to fix case mismatch issues
+            // TODO: Remove this override after first successful load
+            // if (existingRelationships && JSON.parse(existingRelationships).length > 0) return;
+
+            // Define logical relationships between the 10 existing tables
+            const demoRelationships = [
+                {
+                    sourceTable: 'customers',
+                    targetTable: 'contacts',
+                    sourceColumn: 'Contact_ID',
+                    targetColumn: 'ID',
+                    type: 'many-to-one',
+                    label: 'Customer has primary contact'
+                },
+                {
+                    sourceTable: 'projects',
+                    targetTable: 'customers',
+                    sourceColumn: 'Customer_ID',
+                    targetColumn: 'Customer_ID',
+                    type: 'many-to-one',
+                    label: 'Projects belong to customers'
+                },
+                {
+                    sourceTable: 'tasks',
+                    targetTable: 'projects',
+                    sourceColumn: 'Project_ID',
+                    targetColumn: 'Project_ID',
+                    type: 'many-to-one',
+                    label: 'Tasks are part of projects'
+                },
+                {
+                    sourceTable: 'tasks',
+                    targetTable: 'contacts',
+                    sourceColumn: 'Assigned_To_ID',
+                    targetColumn: 'ID',
+                    type: 'many-to-one',
+                    label: 'Tasks assigned to team members'
+                },
+                {
+                    sourceTable: 'inventory',
+                    targetTable: 'vendors',
+                    sourceColumn: 'Supplier_ID',
+                    targetColumn: 'Vendor_ID',
+                    type: 'many-to-one',
+                    label: 'Inventory items sourced from vendors'
+                },
+                {
+                    sourceTable: 'events',
+                    targetTable: 'projects',
+                    sourceColumn: 'Project_ID',
+                    targetColumn: 'Project_ID',
+                    type: 'many-to-one',
+                    label: 'Project milestones and meetings'
+                },
+                {
+                    sourceTable: 'assets',
+                    targetTable: 'contacts',
+                    sourceColumn: 'Owner_ID',
+                    targetColumn: 'ID',
+                    type: 'many-to-one',
+                    label: 'Assets assigned to team members'
+                },
+                {
+                    sourceTable: 'issues',
+                    targetTable: 'projects',
+                    sourceColumn: 'Project_ID',
+                    targetColumn: 'Project_ID',
+                    type: 'many-to-one',
+                    label: 'Issues tracked by project'
+                },
+                {
+                    sourceTable: 'issues',
+                    targetTable: 'contacts',
+                    sourceColumn: 'Assigned_To_ID',
+                    targetColumn: 'ID',
+                    type: 'many-to-one',
+                    label: 'Issues assigned to team members'
+                },
+                {
+                    sourceTable: 'expenses',
+                    targetTable: 'projects',
+                    sourceColumn: 'Project_ID',
+                    targetColumn: 'Project_ID',
+                    type: 'many-to-one',
+                    label: 'Project-related expenses'
+                },
+                {
+                    sourceTable: 'expenses',
+                    targetTable: 'contacts',
+                    sourceColumn: 'Submitted_By_ID',
+                    targetColumn: 'ID',
+                    type: 'many-to-one',
+                    label: 'Expenses submitted by team members'
+                },
+                {
+                    sourceTable: 'expenses',
+                    targetTable: 'vendors',
+                    sourceColumn: 'Vendor_ID',
+                    targetColumn: 'Vendor_ID',
+                    type: 'many-to-one',
+                    label: 'Expenses paid to vendors'
+                },
+                {
+                    sourceTable: 'assets',
+                    targetTable: 'vendors',
+                    sourceColumn: 'Vendor_ID',
+                    targetColumn: 'Vendor_ID',
+                    type: 'many-to-one',
+                    label: 'Assets purchased from vendors'
+                }
+            ];
+
+            localStorage.setItem('tableRelationships', JSON.stringify(demoRelationships));
         }
 
         // Initialize demo documents if none exist
