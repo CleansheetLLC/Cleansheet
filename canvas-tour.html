@@ -6543,6 +6543,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadStories();
             loadUserExperiences();
 
+            // Reload documents for new persona (if documents slideout is visible)
+            if (document.getElementById('documentsContent') &&
+                document.getElementById('documentsContent').style.display === 'block') {
+                loadDocuments();
+            }
+
             // Clear and redraw mindmap
             d3.select('#canvas-mindmap').selectAll('*').remove();
             initializeMindmap(persona);
@@ -16289,102 +16295,180 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Initialize demo documents if none exist
         function initializeDemoDocuments() {
-            const existing = localStorage.getItem('professionalDocuments');
-            if (existing) return; // Don't overwrite existing documents
+            // Check if any persona documents already exist
+            const existingRetail = localStorage.getItem('retailManagerDocuments');
+            const existingChemist = localStorage.getItem('researchChemistDocuments');
+            const existingGraduate = localStorage.getItem('newGraduateDocuments');
+            const existingAnalyst = localStorage.getItem('dataAnalystDocuments');
 
-            const demoDocuments = [
-                // STRUCTURED DOCUMENT EXAMPLE 1
+            if (existingRetail || existingChemist || existingGraduate || existingAnalyst) return;
+
+            // RETAIL MANAGER DOCUMENTS
+            const retailManagerDocuments = [
                 {
-                    title: 'Project Charter - Q4 Digital Transformation',
-                    lastModified: new Date('2025-10-01').toISOString(),
+                    title: 'Q4 Holiday Staffing Plan',
+                    lastModified: new Date('2025-10-15').toISOString(),
                     documentType: 'structured',
-                    sharedWith: ['AM', 'JS', 'TR'],
+                    sharedWith: ['DM', 'HR', 'AM'],
                     blocks: [
-                        { id: 'b1', type: 'header', level: 1, content: 'Project Charter: Q4 Digital Transformation Initiative' },
-                        { id: 'b2', type: 'text', content: 'This document outlines the strategic objectives, scope, and key deliverables for our Q4 digital transformation initiative focused on modernizing customer-facing systems and improving operational efficiency.\n\nKey stakeholders include the CTO, VP of Engineering, Product Management team, and select representatives from Sales and Customer Success. This initiative represents a $2.5M investment over 6 months with expected annual savings of $850K.' },
-                        { id: 'b3', type: 'header', level: 2, content: 'Executive Summary' },
-                        { id: 'b4', type: 'text', content: 'The digital transformation project aims to migrate legacy systems to cloud infrastructure, implement new CRM capabilities, and establish data-driven decision-making processes across the organization.\n\nExpected Benefits:\n• 35% efficiency gain within 12 months\n• 50% reduction in infrastructure costs\n• Improved customer satisfaction scores (target: +15 NPS points)\n• Enhanced data security and compliance' },
-                        { id: 'b5', type: 'image', content: 'https://via.placeholder.com/800x300/0066CC/FFFFFF?text=Digital+Transformation+Roadmap' },
-                        { id: 'b6', type: 'header', level: 2, content: 'Project Timeline' },
-                        { id: 'b7', type: 'mermaid', content: 'gantt\n    title Q4 Digital Transformation Timeline\n    dateFormat  YYYY-MM-DD\n    section Phase 1\n    Infrastructure Setup :a1, 2025-10-01, 30d\n    section Phase 2\n    CRM Migration :a2, 2025-11-01, 45d\n    section Phase 3\n    Testing & Deployment :a3, 2025-12-15, 20d' },
-                        { id: 'b8', type: 'header', level: 2, content: 'Technology Stack' },
-                        { id: 'b9', type: 'code', language: 'javascript', content: '// Microservices Architecture\nconst services = {\n  api: "Node.js/Express",\n  database: "PostgreSQL",\n  cache: "Redis",\n  queue: "RabbitMQ",\n  frontend: "React"\n};' }
+                        { id: 'r1', type: 'header', level: 1, content: 'Q4 Holiday Staffing Plan' },
+                        { id: 'r2', type: 'text', content: 'This document outlines staffing requirements and scheduling strategy for the upcoming holiday season (November - December 2025). Based on historical sales data and projected foot traffic, we anticipate a 45% increase in customer volume during peak shopping periods.\n\nKey objectives: Ensure adequate floor coverage during peak hours, minimize labor costs while maintaining service quality, provide fair schedule distribution, and maintain compliance with labor regulations.' },
+                        { id: 'r3', type: 'header', level: 2, content: 'Staffing Requirements' },
+                        { id: 'r4', type: 'table', content: 'Week,Required Staff,Peak Hours,Estimated Sales\nNov 25-Dec 1,28,10am-8pm,$185K\nDec 2-Dec 8,22,11am-7pm,$142K\nDec 9-Dec 15,26,10am-9pm,$168K\nDec 16-Dec 22,32,9am-9pm,$225K\nDec 23-Dec 25,18,10am-6pm,$95K' },
+                        { id: 'r5', type: 'header', level: 2, content: 'Schedule Timeline' },
+                        { id: 'r6', type: 'mermaid', content: 'gantt\n    title Holiday Staffing Schedule\n    dateFormat  YYYY-MM-DD\n    section Black Friday\n    Peak Coverage :a1, 2025-11-28, 3d\n    section Mid-Season\n    Standard Coverage :a2, 2025-12-01, 14d\n    section Final Rush\n    Maximum Coverage :a3, 2025-12-15, 8d' },
+                        { id: 'r7', type: 'header', level: 2, content: 'Coverage Analysis' },
+                        { id: 'r8', type: 'text', content: 'Based on 2024 performance data, we need minimum 3 cashiers, 4 sales floor associates, 2 fitting room attendants, 1 stock clerk, and 1 manager on duty during peak hours. Weekend coverage requires 25% additional staff. Break schedules must comply with state labor laws (30min unpaid for shifts >6 hours).' }
                     ]
                 },
                 {
-                    title: 'Technical Architecture Documentation',
-                    lastModified: new Date('2025-09-28').toISOString(),
-                    sharedWith: ['JS', 'MK'],
-                    blocks: [
-                        { id: 'c1', type: 'header', level: 1, content: 'System Architecture Overview' },
-                        { id: 'c2', type: 'text', content: 'This document describes the high-level architecture of our microservices-based platform, including component interactions, data flow, and infrastructure requirements.\n\nThe system follows a modern cloud-native architecture pattern with the following characteristics:\n\n• Microservices-based design for independent scaling\n• Event-driven communication using message queues\n• Containerized deployment with Kubernetes orchestration\n• Multi-region deployment for high availability\n• Zero-trust security model with service mesh' },
-                        { id: 'c3', type: 'image', content: 'https://via.placeholder.com/900x400/004C99/FFFFFF?text=Microservices+Architecture' },
-                        { id: 'c4', type: 'header', level: 2, content: 'Database Schema' },
-                        { id: 'c7', type: 'text', content: 'Our PostgreSQL database uses a normalized schema with the following core tables. All tables include audit fields (created_at, updated_at, created_by) for compliance tracking.' },
-                        { id: 'c8', type: 'code', language: 'sql', content: 'CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  created_at TIMESTAMP DEFAULT NOW(),\n  role VARCHAR(50)\n);\n\nCREATE INDEX idx_users_email ON users(email);' }
-                    ]
-                },
-                {
-                    title: 'API Integration Guide',
-                    lastModified: new Date('2025-09-25').toISOString(),
-                    sharedWith: ['DK', 'RL', 'AM', 'JS'],
-                    blocks: [
-                        { id: 'd1', type: 'header', level: 1, content: 'REST API Integration Guide' },
-                        { id: 'd2', type: 'text', content: 'Complete guide for integrating with our RESTful API endpoints, including authentication, rate limiting, and best practices.' },
-                        { id: 'd3', type: 'header', level: 2, content: 'Authentication' },
-                        { id: 'd4', type: 'markdown', content: 'All API requests must include an **Authorization** header:\n\n```\nAuthorization: Bearer YOUR_API_TOKEN\n```\n\nTokens expire after 24 hours. Refresh using the `/auth/refresh` endpoint.' },
-                        { id: 'd5', type: 'header', level: 2, content: 'Example Request' },
-                        { id: 'd6', type: 'code', language: 'python', content: 'import requests\n\nheaders = {\n    "Authorization": "Bearer YOUR_TOKEN",\n    "Content-Type": "application/json"\n}\n\nresponse = requests.get(\n    "https://api.example.com/v1/users",\n    headers=headers\n)\n\nprint(response.json())' },
-                        { id: 'd7', type: 'header', level: 2, content: 'Rate Limits' },
-                        { id: 'd8', type: 'table', content: 'Endpoint,Rate Limit,Window\n/api/users,100 requests,1 minute\n/api/data,500 requests,1 hour\n/api/upload,10 requests,1 minute' }
-                    ]
-                },
-                {
-                    title: 'Meeting Notes - Sprint Planning',
-                    lastModified: new Date('2025-10-04').toISOString(),
-                    sharedWith: ['SC', 'MR', 'AJ'],
-                    blocks: [
-                        { id: 'e1', type: 'header', level: 1, content: 'Sprint Planning - Week of Oct 7' },
-                        { id: 'e2', type: 'text', content: 'Attendees: Engineering team, Product Manager, UX Designer\nDate: October 4, 2025' },
-                        { id: 'e3', type: 'header', level: 2, content: 'Sprint Goals' },
-                        { id: 'e4', type: 'markdown', content: '- [ ] Complete user authentication refactor\n- [ ] Implement new dashboard widgets\n- [ ] Fix critical bugs from last sprint\n- [ ] Write integration tests for payment flow\n- [ ] Deploy to staging environment' },
-                        { id: 'e5', type: 'header', level: 2, content: 'Action Items' },
-                        { id: 'e6', type: 'text', content: 'Sarah: Lead authentication refactor (5 story points)\nMike: Dashboard widget implementation (8 story points)\nAlex: Bug fixes and testing (3 story points)\n\nEstimated velocity: 16 points\nSprint ends: October 18, 2025' }
-                    ]
-                },
-                {
-                    title: 'Product Requirements - User Dashboard',
-                    lastModified: new Date('2025-09-30').toISOString(),
+                    title: 'Inventory Management Report - October 2025',
+                    lastModified: new Date('2025-10-12').toISOString(),
                     documentType: 'structured',
-                    sharedWith: ['PM', 'UX'],
+                    sharedWith: ['DM', 'VM', 'PC'],
                     blocks: [
-                        { id: 'f1', type: 'header', level: 1, content: 'Product Requirements: User Dashboard v2.0' },
-                        { id: 'f2', type: 'text', content: 'This document defines the requirements for the redesigned user dashboard, including new widgets, improved navigation, and personalization features. The dashboard redesign addresses user feedback from Q3 surveys (85% requested better data visualization) and aims to reduce time-to-insight by 40%. Target launch: November 15, 2025.' },
-                        { id: 'f3', type: 'header', level: 2, content: 'Current State Analysis' },
-                        { id: 'f4', type: 'text', content: 'User testing revealed several pain points: Information density is too high (average task completion time: 4.2 minutes), critical metrics are buried 2-3 clicks deep, no personalization options for different user roles, and mobile experience is suboptimal (43% bounce rate on mobile).' },
-                        { id: 'f5', type: 'header', level: 2, content: 'User Stories' },
-                        { id: 'f6', type: 'text', content: 'As a user, I want to see my recent activity at a glance so I can quickly understand what has happened since my last visit. The activity feed should show the last 10 items sorted by timestamp with action type, timestamp, and relevant entity information.' }
+                        { id: 'i1', type: 'header', level: 1, content: 'Monthly Inventory Analysis - October 2025' },
+                        { id: 'i2', type: 'text', content: 'This report analyzes current stock levels, identifies reorder needs, and highlights performance metrics for October 2025. Total inventory value: $485K across 2,847 unique SKUs. Critical attention needed for 47 items below safety stock levels.' },
+                        { id: 'i3', type: 'header', level: 2, content: 'Low Stock Alert' },
+                        { id: 'i4', type: 'table', content: 'SKU,Product,Current Stock,Min Level,Reorder Qty,Supplier\nWJ-001,Winter Jacket Blue M,3,15,50,North Coast\nBT-205,Leather Boots Size 9,2,10,25,Footwear Plus\nSW-089,Cashmere Sweater L,1,8,20,Premium Knits\nJN-445,Skinny Jeans 32x32,4,12,30,Denim Works\nAC-223,Silk Scarf Floral,0,5,15,Luxury Access' },
+                        { id: 'i5', type: 'header', level: 2, content: 'Top Performers' },
+                        { id: 'i6', type: 'table', content: 'Product Category,Units Sold,Revenue,Margin %\nWomen Outerwear,234,$28,450,65%\nFootwear,189,$31,200,58%\nAccessories,156,$12,800,72%\nMen Casual,143,$19,600,61%\nDresses,128,$22,100,68%' },
+                        { id: 'i7', type: 'header', level: 2, content: 'Seasonal Recommendations' },
+                        { id: 'i8', type: 'text', content: 'With holiday season approaching, recommend increasing winter apparel inventory by 40%. Focus on coat sizes M-XL, boots sizes 7-10, and gift accessories under $50. Monitor cashmere and wool items closely - demand typically peaks in November.' }
                     ]
                 },
-                // UNSTRUCTURED DOCUMENT EXAMPLE 1
                 {
-                    title: 'Executive Summary - Market Analysis Q3 2025',
-                    lastModified: new Date('2025-09-28').toISOString(),
+                    title: 'Store Performance Review - Q3 2025',
+                    lastModified: new Date('2025-10-08').toISOString(),
                     documentType: 'unstructured',
-                    sharedWith: ['CEO', 'CFO', 'VP'],
-                    richTextContent: '<h1>Market Analysis: Third Quarter 2025</h1><p>The third quarter of 2025 demonstrated significant growth across our core market segments, with particular strength in the enterprise SaaS vertical. Total addressable market (TAM) expanded by 23% year-over-year, driven primarily by increased digital transformation budgets and a favorable regulatory environment for cloud adoption.</p><p>Our competitive analysis reveals three key insights that will shape Q4 strategy. First, market consolidation continues with two major acquisitions announced in September, reducing the number of significant competitors from eight to six. Second, pricing pressure has eased as customers prioritize feature depth over cost optimization, creating opportunities for premium positioning. Third, emerging AI capabilities have become table stakes rather than differentiators, requiring rapid feature parity to maintain market share.</p><p>Customer acquisition metrics improved substantially with a 31% reduction in CAC while maintaining consistent LTV ratios. This efficiency gain reflects both marketing optimization and product-market fit maturation. Churn declined to 4.2% annually, our lowest rate in three years, attributed to enhanced onboarding programs and proactive customer success interventions.</p><p>Looking ahead to Q4, we recommend aggressive expansion in the mid-market segment where win rates exceed 40% and sales cycles average just 45 days. The enterprise pipeline remains robust with $12.4M in qualified opportunities, though longer cycles require sustained investment in enterprise sales resources. International expansion, particularly in EMEA markets, presents significant untapped opportunity with preliminary analysis suggesting 60% TAM growth potential.</p><p>Resource allocation for Q4 should prioritize product development (40% of budget), go-to-market expansion (35%), and customer success programs (25%). This distribution reflects our strategic imperative to maintain competitive feature velocity while scaling revenue efficiently. Expected outcomes include 28% revenue growth, 250 net new customers, and achievement of profitability milestone by year end.</p>'
-                },
-                // UNSTRUCTURED DOCUMENT EXAMPLE 2
-                {
-                    title: 'Team Meeting Notes - Engineering All-Hands',
-                    lastModified: new Date('2025-10-03').toISOString(),
-                    documentType: 'unstructured',
-                    sharedWith: [],
-                    richTextContent: '<h1>Engineering All-Hands Meeting</h1><h2>October 3, 2025</h2><p>The quarterly all-hands meeting covered several critical topics including architecture decisions, team growth, and upcoming project timelines. Engineering headcount will increase from 42 to 58 by year end, with new hires focused on backend infrastructure, mobile development, and data engineering capabilities.</p><p><strong>Architecture Updates:</strong> The migration to microservices architecture is 65% complete with five services successfully deployed to production. Performance improvements are substantial, with API response times reduced by 40% and system availability improved to 99.97% uptime. The remaining monolith components will be decomposed over the next two quarters using the strangler fig pattern to minimize risk.</p><p>Security posture received significant attention following the recent third-party audit. All critical and high-severity findings have been addressed, with medium-severity items scheduled for resolution by month end. Implementation of zero-trust architecture principles will begin in Q1 2026, requiring coordination across engineering, security, and operations teams.</p><p><strong>Team Updates:</strong> Three new team leads were announced. Sarah Chen will lead the platform team, focusing on internal developer tools and infrastructure. Marcus Rodriguez transitions to mobile engineering lead, driving our iOS and Android roadmap. The new data engineering team, led by Jennifer Kim, will establish data governance frameworks and build analytics infrastructure.</p><p>Notable project milestones include the beta launch of the AI-powered search feature, completion of the payments infrastructure overhaul, and successful migration of 80% of customers to the new authentication system. Customer feedback on these improvements has been overwhelmingly positive with NPS scores increasing 12 points quarter-over-quarter.</p><p>Looking forward, Q4 priorities include completing the microservices migration, launching the mobile app redesign, achieving SOC 2 Type II certification, and implementing the new observability stack. Engineering will also support the product team\'s ambitious feature roadmap while maintaining our commitment to technical debt reduction and code quality improvements.</p>'
+                    sharedWith: ['RM', 'DM'],
+                    richTextContent: '<h1>Store Performance Review - Third Quarter 2025</h1><p>This quarterly review assesses overall store performance across key metrics including sales, customer satisfaction, team productivity, and operational efficiency. Q3 results show strong performance with several areas for continued focus and improvement.</p><h2>Sales Performance</h2><p><strong>Revenue:</strong> $847,000 (vs $785K target) - 8% over goal<br><strong>Transactions:</strong> 15,420 (average ticket $54.95)<br><strong>Conversion Rate:</strong> 68% (up from 64% in Q2)<br><strong>Return Rate:</strong> 8.2% (within acceptable range)</p><p>Notable achievements include successful back-to-school campaign driving 23% increase in August sales, effective cross-selling program boosting average transaction by $8, and improved inventory management reducing stockouts by 40%.</p><h2>Customer Experience</h2><p>Customer satisfaction scores averaged 4.3/5 (target: 4.2). Mystery shopper evaluations rated service at 87/100, with particular strength in product knowledge and greeting protocols. Areas for improvement include checkout speed during peak hours and fitting room maintenance.</p><p>Customer feedback themes: Excellent product selection (mentioned in 78% of positive reviews), friendly staff (mentioned in 65%), competitive pricing (mentioned in 52%). Primary complaint: long checkout lines during weekends.</p><h2>Team Performance</h2><p>Team of 18 associates maintained strong performance metrics. Attendance rate 94%, punctuality 97%. Three team members earned recognition for exceptional customer service. Sales per hour averaged $127 across the team, with top performer reaching $156/hour.</p><p><strong>Recommendations for Q4:</strong> Implement mobile checkout during peak periods, enhance weekend staffing, focus on winter merchandise presentation, and continue customer service excellence initiatives. Target Q4 revenue: $925,000.</p>'
                 }
             ];
 
-            localStorage.setItem('professionalDocuments', JSON.stringify(demoDocuments));
+            // RESEARCH CHEMIST DOCUMENTS
+            const researchChemistDocuments = [
+                {
+                    title: 'Lab Safety Protocol - Chemical Handling',
+                    lastModified: new Date('2025-10-18').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['LS', 'RC', 'PD'],
+                    blocks: [
+                        { id: 'c1', type: 'header', level: 1, content: 'Chemical Handling Safety Protocol' },
+                        { id: 'c2', type: 'text', content: 'This document outlines mandatory safety procedures for handling hazardous chemicals in Laboratory B-12. All personnel must complete safety training before working with Class 3 or higher chemicals. Last updated following OSHA inspection recommendations.' },
+                        { id: 'c3', type: 'header', level: 2, content: 'Personal Protective Equipment (PPE)' },
+                        { id: 'c4', type: 'markdown', content: '**Required for all chemical work:**\n\n- [ ] Safety goggles (ANSI Z87.1 compliant)\n- [ ] Lab coat (flame-resistant, knee-length)\n- [ ] Closed-toe shoes (no sandals/heels)\n- [ ] Long pants (no shorts/skirts)\n\n**Additional PPE by hazard class:**\n- [ ] Nitrile gloves (Class 1-2 chemicals)\n- [ ] Butyl rubber gloves (Class 3+ chemicals)\n- [ ] Face shield (corrosive materials)\n- [ ] Respirator (volatile organics, as specified)' },
+                        { id: 'c5', type: 'header', level: 2, content: 'Chemical Classifications' },
+                        { id: 'c6', type: 'table', content: 'Class,Hazard Level,Examples,Storage Temp,Special Requirements\n1,Low,NaCl H₂O,Room Temp,Standard cabinet\n2,Moderate,Ethanol Acetone,Room Temp,Ventilated cabinet\n3,High,HCl NaOH,Room Temp,Locked acid/base cabinet\n4,Severe,Benzene CCl₄,4°C,Restricted access freezer\n5,Extreme,HF Osmium,4°C,Dual approval required' },
+                        { id: 'c7', type: 'header', level: 2, content: 'Emergency Procedures' },
+                        { id: 'c8', type: 'text', content: 'In case of spill: Evacuate area, activate emergency shower if skin contact, call Safety Office (x4911). Eye wash stations located at exits. Emergency shut-off valves are red-handled near each workbench. Spill kits contain neutralizing agents for acids/bases.' }
+                    ]
+                },
+                {
+                    title: 'Experiment Log - Polymer Synthesis #347',
+                    lastModified: new Date('2025-10-22').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['PI', 'LT', 'RC'],
+                    blocks: [
+                        { id: 'e1', type: 'header', level: 1, content: 'Polymer Synthesis Experiment #347' },
+                        { id: 'e2', type: 'text', content: 'Objective: Synthesize biodegradable polyester from renewable monomers using ring-opening polymerization. Target molecular weight: 15,000-25,000 g/mol. Expected yield: >85%. This experiment is part of the sustainable materials research project.' },
+                        { id: 'e3', type: 'header', level: 2, content: 'Materials and Reagents' },
+                        { id: 'e4', type: 'table', content: 'Chemical,CAS Number,Amount,Purity,Supplier\nL-Lactide,4511-42-6,5.0g,99.5%,Sigma-Aldrich\nTin(II) ethylhexanoate,301-10-0,50mg,95%,TCI Chemicals\nDodecanol,112-53-8,100mg,98%,Fisher Scientific\nToluene,108-88-3,50mL,99.8%,EMD Millipore\nMethanol,67-56-1,200mL,99.9%,Fisher Scientific' },
+                        { id: 'e5', type: 'header', level: 2, content: 'Procedure' },
+                        { id: 'e6', type: 'text', content: '1. Set up reaction under nitrogen atmosphere in flame-dried glassware\n2. Dissolve L-lactide (5.0g, 34.7 mmol) in anhydrous toluene (30 mL)\n3. Add dodecanol initiator (100 mg, 0.54 mmol) and Sn(Oct)₂ catalyst (50 mg)\n4. Heat to 130°C and monitor by ¹H NMR (aliquots at 2, 4, 8 hours)\n5. Cool to RT, precipitate in cold methanol, filter and dry under vacuum' },
+                        { id: 'e7', type: 'header', level: 2, content: 'Results and Analysis' },
+                        { id: 'e8', type: 'table', content: 'Time (h),Conversion (%),Mn (g/mol),PDI,Yield (%)\n2,45,8500,1.2,-\n4,78,18200,1.4,-\n8,92,22500,1.6,87' },
+                        { id: 'e9', type: 'code', language: 'python', content: '# Molecular weight calculation\nimport numpy as np\n\n# GPC data analysis\nretention_times = [15.2, 16.8, 18.1, 19.4]\nmolecular_weights = [45000, 22500, 12000, 5000]\n\n# Calculate polydispersity\nMn = 22500  # Number average\nMw = 36000  # Weight average\nPDI = Mw / Mn\nprint(f"PDI: {PDI:.2f}")' }
+                    ]
+                },
+                {
+                    title: 'Research Proposal - Biodegradable Plastics Study',
+                    lastModified: new Date('2025-10-20').toISOString(),
+                    documentType: 'unstructured',
+                    sharedWith: ['PI', 'DH', 'FO'],
+                    richTextContent: '<h1>Research Proposal: Development of Marine-Degradable Plastic Alternatives</h1><h2>Abstract</h2><p>This proposal outlines a 18-month research project to develop novel biodegradable polymer materials specifically designed for marine environments. Current biodegradable plastics degrade poorly in saltwater conditions, contributing to ocean pollution. Our approach combines renewable monomers with marine-specific degradation pathways to create packaging materials that break down within 6 months in seawater.</p><h2>Research Objectives</h2><p><strong>Primary Goal:</strong> Synthesize and characterize biodegradable polymers with marine degradation rates <180 days</p><p><strong>Specific Aims:</strong></p><ul><li>Develop three polymer series based on alginate, chitosan, and PHA platforms</li><li>Optimize mechanical properties to match conventional plastic films</li><li>Conduct accelerated marine degradation testing per ASTM D6691</li><li>Evaluate eco-toxicity using standard marine organism bioassays</li><li>Scale synthesis to 100g batches for application testing</li></ul><h2>Literature Review</h2><p>Marine plastic pollution affects 700+ species and costs global economies $13B annually. Current biodegradable alternatives like PLA require industrial composting at 58°C, unsuitable for ocean environments. Recent advances in marine-degradable polymers show promise, with seaweed-based materials achieving 60% degradation in 90 days. However, mechanical properties remain insufficient for packaging applications.</p><h2>Methodology</h2><p>We will employ ring-opening polymerization and enzymatic catalysis to synthesize target polymers. Marine degradation testing will be conducted in artificial seawater at 15°C, 25°C, and 35°C to simulate global ocean conditions. Polymer characterization will include GPC, DSC, tensile testing, and FTIR analysis. Degradation products will be analyzed by LC-MS.</p><h2>Budget and Timeline</h2><p><strong>Total Budget:</strong> $185,000 over 18 months</p><p><strong>Phase 1</strong> (Months 1-6): Polymer synthesis and optimization - $65K<br><strong>Phase 2</strong> (Months 7-12): Marine degradation studies - $75K<br><strong>Phase 3</strong> (Months 13-18): Scale-up and application testing - $45K</p><p><strong>Expected Outcomes:</strong> 3 peer-reviewed publications, 2 patent applications, demonstration of commercial viability for marine-degradable packaging materials with potential market impact of $500M+ in sustainable packaging sector.</p>'
+                }
+            ];
+
+            // NEW GRADUATE DOCUMENTS
+            const newGraduateDocuments = [
+                {
+                    title: 'Job Application Tracker',
+                    lastModified: new Date('2025-10-25').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['CV', 'MN'],
+                    blocks: [
+                        { id: 'j1', type: 'header', level: 1, content: 'Job Application Tracking - Fall 2025' },
+                        { id: 'j2', type: 'text', content: 'Tracking all job applications submitted since graduation in May 2025. Target: 50 applications by end of November. Currently at 23 applications with 8 interviews scheduled. Focus areas: Software Engineering, Data Analysis, Product Management roles at tech companies.' },
+                        { id: 'j3', type: 'header', level: 2, content: 'Application Status' },
+                        { id: 'j4', type: 'table', content: 'Company,Position,Date Applied,Status,Next Step,Salary Range\nGoogle,Software Engineer,2025-09-15,Interview - Final,Onsite 10/28,$95K-$125K\nMicrosoft,PM Intern,2025-09-20,Rejected,N/A,$85K-$110K\nStartup Co,Full Stack Dev,2025-09-25,Phone Screen,Technical 10/30,$70K-$90K\nAmazon,Data Analyst,2025-10-01,Applied,Waiting,,$80K-$105K\nFacebook,Frontend Dev,2025-10-05,Phone Screen,Take-home,,$90K-$115K\nSpotify,Product Analyst,2025-10-10,Interview,Panel 11/01,$75K-$95K\nUber,Software Engineer,2025-10-12,Applied,Waiting,$85K-$115K\nAirbnb,Data Scientist,2025-10-15,Coding Test,Submit by 10/29,$90K-$120K' },
+                        { id: 'j5', type: 'header', level: 2, content: 'Interview Preparation' },
+                        { id: 'j6', type: 'markdown', content: '**Technical Skills to Review:**\n\n- [ ] Data structures and algorithms (LeetCode practice)\n- [ ] System design basics (distributed systems, caching)\n- [ ] SQL query optimization and database design\n- [ ] JavaScript/Python coding challenges\n- [ ] Behavioral interview questions (STAR method)\n\n**Companies with upcoming interviews:**\n- [ ] Google onsite (October 28) - Review distributed systems\n- [ ] Startup Co technical (October 30) - Full-stack project walkthrough\n- [ ] Spotify panel (November 1) - Product case study preparation' },
+                        { id: 'j7', type: 'header', level: 2, content: 'Networking Contacts' },
+                        { id: 'j8', type: 'table', content: 'Name,Company,Position,Connection,Last Contact\nSarah Kim,Google,Senior SWE,College alumna,10/20/25\nMike Chen,Microsoft,PM,LinkedIn,10/15/25\nAlex Rodriguez,Startup Co,CTO,Friend referral,10/22/25\nJenna Park,Amazon,Data Scientist,Career fair,10/18/25\nTom Wilson,Facebook,Engineering Manager,Professor introduction,10/25/25' }
+                    ]
+                },
+                {
+                    title: 'Career Development Plan - First Year',
+                    lastModified: new Date('2025-10-28').toISOString(),
+                    documentType: 'unstructured',
+                    sharedWith: ['MN', 'CM'],
+                    richTextContent: '<h1>Career Development Plan: First Year in Tech</h1><h2>Professional Goals</h2><p>As a recent computer science graduate entering the tech industry, my primary goal is to establish a strong foundation in software development while exploring different career paths. I aim to develop both technical expertise and professional skills that will position me for long-term success in technology roles.</p><h2>Short-term Objectives (0-6 months)</h2><p><strong>Technical Skills:</strong> Strengthen core programming abilities in Python and JavaScript, gain experience with modern frameworks (React, Node.js), and develop proficiency in cloud platforms (AWS or Azure). Complete at least 100 coding challenges and contribute to 2 open-source projects.</p><p><strong>Professional Development:</strong> Build effective communication skills through code reviews and technical presentations. Learn to work in agile development environments and understand CI/CD practices. Establish mentorship relationships with 2-3 senior engineers.</p><p><strong>Industry Knowledge:</strong> Stay current with technology trends through daily reading (Hacker News, tech blogs), attend local meetups and conferences, and build a professional network within the tech community.</p><h2>Medium-term Goals (6-12 months)</h2><p>Demonstrate impact through successful project deliveries and begin specializing in a particular domain (web development, data engineering, or mobile development). Seek increased responsibility such as leading small features or mentoring interns. Consider pursuing relevant certifications (AWS, Google Cloud) to validate cloud computing skills.</p><h2>Learning Plan</h2><p><strong>Technical Learning:</strong> Complete online courses in system design, database optimization, and software architecture patterns. Practice designing and implementing REST APIs, work with relational and NoSQL databases, and learn containerization with Docker.</p><p><strong>Soft Skills:</strong> Develop presentation abilities through internal tech talks, improve written communication through documentation and blog posts, and enhance collaboration skills through pair programming and code reviews.</p><h2>Success Metrics</h2><p>Track progress through quarterly performance reviews, peer feedback, and personal project portfolio growth. Measure technical advancement through successful completion of increasingly complex assignments and positive code review feedback. Monitor professional development through expanded network connections, speaking opportunities, and internal recognition.</p><p><strong>Year-end Target:</strong> Transition from junior to mid-level developer with specialized expertise, strong peer relationships, and clear direction for continued career growth in technology.</p>'
+                }
+            ];
+
+            // DATA ANALYST DOCUMENTS
+            const dataAnalystDocuments = [
+                {
+                    title: 'Customer Churn Analysis - September 2025',
+                    lastModified: new Date('2025-10-30').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['DS', 'PM', 'CS'],
+                    blocks: [
+                        { id: 'd1', type: 'header', level: 1, content: 'Customer Churn Analysis Report' },
+                        { id: 'd2', type: 'text', content: 'Analysis of customer churn patterns for September 2025. Churn rate increased to 5.8% (vs 4.2% target), affecting 142 customers and $23,400 in monthly recurring revenue. Key findings: churn peaks in accounts 90+ days past renewal, correlates with reduced product usage, and concentrates in SMB segment.' },
+                        { id: 'd3', type: 'header', level: 2, content: 'Data Query' },
+                        { id: 'd4', type: 'code', language: 'sql', content: 'SELECT \n  DATE_TRUNC(\'month\', churn_date) as month,\n  COUNT(*) as churned_customers,\n  SUM(mrr) as lost_revenue,\n  AVG(days_since_last_login) as avg_days_inactive,\n  AVG(account_age_days) as avg_account_age\nFROM customer_churn \nWHERE churn_date >= \'2025-09-01\'\n  AND churn_date < \'2025-10-01\'\nGROUP BY DATE_TRUNC(\'month\', churn_date)\nORDER BY month;' },
+                        { id: 'd5', type: 'header', level: 2, content: 'Churn Factors Analysis' },
+                        { id: 'd6', type: 'table', content: 'Factor,Churned Group,Retained Group,Risk Ratio\nDays since last login,>45 days,<15 days,3.2x\nMonthly logins,<8 times,>25 times,2.8x\nSupport tickets,>5 per month,<2 per month,2.1x\nFeature adoption,<3 features,>7 features,2.4x\nAccount age,<6 months,>12 months,1.9x' },
+                        { id: 'd7', type: 'header', level: 2, content: 'Predictive Model Results' },
+                        { id: 'd8', type: 'code', language: 'python', content: 'import pandas as pd\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import classification_report\n\n# Model performance on test set\nrf_model = RandomForestClassifier(n_estimators=100, random_state=42)\nrf_model.fit(X_train, y_train)\n\ny_pred = rf_model.predict(X_test)\naccuracy = rf_model.score(X_test, y_test)\nprint(f"Model Accuracy: {accuracy:.3f}")\n\n# Feature importance\nfeature_importance = pd.DataFrame({\n    \'feature\': X_train.columns,\n    \'importance\': rf_model.feature_importances_\n}).sort_values(\'importance\', ascending=False)\n\nprint("\\nTop 5 Features:")\nprint(feature_importance.head())' },
+                        { id: 'd9', type: 'header', level: 2, content: 'Recommendations' },
+                        { id: 'd10', type: 'text', content: 'Implement proactive outreach for accounts with >30 days inactivity. Launch re-engagement email campaign targeting customers with declining usage. Develop onboarding improvements to increase feature adoption in first 60 days. Consider offering retention incentives to high-risk SMB accounts identified by the model.' }
+                    ]
+                },
+                {
+                    title: 'Executive Dashboard Requirements - KPI Metrics',
+                    lastModified: new Date('2025-10-26').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['EX', 'PM', 'DE'],
+                    blocks: [
+                        { id: 'k1', type: 'header', level: 1, content: 'Executive Dashboard Requirements Document' },
+                        { id: 'k2', type: 'text', content: 'Requirements for new executive dashboard providing real-time visibility into key business metrics. Dashboard will refresh every 15 minutes during business hours and display 12 core KPIs across 4 categories: Revenue, Customer, Product, and Operations. Target users: C-suite, VPs, Directors.' },
+                        { id: 'k3', type: 'header', level: 2, content: 'Dashboard Mockup' },
+                        { id: 'k4', type: 'image', content: 'https://via.placeholder.com/800x450/0066CC/FFFFFF?text=Executive+Dashboard+Wireframe' },
+                        { id: 'k5', type: 'header', level: 2, content: 'KPI Definitions' },
+                        { id: 'k6', type: 'table', content: 'KPI,Definition,Data Source,Update Frequency\nMonthly Recurring Revenue,Sum of all active subscriptions,Billing DB,Daily at 6 AM\nCustomer Acquisition Cost,Marketing spend / new customers,CRM + Finance,Weekly\nNet Promoter Score,Customer satisfaction survey average,Survey platform,Weekly\nDaily Active Users,Unique users with >1 action,Analytics DB,Hourly\nGross Revenue Retention,Revenue retained from existing customers,Billing DB,Monthly\nProduct Usage Rate,% of features used by active customers,Analytics DB,Daily\nSupport Ticket Volume,Number of open tickets,Support system,Real-time\nServer Uptime,% availability of core services,Monitoring tools,Real-time' },
+                        { id: 'k7', type: 'header', level: 2, content: 'Technical Specifications' },
+                        { id: 'k8', type: 'text', content: 'Dashboard built using Tableau connected to data warehouse via API. All metrics include month-over-month and year-over-year comparisons with color-coded trend indicators (green: positive, red: negative, yellow: neutral). Mobile-responsive design required for tablet viewing. Export functionality for PDF reports.' },
+                        { id: 'k9', type: 'header', level: 2, content: 'Data Pipeline Architecture' },
+                        { id: 'k10', type: 'mermaid', content: 'graph LR\n    A[CRM Database] --> D[Data Warehouse]\n    B[Analytics Database] --> D\n    C[Billing System] --> D\n    D --> E[ETL Process]\n    E --> F[Dashboard API]\n    F --> G[Tableau Dashboard]\n    G --> H[Executive Users]' }
+                    ]
+                },
+                {
+                    title: 'A/B Test Results - Checkout Flow Optimization',
+                    lastModified: new Date('2025-10-29').toISOString(),
+                    documentType: 'unstructured',
+                    sharedWith: ['PM', 'UX', 'EN'],
+                    richTextContent: '<h1>A/B Test Results: Checkout Flow Optimization</h1><h2>Executive Summary</h2><p>Our 4-week A/B test comparing the simplified checkout flow (Variant B) against the current 3-step process (Control A) shows significant improvements in conversion rates and user experience metrics. Variant B achieved an 18% increase in checkout completion rate and 12% increase in overall revenue per visitor.</p><h2>Test Design</h2><p><strong>Hypothesis:</strong> Reducing checkout steps from 3 to 2 will increase conversion by minimizing abandonment opportunities.</p><p><strong>Traffic Allocation:</strong> 50% Control A (3-step), 50% Variant B (2-step)<br><strong>Sample Size:</strong> 24,847 users (12,394 Control, 12,453 Variant)<br><strong>Test Duration:</strong> October 1-28, 2025<br><strong>Primary Metric:</strong> Checkout completion rate<br><strong>Secondary Metrics:</strong> Revenue per visitor, time to complete checkout, user satisfaction score</p><h2>Results Analysis</h2><p><strong>Statistical Significance:</strong> All primary and secondary metrics achieved 95% confidence intervals with p-values < 0.05, indicating statistically significant results.</p><h3>Key Metrics Performance</h3><ul><li><strong>Checkout Completion Rate:</strong> Control 64.2% vs Variant 75.8% (+18.1% relative lift)</li><li><strong>Revenue per Visitor:</strong> Control $18.42 vs Variant $20.63 (+12.0% relative lift)</li><li><strong>Average Time to Complete:</strong> Control 4:23 vs Variant 2:47 (-36.8% reduction)</li><li><strong>User Satisfaction Score:</strong> Control 3.4/5 vs Variant 4.1/5 (+20.6% improvement)</li></ul><h2>Segment Analysis</h2><p>Improvement was consistent across user segments, with particularly strong performance in mobile users (+24% completion rate lift) and new customers (+21% lift). Returning customers showed smaller but still significant improvement (+14% lift).</p><p>Geographic analysis revealed stronger lift in international markets (avg +22%) compared to domestic (+16%), likely due to reduced form complexity benefiting non-native English speakers.</p><h2>Implementation Recommendation</h2><p><strong>Recommendation:</strong> Implement Variant B (2-step checkout) for 100% of traffic based on strong statistical evidence and positive user feedback.</p><p><strong>Expected Annual Impact:</strong> $2.1M additional revenue based on current traffic projections, with improved customer satisfaction leading to higher retention rates.</p><p><strong>Implementation Timeline:</strong> 2 weeks for full rollout, including monitoring dashboards and rollback capability. Monitor closely for first 30 days post-launch to ensure sustained performance gains.</p>'
+                }
+            ];
+
+            // Save persona-specific documents to localStorage
+            localStorage.setItem('retailManagerDocuments', JSON.stringify(retailManagerDocuments));
+            localStorage.setItem('researchChemistDocuments', JSON.stringify(researchChemistDocuments));
+            localStorage.setItem('newGraduateDocuments', JSON.stringify(newGraduateDocuments));
+            localStorage.setItem('dataAnalystDocuments', JSON.stringify(dataAnalystDocuments));
         }
 
         // Documents Slideout Functions
@@ -16408,7 +16492,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const container = document.getElementById('documentsContainer');
             container.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 16px;';
 
-            const documents = JSON.parse(localStorage.getItem('professionalDocuments') || '[]');
+            // Get persona-specific documents
+            const personaStorageKeys = {
+                'retail-manager': 'retailManagerDocuments',
+                'chemist': 'researchChemistDocuments',
+                'new-graduate': 'newGraduateDocuments',
+                'data-analyst': 'dataAnalystDocuments'
+            };
+
+            const storageKey = personaStorageKeys[currentPersona] || 'retailManagerDocuments';
+            const documents = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
             if (documents.length === 0) {
                 container.innerHTML = '<div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--color-neutral-text);"><i class="ph ph-file-text" style="font-size: 48px; color: var(--color-neutral-border); display: block; margin-bottom: 12px;"></i>No documents yet. Click "+ New Document" to create one.</div>';
