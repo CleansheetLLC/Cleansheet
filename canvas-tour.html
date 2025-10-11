@@ -2665,12 +2665,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-function" style="font-size: 18px; color: var(--color-primary-blue);"></i>
                                         <span>LaTeX</span>
                                     </button>
-
-                                    <!-- PlantUML Block -->
-                                    <button onclick="addDocumentBlock('plantuml')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
-                                        <i class="ph ph-tree-structure" style="font-size: 18px; color: var(--color-primary-blue);"></i>
-                                        <span>PlantUML</span>
-                                    </button>
                                 </div>
                             </div>
 
@@ -6855,6 +6849,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 0% { transform: scale(0.5); opacity: 0; }
                 50% { transform: scale(1.1); }
                 100% { transform: scale(1); opacity: 1; }
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
             }
         `;
         document.head.appendChild(style);
@@ -14855,9 +14853,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         { id: 'c1', type: 'header', level: 1, content: 'System Architecture Overview' },
                         { id: 'c2', type: 'text', content: 'This document describes the high-level architecture of our microservices-based platform, including component interactions, data flow, and infrastructure requirements.\n\nThe system follows a modern cloud-native architecture pattern with the following characteristics:\n\n• Microservices-based design for independent scaling\n• Event-driven communication using message queues\n• Containerized deployment with Kubernetes orchestration\n• Multi-region deployment for high availability\n• Zero-trust security model with service mesh' },
                         { id: 'c3', type: 'image', content: 'https://via.placeholder.com/900x400/004C99/FFFFFF?text=Microservices+Architecture' },
-                        { id: 'c4', type: 'header', level: 2, content: 'Component Interaction' },
-                        { id: 'c5', type: 'plantuml', content: '@startuml\nactor User\nUser -> API_Gateway : HTTP Request\nAPI_Gateway -> Auth_Service : Validate Token\nAuth_Service --> API_Gateway : Token Valid\nAPI_Gateway -> Business_Logic : Route Request\nBusiness_Logic -> Database : Query Data\nDatabase --> Business_Logic : Return Data\nBusiness_Logic --> User : JSON Response\n@enduml' },
-                        { id: 'c6', type: 'header', level: 2, content: 'Database Schema' },
+                        { id: 'c4', type: 'header', level: 2, content: 'Database Schema' },
                         { id: 'c7', type: 'text', content: 'Our PostgreSQL database uses a normalized schema with the following core tables. All tables include audit fields (created_at, updated_at, created_by) for compliance tracking.' },
                         { id: 'c8', type: 'code', language: 'sql', content: 'CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  created_at TIMESTAMP DEFAULT NOW(),\n  role VARCHAR(50)\n);\n\nCREATE INDEX idx_users_email ON users(email);' }
                     ]
@@ -15241,13 +15237,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     case 'markdown':
                     case 'latex':
                     case 'mermaid':
-                    case 'plantuml':
                         // Show these as formatted pre blocks with labels
                         const typeLabels = {
                             'markdown': 'Markdown Content',
                             'latex': 'LaTeX Math',
-                            'mermaid': 'Mermaid Diagram',
-                            'plantuml': 'PlantUML Diagram'
+                            'mermaid': 'Mermaid Diagram'
                         };
                         html += `<p><em>${typeLabels[block.type]}:</em></p>`;
                         html += `<pre>${escapeHtml(block.content || '')}</pre>`;
@@ -15504,15 +15498,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <i class="ph ph-flow-arrow"></i> Mermaid Diagram
                         </div>
                         <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter Mermaid syntax..." style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || 'graph TD\n    A[Start] --> B[Process]\n    B --> C[End]'}</textarea>
-                    `;
-                    break;
-
-                case 'plantuml':
-                    contentHTML = `
-                        <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
-                            <i class="ph ph-tree-structure"></i> PlantUML Diagram
-                        </div>
-                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter PlantUML syntax..." style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || '@startuml\nActor User\nUser -> System: Request\nSystem --> User: Response\n@enduml'}</textarea>
                     `;
                     break;
 
@@ -16787,9 +16772,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     break;
                 case 'latex':
                     blockContent = '<textarea placeholder="\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}" style="width: 100%; min-height: 100px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #fef3c7; outline: none; resize: vertical; padding: 12px;"></textarea><div style="margin-top: 8px; padding: 8px; background: #fde68a; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>LaTeX mathematical notation</div>';
-                    break;
-                case 'plantuml':
-                    blockContent = '<textarea placeholder="@startuml\nAlice -> Bob: Hello\nBob -> Alice: Hi!\n@enduml" style="width: 100%; min-height: 140px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f3e8ff; outline: none; resize: vertical; padding: 12px;"></textarea><div style="margin-top: 8px; padding: 8px; background: #e9d5ff; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>PlantUML diagram syntax</div>';
                     break;
             }
 
