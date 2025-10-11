@@ -534,8 +534,9 @@ For questions, issues, or feature requests:
 - **Phosphor Icons** - Icon library with 6,000+ modern icons (MIT License)
 - **Google Fonts** - Questrial (headings) and Barlow Light (body text) typefaces (Open Font License)
 
-### Infrastructure
+### Infrastructure & Database
 - **Azure** - Cloud infrastructure, CDN, storage, and ML services
+- **PostgreSQL** - Open-source relational database system with advanced features including generated columns, partitioning, and extensive data type support (PostgreSQL License)
 
 ---
 

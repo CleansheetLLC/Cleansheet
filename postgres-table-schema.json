@@ -1,0 +1,517 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/postgres-table-schema.json",
+  "title": "PostgreSQL Table Definition",
+  "description": "A comprehensive schema for defining PostgreSQL database tables",
+  "type": "object",
+  "required": ["tableName", "columns"],
+  "properties": {
+    "schemaName": {
+      "type": "string",
+      "description": "The database schema name (defaults to 'public')",
+      "default": "public",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+    },
+    "tableName": {
+      "type": "string",
+      "description": "The name of the table",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Comment/description for the table"
+    },
+    "ifNotExists": {
+      "type": "boolean",
+      "description": "Use IF NOT EXISTS clause when creating table",
+      "default": false
+    },
+    "temporary": {
+      "type": "boolean",
+      "description": "Create as a temporary table",
+      "default": false
+    },
+    "unlogged": {
+      "type": "boolean",
+      "description": "Create as an unlogged table (faster but not crash-safe)",
+      "default": false
+    },
+    "columns": {
+      "type": "array",
+      "description": "Array of column definitions",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "dataType"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Column name",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "PostgreSQL data type",
+            "enum": [
+              "smallint", "integer", "bigint", "decimal", "numeric",
+              "real", "double precision", "smallserial", "serial", "bigserial",
+              "money", "character varying", "varchar", "character", "char", "text",
+              "bytea", "timestamp", "timestamp without time zone",
+              "timestamp with time zone", "timestamptz", "date", "time",
+              "time without time zone", "time with time zone", "timetz",
+              "interval", "boolean", "point", "line", "lseg", "box", "path",
+              "polygon", "circle", "cidr", "inet", "macaddr", "macaddr8",
+              "bit", "bit varying", "tsvector", "tsquery", "uuid", "xml",
+              "json", "jsonb", "int4range", "int8range", "numrange",
+              "tsrange", "tstzrange", "daterange", "array"
+            ]
+          },
+          "length": {
+            "type": "integer",
+            "description": "Length for varchar, char, etc.",
+            "minimum": 1
+          },
+          "precision": {
+            "type": "integer",
+            "description": "Precision for numeric types",
+            "minimum": 1
+          },
+          "scale": {
+            "type": "integer",
+            "description": "Scale for numeric types",
+            "minimum": 0
+          },
+          "arrayDimensions": {
+            "type": "integer",
+            "description": "Number of array dimensions (for array types)",
+            "minimum": 1
+          },
+          "notNull": {
+            "type": "boolean",
+            "description": "NOT NULL constraint",
+            "default": false
+          },
+          "primaryKey": {
+            "type": "boolean",
+            "description": "Mark as primary key (column-level)",
+            "default": false
+          },
+          "unique": {
+            "type": "boolean",
+            "description": "UNIQUE constraint",
+            "default": false
+          },
+          "default": {
+            "description": "Default value expression",
+            "oneOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" },
+              { "type": "null" }
+            ]
+          },
+          "defaultExpression": {
+            "type": "string",
+            "description": "SQL expression for default value (e.g., 'CURRENT_TIMESTAMP', 'gen_random_uuid()')"
+          },
+          "collation": {
+            "type": "string",
+            "description": "Collation for text columns"
+          },
+          "identity": {
+            "type": "object",
+            "description": "Identity column configuration (PostgreSQL 10+)",
+            "properties": {
+              "generated": {
+                "type": "string",
+                "enum": ["ALWAYS", "BY DEFAULT"],
+                "description": "Generation type for identity"
+              },
+              "start": {
+                "type": "integer",
+                "description": "Starting value"
+              },
+              "increment": {
+                "type": "integer",
+                "description": "Increment value"
+              },
+              "minValue": {
+                "type": "integer",
+                "description": "Minimum value"
+              },
+              "maxValue": {
+                "type": "integer",
+                "description": "Maximum value"
+              },
+              "cache": {
+                "type": "integer",
+                "description": "Cache size"
+              },
+              "cycle": {
+                "type": "boolean",
+                "description": "Whether to cycle values"
+              }
+            }
+          },
+          "generated": {
+            "type": "object",
+            "description": "Generated column (PostgreSQL 12+)",
+            "required": ["expression"],
+            "properties": {
+              "expression": {
+                "type": "string",
+                "description": "SQL expression for generated column"
+              },
+              "stored": {
+                "type": "boolean",
+                "description": "Whether to store the value (true) or compute it (false)",
+                "default": true
+              }
+            }
+          },
+          "references": {
+            "type": "object",
+            "description": "Foreign key reference (column-level)",
+            "required": ["table", "column"],
+            "properties": {
+              "schema": {
+                "type": "string",
+                "description": "Referenced table schema"
+              },
+              "table": {
+                "type": "string",
+                "description": "Referenced table name"
+              },
+              "column": {
+                "type": "string",
+                "description": "Referenced column name"
+              },
+              "onDelete": {
+                "type": "string",
+                "enum": ["NO ACTION", "RESTRICT", "CASCADE", "SET NULL", "SET DEFAULT"],
+                "description": "ON DELETE action"
+              },
+              "onUpdate": {
+                "type": "string",
+                "enum": ["NO ACTION", "RESTRICT", "CASCADE", "SET NULL", "SET DEFAULT"],
+                "description": "ON UPDATE action"
+              },
+              "match": {
+                "type": "string",
+                "enum": ["SIMPLE", "FULL", "PARTIAL"],
+                "description": "MATCH type for foreign key"
+              }
+            }
+          },
+          "check": {
+            "type": "string",
+            "description": "CHECK constraint expression (column-level)"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Comment for the column"
+          }
+        }
+      }
+    },
+    "primaryKey": {
+      "type": "object",
+      "description": "Table-level primary key constraint",
+      "required": ["columns"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Constraint name"
+        },
+        "columns": {
+          "type": "array",
+          "description": "Column names in the primary key",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
+          "type": "array",
+          "description": "Additional columns to include in the index (PostgreSQL 11+)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tablespace": {
+          "type": "string",
+          "description": "Tablespace for the primary key index"
+        }
+      }
+    },
+    "foreignKeys": {
+      "type": "array",
+      "description": "Table-level foreign key constraints",
+      "items": {
+        "type": "object",
+        "required": ["columns", "referencedTable", "referencedColumns"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Constraint name"
+          },
+          "columns": {
+            "type": "array",
+            "description": "Local column names",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "referencedSchema": {
+            "type": "string",
+            "description": "Referenced table schema"
+          },
+          "referencedTable": {
+            "type": "string",
+            "description": "Referenced table name"
+          },
+          "referencedColumns": {
+            "type": "array",
+            "description": "Referenced column names",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "onDelete": {
+            "type": "string",
+            "enum": ["NO ACTION", "RESTRICT", "CASCADE", "SET NULL", "SET DEFAULT"],
+            "description": "ON DELETE action"
+          },
+          "onUpdate": {
+            "type": "string",
+            "enum": ["NO ACTION", "RESTRICT", "CASCADE", "SET NULL", "SET DEFAULT"],
+            "description": "ON UPDATE action"
+          },
+          "match": {
+            "type": "string",
+            "enum": ["SIMPLE", "FULL", "PARTIAL"],
+            "description": "MATCH type"
+          },
+          "deferrable": {
+            "type": "boolean",
+            "description": "Whether constraint is deferrable"
+          },
+          "initiallyDeferred": {
+            "type": "boolean",
+            "description": "Whether constraint is initially deferred"
+          }
+        }
+      }
+    },
+    "uniqueConstraints": {
+      "type": "array",
+      "description": "Unique constraints",
+      "items": {
+        "type": "object",
+        "required": ["columns"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Constraint name"
+          },
+          "columns": {
+            "type": "array",
+            "description": "Column names in the unique constraint",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "nullsNotDistinct": {
+            "type": "boolean",
+            "description": "NULLS NOT DISTINCT option (PostgreSQL 15+)"
+          },
+          "include": {
+            "type": "array",
+            "description": "Additional columns to include in the index",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tablespace": {
+            "type": "string",
+            "description": "Tablespace for the unique index"
+          }
+        }
+      }
+    },
+    "checkConstraints": {
+      "type": "array",
+      "description": "Table-level check constraints",
+      "items": {
+        "type": "object",
+        "required": ["expression"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Constraint name"
+          },
+          "expression": {
+            "type": "string",
+            "description": "CHECK constraint expression"
+          },
+          "noInherit": {
+            "type": "boolean",
+            "description": "NO INHERIT option"
+          }
+        }
+      }
+    },
+    "indexes": {
+      "type": "array",
+      "description": "Additional indexes (beyond those created by constraints)",
+      "items": {
+        "type": "object",
+        "required": ["columns"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Index name"
+          },
+          "columns": {
+            "type": "array",
+            "description": "Columns or expressions to index",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "Column name"
+                },
+                {
+                  "type": "object",
+                  "description": "Column with options",
+                  "required": ["column"],
+                  "properties": {
+                    "column": {
+                      "type": "string",
+                      "description": "Column name or expression"
+                    },
+                    "order": {
+                      "type": "string",
+                      "enum": ["ASC", "DESC"],
+                      "description": "Sort order"
+                    },
+                    "nulls": {
+                      "type": "string",
+                      "enum": ["FIRST", "LAST"],
+                      "description": "NULL ordering"
+                    },
+                    "opclass": {
+                      "type": "string",
+                      "description": "Operator class"
+                    },
+                    "collation": {
+                      "type": "string",
+                      "description": "Collation"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "method": {
+            "type": "string",
+            "enum": ["btree", "hash", "gist", "gin", "spgist", "brin"],
+            "description": "Index method",
+            "default": "btree"
+          },
+          "unique": {
+            "type": "boolean",
+            "description": "Create unique index",
+            "default": false
+          },
+          "concurrently": {
+            "type": "boolean",
+            "description": "Build index concurrently",
+            "default": false
+          },
+          "where": {
+            "type": "string",
+            "description": "Partial index predicate"
+          },
+          "include": {
+            "type": "array",
+            "description": "Additional columns to include in the index",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tablespace": {
+            "type": "string",
+            "description": "Tablespace for the index"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Comment for the index"
+          }
+        }
+      }
+    },
+    "partitioning": {
+      "type": "object",
+      "description": "Table partitioning configuration",
+      "required": ["strategy", "columns"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["RANGE", "LIST", "HASH"],
+          "description": "Partitioning strategy"
+        },
+        "columns": {
+          "type": "array",
+          "description": "Columns to partition by",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "inherits": {
+      "type": "array",
+      "description": "Parent tables to inherit from",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tablespace": {
+      "type": "string",
+      "description": "Tablespace for the table"
+    },
+    "storageParameters": {
+      "type": "object",
+      "description": "Storage parameters (WITH clause)",
+      "additionalProperties": true,
+      "properties": {
+        "fillfactor": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 100,
+          "description": "Fillfactor (percentage)"
+        },
+        "autovacuum_enabled": {
+          "type": "boolean",
+          "description": "Enable autovacuum"
+        },
+        "toast_tuple_target": {
+          "type": "integer",
+          "description": "TOAST tuple target"
+        }
+      }
+    },
+    "onCommit": {
+      "type": "string",
+      "enum": ["PRESERVE ROWS", "DELETE ROWS", "DROP"],
+      "description": "ON COMMIT action for temporary tables"
+    }
+  },
+  "additionalProperties": false
+}

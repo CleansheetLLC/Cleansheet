@@ -3407,6 +3407,102 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
+        <!-- Table Wizard Modal -->
+        <div class="modal" id="tableWizardModal">
+            <div class="modal-content" style="max-width: 1200px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">New PostgreSQL Table</h2>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <!-- Export SQL Button -->
+                        <button onclick="exportTableSQL()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-download-simple"></i> Export SQL
+                        </button>
+                        <!-- Cancel Button -->
+                        <button onclick="closeModal('tableWizardModal')" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
+                            Cancel
+                        </button>
+                        <!-- Save Table Schema Button -->
+                        <button onclick="saveTableSchema()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                            Save Table Schema
+                        </button>
+                        <button class="modal-close" onclick="closeModal('tableWizardModal')">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 24px; max-height: calc(90vh - 140px); overflow-y: auto;">
+
+                    <!-- Table Metadata Section -->
+                    <div style="background: var(--color-neutral-background); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Table Information</h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">
+                                    Schema Name
+                                    <i class="ph ph-info" title="Namespace for organizing tables. Use 'public' for default schema or create custom schemas for logical grouping." style="font-size: 14px; color: var(--color-primary-blue); cursor: help;"></i>
+                                </label>
+                                <input type="text" id="schemaName" value="public" oninput="updateSQLPreview()" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">
+                                    Table Name <span style="color: #dc2626;">*</span>
+                                    <i class="ph ph-info" title="Unique identifier for this table within the schema. Must start with a letter or underscore, followed by letters, numbers, or underscores." style="font-size: 14px; color: var(--color-primary-blue); cursor: help;"></i>
+                                </label>
+                                <input type="text" id="tableName" placeholder="e.g., users, products, orders" oninput="updateSQLPreview()" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">Comment</label>
+                            <textarea id="tableComment" placeholder="Description of this table..." oninput="updateSQLPreview()" style="width: 100%; min-height: 60px; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 24px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;" title="Prevents error if table already exists - useful for idempotent scripts">
+                                <input type="checkbox" id="ifNotExists" onchange="updateSQLPreview()" style="width: 16px; height: 16px;">
+                                <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark);">IF NOT EXISTS</span>
+                                <i class="ph ph-info" style="font-size: 14px; color: var(--color-primary-blue); cursor: help;"></i>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;" title="Table exists only for the duration of the session - automatically dropped when connection ends">
+                                <input type="checkbox" id="temporary" onchange="updateSQLPreview()" style="width: 16px; height: 16px;">
+                                <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark);">Temporary</span>
+                                <i class="ph ph-info" style="font-size: 14px; color: var(--color-primary-blue); cursor: help;"></i>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;" title="Faster writes but not crash-safe - data not written to write-ahead log (WAL). Use for temporary/staging data.">
+                                <input type="checkbox" id="unlogged" onchange="updateSQLPreview()" style="width: 16px; height: 16px;">
+                                <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark);">Unlogged</span>
+                                <i class="ph ph-info" style="font-size: 14px; color: var(--color-primary-blue); cursor: help;"></i>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Columns Section -->
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <h3 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0;">Columns</h3>
+                            <button onclick="addTableColumn()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-plus"></i> Add Column
+                            </button>
+                        </div>
+
+                        <div id="tableColumnsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Column rows will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- SQL Preview Section -->
+                    <div style="background: #1a1a1a; border-radius: 8px; padding: 20px;">
+                        <h3 style="display: flex; align-items: center; gap: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white; margin: 0 0 12px 0;">
+                            SQL Preview
+                            <i class="ph ph-info" title="Live preview of the CREATE TABLE statement - updates as you configure the table above" style="font-size: 14px; color: #00ff00; cursor: help;"></i>
+                        </h3>
+                        <pre id="sqlPreview" style="font-family: 'Courier New', monospace; font-size: 13px; color: #00ff00; margin: 0; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">-- Configure table above to see SQL</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Interview Prep Slideout (60% width) - Inside Canvas Modal -->
         <div class="interview-slideout" id="interviewSlideout">
             <div class="slideout-header">
@@ -4011,6 +4107,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <div class="slideout-body" id="tablesContent" style="display: none;">
+                <button class="add-story-btn" onclick="openTableWizard()">
+                    <i class="ph ph-plus-circle"></i> New Table
+                </button>
                 <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 16px;">
                     Structured data tables with typed columns for organizing professional information.
                 </p>
@@ -12297,6 +12396,300 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('font-size', '11px')
                 .attr('fill', '#666')
                 .text('Foreign Key');
+        }
+
+        // Table Wizard Functions
+        let tableColumns = [];
+        let columnIdCounter = 0;
+
+        function openTableWizard() {
+            tableColumns = [];
+            columnIdCounter = 0;
+            document.getElementById('schemaName').value = 'public';
+            document.getElementById('tableName').value = '';
+            document.getElementById('tableComment').value = '';
+            document.getElementById('ifNotExists').checked = false;
+            document.getElementById('temporary').checked = false;
+            document.getElementById('unlogged').checked = false;
+            document.getElementById('tableColumnsContainer').innerHTML = '';
+            document.getElementById('sqlPreview').textContent = '-- Configure table above to see SQL';
+
+            // Add initial id column
+            addTableColumn({name: 'id', dataType: 'serial', primaryKey: true, notNull: true});
+
+            openModal('tableWizardModal');
+        }
+
+        function addTableColumn(preset = null) {
+            const id = columnIdCounter++;
+            const col = preset || {
+                name: '',
+                dataType: 'text',
+                notNull: false,
+                primaryKey: false,
+                unique: false,
+                defaultValue: ''
+            };
+
+            tableColumns.push({id, ...col});
+
+            const container = document.getElementById('tableColumnsContainer');
+            const row = document.createElement('div');
+            row.id = `column-${id}`;
+            row.style.cssText = 'background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 16px; display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: center;';
+
+            row.innerHTML = `
+                <div>
+                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                        Column Name
+                        <i class="ph ph-info" title="Name of the column - must be unique within the table" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                    </label>
+                    <input type="text" value="${col.name}" oninput="updateColumnProperty(${id}, 'name', this.value)" placeholder="column_name" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                        Data Type
+                        <i class="ph ph-info" title="PostgreSQL data type - determines what kind of data can be stored in this column" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                    </label>
+                    <select onchange="handleDataTypeChange(${id}, this.value)" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        <option value="text" ${col.dataType === 'text' ? 'selected' : ''}>text</option>
+                        <option value="varchar" ${col.dataType === 'varchar' ? 'selected' : ''}>varchar</option>
+                        <option value="integer" ${col.dataType === 'integer' ? 'selected' : ''}>integer</option>
+                        <option value="bigint" ${col.dataType === 'bigint' ? 'selected' : ''}>bigint</option>
+                        <option value="serial" ${col.dataType === 'serial' ? 'selected' : ''}>serial</option>
+                        <option value="bigserial" ${col.dataType === 'bigserial' ? 'selected' : ''}>bigserial</option>
+                        <option value="boolean" ${col.dataType === 'boolean' ? 'selected' : ''}>boolean</option>
+                        <option value="timestamp" ${col.dataType === 'timestamp' ? 'selected' : ''}>timestamp</option>
+                        <option value="timestamptz" ${col.dataType === 'timestamptz' ? 'selected' : ''}>timestamptz</option>
+                        <option value="date" ${col.dataType === 'date' ? 'selected' : ''}>date</option>
+                        <option value="json" ${col.dataType === 'json' ? 'selected' : ''}>json</option>
+                        <option value="jsonb" ${col.dataType === 'jsonb' ? 'selected' : ''}>jsonb</option>
+                        <option value="uuid" ${col.dataType === 'uuid' ? 'selected' : ''}>uuid</option>
+                        <option value="decimal" ${col.dataType === 'decimal' ? 'selected' : ''}>decimal</option>
+                        <option value="real" ${col.dataType === 'real' ? 'selected' : ''}>real</option>
+                        <option value="generated" ${col.dataType === 'generated' ? 'selected' : ''}>⚡ Generated Column</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                        NOT NULL
+                        <i class="ph ph-info" title="Column must have a value - NULL values not allowed" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                    </label>
+                    <input type="checkbox" ${col.notNull ? 'checked' : ''} onchange="updateColumnProperty(${id}, 'notNull', this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                        PRIMARY KEY
+                        <i class="ph ph-info" title="Uniquely identifies each row - only one per table, automatically creates index" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                    </label>
+                    <input type="checkbox" ${col.primaryKey ? 'checked' : ''} onchange="updateColumnProperty(${id}, 'primaryKey', this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                        UNIQUE
+                        <i class="ph ph-info" title="All values in this column must be different - NULL values are allowed" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                    </label>
+                    <input type="checkbox" ${col.unique ? 'checked' : ''} onchange="updateColumnProperty(${id}, 'unique', this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+                <div style="padding-top: 20px;">
+                    <button onclick="removeTableColumn(${id})" title="Remove column" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph ph-trash" style="font-size: 16px; color: #dc2626;"></i>
+                    </button>
+                </div>
+            `;
+
+            // Add generated column configuration section (initially hidden)
+            const generatedConfigId = `generated-config-${id}`;
+            const generatedConfig = document.createElement('div');
+            generatedConfig.id = generatedConfigId;
+            generatedConfig.style.cssText = 'display: none; background: #fffbeb; border: 1px solid #fbbf24; border-radius: 8px; padding: 16px; margin-top: 8px; gap: 12px;';
+            generatedConfig.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <i class="ph ph-lightning" style="font-size: 20px; color: #f59e0b;"></i>
+                    <h4 style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: #92400e; margin: 0;">Generated Column Configuration</h4>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                            Result Type
+                            <i class="ph ph-info" title="Data type for the computed result" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                        </label>
+                        <select id="genType-${id}" onchange="updateColumnProperty(${id}, 'generatedType', this.value)" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <option value="text">text</option>
+                            <option value="integer">integer</option>
+                            <option value="bigint">bigint</option>
+                            <option value="decimal">decimal</option>
+                            <option value="boolean">boolean</option>
+                            <option value="timestamp">timestamp</option>
+                            <option value="date">date</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 4px;">
+                            Expression
+                            <i class="ph ph-info" title="SQL expression to calculate this column's value (e.g., price * quantity)" style="font-size: 12px; color: var(--color-primary-blue); cursor: help;"></i>
+                        </label>
+                        <input type="text" id="genExpr-${id}" placeholder="(price * quantity)" oninput="updateColumnProperty(${id}, 'generatedExpression', this.value)" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; font-family: monospace;">
+                    </div>
+                </div>
+                <div style="margin-top: 8px; padding: 8px 12px; background: white; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: #78716c;">
+                    <strong>Examples:</strong> (first_name || ' ' || last_name), (price * quantity), (EXTRACT(YEAR FROM birth_date)), (UPPER(email))
+                </div>
+            `;
+
+            container.appendChild(row);
+            container.appendChild(generatedConfig);
+
+            // Show generated config if this column is generated
+            if (col.dataType === 'generated') {
+                generatedConfig.style.display = 'block';
+            }
+
+            updateSQLPreview();
+        }
+
+        function handleDataTypeChange(id, dataType) {
+            const col = tableColumns.find(c => c.id === id);
+            if (col) {
+                col.dataType = dataType;
+
+                // Show/hide generated column configuration
+                const generatedConfig = document.getElementById(`generated-config-${id}`);
+                if (generatedConfig) {
+                    if (dataType === 'generated') {
+                        generatedConfig.style.display = 'block';
+                        // Initialize generated properties if not set
+                        if (!col.generatedType) col.generatedType = 'text';
+                        if (!col.generatedExpression) col.generatedExpression = '';
+                    } else {
+                        generatedConfig.style.display = 'none';
+                    }
+                }
+
+                updateSQLPreview();
+            }
+        }
+
+        function updateColumnProperty(id, property, value) {
+            const col = tableColumns.find(c => c.id === id);
+            if (col) {
+                col[property] = value;
+                updateSQLPreview();
+            }
+        }
+
+        function removeTableColumn(id) {
+            const index = tableColumns.findIndex(c => c.id === id);
+            if (index !== -1) {
+                tableColumns.splice(index, 1);
+                document.getElementById(`column-${id}`).remove();
+                updateSQLPreview();
+            }
+        }
+
+        function updateSQLPreview() {
+            const schemaName = document.getElementById('schemaName').value.trim() || 'public';
+            const tableName = document.getElementById('tableName').value.trim();
+            const comment = document.getElementById('tableComment').value.trim();
+            const ifNotExists = document.getElementById('ifNotExists').checked;
+            const temporary = document.getElementById('temporary').checked;
+            const unlogged = document.getElementById('unlogged').checked;
+
+            if (!tableName || tableColumns.length === 0) {
+                document.getElementById('sqlPreview').textContent = '-- Configure table name and add columns to see SQL';
+                return;
+            }
+
+            let sql = 'CREATE ';
+            if (temporary) sql += 'TEMPORARY ';
+            if (unlogged) sql += 'UNLOGGED ';
+            sql += 'TABLE ';
+            if (ifNotExists) sql += 'IF NOT EXISTS ';
+            sql += `${schemaName}.${tableName} (\n`;
+
+            const columnDefs = tableColumns.map(col => {
+                if (col.dataType === 'generated') {
+                    // Generated column syntax
+                    const genType = col.generatedType || 'text';
+                    const genExpr = col.generatedExpression || '(NULL)';
+                    let def = `    ${col.name} ${genType.toUpperCase()} GENERATED ALWAYS AS ${genExpr} STORED`;
+                    if (col.notNull) def += ' NOT NULL';
+                    if (col.unique) def += ' UNIQUE';
+                    return def;
+                } else {
+                    // Regular column syntax
+                    let def = `    ${col.name} ${col.dataType.toUpperCase()}`;
+                    if (col.notNull) def += ' NOT NULL';
+                    if (col.unique) def += ' UNIQUE';
+                    if (col.primaryKey) def += ' PRIMARY KEY';
+                    return def;
+                }
+            });
+
+            sql += columnDefs.join(',\n');
+            sql += '\n);';
+
+            if (comment) {
+                sql += `\n\nCOMMENT ON TABLE ${schemaName}.${tableName} IS '${comment.replace(/'/g, "''")}';`;
+            }
+
+            document.getElementById('sqlPreview').textContent = sql;
+        }
+
+        function saveTableSchema() {
+            const tableName = document.getElementById('tableName').value.trim();
+            if (!tableName) {
+                alert('Please enter a table name');
+                return;
+            }
+            if (tableColumns.length === 0) {
+                alert('Please add at least one column');
+                return;
+            }
+
+            const schema = {
+                schemaName: document.getElementById('schemaName').value.trim() || 'public',
+                tableName: tableName,
+                comment: document.getElementById('tableComment').value.trim(),
+                ifNotExists: document.getElementById('ifNotExists').checked,
+                temporary: document.getElementById('temporary').checked,
+                unlogged: document.getElementById('unlogged').checked,
+                columns: tableColumns.map(col => ({
+                    name: col.name,
+                    dataType: col.dataType,
+                    notNull: col.notNull || false,
+                    primaryKey: col.primaryKey || false,
+                    unique: col.unique || false
+                }))
+            };
+
+            // Save to localStorage
+            const tables = JSON.parse(localStorage.getItem('postgresTableSchemas') || '[]');
+            tables.push({
+                ...schema,
+                created: new Date().toISOString()
+            });
+            localStorage.setItem('postgresTableSchemas', JSON.stringify(tables));
+
+            alert(`Table schema "${tableName}" saved successfully!`);
+            closeModal('tableWizardModal');
+        }
+
+        function exportTableSQL() {
+            const sql = document.getElementById('sqlPreview').textContent;
+            if (sql.startsWith('--')) {
+                alert('Please configure the table first');
+                return;
+            }
+
+            const tableName = document.getElementById('tableName').value.trim() || 'table';
+            const blob = new Blob([sql], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tableName}.sql`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         // Forms Management
