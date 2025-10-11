@@ -517,12 +517,13 @@ For questions, issues, or feature requests:
 ## Acknowledgments
 
 - **Security and Compliance** - [2x4 www.dugganusa.com](https://2x4.dugganusa.com/)
-- **D3.js** - Data visualization library (BSD 3-Clause License)
+- **D3.js v7** - Data visualization library (BSD 3-Clause License)
+- **D3 Sankey** - Sankey diagram plugin for D3.js (BSD 3-Clause License)
 - **Phosphor Icons** - Icon library (6,000+ icons, MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces
 - **Quill** - Rich text editor (BSD 3-Clause License)
-- **Mermaid** - Diagram and flowchart generation (MIT License)
 - **Marked** - Markdown parser and compiler (MIT License)
+- **Mermaid** - Diagram and flowchart generation (MIT License)
 - **Azure** - Cloud infrastructure and ML services
 
 ---
