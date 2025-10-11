@@ -16461,6 +16461,161 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             });
         });
 
+        // Code Linting Functions
+        function updateCodeLanguage(blockId, language) {
+            const block = document.getElementById(blockId);
+            block.setAttribute('data-language', language);
+        }
+
+        function lintCode(blockId) {
+            const block = document.getElementById(blockId);
+            const textarea = block.querySelector('.code-textarea');
+            const resultsDiv = block.querySelector('.lint-results');
+            const language = block.querySelector('.code-language-select').value;
+            const code = textarea.value;
+
+            if (!code.trim()) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            const issues = performLinting(code, language);
+
+            if (issues.length === 0) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.style.background = '#ecfdf5';
+                resultsDiv.style.border = '1px solid #6ee7b7';
+                resultsDiv.style.color = '#065f46';
+                resultsDiv.innerHTML = '<i class="ph ph-check-circle" style="color: #10b981; margin-right: 6px;"></i>No issues found!';
+            } else {
+                resultsDiv.style.display = 'block';
+                resultsDiv.style.background = '#fef2f2';
+                resultsDiv.style.border = '1px solid #fca5a5';
+                resultsDiv.style.color = '#991b1b';
+                resultsDiv.innerHTML = '<div style="margin-bottom: 8px; font-weight: 600;"><i class="ph ph-warning-circle" style="color: #ef4444; margin-right: 6px;"></i>Found ' + issues.length + ' issue(s):</div>' +
+                    issues.map(issue => `<div style="margin-left: 24px; margin-bottom: 4px;">• Line ${issue.line}: ${issue.message}</div>`).join('');
+            }
+        }
+
+        function performLinting(code, language) {
+            const issues = [];
+            const lines = code.split('\n');
+
+            switch (language) {
+                case 'javascript':
+                case 'typescript':
+                    // Check for common JS/TS issues
+                    lines.forEach((line, index) => {
+                        // Missing semicolons
+                        if (line.trim() && !line.trim().endsWith(';') && !line.trim().endsWith('{') && !line.trim().endsWith('}') && !line.trim().endsWith(',') && !line.trim().startsWith('//') && !line.trim().startsWith('*') && !line.trim().startsWith('/*') && !line.trim().startsWith('import') && !line.trim().startsWith('export')) {
+                            issues.push({ line: index + 1, message: 'Missing semicolon' });
+                        }
+                        // Console.log statements
+                        if (line.includes('console.log(')) {
+                            issues.push({ line: index + 1, message: 'console.log() statement found (consider removing for production)' });
+                        }
+                        // var usage
+                        if (line.includes('var ')) {
+                            issues.push({ line: index + 1, message: 'Use let or const instead of var' });
+                        }
+                        // == instead of ===
+                        if (line.includes('==') && !line.includes('===') && !line.includes('!==')) {
+                            issues.push({ line: index + 1, message: 'Use === instead of == for comparison' });
+                        }
+                    });
+                    break;
+
+                case 'python':
+                    lines.forEach((line, index) => {
+                        // Mixed tabs and spaces
+                        if (line.match(/^\t/) && code.includes('    ')) {
+                            issues.push({ line: index + 1, message: 'Mixed tabs and spaces for indentation' });
+                        }
+                        // Print statements without parentheses (Python 2 style)
+                        if (line.match(/print\s+[^(]/)) {
+                            issues.push({ line: index + 1, message: 'Use print() with parentheses (Python 3 syntax)' });
+                        }
+                        // Import * statements
+                        if (line.includes('from') && line.includes('import *')) {
+                            issues.push({ line: index + 1, message: 'Avoid wildcard imports (import *)' });
+                        }
+                    });
+                    break;
+
+                case 'java':
+                case 'csharp':
+                    lines.forEach((line, index) => {
+                        // Missing semicolons
+                        if (line.trim() && !line.trim().endsWith(';') && !line.trim().endsWith('{') && !line.trim().endsWith('}') && !line.trim().startsWith('//') && !line.trim().startsWith('*') && !line.trim().startsWith('/*') && !line.trim().startsWith('@') && line.includes('=')) {
+                            issues.push({ line: index + 1, message: 'Missing semicolon' });
+                        }
+                        // System.out.println (Java)
+                        if (language === 'java' && line.includes('System.out.println(')) {
+                            issues.push({ line: index + 1, message: 'Consider using a logging framework instead of System.out.println()' });
+                        }
+                    });
+                    break;
+
+                case 'sql':
+                    lines.forEach((line, index) => {
+                        // SELECT *
+                        if (line.toUpperCase().includes('SELECT *')) {
+                            issues.push({ line: index + 1, message: 'Avoid SELECT *, specify column names explicitly' });
+                        }
+                        // Missing WHERE in UPDATE/DELETE
+                        if ((line.toUpperCase().includes('UPDATE') || line.toUpperCase().includes('DELETE')) && !code.toUpperCase().includes('WHERE')) {
+                            issues.push({ line: index + 1, message: 'UPDATE/DELETE without WHERE clause can be dangerous' });
+                        }
+                    });
+                    break;
+
+                case 'html':
+                    lines.forEach((line, index) => {
+                        // Missing alt attribute on images
+                        if (line.includes('<img') && !line.includes('alt=')) {
+                            issues.push({ line: index + 1, message: 'Missing alt attribute on <img> tag' });
+                        }
+                        // Inline styles
+                        if (line.includes('style=') && !line.includes('style="')) {
+                            issues.push({ line: index + 1, message: 'Consider using CSS classes instead of inline styles' });
+                        }
+                    });
+                    break;
+
+                case 'css':
+                    lines.forEach((line, index) => {
+                        // !important usage
+                        if (line.includes('!important')) {
+                            issues.push({ line: index + 1, message: 'Avoid using !important' });
+                        }
+                        // Missing semicolons
+                        if (line.includes(':') && !line.includes(';') && !line.trim().endsWith('{') && !line.trim().endsWith('}') && line.trim() !== '') {
+                            issues.push({ line: index + 1, message: 'Missing semicolon' });
+                        }
+                    });
+                    break;
+
+                case 'json':
+                    try {
+                        JSON.parse(code);
+                    } catch (e) {
+                        issues.push({ line: 1, message: 'Invalid JSON: ' + e.message });
+                    }
+                    break;
+
+                case 'yaml':
+                    lines.forEach((line, index) => {
+                        // Mixed tabs and spaces
+                        if (line.match(/^\t/)) {
+                            issues.push({ line: index + 1, message: 'Use spaces for indentation in YAML, not tabs' });
+                        }
+                    });
+                    break;
+            }
+
+            return issues.slice(0, 10); // Limit to 10 issues
+        }
+
         // Document block management
         function addDocumentBlock(blockType) {
             const canvas = document.getElementById('documentCanvas');
@@ -16559,7 +16714,37 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     `;
                     break;
                 case 'code':
-                    blockContent = '<textarea placeholder="Enter code..." style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f8f8f8; outline: none; resize: vertical; padding: 12px;"></textarea>';
+                    blockContent = `
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 8px 12px; background: var(--color-neutral-background); border-radius: 6px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="ph ph-code" style="font-size: 16px; color: var(--color-neutral-text);"></i>
+                                <select class="code-language-select" onchange="updateCodeLanguage('${blockId}', this.value)" style="padding: 4px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; background: white; cursor: pointer;">
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="csharp">C#</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="go">Go</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="php">PHP</option>
+                                    <option value="ruby">Ruby</option>
+                                    <option value="sql">SQL</option>
+                                    <option value="html">HTML</option>
+                                    <option value="css">CSS</option>
+                                    <option value="json">JSON</option>
+                                    <option value="yaml">YAML</option>
+                                    <option value="bash">Bash</option>
+                                </select>
+                            </div>
+                            <button onclick="lintCode('${blockId}')" style="padding: 4px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                                <i class="ph ph-checks" style="font-size: 14px;"></i>
+                                Lint
+                            </button>
+                        </div>
+                        <textarea placeholder="Enter code..." class="code-textarea" style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f8f8f8; outline: none; resize: vertical; padding: 12px; line-height: 1.5;"></textarea>
+                        <div class="lint-results" style="display: none; margin-top: 8px; padding: 12px; border-radius: 6px; font-family: var(--font-family-body); font-size: 12px;"></div>
+                    `;
                     break;
                 case 'diagram':
                     blockContent = '<div style="text-align: center; padding: 40px; background: var(--color-neutral-background); border: 2px dashed var(--color-neutral-border); border-radius: 8px;"><i class="ph ph-flow-arrow" style="font-size: 48px; color: var(--color-neutral-text-light);"></i><p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 8px 0 0 0;">Click to create diagram</p></div>';
