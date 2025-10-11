@@ -2585,7 +2585,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <div style="width: 20%; background: var(--color-neutral-background); border-right: 1px solid var(--color-neutral-border); padding: 20px; overflow-y: auto;">
                                 <!-- Document Metadata -->
                                 <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--color-neutral-border);">
-                                    <h3 style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin: 0 0 16px 0; letter-spacing: 0.5px;">Document Info</h3>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin: 0; letter-spacing: 0.5px;">Document Info</h3>
+
+                                        <!-- WBS Toggle (Compact) -->
+                                        <div style="display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="toggleWBS()">
+                                            <span style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text);">WBS</span>
+                                            <div id="wbs-toggle" style="width: 32px; height: 16px; background: #ccc; border-radius: 8px; position: relative; transition: background 0.3s;">
+                                                <div style="width: 12px; height: 12px; background: white; border-radius: 6px; position: absolute; top: 2px; left: 2px; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Title -->
                                     <div style="margin-bottom: 12px;">
@@ -16246,6 +16256,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         const alt = altText?.value || 'Image';
                         content += `![${alt}](${img.src})\n\n`;
                     }
+                } else if (blockType === 'mermaid') {
+                    const textarea = block.querySelector('.mermaid-edit-area textarea');
+                    if (textarea && textarea.value) {
+                        content += `\`\`\`mermaid\n${textarea.value}\n\`\`\`\n\n`;
+                    }
+                } else if (blockType === 'katex') {
+                    const textarea = block.querySelector('.latex-edit-area textarea');
+                    if (textarea && textarea.value) {
+                        content += `$$\n${textarea.value}\n$$\n\n`;
+                    }
+                } else if (blockType === 'diagram') {
+                    const diagramData = block.querySelector('.diagram-data')?.value;
+                    if (diagramData) {
+                        // For diagrams, we'll embed the SVG if available
+                        const preview = block.querySelector('.diagram-preview svg');
+                        if (preview) {
+                            content += `<!-- Draw.io Diagram -->\n${preview.outerHTML}\n\n`;
+                        } else {
+                            content += `<!-- Draw.io Diagram (data stored but not rendered) -->\n\n`;
+                        }
+                    }
                 }
             });
 
@@ -16649,7 +16680,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <option value="6">H6</option>
                             </select>
                         </div>
-                        <input type="text" placeholder="Enter header text..." class="header-input" data-level="3" style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); outline: none;">
+                        <div class="header-input-container" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="text" placeholder="Enter header text..." class="header-input" data-level="3" style="width: 100%; border: none; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); outline: none;">
+                        </div>
                     `;
                     break;
                 case 'richtext':
@@ -16919,6 +16952,9 @@ F &= ma \\\\
 
             // Update control button states
             updateBlockControlStates();
+
+            // Refresh WBS numbers if enabled
+            refreshWBS();
         }
 
         function removeDocumentBlock(blockId) {
@@ -16927,6 +16963,8 @@ F &= ma \\\\
                 block.remove();
                 // Update control button states after removal
                 updateBlockControlStates();
+                // Refresh WBS numbers if enabled
+                refreshWBS();
             }
         }
 
@@ -16949,6 +16987,9 @@ F &= ma \\\\
                 };
 
                 headerInput.style.fontSize = fontSizes[level];
+
+                // Refresh WBS numbers if enabled
+                refreshWBS();
             }
         }
 
@@ -16966,6 +17007,9 @@ F &= ma \\\\
 
                 // Update button states
                 updateBlockControlStates();
+
+                // Refresh WBS numbers if enabled
+                refreshWBS();
             }
         }
 
@@ -16982,6 +17026,9 @@ F &= ma \\\\
 
                 // Update button states
                 updateBlockControlStates();
+
+                // Refresh WBS numbers if enabled
+                refreshWBS();
             }
         }
 
@@ -17084,6 +17131,9 @@ F &= ma \\\\
 
             // Update button states
             updateBlockControlStates();
+
+            // Refresh WBS numbers if enabled
+            refreshWBS();
         }
 
         // Markdown preview toggle
@@ -17397,6 +17447,111 @@ F &= ma \\\\
                         <p style="font-family: var(--font-family-body); font-size: 13px; margin: 12px 0 0 0;">No diagram yet. Click "Edit Diagram" to create one.</p>
                     </div>
                 `;
+            }
+        }
+
+        // WBS toggle function
+        let wbsEnabled = false;
+
+        function toggleWBS() {
+            wbsEnabled = !wbsEnabled;
+            const toggle = document.getElementById('wbs-toggle');
+            const toggleSwitch = toggle.querySelector('div');
+
+            if (wbsEnabled) {
+                // Turn on WBS view
+                toggle.style.background = 'var(--color-primary-blue)';
+                toggleSwitch.style.left = '18px';
+
+                // Update WBS numbers on all headers
+                updateWBSNumbers();
+            } else {
+                // Turn off WBS view
+                toggle.style.background = '#ccc';
+                toggleSwitch.style.left = '2px';
+
+                // Remove WBS numbers from all headers
+                removeWBSNumbers();
+            }
+        }
+
+        function updateWBSNumbers() {
+            const canvas = document.getElementById('documentCanvas');
+            const blocks = canvas.querySelectorAll('.document-block');
+
+            // Track counters for each level
+            const counters = [0, 0, 0, 0, 0, 0]; // Support up to 6 levels (h1-h6)
+
+            blocks.forEach(block => {
+                const blockType = block.getAttribute('data-block-type');
+
+                if (blockType === 'header') {
+                    const select = block.querySelector('select');
+                    const input = block.querySelector('input[type="text"]');
+
+                    if (select && input) {
+                        const level = parseInt(select.value);
+
+                        // Increment counter for this level
+                        counters[level - 1]++;
+
+                        // Reset all deeper level counters
+                        for (let i = level; i < counters.length; i++) {
+                            counters[i] = 0;
+                        }
+
+                        // Build WBS number string (e.g., "1.2.3")
+                        let wbsNumber = '';
+                        for (let i = 0; i < level; i++) {
+                            if (counters[i] > 0) {
+                                wbsNumber += (wbsNumber ? '.' : '') + counters[i];
+                            }
+                        }
+
+                        // Add or update WBS number span
+                        let wbsSpan = block.querySelector('.wbs-number');
+                        if (!wbsSpan) {
+                            wbsSpan = document.createElement('span');
+                            wbsSpan.className = 'wbs-number';
+                            wbsSpan.style.cssText = `
+                                display: inline-block;
+                                margin-right: 8px;
+                                padding: 2px 8px;
+                                background: var(--color-primary-blue);
+                                color: white;
+                                border-radius: 4px;
+                                font-family: var(--font-family-ui);
+                                font-size: 11px;
+                                font-weight: 600;
+                                flex-shrink: 0;
+                            `;
+
+                            // Insert before the input field in the container
+                            const container = block.querySelector('.header-input-container');
+                            if (container) {
+                                container.insertBefore(wbsSpan, input);
+                            }
+                        }
+
+                        wbsSpan.textContent = wbsNumber;
+                    }
+                }
+            });
+        }
+
+        function removeWBSNumbers() {
+            const canvas = document.getElementById('documentCanvas');
+            const wbsNumbers = canvas.querySelectorAll('.wbs-number');
+
+            wbsNumbers.forEach(span => {
+                span.remove();
+            });
+        }
+
+        // Update WBS numbers when blocks are added, moved, or removed
+        function refreshWBS() {
+            if (wbsEnabled) {
+                updateWBSNumbers();
             }
         }
 
@@ -17894,6 +18049,10 @@ F &= ma \\\\
 
                 // Smooth scroll to moved block
                 draggedBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Update button states and WBS numbers
+                updateBlockControlStates();
+                refreshWBS();
             }
 
             this.classList.remove('drag-over');

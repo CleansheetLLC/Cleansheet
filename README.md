@@ -516,15 +516,26 @@ For questions, issues, or feature requests:
 
 ## Acknowledgments
 
-- **Security and Compliance** - [2x4 www.dugganusa.com](https://2x4.dugganusa.com/)
+### Security & Compliance
+- **2x4 Security Consulting** - [www.dugganusa.com](https://2x4.dugganusa.com/) - Security and compliance expertise
+
+### Visualization & Diagramming
 - **D3.js v7** - Data visualization library (BSD 3-Clause License)
 - **D3 Sankey** - Sankey diagram plugin for D3.js (BSD 3-Clause License)
-- **Phosphor Icons** - Icon library (6,000+ icons, MIT License)
-- **Google Fonts** - Questrial and Barlow typefaces
-- **Quill** - Rich text editor (BSD 3-Clause License)
-- **Marked** - Markdown parser and compiler (MIT License)
-- **Mermaid** - Diagram and flowchart generation (MIT License)
-- **Azure** - Cloud infrastructure and ML services
+- **Mermaid.js v10** - Diagram and flowchart generation from text (MIT License)
+- **diagrams.net (Draw.io)** - Embedded diagram editor via embed.diagrams.net (Apache 2.0 License)
+
+### Document Editing & Rendering
+- **Quill v1.3.7** - Rich text WYSIWYG editor (BSD 3-Clause License)
+- **Marked.js** - Fast markdown parser and compiler (MIT License)
+- **KaTeX v0.16.9** - Fast math typesetting library for LaTeX (MIT License)
+
+### UI & Design
+- **Phosphor Icons** - Icon library with 6,000+ modern icons (MIT License)
+- **Google Fonts** - Questrial (headings) and Barlow Light (body text) typefaces (Open Font License)
+
+### Infrastructure
+- **Azure** - Cloud infrastructure, CDN, storage, and ML services
 
 ---
 
