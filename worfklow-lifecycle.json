@@ -1,0 +1,467 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/workflow-lifecycle.json",
+  "title": "Workflow Lifecycle Management Schema",
+  "description": "Comprehensive schema for defining and managing workflow lifecycles across various business processes",
+  
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    
+    "workflowCategory": {
+      "type": "string",
+      "enum": [
+        "content_creative",
+        "operational_business",
+        "hr_people",
+        "technical_development",
+        "customer_facing",
+        "compliance_quality",
+        "financial",
+        "custom"
+      ]
+    },
+    
+    "workflowType": {
+      "type": "string",
+      "enum": [
+        "document_approval",
+        "publishing",
+        "video_production",
+        "design_review",
+        "procurement",
+        "invoice_processing",
+        "expense_reimbursement",
+        "contract_lifecycle",
+        "employee_onboarding",
+        "time_off_request",
+        "performance_review",
+        "hiring_pipeline",
+        "code_review",
+        "incident_response",
+        "change_management",
+        "release_management",
+        "support_ticket",
+        "order_fulfillment",
+        "returns_rma",
+        "lead_nurturing",
+        "audit_process",
+        "quality_control",
+        "risk_assessment",
+        "custom"
+      ]
+    },
+    
+    "actor": {
+      "type": "object",
+      "properties": {
+        "actorId": { "$ref": "#/definitions/uuid" },
+        "actorType": {
+          "type": "string",
+          "enum": ["user", "role", "group", "system", "api"]
+        },
+        "actorName": { "type": "string" },
+        "actorEmail": { "type": "string", "format": "email" }
+      },
+      "required": ["actorId", "actorType", "actorName"]
+    },
+    
+    "stateDefinition": {
+      "type": "object",
+      "properties": {
+        "stateId": { "$ref": "#/definitions/uuid" },
+        "stateName": { "type": "string" },
+        "stateType": {
+          "type": "string",
+          "enum": ["initial", "active", "waiting", "completed", "cancelled", "failed", "terminal"]
+        },
+        "description": { "type": "string" },
+        "isTerminal": { "type": "boolean" },
+        "allowedRoles": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "entryActions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/action" }
+        },
+        "exitActions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/action" }
+        },
+        "timeouts": {
+          "type": "object",
+          "properties": {
+            "warningDuration": { "type": "string" },
+            "escalationDuration": { "type": "string" },
+            "maxDuration": { "type": "string" }
+          }
+        },
+        "metadata": { "type": "object" }
+      },
+      "required": ["stateId", "stateName", "stateType"]
+    },
+    
+    "transitionDefinition": {
+      "type": "object",
+      "properties": {
+        "transitionId": { "$ref": "#/definitions/uuid" },
+        "transitionName": { "type": "string" },
+        "fromStateId": { "$ref": "#/definitions/uuid" },
+        "toStateId": { "$ref": "#/definitions/uuid" },
+        "triggerType": {
+          "type": "string",
+          "enum": ["manual", "automatic", "scheduled", "conditional"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/condition" }
+        },
+        "requiredRoles": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/action" }
+        },
+        "requiresComment": { "type": "boolean" },
+        "requiresApproval": { "type": "boolean" },
+        "approvalThreshold": {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["any", "all", "majority", "count"] },
+            "count": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "priority": { "type": "integer" }
+      },
+      "required": ["transitionId", "transitionName", "fromStateId", "toStateId", "triggerType"]
+    },
+    
+    "condition": {
+      "type": "object",
+      "properties": {
+        "conditionId": { "$ref": "#/definitions/uuid" },
+        "conditionType": {
+          "type": "string",
+          "enum": ["field_value", "expression", "external_check", "time_based", "role_based"]
+        },
+        "field": { "type": "string" },
+        "operator": {
+          "type": "string",
+          "enum": ["equals", "not_equals", "greater_than", "less_than", "contains", "in", "exists", "matches_regex"]
+        },
+        "value": {},
+        "expression": { "type": "string" },
+        "externalCheckUrl": { "type": "string", "format": "uri" }
+      },
+      "required": ["conditionId", "conditionType"]
+    },
+    
+    "action": {
+      "type": "object",
+      "properties": {
+        "actionId": { "$ref": "#/definitions/uuid" },
+        "actionType": {
+          "type": "string",
+          "enum": [
+            "notification",
+            "email",
+            "webhook",
+            "field_update",
+            "create_task",
+            "assign",
+            "log",
+            "script_execution",
+            "integration_call",
+            "document_generation"
+          ]
+        },
+        "config": { "type": "object" },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "maxAttempts": { "type": "integer" },
+            "backoffMultiplier": { "type": "number" }
+          }
+        }
+      },
+      "required": ["actionId", "actionType", "config"]
+    },
+    
+    "workflowDefinition": {
+      "type": "object",
+      "properties": {
+        "workflowId": { "$ref": "#/definitions/uuid" },
+        "workflowName": { "type": "string" },
+        "workflowVersion": { "type": "string" },
+        "category": { "$ref": "#/definitions/workflowCategory" },
+        "type": { "$ref": "#/definitions/workflowType" },
+        "description": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "states": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/stateDefinition" },
+          "minItems": 1
+        },
+        "transitions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/transitionDefinition" }
+        },
+        "initialStateId": { "$ref": "#/definitions/uuid" },
+        "variables": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "schema": { "type": "object" }
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "roleId": { "type": "string" },
+              "roleName": { "type": "string" },
+              "permissions": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "sla": {
+          "type": "object",
+          "properties": {
+            "expectedDuration": { "type": "string" },
+            "maxDuration": { "type": "string" },
+            "businessHoursOnly": { "type": "boolean" }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdBy": { "$ref": "#/definitions/actor" },
+            "createdAt": { "$ref": "#/definitions/timestamp" },
+            "updatedBy": { "$ref": "#/definitions/actor" },
+            "updatedAt": { "$ref": "#/definitions/timestamp" },
+            "tags": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["workflowId", "workflowName", "workflowVersion", "category", "type", "states", "initialStateId"]
+    },
+    
+    "workflowInstance": {
+      "type": "object",
+      "properties": {
+        "instanceId": { "$ref": "#/definitions/uuid" },
+        "workflowId": { "$ref": "#/definitions/uuid" },
+        "workflowVersion": { "type": "string" },
+        "currentStateId": { "$ref": "#/definitions/uuid" },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "active", "suspended", "completed", "cancelled", "failed"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high", "critical"]
+        },
+        "initiator": { "$ref": "#/definitions/actor" },
+        "assignees": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/actor" }
+        },
+        "variables": { "type": "object" },
+        "context": {
+          "type": "object",
+          "properties": {
+            "entityType": { "type": "string" },
+            "entityId": { "type": "string" },
+            "parentInstanceId": { "$ref": "#/definitions/uuid" },
+            "childInstanceIds": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/uuid" }
+            }
+          }
+        },
+        "timeline": {
+          "type": "object",
+          "properties": {
+            "startedAt": { "$ref": "#/definitions/timestamp" },
+            "completedAt": { "$ref": "#/definitions/timestamp" },
+            "dueDate": { "$ref": "#/definitions/timestamp" },
+            "estimatedCompletionDate": { "$ref": "#/definitions/timestamp" }
+          }
+        },
+        "history": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/historyEntry" }
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "totalDuration": { "type": "number" },
+            "timeInCurrentState": { "type": "number" },
+            "transitionCount": { "type": "integer" },
+            "escalationCount": { "type": "integer" }
+          }
+        },
+        "metadata": { "type": "object" }
+      },
+      "required": ["instanceId", "workflowId", "workflowVersion", "currentStateId", "status", "initiator"]
+    },
+    
+    "historyEntry": {
+      "type": "object",
+      "properties": {
+        "entryId": { "$ref": "#/definitions/uuid" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "created",
+            "state_changed",
+            "transition_executed",
+            "assigned",
+            "commented",
+            "suspended",
+            "resumed",
+            "cancelled",
+            "completed",
+            "failed",
+            "escalated",
+            "variable_updated"
+          ]
+        },
+        "fromStateId": { "$ref": "#/definitions/uuid" },
+        "toStateId": { "$ref": "#/definitions/uuid" },
+        "transitionId": { "$ref": "#/definitions/uuid" },
+        "actor": { "$ref": "#/definitions/actor" },
+        "comment": { "type": "string" },
+        "changes": {
+          "type": "object",
+          "properties": {
+            "field": { "type": "string" },
+            "oldValue": {},
+            "newValue": {}
+          }
+        },
+        "duration": { "type": "number" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["entryId", "timestamp", "eventType", "actor"]
+    },
+    
+    "approval": {
+      "type": "object",
+      "properties": {
+        "approvalId": { "$ref": "#/definitions/uuid" },
+        "instanceId": { "$ref": "#/definitions/uuid" },
+        "transitionId": { "$ref": "#/definitions/uuid" },
+        "approver": { "$ref": "#/definitions/actor" },
+        "decision": {
+          "type": "string",
+          "enum": ["approved", "rejected", "abstained", "pending"]
+        },
+        "comment": { "type": "string" },
+        "decidedAt": { "$ref": "#/definitions/timestamp" },
+        "expiresAt": { "$ref": "#/definitions/timestamp" }
+      },
+      "required": ["approvalId", "instanceId", "transitionId", "approver", "decision"]
+    },
+    
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "escalationId": { "$ref": "#/definitions/uuid" },
+        "instanceId": { "$ref": "#/definitions/uuid" },
+        "escalationType": {
+          "type": "string",
+          "enum": ["timeout", "manual", "rule_based", "exception"]
+        },
+        "level": { "type": "integer" },
+        "escalatedFrom": { "$ref": "#/definitions/actor" },
+        "escalatedTo": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/actor" }
+        },
+        "reason": { "type": "string" },
+        "escalatedAt": { "$ref": "#/definitions/timestamp" },
+        "resolvedAt": { "$ref": "#/definitions/timestamp" },
+        "resolution": { "type": "string" }
+      },
+      "required": ["escalationId", "instanceId", "escalationType", "escalatedTo", "reason", "escalatedAt"]
+    },
+    
+    "workflowMetrics": {
+      "type": "object",
+      "properties": {
+        "workflowId": { "$ref": "#/definitions/uuid" },
+        "periodStart": { "$ref": "#/definitions/timestamp" },
+        "periodEnd": { "$ref": "#/definitions/timestamp" },
+        "totalInstances": { "type": "integer" },
+        "completedInstances": { "type": "integer" },
+        "failedInstances": { "type": "integer" },
+        "cancelledInstances": { "type": "integer" },
+        "averageDuration": { "type": "number" },
+        "medianDuration": { "type": "number" },
+        "slaCompliance": { "type": "number", "minimum": 0, "maximum": 100 },
+        "stateDistribution": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "bottlenecks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stateId": { "$ref": "#/definitions/uuid" },
+              "averageTime": { "type": "number" },
+              "instanceCount": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "required": ["workflowId", "periodStart", "periodEnd"]
+    }
+  },
+  
+  "type": "object",
+  "properties": {
+    "workflowDefinitions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/workflowDefinition" }
+    },
+    "workflowInstances": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/workflowInstance" }
+    },
+    "approvals": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/approval" }
+    },
+    "escalations": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/escalation" }
+    },
+    "metrics": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/workflowMetrics" }
+    }
+  }
+}

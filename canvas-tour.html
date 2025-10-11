@@ -4565,9 +4565,15 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <div class="slideout-body" id="workflowsContent" style="display: none;">
-                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
-                    Automated workflows and business process automation tools.
-                </p>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">
+                        Automated workflows and business process automation tools.
+                    </p>
+                    <button onclick="openNewWorkflowModal()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                        <i class="ph ph-plus"></i>
+                        New Workflow
+                    </button>
+                </div>
                 <div id="workflowsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <!-- Workflow type cards will be dynamically inserted here -->
                 </div>
@@ -5630,6 +5636,163 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
     </div> <!-- End simple-pipeline-wizard-modal -->
+
+    <!-- New Workflow Creation Modal -->
+    <div class="workflow-creation-modal" id="workflowCreationModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px);">
+        <div class="workflow-creation-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div class="workflow-creation-header" style="padding: 24px; border-bottom: 1px solid var(--color-neutral-border); position: sticky; top: 0; background: white; border-radius: 12px 12px 0 0; z-index: 1;">
+                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">Create New Workflow</h3>
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">Design a custom workflow to automate your business processes</p>
+                <button onclick="closeWorkflowCreationModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; color: var(--color-neutral-text); cursor: pointer;">&times;</button>
+            </div>
+            <div class="workflow-creation-body" style="padding: 24px;">
+                <form id="workflowForm" onsubmit="createWorkflow(event)">
+                    <!-- Basic Information -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-info" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                            Basic Information
+                        </h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Workflow Name *</label>
+                                <input type="text" id="workflowName" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Version</label>
+                                <input type="text" id="workflowVersion" value="1.0.0" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Description</label>
+                            <textarea id="workflowDescription" rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;" placeholder="Describe what this workflow does..."></textarea>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Category *</label>
+                                <select id="workflowCategory" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                    <option value="">Select Category</option>
+                                    <option value="content_creative">Content & Creative</option>
+                                    <option value="operational_business">Business Operations</option>
+                                    <option value="hr_people">HR & People</option>
+                                    <option value="technical_development">Technical Development</option>
+                                    <option value="customer_facing">Customer Facing</option>
+                                    <option value="compliance_quality">Compliance & Quality</option>
+                                    <option value="financial">Financial</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Type *</label>
+                                <select id="workflowType" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                    <option value="">Select Type</option>
+                                    <option value="document_approval">Document Approval</option>
+                                    <option value="publishing">Publishing</option>
+                                    <option value="video_production">Video Production</option>
+                                    <option value="design_review">Design Review</option>
+                                    <option value="procurement">Procurement</option>
+                                    <option value="invoice_processing">Invoice Processing</option>
+                                    <option value="expense_reimbursement">Expense Reimbursement</option>
+                                    <option value="contract_lifecycle">Contract Lifecycle</option>
+                                    <option value="employee_onboarding">Employee Onboarding</option>
+                                    <option value="time_off_request">Time Off Request</option>
+                                    <option value="performance_review">Performance Review</option>
+                                    <option value="hiring_pipeline">Hiring Pipeline</option>
+                                    <option value="code_review">Code Review</option>
+                                    <option value="incident_response">Incident Response</option>
+                                    <option value="change_management">Change Management</option>
+                                    <option value="release_management">Release Management</option>
+                                    <option value="support_ticket">Support Ticket</option>
+                                    <option value="order_fulfillment">Order Fulfillment</option>
+                                    <option value="returns_rma">Returns & RMA</option>
+                                    <option value="lead_nurturing">Lead Nurturing</option>
+                                    <option value="audit_process">Audit Process</option>
+                                    <option value="quality_control">Quality Control</option>
+                                    <option value="risk_assessment">Risk Assessment</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workflow States -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-flow-arrow" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                            Workflow States
+                        </h4>
+                        <div style="background: var(--color-neutral-background); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <input type="text" id="newStateName" placeholder="State name (e.g., Draft, Review, Approved)" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <select id="newStateType" style="padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                    <option value="initial">Initial</option>
+                                    <option value="active" selected>Active</option>
+                                    <option value="waiting">Waiting</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="terminal">Terminal</option>
+                                </select>
+                                <button type="button" onclick="addWorkflowState()" style="padding: 8px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="workflowStatesList" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- States will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- SLA Settings -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-clock" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                            SLA Settings
+                        </h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Expected Duration</label>
+                                <input type="text" id="expectedDuration" placeholder="e.g., 2 hours, 1 day" style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Max Duration</label>
+                                <input type="text" id="maxDuration" placeholder="e.g., 1 week, 5 days" style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Business Hours Only</label>
+                                <select id="businessHoursOnly" style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                    <option value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div style="margin-bottom: 32px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-tag" style="font-size: 18px; color: var(--color-primary-blue);"></i>
+                            Tags
+                        </h4>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <input type="text" id="newWorkflowTag" placeholder="Add tag (press Enter)" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" onkeydown="handleTagKeydown(event)">
+                        </div>
+                        <div id="workflowTagsList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <!-- Tags will be added here -->
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 24px; border-top: 1px solid var(--color-neutral-border);">
+                        <button type="button" onclick="closeWorkflowCreationModal()" style="padding: 10px 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
+                            Cancel
+                        </button>
+                        <button type="submit" style="padding: 10px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-plus"></i>
+                            Create Workflow
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> <!-- End workflow-creation-modal -->
 
 </div> <!-- End canvas-modal-content -->
 </div> <!-- End canvas-modal -->
@@ -14737,6 +14900,243 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 container.appendChild(card);
             });
+        }
+
+        // Workflow Creation Functions
+        let workflowStates = [];
+        let workflowTags = [];
+
+        function openNewWorkflowModal() {
+            const modal = document.getElementById('workflowCreationModal');
+            modal.style.display = 'block';
+
+            // Reset form
+            document.getElementById('workflowForm').reset();
+            workflowStates = [];
+            workflowTags = [];
+            document.getElementById('workflowVersion').value = '1.0.0';
+            updateWorkflowStatesList();
+            updateWorkflowTagsList();
+        }
+
+        function closeWorkflowCreationModal() {
+            const modal = document.getElementById('workflowCreationModal');
+            modal.style.display = 'none';
+        }
+
+        function addWorkflowState() {
+            const nameInput = document.getElementById('newStateName');
+            const typeSelect = document.getElementById('newStateType');
+
+            const stateName = nameInput.value.trim();
+            const stateType = typeSelect.value;
+
+            if (!stateName) {
+                alert('Please enter a state name');
+                return;
+            }
+
+            // Check if state already exists
+            if (workflowStates.find(s => s.name.toLowerCase() === stateName.toLowerCase())) {
+                alert('A state with this name already exists');
+                return;
+            }
+
+            const state = {
+                id: generateUUID(),
+                name: stateName,
+                type: stateType,
+                description: `${stateName} state in the workflow`
+            };
+
+            workflowStates.push(state);
+            nameInput.value = '';
+            typeSelect.value = 'active';
+
+            updateWorkflowStatesList();
+        }
+
+        function removeWorkflowState(stateId) {
+            workflowStates = workflowStates.filter(s => s.id !== stateId);
+            updateWorkflowStatesList();
+        }
+
+        function updateWorkflowStatesList() {
+            const container = document.getElementById('workflowStatesList');
+
+            if (workflowStates.length === 0) {
+                container.innerHTML = '<p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); text-align: center; padding: 20px; background: var(--color-neutral-background); border-radius: 6px;">No states added yet. Add your first workflow state above.</p>';
+                return;
+            }
+
+            container.innerHTML = workflowStates.map(state => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px;">
+                    <div style="flex: 1;">
+                        <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${state.name}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="padding: 2px 8px; background: ${getStateTypeColor(state.type)}; color: white; border-radius: 12px; font-family: var(--font-family-body); font-size: 11px; font-weight: 500; text-transform: uppercase;">${state.type}</span>
+                        </div>
+                    </div>
+                    <button onclick="removeWorkflowState('${state.id}')" style="padding: 6px; background: #fee; color: #d32f2f; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Remove state">
+                        <i class="ph ph-trash" style="font-size: 14px;"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function getStateTypeColor(type) {
+            const colors = {
+                initial: '#10b981',
+                active: '#0066cc',
+                waiting: '#f59e0b',
+                completed: '#22c55e',
+                cancelled: '#6b7280',
+                failed: '#ef4444',
+                terminal: '#8b5cf6'
+            };
+            return colors[type] || '#6b7280';
+        }
+
+        function handleTagKeydown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addWorkflowTag();
+            }
+        }
+
+        function addWorkflowTag() {
+            const input = document.getElementById('newWorkflowTag');
+            const tagName = input.value.trim();
+
+            if (!tagName) return;
+
+            // Check if tag already exists
+            if (workflowTags.find(t => t.toLowerCase() === tagName.toLowerCase())) {
+                alert('This tag already exists');
+                return;
+            }
+
+            workflowTags.push(tagName);
+            input.value = '';
+            updateWorkflowTagsList();
+        }
+
+        function removeWorkflowTag(tag) {
+            workflowTags = workflowTags.filter(t => t !== tag);
+            updateWorkflowTagsList();
+        }
+
+        function updateWorkflowTagsList() {
+            const container = document.getElementById('workflowTagsList');
+
+            if (workflowTags.length === 0) {
+                container.innerHTML = '<p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); font-style: italic;">No tags added yet</p>';
+                return;
+            }
+
+            container.innerHTML = workflowTags.map(tag => `
+                <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #e3f2fd; border-radius: 16px;">
+                    <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-primary-blue); font-weight: 500;">${tag}</span>
+                    <button onclick="removeWorkflowTag('${tag}')" style="background: none; border: none; color: var(--color-primary-blue); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;" title="Remove tag">
+                        <i class="ph ph-x" style="font-size: 12px;"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function createWorkflow(event) {
+            event.preventDefault();
+
+            // Collect form data
+            const formData = {
+                workflowId: generateUUID(),
+                workflowName: document.getElementById('workflowName').value.trim(),
+                workflowVersion: document.getElementById('workflowVersion').value.trim(),
+                category: document.getElementById('workflowCategory').value,
+                type: document.getElementById('workflowType').value,
+                description: document.getElementById('workflowDescription').value.trim(),
+                isActive: true,
+                states: workflowStates.map(state => ({
+                    stateId: state.id,
+                    stateName: state.name,
+                    stateType: state.type,
+                    description: state.description,
+                    isTerminal: state.type === 'terminal' || state.type === 'completed',
+                    allowedRoles: [],
+                    entryActions: [],
+                    exitActions: [],
+                    metadata: {}
+                })),
+                transitions: [], // Would be defined in a more advanced editor
+                initialStateId: workflowStates.length > 0 ? workflowStates[0].id : null,
+                variables: {
+                    required: [],
+                    schema: {}
+                },
+                roles: [],
+                sla: {
+                    expectedDuration: document.getElementById('expectedDuration').value.trim(),
+                    maxDuration: document.getElementById('maxDuration').value.trim(),
+                    businessHoursOnly: document.getElementById('businessHoursOnly').value === 'true'
+                },
+                metadata: {
+                    createdBy: {
+                        actorId: generateUUID(),
+                        actorType: 'user',
+                        actorName: 'Current User',
+                        actorEmail: 'user@example.com'
+                    },
+                    createdAt: new Date().toISOString(),
+                    updatedBy: null,
+                    updatedAt: null,
+                    tags: workflowTags
+                }
+            };
+
+            // Validation
+            if (!formData.workflowName) {
+                alert('Please enter a workflow name');
+                return;
+            }
+
+            if (!formData.category) {
+                alert('Please select a category');
+                return;
+            }
+
+            if (!formData.type) {
+                alert('Please select a workflow type');
+                return;
+            }
+
+            if (workflowStates.length === 0) {
+                alert('Please add at least one workflow state');
+                return;
+            }
+
+            // Save workflow definition to localStorage
+            const workflowKey = `workflow_def_${formData.workflowName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+            localStorage.setItem(workflowKey, JSON.stringify(formData));
+
+            // Show success message
+            alert(`✅ Success! Workflow "${formData.workflowName}" has been created!\n\nWorkflow Details:\n• Category: ${formData.category.replace('_', ' ')}\n• Type: ${formData.type.replace('_', ' ')}\n• States: ${workflowStates.length}\n• Tags: ${workflowTags.length}\n\nNext steps:\n1. Define state transitions\n2. Configure approval rules\n3. Set up notifications\n4. Test with sample data`);
+
+            console.log('Workflow created:', formData);
+
+            // Close modal
+            closeWorkflowCreationModal();
+
+            // Refresh workflow cards if needed
+            if (document.getElementById('workflowsContent').style.display !== 'none') {
+                loadWorkflowTypeCards();
+            }
         }
 
         function editItem(itemName) {
