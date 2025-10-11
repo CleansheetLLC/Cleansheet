@@ -42,6 +42,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         window.mermaid = mermaid;
     </script>
 
+    <!-- KaTeX for LaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -2660,10 +2664,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <span>Mermaid</span>
                                     </button>
 
-                                    <!-- LaTeX Block -->
+                                    <!-- KaTeX Block -->
                                     <button onclick="addDocumentBlock('latex')" style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
                                         <i class="ph ph-function" style="font-size: 18px; color: var(--color-primary-blue);"></i>
-                                        <span>LaTeX</span>
+                                        <span>KaTeX</span>
                                     </button>
                                 </div>
                             </div>
@@ -15240,7 +15244,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         // Show these as formatted pre blocks with labels
                         const typeLabels = {
                             'markdown': 'Markdown Content',
-                            'latex': 'LaTeX Math',
+                            'latex': 'KaTeX Math',
                             'mermaid': 'Mermaid Diagram'
                         };
                         html += `<p><em>${typeLabels[block.type]}:</em></p>`;
@@ -15486,9 +15490,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 case 'latex':
                     contentHTML = `
                         <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 8px;">
-                            <i class="ph ph-function"></i> LaTeX Math
+                            <i class="ph ph-function"></i> KaTeX Math
                         </div>
-                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter LaTeX math expressions...\n\nExamples:\n$inline: a^2 + b^2 = c^2$\n$$display block: \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$" style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || ''}</textarea>
+                        <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter KaTeX math expressions...\n\nExamples:\n$inline: a^2 + b^2 = c^2$\n$$display block: \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$" style="width: 100%; min-height: 180px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;">${block.content || ''}</textarea>
                     `;
                     break;
 
@@ -16771,7 +16775,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     `;
                     break;
                 case 'latex':
-                    blockContent = '<textarea placeholder="\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}" style="width: 100%; min-height: 100px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #fef3c7; outline: none; resize: vertical; padding: 12px;"></textarea><div style="margin-top: 8px; padding: 8px; background: #fde68a; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>LaTeX mathematical notation</div>';
+                    blockContent = `
+                        <div style="margin-top: 32px;">
+                            <div class="latex-edit-area">
+                                <textarea placeholder="\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}" style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #fef3c7; outline: none; resize: vertical; padding: 12px; line-height: 1.5;">\\begin{aligned}
+E &= mc^2 \\\\
+F &= ma \\\\
+\\Delta x &= v_0t + \\frac{1}{2}at^2 \\\\
+\\int_{a}^{b} f(x)dx &= F(b) - F(a)
+\\end{aligned}</textarea>
+                                <div style="margin-top: 8px; padding: 8px; background: #fde68a; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>KaTeX mathematical notation</div>
+                            </div>
+                            <div class="latex-preview-area" style="display: none;">
+                                <div class="latex-render" style="padding: 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; min-height: 120px; display: flex; align-items: center; justify-content: center; font-size: 18px;"></div>
+                            </div>
+                        </div>
+                    `;
                     break;
             }
 
@@ -16779,13 +16798,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             if (blockType !== 'divider') {
                 block.setAttribute('draggable', 'true');
 
-                // Add preview toggle button for markdown and mermaid blocks
+                // Add preview toggle button for markdown, mermaid, and latex blocks
                 const previewButton = blockType === 'markdown'
                     ? `<button onclick="toggleMarkdownPreview('${blockId}')" title="Toggle preview" class="block-control-btn markdown-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
                             <i class="ph ph-eye" style="font-size: 14px;"></i>
                         </button>`
                     : blockType === 'mermaid'
                     ? `<button onclick="toggleMermaidPreview('${blockId}')" title="Toggle preview" class="block-control-btn mermaid-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
+                            <i class="ph ph-eye" style="font-size: 14px;"></i>
+                        </button>`
+                    : blockType === 'latex'
+                    ? `<button onclick="toggleLatexPreview('${blockId}')" title="Toggle preview" class="block-control-btn latex-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
                             <i class="ph ph-eye" style="font-size: 14px;"></i>
                         </button>`
                     : '';
@@ -17099,6 +17122,58 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     }
                 } else {
                     renderDiv.innerHTML = '<p style="color: red; font-family: var(--font-family-body); font-size: 13px;">Mermaid library not loaded</p>';
+                }
+
+                editArea.style.display = 'none';
+                previewArea.style.display = 'block';
+                toggleBtn.setAttribute('data-mode', 'preview');
+                toggleBtn.setAttribute('title', 'Back to edit');
+                icon.className = 'ph ph-pencil-simple';
+            } else {
+                // Switch back to edit mode
+                editArea.style.display = 'block';
+                previewArea.style.display = 'none';
+                toggleBtn.setAttribute('data-mode', 'edit');
+                toggleBtn.setAttribute('title', 'Toggle preview');
+                icon.className = 'ph ph-eye';
+            }
+        }
+
+        // Toggle KaTeX preview
+        function toggleLatexPreview(blockId) {
+            const block = document.getElementById(blockId);
+            const editArea = block.querySelector('.latex-edit-area');
+            const previewArea = block.querySelector('.latex-preview-area');
+            const textarea = editArea.querySelector('textarea');
+            const renderDiv = previewArea.querySelector('.latex-render');
+            const toggleBtn = block.querySelector('.latex-preview-btn');
+            const icon = toggleBtn.querySelector('i');
+
+            const currentMode = toggleBtn.getAttribute('data-mode');
+
+            if (currentMode === 'edit') {
+                // Switch to preview mode
+                const latexText = textarea.value;
+
+                // Check if KaTeX is loaded
+                if (typeof katex !== 'undefined') {
+                    try {
+                        // Render the LaTeX using KaTeX
+                        renderDiv.innerHTML = '';
+                        katex.render(latexText, renderDiv, {
+                            throwOnError: false,
+                            displayMode: true,
+                            output: 'html',
+                            trust: false
+                        });
+                    } catch (error) {
+                        renderDiv.innerHTML = `<div style="color: red; font-family: var(--font-family-body); font-size: 13px; padding: 20px;">
+                            <i class="ph ph-warning-circle" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                            <strong>KaTeX Error:</strong><br>${error.message || 'Invalid KaTeX syntax'}
+                        </div>`;
+                    }
+                } else {
+                    renderDiv.innerHTML = '<p style="color: red; font-family: var(--font-family-body); font-size: 13px;">KaTeX library not loaded</p>';
                 }
 
                 editArea.style.display = 'none';
