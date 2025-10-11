@@ -31,6 +31,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Marked.js for Markdown Parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose'
+        });
+        window.mermaid = mermaid;
+    </script>
+
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -16715,35 +16726,37 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     break;
                 case 'code':
                     blockContent = `
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 8px 12px; background: var(--color-neutral-background); border-radius: 6px;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <i class="ph ph-code" style="font-size: 16px; color: var(--color-neutral-text);"></i>
-                                <select class="code-language-select" onchange="updateCodeLanguage('${blockId}', this.value)" style="padding: 4px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; background: white; cursor: pointer;">
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="python">Python</option>
-                                    <option value="java">Java</option>
-                                    <option value="csharp">C#</option>
-                                    <option value="cpp">C++</option>
-                                    <option value="typescript">TypeScript</option>
-                                    <option value="go">Go</option>
-                                    <option value="rust">Rust</option>
-                                    <option value="php">PHP</option>
-                                    <option value="ruby">Ruby</option>
-                                    <option value="sql">SQL</option>
-                                    <option value="html">HTML</option>
-                                    <option value="css">CSS</option>
-                                    <option value="json">JSON</option>
-                                    <option value="yaml">YAML</option>
-                                    <option value="bash">Bash</option>
-                                </select>
+                        <div style="margin-top: 32px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; padding: 8px 12px; background: var(--color-neutral-background); border-radius: 6px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <i class="ph ph-code" style="font-size: 16px; color: var(--color-neutral-text);"></i>
+                                    <select class="code-language-select" onchange="updateCodeLanguage('${blockId}', this.value)" style="padding: 4px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; background: white; cursor: pointer;">
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="python">Python</option>
+                                        <option value="java">Java</option>
+                                        <option value="csharp">C#</option>
+                                        <option value="cpp">C++</option>
+                                        <option value="typescript">TypeScript</option>
+                                        <option value="go">Go</option>
+                                        <option value="rust">Rust</option>
+                                        <option value="php">PHP</option>
+                                        <option value="ruby">Ruby</option>
+                                        <option value="sql">SQL</option>
+                                        <option value="html">HTML</option>
+                                        <option value="css">CSS</option>
+                                        <option value="json">JSON</option>
+                                        <option value="yaml">YAML</option>
+                                        <option value="bash">Bash</option>
+                                    </select>
+                                </div>
+                                <button onclick="lintCode('${blockId}')" title="Lint code" style="padding: 6px 12px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--color-neutral-text); font-family: var(--font-family-ui); font-size: 12px; transition: all 0.2s;">
+                                    <i class="ph ph-checks" style="font-size: 14px;"></i>
+                                    Lint
+                                </button>
                             </div>
-                            <button onclick="lintCode('${blockId}')" style="padding: 4px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-                                <i class="ph ph-checks" style="font-size: 14px;"></i>
-                                Lint
-                            </button>
+                            <textarea placeholder="Enter code..." class="code-textarea" style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f8f8f8; outline: none; resize: vertical; padding: 12px; line-height: 1.5;"></textarea>
+                            <div class="lint-results" style="display: none; margin-top: 8px; padding: 12px; border-radius: 6px; font-family: var(--font-family-body); font-size: 12px;"></div>
                         </div>
-                        <textarea placeholder="Enter code..." class="code-textarea" style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f8f8f8; outline: none; resize: vertical; padding: 12px; line-height: 1.5;"></textarea>
-                        <div class="lint-results" style="display: none; margin-top: 8px; padding: 12px; border-radius: 6px; font-family: var(--font-family-body); font-size: 12px;"></div>
                     `;
                     break;
                 case 'diagram':
@@ -16753,7 +16766,24 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     blockContent = '<hr style="border: none; border-top: 2px solid var(--color-neutral-border); margin: 8px 0;">';
                     break;
                 case 'mermaid':
-                    blockContent = '<textarea placeholder="graph TD\n    A[Start] --> B[Process]\n    B --> C[End]" style="width: 100%; min-height: 160px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f0f9ff; outline: none; resize: vertical; padding: 12px;"></textarea><div style="margin-top: 8px; padding: 8px; background: #e0f2fe; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>Mermaid diagram syntax</div>';
+                    blockContent = `
+                        <div style="margin-top: 32px;">
+                            <div class="mermaid-edit-area">
+                                <textarea placeholder="graph TD&#10;    A[Start] --> B[Process]&#10;    B --> C[End]" style="width: 100%; min-height: 160px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #f0f9ff; outline: none; resize: vertical; padding: 12px; line-height: 1.5;">graph LR
+    A[Client] --> B[Load Balancer]
+    B --> C[Server 1]
+    B --> D[Server 2]
+    B --> E[Server 3]
+    C --> F[Database]
+    D --> F
+    E --> F</textarea>
+                                <div style="margin-top: 8px; padding: 8px; background: #e0f2fe; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>Mermaid diagram syntax</div>
+                            </div>
+                            <div class="mermaid-preview-area" style="display: none;">
+                                <div class="mermaid-render" style="padding: 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; min-height: 160px; display: flex; align-items: center; justify-content: center;"></div>
+                            </div>
+                        </div>
+                    `;
                     break;
                 case 'latex':
                     blockContent = '<textarea placeholder="\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}" style="width: 100%; min-height: 100px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); background: #fef3c7; outline: none; resize: vertical; padding: 12px;"></textarea><div style="margin-top: 8px; padding: 8px; background: #fde68a; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-info" style="margin-right: 4px;"></i>LaTeX mathematical notation</div>';
@@ -16767,9 +16797,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             if (blockType !== 'divider') {
                 block.setAttribute('draggable', 'true');
 
-                // Add preview toggle button for markdown blocks
+                // Add preview toggle button for markdown and mermaid blocks
                 const previewButton = blockType === 'markdown'
                     ? `<button onclick="toggleMarkdownPreview('${blockId}')" title="Toggle preview" class="block-control-btn markdown-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
+                            <i class="ph ph-eye" style="font-size: 14px;"></i>
+                        </button>`
+                    : blockType === 'mermaid'
+                    ? `<button onclick="toggleMermaidPreview('${blockId}')" title="Toggle preview" class="block-control-btn mermaid-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
                             <i class="ph ph-eye" style="font-size: 14px;"></i>
                         </button>`
                     : '';
@@ -17035,6 +17069,65 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Switch back to edit mode
                 input.style.display = 'block';
                 preview.style.display = 'none';
+                toggleBtn.setAttribute('data-mode', 'edit');
+                toggleBtn.setAttribute('title', 'Toggle preview');
+                icon.className = 'ph ph-eye';
+            }
+        }
+
+        // Toggle Mermaid preview
+        function toggleMermaidPreview(blockId) {
+            const block = document.getElementById(blockId);
+            const editArea = block.querySelector('.mermaid-edit-area');
+            const previewArea = block.querySelector('.mermaid-preview-area');
+            const textarea = editArea.querySelector('textarea');
+            const renderDiv = previewArea.querySelector('.mermaid-render');
+            const toggleBtn = block.querySelector('.mermaid-preview-btn');
+            const icon = toggleBtn.querySelector('i');
+
+            const currentMode = toggleBtn.getAttribute('data-mode');
+
+            if (currentMode === 'edit') {
+                // Switch to preview mode
+                const mermaidText = textarea.value;
+
+                // Check if Mermaid is loaded
+                if (typeof mermaid !== 'undefined') {
+                    // Clear previous diagram
+                    renderDiv.innerHTML = '';
+
+                    // Generate unique ID for this diagram
+                    const diagramId = 'mermaid-' + blockId + '-' + Date.now();
+
+                    try {
+                        // Render the mermaid diagram
+                        mermaid.render(diagramId, mermaidText).then(result => {
+                            renderDiv.innerHTML = result.svg;
+                        }).catch(error => {
+                            renderDiv.innerHTML = `<div style="color: red; font-family: var(--font-family-body); font-size: 13px; padding: 20px;">
+                                <i class="ph ph-warning-circle" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                                <strong>Diagram Error:</strong><br>${error.message || 'Invalid Mermaid syntax'}
+                            </div>`;
+                        });
+                    } catch (error) {
+                        renderDiv.innerHTML = `<div style="color: red; font-family: var(--font-family-body); font-size: 13px; padding: 20px;">
+                            <i class="ph ph-warning-circle" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                            <strong>Diagram Error:</strong><br>${error.message || 'Invalid Mermaid syntax'}
+                        </div>`;
+                    }
+                } else {
+                    renderDiv.innerHTML = '<p style="color: red; font-family: var(--font-family-body); font-size: 13px;">Mermaid library not loaded</p>';
+                }
+
+                editArea.style.display = 'none';
+                previewArea.style.display = 'block';
+                toggleBtn.setAttribute('data-mode', 'preview');
+                toggleBtn.setAttribute('title', 'Back to edit');
+                icon.className = 'ph ph-pencil-simple';
+            } else {
+                // Switch back to edit mode
+                editArea.style.display = 'block';
+                previewArea.style.display = 'none';
                 toggleBtn.setAttribute('data-mode', 'edit');
                 toggleBtn.setAttribute('title', 'Toggle preview');
                 icon.className = 'ph ph-eye';
