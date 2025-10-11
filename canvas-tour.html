@@ -3566,14 +3566,15 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <i class="ph ph-plus-circle" style="color: var(--color-primary-blue);"></i> Add New Relationship
                         </h3>
 
-                        <div style="display: grid; grid-template-columns: 1fr 120px 1fr; gap: 16px; align-items: end;">
+                        <!-- Table Selection Row -->
+                        <div style="display: grid; grid-template-columns: 1fr 120px 1fr; gap: 16px; align-items: end; margin-bottom: 16px;">
                             <!-- Source Table -->
                             <div>
                                 <label style="display: block; font-family: var(--font-family-heading); font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">
                                     Source Table
                                     <i class="ph ph-info" title="The table that contains the foreign key" style="color: var(--color-primary-blue); cursor: help; font-size: 14px; margin-left: 4px;"></i>
                                 </label>
-                                <select id="sourceTable" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                                <select id="sourceTable" onchange="updateSourceColumns()" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
                                     <option value="">Select table...</option>
                                 </select>
                             </div>
@@ -3581,7 +3582,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <!-- Relationship Type -->
                             <div>
                                 <label style="display: block; font-family: var(--font-family-heading); font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">Type</label>
-                                <select id="relationshipType" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                                <select id="relationshipType" onchange="updateRelationshipPreview()" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
                                     <option value="many-to-one">M:1</option>
                                     <option value="one-to-one">1:1</option>
                                     <option value="many-to-many">M:M</option>
@@ -3594,9 +3595,50 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     Target Table
                                     <i class="ph ph-info" title="The table that is being referenced" style="color: var(--color-primary-blue); cursor: help; font-size: 14px; margin-left: 4px;"></i>
                                 </label>
-                                <select id="targetTable" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                                <select id="targetTable" onchange="updateTargetColumns()" style="width: 100%; padding: 10px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
                                     <option value="">Select table...</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- Column Mapping Row -->
+                        <div style="display: grid; grid-template-columns: 1fr 120px 1fr; gap: 16px; align-items: end; margin-bottom: 16px;">
+                            <!-- Source Columns -->
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-heading); font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">
+                                    Source Column(s) *
+                                    <i class="ph ph-info" title="The column(s) containing the foreign key values" style="color: var(--color-primary-blue); cursor: help; font-size: 14px; margin-left: 4px;"></i>
+                                </label>
+                                <div id="sourceColumnsContainer" style="width: 100%; min-height: 80px; padding: 8px; border: 1px solid var(--color-neutral-border); border-radius: 6px; background: #f8f8f8; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text);">
+                                    Select source table first
+                                </div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text-light); margin-top: 4px;">
+                                    Click columns to select/deselect
+                                </div>
+                            </div>
+
+                            <!-- Visual Connection -->
+                            <div style="display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                    <i class="ph ph-arrows-horizontal" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                                    <div id="relationshipPreview" style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-align: center; font-weight: 600;">
+                                        MAPS TO
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Target Columns -->
+                            <div>
+                                <label style="display: block; font-family: var(--font-family-heading); font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--color-neutral-text);">
+                                    Target Column(s) *
+                                    <i class="ph ph-info" title="The column(s) being referenced (usually primary key)" style="color: var(--color-primary-blue); cursor: help; font-size: 14px; margin-left: 4px;"></i>
+                                </label>
+                                <div id="targetColumnsContainer" style="width: 100%; min-height: 80px; padding: 8px; border: 1px solid var(--color-neutral-border); border-radius: 6px; background: #f8f8f8; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text);">
+                                    Select target table first
+                                </div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text-light); margin-top: 4px;">
+                                    Click columns to select/deselect
+                                </div>
                             </div>
                         </div>
 
@@ -4499,8 +4541,30 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <i class="ph ph-arrows-left-right"></i> Manage Relationships
                         </button>
                     </div>
-                    <div style="background: white; border-radius: 8px; padding: 24px; border: 1px solid var(--color-neutral-border);">
-                        <div id="tablesERDContainer" style="width: 100%; height: 600px; position: relative;">
+                    <div style="background: white; border-radius: 8px; padding: 24px; border: 1px solid var(--color-neutral-border); position: relative;">
+                        <!-- Zoom Controls -->
+                        <div id="erdZoomControls" style="position: absolute; top: 32px; right: 32px; z-index: 10; display: flex; flex-direction: column; gap: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); opacity: 0; pointer-events: none; transition: opacity 0.2s;">
+                            <!-- Zoom Level Indicator -->
+                            <div id="erdZoomLevel" style="padding: 4px 8px; text-align: center; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); background: #f8f9fa; border-radius: 4px; margin: 4px;">
+                                100%
+                            </div>
+                            <button onclick="zoomERD('in')" title="Zoom In" style="padding: 8px; border: none; background: white; cursor: pointer; border-radius: 6px; color: var(--color-neutral-text); transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.backgroundColor='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--color-neutral-text)';">
+                                <i class="ph ph-magnifying-glass-plus" style="font-size: 18px;"></i>
+                            </button>
+                            <button onclick="zoomERD('out')" title="Zoom Out" style="padding: 8px; border: none; background: white; cursor: pointer; border-radius: 6px; color: var(--color-neutral-text); transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.backgroundColor='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--color-neutral-text)';">
+                                <i class="ph ph-magnifying-glass-minus" style="font-size: 18px;"></i>
+                            </button>
+                            <button onclick="zoomERD('reset')" title="Reset Zoom" style="padding: 8px; border: none; background: white; cursor: pointer; border-radius: 6px; color: var(--color-neutral-text); transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.backgroundColor='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--color-neutral-text)';">
+                                <i class="ph ph-house" style="font-size: 18px;"></i>
+                            </button>
+                            <button onclick="zoomERD('fit')" title="Fit to Screen" style="padding: 8px; border: none; background: white; cursor: pointer; border-radius: 6px; color: var(--color-neutral-text); transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.backgroundColor='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='var(--color-neutral-text)';">
+                                <i class="ph ph-arrows-out" style="font-size: 18px;"></i>
+                            </button>
+                        </div>
+
+                        <div id="tablesERDContainer" style="width: 100%; height: 600px; position: relative; border-radius: 8px; border: 1px solid var(--color-neutral-border); overflow: hidden;"
+                             onmouseenter="showERDZoomControls()"
+                             onmouseleave="hideERDZoomControls()">
                             <!-- ERD will be rendered here -->
                         </div>
                     </div>
@@ -12630,6 +12694,99 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             alert(`Share ${tableName} table functionality coming soon!`);
         }
 
+        // Zoom control functions for ERD
+        function showERDZoomControls() {
+            const controls = document.getElementById('erdZoomControls');
+            if (controls) {
+                controls.style.opacity = '1';
+                controls.style.pointerEvents = 'auto';
+            }
+        }
+
+        function hideERDZoomControls() {
+            const controls = document.getElementById('erdZoomControls');
+            if (controls) {
+                controls.style.opacity = '0';
+                controls.style.pointerEvents = 'none';
+            }
+        }
+
+        function updateZoomLevelIndicator(scale) {
+            const indicator = document.getElementById('erdZoomLevel');
+            if (indicator) {
+                const percentage = Math.round(scale * 100);
+                indicator.textContent = `${percentage}%`;
+
+                // Color coding for different zoom levels
+                if (percentage < 50) {
+                    indicator.style.color = '#d32f2f'; // Red for very zoomed out
+                } else if (percentage > 200) {
+                    indicator.style.color = '#1976d2'; // Blue for very zoomed in
+                } else {
+                    indicator.style.color = 'var(--color-neutral-text)'; // Default
+                }
+            }
+        }
+
+        function zoomERD(action) {
+            const container = document.getElementById('tablesERDContainer');
+            const svg = container.querySelector('svg');
+            if (!svg || !svg.zoomBehavior) {
+                console.warn('ERD zoom not available - no SVG or zoom behavior found');
+                return;
+            }
+
+            const zoomBehavior = svg.zoomBehavior;
+            const svgSelection = d3.select(svg);
+
+            switch (action) {
+                case 'in':
+                    svgSelection.transition()
+                        .duration(300)
+                        .call(zoomBehavior.scaleBy, 1.5);
+                    break;
+                case 'out':
+                    svgSelection.transition()
+                        .duration(300)
+                        .call(zoomBehavior.scaleBy, 1/1.5);
+                    break;
+                case 'reset':
+                    svgSelection.transition()
+                        .duration(500)
+                        .call(zoomBehavior.transform, d3.zoomIdentity);
+                    break;
+                case 'fit':
+                    // Get bounds of all content
+                    const zoomGroup = svg.querySelector('.zoom-group');
+                    if (zoomGroup) {
+                        try {
+                            const bbox = zoomGroup.getBBox();
+                            if (bbox.width > 0 && bbox.height > 0) {
+                                const containerRect = container.getBoundingClientRect();
+                                const padding = 50;
+                                const scale = Math.min(
+                                    (containerRect.width - padding * 2) / bbox.width,
+                                    (containerRect.height - padding * 2) / bbox.height,
+                                    2  // Max zoom level for fit
+                                );
+                                const centerX = containerRect.width / 2;
+                                const centerY = containerRect.height / 2;
+                                const x = centerX - (bbox.x + bbox.width / 2) * scale;
+                                const y = centerY - (bbox.y + bbox.height / 2) * scale;
+
+                                svgSelection.transition()
+                                    .duration(750)
+                                    .call(zoomBehavior.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+                            }
+                        } catch (error) {
+                            console.log('Fit to screen: content bounds not available, using reset');
+                            zoomERD('reset');
+                        }
+                    }
+                    break;
+            }
+        }
+
         // Switch between Cards and Relationships views in Tables
         function switchTablesView(view) {
             const cardsTab = document.getElementById('tablesCardsTab');
@@ -12718,7 +12875,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 source: rel.sourceTable,
                 target: rel.targetTable,
                 type: rel.type,
-                label: rel.label
+                label: rel.label,
+                sourceColumns: rel.sourceColumns || [],
+                targetColumns: rel.targetColumns || []
             }));
 
             // If no relationships exist, show a helpful message
@@ -12749,13 +12908,37 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const width = container.clientWidth;
             const height = container.clientHeight;
 
-            // Create SVG
+            // Create SVG with zoom functionality
             const svg = d3.select('#tablesERDContainer')
                 .append('svg')
                 .attr('width', width)
                 .attr('height', height)
                 .attr('viewBox', [0, 0, width, height])
-                .attr('style', 'max-width: 100%; height: auto;');
+                .attr('style', 'max-width: 100%; height: auto; cursor: grab;');
+
+            // Create zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 5])
+                .on('zoom', (event) => {
+                    zoomGroup.attr('transform', event.transform);
+                    // Update cursor based on zoom action
+                    svg.style('cursor', event.sourceEvent?.type === 'wheel' ? 'zoom-in' : 'grabbing');
+                    // Update zoom level indicator
+                    updateZoomLevelIndicator(event.transform.k);
+                })
+                .on('end', () => {
+                    svg.style('cursor', 'grab');
+                });
+
+            // Apply zoom behavior to SVG
+            svg.call(zoom);
+
+            // Create a group for all zoomable content
+            const zoomGroup = svg.append('g')
+                .attr('class', 'zoom-group');
+
+            // Store zoom behavior for external control
+            svg.zoomBehavior = zoom;
 
             // Create force simulation
             const simulation = d3.forceSimulation(filteredNodes)
@@ -12767,7 +12950,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('collision', d3.forceCollide().radius(150));
 
-            // Create arrow marker for directed edges
+            // Create arrow marker for directed edges (stays in SVG defs, not zoomGroup)
             svg.append('defs').append('marker')
                 .attr('id', 'arrowhead')
                 .attr('viewBox', '0 -5 10 10')
@@ -12781,31 +12964,69 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 .attr('fill', '#0066CC')
                 .attr('opacity', 0.6);
 
-            // Draw relationship lines
-            const linkGroup = svg.append('g').attr('class', 'relationships');
+            // Draw relationship lines (in zoomGroup)
+            const linkGroup = zoomGroup.append('g').attr('class', 'relationships');
 
-            const link = linkGroup.selectAll('line')
-                .data(links)
-                .join('line')
-                .attr('stroke', '#0066CC')
-                .attr('stroke-width', 2)
-                .attr('stroke-dasharray', d => d.type === 'many-to-one' ? '5,5' : '0')
-                .attr('opacity', 0.6)
-                .attr('marker-end', 'url(#arrowhead)');
+            // Create column-level connections
+            const columnConnections = [];
+            links.forEach(link => {
+                if (link.sourceColumns.length > 0 && link.targetColumns.length > 0) {
+                    // Create individual column-to-column connections
+                    link.sourceColumns.forEach((sourceCol, idx) => {
+                        const targetCol = link.targetColumns[idx];
+                        if (targetCol) {
+                            columnConnections.push({
+                                ...link,
+                                sourceColumn: sourceCol,
+                                targetColumn: targetCol,
+                                connectionIndex: idx,
+                                totalConnections: link.sourceColumns.length
+                            });
+                        }
+                    });
+                } else {
+                    // Fallback to table-level connection
+                    columnConnections.push({
+                        ...link,
+                        sourceColumn: null,
+                        targetColumn: null,
+                        connectionIndex: 0,
+                        totalConnections: 1
+                    });
+                }
+            });
 
-            // Add relationship labels
+            const link = linkGroup.selectAll('path')
+                .data(columnConnections)
+                .join('path')
+                .attr('stroke', d => d.sourceColumn ? '#0066CC' : '#666')
+                .attr('stroke-width', d => d.sourceColumn ? 1.5 : 2)
+                .attr('stroke-dasharray', d => d.type === 'many-to-one' ? '4,3' : '0')
+                .attr('opacity', d => d.sourceColumn ? 0.8 : 0.6)
+                .attr('marker-end', 'url(#arrowhead)')
+                .attr('fill', 'none');
+
+            // Add relationship labels (one per relationship, not per column)
             const linkLabels = linkGroup.selectAll('text')
                 .data(links)
                 .join('text')
                 .attr('text-anchor', 'middle')
                 .attr('font-family', 'var(--font-family-body)')
-                .attr('font-size', '11px')
+                .attr('font-size', '10px')
                 .attr('fill', '#666')
-                .attr('dy', -5)
-                .text(d => d.label);
+                .attr('dy', -3)
+                .text(d => {
+                    if (d.sourceColumns.length > 0 && d.targetColumns.length > 0) {
+                        const mappings = d.sourceColumns.map((col, i) =>
+                            `${col}→${d.targetColumns[i] || '?'}`
+                        ).join(', ');
+                        return `${d.label} (${mappings})`;
+                    }
+                    return d.label;
+                });
 
-            // Draw table nodes
-            const nodeGroup = svg.append('g').attr('class', 'tables');
+            // Draw table nodes (in zoomGroup)
+            const nodeGroup = zoomGroup.append('g').attr('class', 'tables');
 
             const node = nodeGroup.selectAll('g')
                 .data(filteredNodes)
@@ -12879,19 +13100,62 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     d3.select(this).attr('fill', '#0066CC');
                 });
 
+            // Create map of connected columns for highlighting
+            const connectedColumns = new Map();
+            links.forEach(link => {
+                if (link.sourceColumns && link.targetColumns) {
+                    // Mark source columns as connected
+                    const sourceKey = link.source;
+                    if (!connectedColumns.has(sourceKey)) connectedColumns.set(sourceKey, new Set());
+                    link.sourceColumns.forEach(col => connectedColumns.get(sourceKey).add(col));
+
+                    // Mark target columns as connected
+                    const targetKey = link.target;
+                    if (!connectedColumns.has(targetKey)) connectedColumns.set(targetKey, new Set());
+                    link.targetColumns.forEach(col => connectedColumns.get(targetKey).add(col));
+                }
+            });
+
             // Table columns
             node.each(function(d) {
                 const group = d3.select(this);
+                const tableConnectedColumns = connectedColumns.get(d.id) || new Set();
+
                 d.columns.forEach((col, idx) => {
                     const y = -d.height / 2 + 40 + (idx * 24) + 16;
+                    const isConnected = tableConnectedColumns.has(col);
+
+                    // Column background highlight for connected columns
+                    if (isConnected) {
+                        group.append('rect')
+                            .attr('x', -116)
+                            .attr('y', y - 12)
+                            .attr('width', 232)
+                            .attr('height', 20)
+                            .attr('fill', '#e3f2fd')
+                            .attr('rx', 3)
+                            .attr('opacity', 0.7);
+                    }
+
+                    // Connection indicator dot
+                    if (isConnected) {
+                        group.append('circle')
+                            .attr('cx', -104)
+                            .attr('cy', y)
+                            .attr('r', 3)
+                            .attr('fill', '#0066CC')
+                            .attr('stroke', 'white')
+                            .attr('stroke-width', 1);
+                    }
 
                     // Column name (clickable)
                     group.append('text')
-                        .attr('x', -108)
+                        .attr('x', -96)
                         .attr('y', y)
                         .attr('font-family', 'var(--font-family-body)')
                         .attr('font-size', '12px')
-                        .attr('fill', '#333')
+                        .attr('fill', isConnected ? '#0066CC' : '#333')
+                        .attr('font-weight', isConnected ? '600' : '400')
                         .attr('cursor', 'pointer')
                         .text(col)
                         .on('click', function(event) {
@@ -12900,34 +13164,78 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         })
                         .on('mouseover', function() {
                             d3.select(this)
-                                .attr('fill', '#0066CC')
+                                .attr('fill', '#004C99')
                                 .attr('text-decoration', 'underline');
                         })
                         .on('mouseout', function() {
                             d3.select(this)
-                                .attr('fill', '#333')
+                                .attr('fill', isConnected ? '#0066CC' : '#333')
                                 .attr('text-decoration', 'none');
                         });
 
-                    // Show key icon for foreign keys (columns ending in _ID)
-                    if (col.endsWith('_ID')) {
+                    // Show key icon for foreign keys (columns ending in _ID) or connected columns
+                    if (col.endsWith('_ID') || isConnected) {
+                        const iconType = isConnected && !col.endsWith('_ID') ? 'ph-link' : 'ph-key';
+                        const iconColor = isConnected ? '#0066CC' : '#666';
+
                         group.append('foreignObject')
                             .attr('width', 14)
                             .attr('height', 14)
                             .attr('x', 100)
                             .attr('y', y - 10)
-                            .html('<i class="ph ph-key" style="font-size: 14px; color: #666;"></i>');
+                            .html(`<i class="ph ${iconType}" style="font-size: 14px; color: ${iconColor};"></i>`);
                     }
                 });
             });
 
+            // Helper function to get column Y position
+            function getColumnY(node, columnName) {
+                if (!columnName) return 0; // Center of table
+                const columnIndex = node.columns.indexOf(columnName);
+                if (columnIndex === -1) return 0; // Column not found, use center
+                return (-node.height / 2) + 40 + (columnIndex * 24) + 12; // Column center position
+            }
+
+            // Helper function to calculate bezier curve for column connections
+            function calculateColumnPath(d) {
+                const sourceNode = filteredNodes.find(n => n.id === d.source.id || n.id === d.source);
+                const targetNode = filteredNodes.find(n => n.id === d.target.id || n.id === d.target);
+
+                if (!sourceNode || !targetNode) return '';
+
+                // Get actual node positions
+                const sx = sourceNode.x || 0;
+                const sy = sourceNode.y || 0;
+                const tx = targetNode.x || 0;
+                const ty = targetNode.y || 0;
+
+                // Calculate column-specific positions
+                const sourceColumnY = sy + getColumnY(sourceNode, d.sourceColumn);
+                const targetColumnY = ty + getColumnY(targetNode, d.targetColumn);
+
+                // Calculate connection points on table edges
+                const sourceX = sx + (sx < tx ? 120 : -120); // Right or left edge
+                const targetX = tx + (sx < tx ? -120 : 120); // Left or right edge
+
+                // Create bezier curve for smooth column-to-column connections
+                const midX = (sourceX + targetX) / 2;
+                const offsetY = d.connectionIndex * 8 - (d.totalConnections - 1) * 4; // Spread multiple connections
+
+                return `M ${sourceX},${sourceColumnY + offsetY}
+                        C ${midX},${sourceColumnY + offsetY} ${midX},${targetColumnY + offsetY} ${targetX},${targetColumnY + offsetY}`;
+            }
+
             // Update positions on each tick
             simulation.on('tick', () => {
-                link
-                    .attr('x1', d => d.source.x)
-                    .attr('y1', d => d.source.y)
-                    .attr('x2', d => d.target.x)
-                    .attr('y2', d => d.target.y);
+                // Update column-level connection paths
+                link.attr('d', d => {
+                    if (d.sourceColumn && d.targetColumn) {
+                        return calculateColumnPath(d);
+                    } else {
+                        // Fallback to simple straight line for table-level connections
+                        return `M ${d.source.x},${d.source.y} L ${d.target.x},${d.target.y}`;
+                    }
+                });
 
                 linkLabels
                     .attr('x', d => (d.source.x + d.target.x) / 2)
@@ -13520,35 +13828,70 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 return;
             }
 
-            container.innerHTML = relationships.map((rel, index) => `
-                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                            <div style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; color: var(--color-dark);">
-                                ${rel.sourceTable}
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 6px; padding: 4px 12px; background: #e3f2fd; border-radius: 12px;">
-                                <i class="ph ph-arrow-right" style="font-size: 14px; color: var(--color-primary-blue);"></i>
-                                <span style="font-family: var(--font-family-body); font-size: 11px; font-weight: 600; color: var(--color-primary-blue);">${rel.type.toUpperCase()}</span>
-                            </div>
-                            <div style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; color: var(--color-dark);">
-                                ${rel.targetTable}
-                            </div>
+            container.innerHTML = relationships.map((rel, index) => {
+                // Create column mapping display
+                let columnMapping = '';
+                if (rel.sourceColumns && rel.targetColumns && rel.sourceColumns.length > 0) {
+                    // Enhanced relationship with column mappings
+                    const mappings = rel.sourceColumns.map((sourceCol, i) =>
+                        `${sourceCol} → ${rel.targetColumns[i] || '?'}`
+                    ).join(', ');
+                    columnMapping = `
+                        <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-primary-blue); background: #f0f8ff; padding: 6px 8px; border-radius: 4px; margin-top: 8px; font-weight: 500;">
+                            <i class="ph ph-link" style="margin-right: 4px;"></i>Column mapping: ${mappings}
                         </div>
-                        <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text-light); padding-left: 4px;">
-                            <i class="ph ph-quotes" style="margin-right: 4px;"></i>${rel.label}
+                    `;
+                } else {
+                    // Legacy relationship without column mappings
+                    columnMapping = `
+                        <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text-light); background: #fff3cd; padding: 6px 8px; border-radius: 4px; margin-top: 8px; font-style: italic;">
+                            <i class="ph ph-warning" style="margin-right: 4px; color: #f59e0b;"></i>Legacy relationship - no column mapping defined
+                        </div>
+                    `;
+                }
+
+                // Add constraint name if available
+                let constraintInfo = '';
+                if (rel.constraintName) {
+                    constraintInfo = `
+                        <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text-light); margin-top: 4px;">
+                            <i class="ph ph-key" style="margin-right: 4px;"></i>Constraint: ${rel.constraintName}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; align-items: flex-start; justify-content: space-between;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <div style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; color: var(--color-dark);">
+                                    ${rel.sourceTable}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px; padding: 4px 12px; background: #e3f2fd; border-radius: 12px;">
+                                    <i class="ph ph-arrow-right" style="font-size: 14px; color: var(--color-primary-blue);"></i>
+                                    <span style="font-family: var(--font-family-body); font-size: 11px; font-weight: 600; color: var(--color-primary-blue);">${rel.type.toUpperCase()}</span>
+                                </div>
+                                <div style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; color: var(--color-dark);">
+                                    ${rel.targetTable}
+                                </div>
+                            </div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text-light); padding-left: 4px;">
+                                <i class="ph ph-quotes" style="margin-right: 4px;"></i>${rel.label}
+                            </div>
+                            ${columnMapping}
+                            ${constraintInfo}
+                        </div>
+                        <div style="display: flex; gap: 8px; align-self: flex-start;">
+                            <button onclick="editRelationship(${index})" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--color-neutral-text);" title="Edit relationship">
+                                <i class="ph ph-pencil"></i> Edit
+                            </button>
+                            <button onclick="deleteRelationship(${index})" style="padding: 6px 12px; background: white; border: 1px solid #dc2626; border-radius: 6px; font-family: var(--font-family-ui); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #dc2626;" title="Delete relationship">
+                                <i class="ph ph-trash"></i> Delete
+                            </button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="editRelationship(${index})" style="padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--color-neutral-text);" title="Edit">
-                            <i class="ph ph-pencil"></i> Edit
-                        </button>
-                        <button onclick="deleteRelationship(${index})" style="padding: 6px 12px; background: white; border: 1px solid #dc2626; border-radius: 6px; font-family: var(--font-family-ui); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #dc2626;" title="Delete">
-                            <i class="ph ph-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function addRelationship() {
@@ -13557,7 +13900,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const type = document.getElementById('relationshipType').value;
             const label = document.getElementById('relationshipLabel').value.trim();
 
-            // Validation
+            // Get selected columns from our arrays
+            const sourceColumns = [...selectedSourceColumns];
+            const targetColumns = [...selectedTargetColumns];
+
+            // Enhanced validation
             if (!sourceTable) {
                 alert('Please select a source table');
                 return;
@@ -13570,29 +13917,68 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 alert('Source and target tables must be different');
                 return;
             }
+            if (sourceColumns.length === 0) {
+                alert('Please select at least one source column');
+                return;
+            }
+            if (targetColumns.length === 0) {
+                alert('Please select at least one target column');
+                return;
+            }
+            if (sourceColumns.length !== targetColumns.length) {
+                alert('Source and target must have the same number of columns selected');
+                return;
+            }
             if (!label) {
                 alert('Please enter a relationship label');
                 return;
             }
 
+            // Validate column compatibility
+            const validationResult = validateColumnCompatibility(sourceTable, sourceColumns, targetTable, targetColumns);
+            if (!validationResult.valid) {
+                alert(`Column compatibility issue: ${validationResult.message}`);
+                return;
+            }
+
+            // Check for duplicate relationships
+            const relationships = JSON.parse(localStorage.getItem('tableRelationships') || '[]');
+            const isDuplicate = relationships.some(rel =>
+                rel.sourceTable === sourceTable &&
+                rel.targetTable === targetTable &&
+                JSON.stringify(rel.sourceColumns || []) === JSON.stringify(sourceColumns) &&
+                JSON.stringify(rel.targetColumns || []) === JSON.stringify(targetColumns)
+            );
+
+            if (isDuplicate) {
+                alert('A relationship with these exact column mappings already exists');
+                return;
+            }
+
+            // Generate constraint name
+            const constraintName = generateConstraintName(sourceTable, targetTable, sourceColumns);
+
             const relationship = {
+                id: generateUUID(),
                 sourceTable,
+                sourceColumns,
                 targetTable,
+                targetColumns,
                 type,
                 label,
-                created: new Date().toISOString()
+                constraintName,
+                onDelete: 'CASCADE', // Default referential action
+                onUpdate: 'CASCADE', // Default referential action
+                created: new Date().toISOString(),
+                modified: new Date().toISOString()
             };
 
             // Save to localStorage
-            const relationships = JSON.parse(localStorage.getItem('tableRelationships') || '[]');
             relationships.push(relationship);
             localStorage.setItem('tableRelationships', JSON.stringify(relationships));
 
             // Clear form
-            document.getElementById('sourceTable').value = '';
-            document.getElementById('targetTable').value = '';
-            document.getElementById('relationshipType').value = 'many-to-one';
-            document.getElementById('relationshipLabel').value = '';
+            clearRelationshipForm();
 
             // Reload list
             loadRelationships();
@@ -13602,8 +13988,372 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 renderTablesERD();
             }
 
-            // Show success message
-            showToast('Relationship added successfully!', 'success');
+            // Show success message with details
+            const columnMapping = sourceColumns.map((col, i) => `${col} → ${targetColumns[i]}`).join(', ');
+            showToast(`Relationship added: ${sourceTable}.${columnMapping} → ${targetTable}`, 'success');
+        }
+
+        function clearRelationshipForm() {
+            document.getElementById('sourceTable').value = '';
+            document.getElementById('targetTable').value = '';
+            document.getElementById('relationshipType').value = 'many-to-one';
+            document.getElementById('relationshipLabel').value = '';
+
+            // Clear selected columns arrays
+            selectedSourceColumns = [];
+            selectedTargetColumns = [];
+
+            // Reset column containers
+            const sourceContainer = document.getElementById('sourceColumnsContainer');
+            const targetContainer = document.getElementById('targetColumnsContainer');
+
+            sourceContainer.innerHTML = 'Select source table first';
+            sourceContainer.style.background = '#f8f8f8';
+            sourceContainer.style.justifyContent = 'center';
+            sourceContainer.style.alignItems = 'center';
+            sourceContainer.style.display = 'flex';
+
+            targetContainer.innerHTML = 'Select target table first';
+            targetContainer.style.background = '#f8f8f8';
+            targetContainer.style.justifyContent = 'center';
+            targetContainer.style.alignItems = 'center';
+            targetContainer.style.display = 'flex';
+
+            // Reset preview
+            document.getElementById('relationshipPreview').textContent = 'MAPS TO';
+            document.getElementById('relationshipPreview').style.color = 'var(--color-neutral-text)';
+        }
+
+        function validateColumnCompatibility(sourceTable, sourceColumns, targetTable, targetColumns) {
+            const sourceTableColumns = getColumnsForRelationships(sourceTable);
+            const targetTableColumns = getColumnsForRelationships(targetTable);
+
+            for (let i = 0; i < sourceColumns.length; i++) {
+                const sourceCol = sourceTableColumns.find(c => c.name === sourceColumns[i]);
+                const targetCol = targetTableColumns.find(c => c.name === targetColumns[i]);
+
+                if (!sourceCol) {
+                    return { valid: false, message: `Source column '${sourceColumns[i]}' not found in table '${sourceTable}'` };
+                }
+
+                if (!targetCol) {
+                    return { valid: false, message: `Target column '${targetColumns[i]}' not found in table '${targetTable}'` };
+                }
+
+                // Basic type compatibility check
+                const sourceType = normalizeDataType(sourceCol.type);
+                const targetType = normalizeDataType(targetCol.type);
+
+                if (sourceType !== targetType) {
+                    return {
+                        valid: false,
+                        message: `Column types don't match: ${sourceColumns[i]} (${sourceCol.type}) → ${targetColumns[i]} (${targetCol.type})`
+                    };
+                }
+            }
+
+            return { valid: true };
+        }
+
+        function normalizeDataType(type) {
+            // Normalize PostgreSQL data types for compatibility checking
+            const typeStr = type.toLowerCase();
+
+            // UUID types
+            if (typeStr.includes('uuid')) return 'uuid';
+
+            // Integer types
+            if (typeStr.includes('int') || typeStr.includes('serial')) return 'integer';
+
+            // Text/varchar types
+            if (typeStr.includes('varchar') || typeStr.includes('char') || typeStr.includes('text')) return 'text';
+
+            // Decimal/numeric types
+            if (typeStr.includes('decimal') || typeStr.includes('numeric') || typeStr.includes('money')) return 'numeric';
+
+            // Date/time types
+            if (typeStr.includes('timestamp') || typeStr.includes('date') || typeStr.includes('time')) return 'timestamp';
+
+            // Boolean
+            if (typeStr.includes('bool')) return 'boolean';
+
+            return typeStr;
+        }
+
+        function generateConstraintName(sourceTable, targetTable, sourceColumns) {
+            const sourcePrefix = sourceTable.toLowerCase().substring(0, 3);
+            const targetPrefix = targetTable.toLowerCase().substring(0, 3);
+            const columnSuffix = sourceColumns.length === 1 ?
+                sourceColumns[0].substring(0, 4) :
+                sourceColumns.length.toString();
+
+            return `fk_${sourcePrefix}_${targetPrefix}_${columnSuffix}`;
+        }
+
+        // Column Selection Functions for Relationships
+        let selectedSourceColumns = [];
+        let selectedTargetColumns = [];
+
+        function updateSourceColumns() {
+            const sourceTable = document.getElementById('sourceTable').value;
+            const container = document.getElementById('sourceColumnsContainer');
+
+            selectedSourceColumns = [];
+
+            if (!sourceTable) {
+                container.innerHTML = 'Select source table first';
+                container.style.background = '#f8f8f8';
+                container.style.justifyContent = 'center';
+                container.style.alignItems = 'center';
+                container.style.display = 'flex';
+                updateRelationshipPreview();
+                return;
+            }
+
+            const columns = getColumnsForRelationships(sourceTable);
+
+            if (columns.length === 0) {
+                // Debug: Show what we're looking for
+                console.log('Debug: No columns found for sourceTable:', sourceTable);
+                console.log('Debug: Available in existing function:', getColumnsForTable(sourceTable));
+
+                container.innerHTML = `No columns found for table "${sourceTable}"<br><small style="color: #666;">Check browser console for debug info</small>`;
+                container.style.background = '#fff3cd';
+                container.style.justifyContent = 'center';
+                container.style.alignItems = 'center';
+                container.style.display = 'flex';
+                updateRelationshipPreview();
+                return;
+            }
+
+            // Create column selection interface
+            container.style.background = 'white';
+            container.style.justifyContent = 'flex-start';
+            container.style.alignItems = 'flex-start';
+            container.style.display = 'block';
+
+            container.innerHTML = `
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    ${columns.map(column => `
+                        <div class="column-selector" data-column="${column.name}" onclick="toggleSourceColumn('${column.name}', this)" style="
+                            padding: 6px 12px;
+                            border: 1px solid var(--color-neutral-border);
+                            border-radius: 16px;
+                            background: white;
+                            cursor: pointer;
+                            font-family: var(--font-family-body);
+                            font-size: 12px;
+                            color: var(--color-dark);
+                            transition: all 0.2s;
+                            user-select: none;
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                        ">
+                            <span style="font-weight: 600;">${column.name}</span>
+                            <span style="color: var(--color-neutral-text-light);">(${column.type})</span>
+                            ${column.isPrimaryKey ? '<i class="ph ph-key" style="color: var(--color-primary-blue); font-size: 10px;" title="Primary Key"></i>' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            updateRelationshipPreview();
+        }
+
+        function updateTargetColumns() {
+            const targetTable = document.getElementById('targetTable').value;
+            const container = document.getElementById('targetColumnsContainer');
+
+            selectedTargetColumns = [];
+
+            if (!targetTable) {
+                container.innerHTML = 'Select target table first';
+                container.style.background = '#f8f8f8';
+                container.style.justifyContent = 'center';
+                container.style.alignItems = 'center';
+                container.style.display = 'flex';
+                updateRelationshipPreview();
+                return;
+            }
+
+            const columns = getColumnsForRelationships(targetTable);
+
+            if (columns.length === 0) {
+                // Debug: Show what we're looking for
+                console.log('Debug: No columns found for targetTable:', targetTable);
+                console.log('Debug: Available in existing function:', getColumnsForTable(targetTable));
+
+                container.innerHTML = `No columns found for table "${targetTable}"<br><small style="color: #666;">Check browser console for debug info</small>`;
+                container.style.background = '#fff3cd';
+                container.style.justifyContent = 'center';
+                container.style.alignItems = 'center';
+                container.style.display = 'flex';
+                updateRelationshipPreview();
+                return;
+            }
+
+            // Create column selection interface
+            container.style.background = 'white';
+            container.style.justifyContent = 'flex-start';
+            container.style.alignItems = 'flex-start';
+            container.style.display = 'block';
+
+            container.innerHTML = `
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    ${columns.map(column => `
+                        <div class="column-selector" data-column="${column.name}" onclick="toggleTargetColumn('${column.name}', this)" style="
+                            padding: 6px 12px;
+                            border: 1px solid var(--color-neutral-border);
+                            border-radius: 16px;
+                            background: white;
+                            cursor: pointer;
+                            font-family: var(--font-family-body);
+                            font-size: 12px;
+                            color: var(--color-dark);
+                            transition: all 0.2s;
+                            user-select: none;
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                        ">
+                            <span style="font-weight: 600;">${column.name}</span>
+                            <span style="color: var(--color-neutral-text-light);">(${column.type})</span>
+                            ${column.isPrimaryKey ? '<i class="ph ph-key" style="color: var(--color-primary-blue); font-size: 10px;" title="Primary Key"></i>' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Auto-select primary key columns
+            columns.forEach(column => {
+                if (column.isPrimaryKey) {
+                    const element = container.querySelector(`[data-column="${column.name}"]`);
+                    if (element) {
+                        toggleTargetColumn(column.name, element);
+                    }
+                }
+            });
+
+            updateRelationshipPreview();
+        }
+
+        function toggleSourceColumn(columnName, element) {
+            const index = selectedSourceColumns.indexOf(columnName);
+            if (index > -1) {
+                // Deselect
+                selectedSourceColumns.splice(index, 1);
+                element.style.background = 'white';
+                element.style.borderColor = 'var(--color-neutral-border)';
+                element.style.color = 'var(--color-dark)';
+            } else {
+                // Select
+                selectedSourceColumns.push(columnName);
+                element.style.background = 'var(--color-primary-blue)';
+                element.style.borderColor = 'var(--color-primary-blue)';
+                element.style.color = 'white';
+            }
+            updateRelationshipPreview();
+        }
+
+        function toggleTargetColumn(columnName, element) {
+            const index = selectedTargetColumns.indexOf(columnName);
+            if (index > -1) {
+                // Deselect
+                selectedTargetColumns.splice(index, 1);
+                element.style.background = 'white';
+                element.style.borderColor = 'var(--color-neutral-border)';
+                element.style.color = 'var(--color-dark)';
+            } else {
+                // Select
+                selectedTargetColumns.push(columnName);
+                element.style.background = 'var(--color-primary-blue)';
+                element.style.borderColor = 'var(--color-primary-blue)';
+                element.style.color = 'white';
+            }
+            updateRelationshipPreview();
+        }
+
+        function updateRelationshipPreview() {
+            const sourceTable = document.getElementById('sourceTable').value;
+            const targetTable = document.getElementById('targetTable').value;
+            const relationshipType = document.getElementById('relationshipType').value;
+
+            const previewDiv = document.getElementById('relationshipPreview');
+
+            if (!sourceTable || !targetTable) {
+                previewDiv.textContent = 'MAPS TO';
+                previewDiv.style.color = 'var(--color-neutral-text)';
+                return;
+            }
+
+            let preview = '';
+            if (selectedSourceColumns.length > 0 && selectedTargetColumns.length > 0) {
+                const sourceText = selectedSourceColumns.join(', ');
+                const targetText = selectedTargetColumns.join(', ');
+                const typeSymbol = relationshipType === 'many-to-one' ? 'M:1' :
+                                 relationshipType === 'one-to-one' ? '1:1' : 'M:M';
+
+                preview = `${sourceText} → (${typeSymbol}) → ${targetText}`;
+                previewDiv.style.color = 'var(--color-primary-blue)';
+            } else {
+                preview = 'SELECT COLUMNS';
+                previewDiv.style.color = 'var(--color-neutral-text)';
+            }
+
+            previewDiv.textContent = preview;
+        }
+
+        // Enhanced getColumnsForRelationships function that works with both stored schemas and defaults
+        function getColumnsForRelationships(tableName) {
+            // First check stored PostgreSQL schemas
+            const savedSchemas = JSON.parse(localStorage.getItem('postgresTableSchemas') || '[]');
+            const savedSchema = savedSchemas.find(schema =>
+                schema.tableName.toLowerCase() === tableName.toLowerCase()
+            );
+
+            if (savedSchema && savedSchema.columns) {
+                return savedSchema.columns.map(col => ({
+                    name: col.name,
+                    type: col.dataType || col.type || 'text',
+                    nullable: col.nullable !== false,
+                    isPrimaryKey: col.isPrimaryKey || false,
+                    isUnique: col.isUnique || false
+                }));
+            }
+
+            // Use the existing function for default tables but handle case variations
+            // Try title case first (what the function expects)
+            const titleCaseName = tableName.charAt(0).toUpperCase() + tableName.slice(1).toLowerCase();
+            let existingColumns = getColumnsForTable(titleCaseName);
+
+            // If that doesn't work, try the original name
+            if (!existingColumns || existingColumns.length === 0) {
+                existingColumns = getColumnsForTable(tableName);
+            }
+
+            if (existingColumns && existingColumns.length > 0) {
+                return existingColumns.map(colName => {
+                    // Detect common patterns for primary keys and types
+                    const isPrimaryKey = colName.toLowerCase().includes('_id') || colName.toLowerCase() === 'id';
+                    const type = isPrimaryKey ? 'uuid' :
+                                colName.toLowerCase().includes('date') ? 'date' :
+                                colName.toLowerCase().includes('email') ? 'varchar(100)' :
+                                colName.toLowerCase().includes('name') ? 'varchar(100)' :
+                                colName.toLowerCase().includes('phone') ? 'varchar(20)' :
+                                'text';
+
+                    return {
+                        name: colName,
+                        type: type,
+                        isPrimaryKey: isPrimaryKey,
+                        nullable: !isPrimaryKey,
+                        isUnique: false
+                    };
+                });
+            }
+
+            return [];
         }
 
         function editRelationship(index) {
@@ -13617,6 +14367,43 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('targetTable').value = rel.targetTable;
             document.getElementById('relationshipType').value = rel.type;
             document.getElementById('relationshipLabel').value = rel.label;
+
+            // Update columns and select them if they exist in the new format
+            updateSourceColumns();
+            updateTargetColumns();
+
+            // Select the previously saved columns (for enhanced relationships)
+            if (rel.sourceColumns && rel.sourceColumns.length > 0) {
+                selectedSourceColumns = [...rel.sourceColumns];
+                // Re-render and select the columns
+                setTimeout(() => {
+                    rel.sourceColumns.forEach(columnName => {
+                        const element = document.querySelector(`#sourceColumnsContainer [data-column="${columnName}"]`);
+                        if (element) {
+                            element.style.background = 'var(--color-primary-blue)';
+                            element.style.borderColor = 'var(--color-primary-blue)';
+                            element.style.color = 'white';
+                        }
+                    });
+                }, 50);
+            }
+
+            if (rel.targetColumns && rel.targetColumns.length > 0) {
+                selectedTargetColumns = [...rel.targetColumns];
+                // Re-render and select the columns
+                setTimeout(() => {
+                    rel.targetColumns.forEach(columnName => {
+                        const element = document.querySelector(`#targetColumnsContainer [data-column="${columnName}"]`);
+                        if (element) {
+                            element.style.background = 'var(--color-primary-blue)';
+                            element.style.borderColor = 'var(--color-primary-blue)';
+                            element.style.color = 'white';
+                        }
+                    });
+                }, 50);
+            }
+
+            updateRelationshipPreview();
 
             // Delete the old one (we'll add the edited version when user clicks Add)
             deleteRelationship(index, true);
@@ -16973,10 +17760,53 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const existingGraduate = localStorage.getItem('newGraduateDocuments');
             const existingAnalyst = localStorage.getItem('dataAnalystDocuments');
 
-            if (existingRetail || existingChemist || existingGraduate || existingAnalyst) return;
+            // Temporarily disabled to force re-initialization with new multi-modal documents
+            // if (existingRetail || existingChemist || existingGraduate || existingAnalyst) return;
 
             // RETAIL MANAGER DOCUMENTS
             const retailManagerDocuments = [
+                {
+                    title: 'Store Technology Rollout Plan - Phase 2',
+                    lastModified: new Date('2025-10-30').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['CTO', 'IT', 'DM', 'AM'],
+                    blocks: [
+                        { id: 'tr1', type: 'header', level: 1, content: 'Store Technology Rollout Plan - Phase 2' },
+                        { id: 'tr2', type: 'text', content: 'This document outlines the comprehensive plan for Phase 2 of our store technology modernization initiative, focusing on point-of-sale system upgrades, inventory management automation, and customer experience enhancements. Implementation timeline spans Q1-Q2 2026 across 47 store locations.' },
+
+                        { id: 'tr3', type: 'header', level: 2, content: 'Executive Summary' },
+                        { id: 'tr4', type: 'text', content: 'Phase 2 builds upon the successful completion of Phase 1 (network infrastructure) and introduces customer-facing technology improvements. Key deliverables include new POS terminals with contactless payment support, real-time inventory tracking systems, and digital signage integration. Total budget allocated: $2.4M with expected ROI of 18% within 24 months.' },
+
+                        { id: 'tr5', type: 'header', level: 2, content: 'Technology Architecture' },
+                        { id: 'tr6', type: 'mermaid', content: 'graph TD\n    A[Store Manager Dashboard] --> B[POS System]\n    A --> C[Inventory Management]\n    A --> D[Customer Analytics]\n    B --> E[Payment Processing]\n    B --> F[Receipt Management]\n    C --> G[RFID Scanners]\n    C --> H[Automated Reordering]\n    D --> I[Loyalty Program Integration]\n    D --> J[Digital Signage]\n    E --> K[Cloud Payment Gateway]\n    F --> L[Email/SMS Receipts]\n    style A fill:#e3f2fd\n    style K fill:#f3e5f5\n    style L fill:#f3e5f5' },
+
+                        { id: 'tr7', type: 'header', level: 2, content: 'Implementation Timeline' },
+                        { id: 'tr8', type: 'table', content: 'Phase,Duration,Stores,Key Activities,Budget\nPilot Testing,Jan 15 - Feb 15,3 stores,Hardware installation and staff training,$145K\nWave 1 Rollout,Feb 16 - Mar 31,12 stores,Full system deployment,$580K\nWave 2 Rollout,Apr 1 - May 15,16 stores,Continued deployment + optimization,$725K\nWave 3 Rollout,May 16 - Jun 30,16 stores,Final deployment phase,$950K\nTotal Project,,47 stores,Complete technology modernization,$2.4M' },
+
+                        { id: 'tr9', type: 'header', level: 2, content: 'Technical Specifications' },
+                        { id: 'tr10', type: 'header', level: 3, content: 'POS System Requirements' },
+                        { id: 'tr11', type: 'code', content: '// POS Terminal Configuration\n{\n  "hardware": {\n    "processor": "Intel i5-12400 or AMD Ryzen 5",\n    "memory": "8GB DDR4",\n    "storage": "256GB NVMe SSD",\n    "display": "15.6\\" touchscreen, 1920x1080",\n    "connectivity": ["WiFi 6", "Gigabit Ethernet", "USB 3.2", "NFC"]\n  },\n  "software": {\n    "os": "Windows 11 IoT Enterprise LTSC",\n    "pos_app": "RetailPro v12.3",\n    "payment_gateway": "SecurePayments API v3.1",\n    "backup": "Real-time cloud sync every 30 seconds"\n  },\n  "security": {\n    "encryption": "AES-256 at rest, TLS 1.3 in transit",\n    "authentication": "Multi-factor with biometric support",\n    "compliance": ["PCI DSS Level 1", "SOX", "GDPR"]\n  }\n}' },
+
+                        { id: 'tr12', type: 'header', level: 3, content: 'Network Infrastructure' },
+                        { id: 'tr13', type: 'text', content: 'Each store requires dedicated fiber internet connection (minimum 100Mbps up/down) with backup 5G cellular failover. Internal network consists of managed switches supporting PoE+ for digital signage and RFID readers. WiFi 6 access points provide customer and staff connectivity with separate VLANs for security.' },
+
+                        { id: 'tr14', type: 'header', level: 2, content: 'Training & Change Management' },
+                        { id: 'tr15', type: 'text', content: 'Comprehensive training program developed for three staff levels: store managers, associate managers, and sales associates. Training includes 4-hour hands-on workshops, online certification modules, and ongoing support documentation. Change management strategy focuses on demonstrating efficiency gains and customer experience improvements.' },
+
+                        { id: 'tr16', type: 'header', level: 3, content: 'Training Schedule by Role' },
+                        { id: 'tr17', type: 'table', content: 'Role,Training Duration,Format,Certification Required,Support Level\nStore Manager,8 hours,In-person workshop + online,Yes - Advanced Certification,Direct IT contact\nAssociate Manager,6 hours,Hybrid (4h in-person + 2h online),Yes - Standard Certification,Store manager + help desk\nSales Associate,4 hours,In-person hands-on,Basic proficiency test,Associate manager support\nSeasonal Staff,2 hours,Online modules only,Quick competency check,Peer buddy system' },
+
+                        { id: 'tr18', type: 'header', level: 2, content: 'Risk Assessment & Mitigation' },
+                        { id: 'tr19', type: 'text', content: 'Primary risks include system downtime during peak shopping periods, staff resistance to new technology, and potential payment processing disruptions. Mitigation strategies include comprehensive testing protocols, backup payment methods, and dedicated support team during rollout phases.' },
+
+                        { id: 'tr20', type: 'divider', content: '', dividerType: 'page' },
+
+                        { id: 'tr21', type: 'header', level: 2, content: 'Success Metrics & KPIs' },
+                        { id: 'tr22', type: 'latex', content: '\\text{Customer Satisfaction Score} = \\frac{\\sum_{i=1}^{n} \\text{Rating}_i}{n} \\geq 4.2\n\n\\text{Transaction Speed Improvement} = \\frac{\\text{Old Average Time} - \\text{New Average Time}}{\\text{Old Average Time}} \\times 100\\% \\geq 25\\%\n\n\\text{System Uptime} = \\frac{\\text{Total Operational Hours} - \\text{Downtime Hours}}{\\text{Total Operational Hours}} \\times 100\\% \\geq 99.5\\%' },
+
+                        { id: 'tr23', type: 'text', content: 'Success will be measured through customer satisfaction surveys, transaction processing speed analysis, system uptime monitoring, and staff productivity metrics. Monthly reviews with district managers will track progress against these KPIs and identify areas for optimization.' }
+                    ]
+                },
                 {
                     title: 'Q4 Holiday Staffing Plan',
                     lastModified: new Date('2025-10-15').toISOString(),
@@ -17015,6 +17845,40 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     documentType: 'unstructured',
                     sharedWith: ['RM', 'DM'],
                     richTextContent: '<h1>Store Performance Review - Third Quarter 2025</h1><p>This quarterly review assesses overall store performance across key metrics including sales, customer satisfaction, team productivity, and operational efficiency. Q3 results show strong performance with several areas for continued focus and improvement.</p><h2>Sales Performance</h2><p><strong>Revenue:</strong> $847,000 (vs $785K target) - 8% over goal<br><strong>Transactions:</strong> 15,420 (average ticket $54.95)<br><strong>Conversion Rate:</strong> 68% (up from 64% in Q2)<br><strong>Return Rate:</strong> 8.2% (within acceptable range)</p><p>Notable achievements include successful back-to-school campaign driving 23% increase in August sales, effective cross-selling program boosting average transaction by $8, and improved inventory management reducing stockouts by 40%.</p><h2>Customer Experience</h2><p>Customer satisfaction scores averaged 4.3/5 (target: 4.2). Mystery shopper evaluations rated service at 87/100, with particular strength in product knowledge and greeting protocols. Areas for improvement include checkout speed during peak hours and fitting room maintenance.</p><p>Customer feedback themes: Excellent product selection (mentioned in 78% of positive reviews), friendly staff (mentioned in 65%), competitive pricing (mentioned in 52%). Primary complaint: long checkout lines during weekends.</p><h2>Team Performance</h2><p>Team of 18 associates maintained strong performance metrics. Attendance rate 94%, punctuality 97%. Three team members earned recognition for exceptional customer service. Sales per hour averaged $127 across the team, with top performer reaching $156/hour.</p><p><strong>Recommendations for Q4:</strong> Implement mobile checkout during peak periods, enhance weekend staffing, focus on winter merchandise presentation, and continue customer service excellence initiatives. Target Q4 revenue: $925,000.</p>'
+                },
+                {
+                    title: 'Customer Loyalty Program Analysis',
+                    lastModified: new Date('2025-11-02').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['MM', 'DM', 'CM'],
+                    blocks: [
+                        { id: 'cl1', type: 'header', level: 1, content: 'Customer Loyalty Program Performance Analysis' },
+                        { id: 'cl2', type: 'text', content: 'This document analyzes our customer loyalty program performance over the past 6 months since launch. The "Style Rewards" program has enrolled 2,847 customers with strong engagement metrics and measurable impact on repeat purchase behavior.' },
+
+                        { id: 'cl3', type: 'header', level: 2, content: 'Program Overview & Metrics' },
+                        { id: 'cl4', type: 'table', content: 'Metric,Current Value,Target,Status\nTotal Enrolled Members,2847,2500,✓ Exceeded\nActive Members (90 days),1923,1800,✓ Exceeded\nAverage Points per Member,1240,1000,✓ Exceeded\nRedemption Rate,34%,25%,✓ Exceeded\nMember Retention Rate,78%,70%,✓ Exceeded\nIncremental Revenue,+$127K,+$100K,✓ Exceeded' },
+
+                        { id: 'cl5', type: 'header', level: 2, content: 'Technical Implementation' },
+                        { id: 'cl6', type: 'text', content: 'The loyalty system integrates with our existing POS infrastructure through a REST API connection. Real-time point calculation and tier status updates occur at transaction completion. Mobile app enrollment drives 68% of new sign-ups.' },
+
+                        { id: 'cl7', type: 'code', content: '// Loyalty Points Calculation Logic\nfunction calculatePoints(transaction) {\n  const baseRate = 1; // 1 point per $1 spent\n  let multiplier = 1;\n  \n  // Tier bonuses\n  if (customer.tier === "Silver") multiplier = 1.25;\n  if (customer.tier === "Gold") multiplier = 1.5;\n  if (customer.tier === "Platinum") multiplier = 2.0;\n  \n  // Category bonuses\n  const categoryBonuses = {\n    "new-arrivals": 2.0,\n    "seasonal": 1.5,\n    "accessories": 1.25\n  };\n  \n  let totalPoints = 0;\n  transaction.items.forEach(item => {\n    const categoryMultiplier = categoryBonuses[item.category] || 1;\n    const itemPoints = item.price * baseRate * multiplier * categoryMultiplier;\n    totalPoints += Math.floor(itemPoints);\n  });\n  \n  return totalPoints;\n}' },
+
+                        { id: 'cl8', type: 'header', level: 2, content: 'Member Engagement Analysis' },
+                        { id: 'cl9', type: 'mermaid', content: 'pie title Member Distribution by Tier\n    "Bronze (0-499 pts)" : 1156\n    "Silver (500-1499 pts)" : 1024\n    "Gold (1500-2999 pts)" : 487\n    "Platinum (3000+ pts)" : 180' },
+
+                        { id: 'cl10', type: 'header', level: 3, content: 'Purchase Behavior Insights' },
+                        { id: 'cl11', type: 'table', content: 'Customer Segment,Avg Transaction,Visit Frequency,Favorite Categories\nPlatinum Members,$89.40,2.3x/month,Designer • Accessories • Shoes\nGold Members,$67.20,1.8x/month,Seasonal • Outerwear • Handbags\nSilver Members,$52.10,1.4x/month,Basic • Casual • Sale Items\nBronze Members,$41.80,0.9x/month,Essentials • Clearance • Basics' },
+
+                        { id: 'cl12', type: 'divider', content: '' },
+
+                        { id: 'cl13', type: 'header', level: 2, content: 'Success Metrics & ROI' },
+                        { id: 'cl14', type: 'latex', content: '\\text{Program ROI} = \\frac{\\text{Incremental Revenue} - \\text{Program Costs}}{\\text{Program Costs}} \\times 100\\%\n\n\\text{Current ROI} = \\frac{\\$127,000 - \\$32,000}{\\$32,000} \\times 100\\% = 297\\%\n\n\\text{Customer Lifetime Value Increase} = \\frac{\\text{Member CLV} - \\text{Non-Member CLV}}{\\text{Non-Member CLV}} \\times 100\\% = +43\\%' },
+
+                        { id: 'cl15', type: 'header', level: 2, content: 'Recommendations' },
+                        { id: 'cl16', type: 'markdown', content: '**Immediate Actions (Next 30 days):**\n\n- [ ] Launch referral bonus program (500 points for successful referral)\n- [ ] Implement birthday month double points promotion\n- [ ] Add exclusive early access to sales for Gold+ members\n\n**Medium-term Initiatives (Next Quarter):**\n\n- [ ] Partner with local businesses for cross-promotional point earning\n- [ ] Develop personalized product recommendations based on purchase history\n- [ ] Create VIP shopping events for Platinum members\n\n**Long-term Strategy (6+ months):**\n\n- [ ] Expand program to include experiential rewards (styling sessions, events)\n- [ ] Integrate with social media for engagement-based point earning\n- [ ] Develop mobile app with gamification features' },
+
+                        { id: 'cl17', type: 'text', content: 'The loyalty program has exceeded all initial targets and demonstrates strong potential for continued growth. Member satisfaction scores average 4.6/5, with 89% of surveyed members saying the program influences their shopping decisions. Recommend increasing marketing budget by 25% to accelerate enrollment growth.' }
+                    ]
                 }
             ];
 
@@ -17059,6 +17923,41 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     documentType: 'unstructured',
                     sharedWith: ['PI', 'DH', 'FO'],
                     richTextContent: '<h1>Research Proposal: Development of Marine-Degradable Plastic Alternatives</h1><h2>Abstract</h2><p>This proposal outlines a 18-month research project to develop novel biodegradable polymer materials specifically designed for marine environments. Current biodegradable plastics degrade poorly in saltwater conditions, contributing to ocean pollution. Our approach combines renewable monomers with marine-specific degradation pathways to create packaging materials that break down within 6 months in seawater.</p><h2>Research Objectives</h2><p><strong>Primary Goal:</strong> Synthesize and characterize biodegradable polymers with marine degradation rates <180 days</p><p><strong>Specific Aims:</strong></p><ul><li>Develop three polymer series based on alginate, chitosan, and PHA platforms</li><li>Optimize mechanical properties to match conventional plastic films</li><li>Conduct accelerated marine degradation testing per ASTM D6691</li><li>Evaluate eco-toxicity using standard marine organism bioassays</li><li>Scale synthesis to 100g batches for application testing</li></ul><h2>Literature Review</h2><p>Marine plastic pollution affects 700+ species and costs global economies $13B annually. Current biodegradable alternatives like PLA require industrial composting at 58°C, unsuitable for ocean environments. Recent advances in marine-degradable polymers show promise, with seaweed-based materials achieving 60% degradation in 90 days. However, mechanical properties remain insufficient for packaging applications.</p><h2>Methodology</h2><p>We will employ ring-opening polymerization and enzymatic catalysis to synthesize target polymers. Marine degradation testing will be conducted in artificial seawater at 15°C, 25°C, and 35°C to simulate global ocean conditions. Polymer characterization will include GPC, DSC, tensile testing, and FTIR analysis. Degradation products will be analyzed by LC-MS.</p><h2>Budget and Timeline</h2><p><strong>Total Budget:</strong> $185,000 over 18 months</p><p><strong>Phase 1</strong> (Months 1-6): Polymer synthesis and optimization - $65K<br><strong>Phase 2</strong> (Months 7-12): Marine degradation studies - $75K<br><strong>Phase 3</strong> (Months 13-18): Scale-up and application testing - $45K</p><p><strong>Expected Outcomes:</strong> 3 peer-reviewed publications, 2 patent applications, demonstration of commercial viability for marine-degradable packaging materials with potential market impact of $500M+ in sustainable packaging sector.</p>'
+                },
+                {
+                    title: 'Spectroscopy Data Analysis - Compound X47B',
+                    lastModified: new Date('2025-11-01').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['RC', 'PI', 'GS'],
+                    blocks: [
+                        { id: 'sp1', type: 'header', level: 1, content: 'Spectroscopic Characterization of Compound X47B' },
+                        { id: 'sp2', type: 'text', content: 'Complete structural elucidation of novel heterocyclic compound X47B (C₁₅H₁₁NO₃S) synthesized via multi-step reaction sequence. Molecular weight confirmed at 285.32 g/mol by high-resolution mass spectrometry. All spectroscopic data consistent with proposed quinoline-thiophene structure.' },
+
+                        { id: 'sp3', type: 'header', level: 2, content: 'Experimental Conditions' },
+                        { id: 'sp4', type: 'table', content: 'Analysis,Instrument,Solvent,Temperature,Acquisition Parameters\n¹H NMR,Bruker 500 MHz,CDCl₃,25°C,32 scans 0.8 Hz resolution\n¹³C NMR,Bruker 125 MHz,CDCl₃,25°C,1024 scans proton-decoupled\nIR Spectroscopy,Perkin-Elmer FT-IR,KBr pellet,RT,4000-400 cm⁻¹ 2 cm⁻¹ resolution\nMS Analysis,Agilent Q-TOF,MeCN/H₂O,RT,ESI positive mode 50-800 m/z\nUV-Vis,Shimadzu UV-2600,EtOH,RT,200-800 nm 0.5 nm bandwidth' },
+
+                        { id: 'sp5', type: 'header', level: 2, content: 'Molecular Structure' },
+                        { id: 'sp6', type: 'image', content: 'https://via.placeholder.com/400x300/0066CC/FFFFFF?text=Compound+X47B+Structure' },
+
+                        { id: 'sp7', type: 'header', level: 2, content: 'NMR Data Processing' },
+                        { id: 'sp8', type: 'code', language: 'python', content: '# NMR Data Analysis Script\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy.optimize import curve_fit\n\n# ¹H NMR chemical shifts (ppm) and integrations\nh_shifts = [8.92, 8.45, 7.89, 7.73, 7.42, 7.28, 6.95, 4.12, 1.45]\nh_integrals = [1, 1, 1, 2, 2, 1, 1, 2, 3]\nh_multiplicities = ["d", "d", "dd", "m", "m", "s", "s", "q", "t"]\n\n# Calculate theoretical vs experimental integrations\ntotal_protons = 11  # from molecular formula\ntheoretical = [h * total_protons / sum(h_integrals) for h in h_integrals]\nprint("Theoretical integrations:", theoretical)\n\n# ¹³C NMR data processing\nc_shifts = [162.4, 158.1, 149.3, 142.8, 135.7, 131.2, 128.9, 126.4, 125.1, 121.8, 118.6, 65.2, 14.8]\nprint(f"Carbon count: {len(c_shifts)} (Expected: 15)")' },
+
+                        { id: 'sp9', type: 'header', level: 2, content: 'Spectral Assignments' },
+                        { id: 'sp10', type: 'table', content: 'Position,¹H NMR (ppm),¹³C NMR (ppm),Assignment,COSY Correlations\nH-2,8.92 (d),149.3,Quinoline H-2,H-3\nH-3,8.45 (d),121.8,Quinoline H-3,H-2 H-4\nH-4,7.89 (dd),135.7,Quinoline H-4,H-3\nH-5/H-6,7.73 (m),131.2 128.9,Quinoline aromatics,Complex multipicity\nH-7/H-8,7.42 (m),126.4 125.1,Quinoline aromatics,Complex multicity\nH-thiophene,7.28 (s),142.8,Thiophene H-2,Isolated singlet\nH-aromatic,6.95 (s),118.6,Substituted aromatic,Isolated singlet\nOCH₂,4.12 (q),65.2,Ethyl ester CH₂,CH₃ triplet\nCH₃,1.45 (t),14.8,Ethyl ester CH₃,OCH₂ quartet' },
+
+                        { id: 'sp11', type: 'header', level: 2, content: 'IR Spectroscopy Analysis' },
+                        { id: 'sp12', type: 'mermaid', content: 'graph LR\n    A[4000 cm⁻¹] --> B[C-H Stretch<br>3045-3005 cm⁻¹]\n    A --> C[C=O Stretch<br>1725 cm⁻¹]\n    A --> D[C=N Stretch<br>1610 cm⁻¹]\n    A --> E[Aromatic C=C<br>1585 1495 cm⁻¹]\n    A --> F[C-O Stretch<br>1275 cm⁻¹]\n    A --> G[C-S Stretch<br>695 cm⁻¹]\n    style C fill:#ffcccc\n    style D fill:#ccffcc\n    style G fill:#ccccff' },
+
+                        { id: 'sp13', type: 'divider', content: '' },
+
+                        { id: 'sp14', type: 'header', level: 2, content: 'Quantum Chemical Calculations' },
+                        { id: 'sp15', type: 'latex', content: '\\text{DFT Calculation Results (B3LYP/6-31G*):}\n\n\\text{Optimized Bond Lengths:}\n\nC-N_{quinoline} = 1.342 \\text{ Å} \\quad (\\text{literature: } 1.340 \\text{ Å})\n\nC-S_{thiophene} = 1.714 \\text{ Å} \\quad (\\text{literature: } 1.716 \\text{ Å})\n\n\\text{Calculated } ^1H \\text{ NMR shifts correlate with experimental data:}\n\n\\text{RMSD} = \\sqrt{\\frac{1}{n}\\sum_{i=1}^{n}(\\delta_{calc,i} - \\delta_{exp,i})^2} = 0.23 \\text{ ppm}' },
+
+                        { id: 'sp16', type: 'header', level: 2, content: 'Conclusion' },
+                        { id: 'sp17', type: 'markdown', content: '**Structural Confirmation:**\n\n✅ **Molecular Formula:** C₁₅H₁₁NO₃S confirmed by HRMS\n✅ **Functional Groups:** Quinoline, thiophene, ester functionalities identified\n✅ **Stereochemistry:** Single isomer confirmed by NMR\n✅ **Purity:** >95% by ¹H NMR integration\n\n**Key Findings:**\n\n- **Unique Chemical Shifts:** Quinoline H-2 (8.92 ppm) indicates electron-deficient system\n- **Coupling Patterns:** Complex aromatic region consistent with substitution pattern\n- **Conformational Analysis:** Restricted rotation observed between aromatic rings\n\n**Next Steps:**\n\n- [ ] Single crystal X-ray crystallography for absolute structure confirmation\n- [ ] Variable temperature NMR to study rotational dynamics\n- [ ] Biological activity screening against target enzyme panel' },
+
+                        { id: 'sp18', type: 'text', content: 'All spectroscopic evidence supports the proposed structure of compound X47B. The synthesis pathway successfully produced the target heterocyclic system with excellent regioselectivity. Compound shows promising preliminary activity in initial screening assays.' }
+                    ]
                 }
             ];
 
@@ -17086,6 +17985,41 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     documentType: 'unstructured',
                     sharedWith: ['MN', 'CM'],
                     richTextContent: '<h1>Career Development Plan: First Year in Tech</h1><h2>Professional Goals</h2><p>As a recent computer science graduate entering the tech industry, my primary goal is to establish a strong foundation in software development while exploring different career paths. I aim to develop both technical expertise and professional skills that will position me for long-term success in technology roles.</p><h2>Short-term Objectives (0-6 months)</h2><p><strong>Technical Skills:</strong> Strengthen core programming abilities in Python and JavaScript, gain experience with modern frameworks (React, Node.js), and develop proficiency in cloud platforms (AWS or Azure). Complete at least 100 coding challenges and contribute to 2 open-source projects.</p><p><strong>Professional Development:</strong> Build effective communication skills through code reviews and technical presentations. Learn to work in agile development environments and understand CI/CD practices. Establish mentorship relationships with 2-3 senior engineers.</p><p><strong>Industry Knowledge:</strong> Stay current with technology trends through daily reading (Hacker News, tech blogs), attend local meetups and conferences, and build a professional network within the tech community.</p><h2>Medium-term Goals (6-12 months)</h2><p>Demonstrate impact through successful project deliveries and begin specializing in a particular domain (web development, data engineering, or mobile development). Seek increased responsibility such as leading small features or mentoring interns. Consider pursuing relevant certifications (AWS, Google Cloud) to validate cloud computing skills.</p><h2>Learning Plan</h2><p><strong>Technical Learning:</strong> Complete online courses in system design, database optimization, and software architecture patterns. Practice designing and implementing REST APIs, work with relational and NoSQL databases, and learn containerization with Docker.</p><p><strong>Soft Skills:</strong> Develop presentation abilities through internal tech talks, improve written communication through documentation and blog posts, and enhance collaboration skills through pair programming and code reviews.</p><h2>Success Metrics</h2><p>Track progress through quarterly performance reviews, peer feedback, and personal project portfolio growth. Measure technical advancement through successful completion of increasingly complex assignments and positive code review feedback. Monitor professional development through expanded network connections, speaking opportunities, and internal recognition.</p><p><strong>Year-end Target:</strong> Transition from junior to mid-level developer with specialized expertise, strong peer relationships, and clear direction for continued career growth in technology.</p>'
+                },
+                {
+                    title: 'Technical Interview Preparation Guide',
+                    lastModified: new Date('2025-11-03').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['MN', 'ST'],
+                    blocks: [
+                        { id: 'tp1', type: 'header', level: 1, content: 'Technical Interview Preparation Strategy' },
+                        { id: 'tp2', type: 'text', content: 'Comprehensive preparation plan for technical interviews at top tech companies. Covers algorithms, system design, behavioral questions, and company-specific preparation. Target timeline: 8 weeks of intensive preparation before interview season.' },
+
+                        { id: 'tp3', type: 'header', level: 2, content: 'Algorithm & Data Structure Roadmap' },
+                        { id: 'tp4', type: 'table', content: 'Topic,Problems to Solve,Key Patterns,Time Allocation\nArrays & Strings,25 problems,Two pointers sliding window,Week 1\nLinked Lists,15 problems,Fast/slow pointers dummy nodes,Week 1\nTrees & Graphs,30 problems,DFS/BFS traversals,Week 2-3\nDynamic Programming,20 problems,Memoization bottom-up,Week 4\nHeaps & Priority Queues,15 problems,Top-K problems scheduling,Week 5\nBacktracking,12 problems,Permutations combinations,Week 5\nSystem Design,8 case studies,Scalability patterns,Week 6-7\nBehavioral Questions,15 scenarios,STAR method,Week 8' },
+
+                        { id: 'tp5', type: 'header', level: 2, content: 'Coding Practice Schedule' },
+                        { id: 'tp6', type: 'mermaid', content: 'gantt\n    title 8-Week Interview Prep Timeline\n    dateFormat  YYYY-MM-DD\n    section Fundamentals\n    Arrays & Linked Lists    :a1, 2025-11-04, 7d\n    Trees & Graph Basics     :a2, after a1, 7d\n    section Advanced Topics\n    Graph Algorithms         :b1, after a2, 7d\n    Dynamic Programming      :b2, after b1, 7d\n    section Specialized\n    Heaps & Backtracking     :c1, after b2, 7d\n    System Design Basics     :c2, after c1, 7d\n    section Integration\n    Mock Interviews          :d1, after c2, 14d' },
+
+                        { id: 'tp7', type: 'header', level: 2, content: 'Sample Algorithm Implementation' },
+                        { id: 'tp8', type: 'text', content: 'Here is a well-commented solution to a common interview problem that demonstrates clean coding practices and optimal time complexity:' },
+
+                        { id: 'tp9', type: 'code', language: 'python', content: 'def longest_substring_without_repeating(s):\n    """\n    Find length of longest substring without repeating characters\n    Time: O(n), Space: O(min(m,n)) where m is charset size\n    \n    Algorithm: Sliding Window with HashMap\n    - Use two pointers (left, right) to maintain window\n    - Track character positions in HashMap\n    - Shrink window when duplicate found\n    """\n    if not s:\n        return 0\n    \n    char_map = {}  # character -> last seen index\n    max_length = 0\n    left = 0\n    \n    for right in range(len(s)):\n        current_char = s[right]\n        \n        # If character seen before and within current window\n        if current_char in char_map and char_map[current_char] >= left:\n            # Move left pointer past duplicate\n            left = char_map[current_char] + 1\n        \n        # Update character position\n        char_map[current_char] = right\n        \n        # Update max length if current window is larger\n        current_length = right - left + 1\n        max_length = max(max_length, current_length)\n    \n    return max_length\n\n# Test cases with expected outputs\ntest_cases = [\n    ("abcabcbb", 3),  # "abc"\n    ("bbbbb", 1),     # "b"\n    ("pwwkew", 3),    # "wke"\n    ("", 0),          # empty string\n    ("dvdf", 3)       # "vdf"\n]\n\nfor input_str, expected in test_cases:\n    result = longest_substring_without_repeating(input_str)\n    print(f"Input: \\"{input_str}\\" -> Output: {result} (Expected: {expected})"' },
+
+                        { id: 'tp10', type: 'header', level: 2, content: 'System Design Study Plan' },
+                        { id: 'tp11', type: 'markdown', content: '**Core Concepts to Master:**\n\n**Scalability Fundamentals:**\n- [ ] Horizontal vs Vertical Scaling\n- [ ] Load Balancers (Layer 4 vs Layer 7)\n- [ ] Database Partitioning & Sharding\n- [ ] Caching Strategies (Redis, Memcached)\n- [ ] Message Queues (Kafka, RabbitMQ)\n\n**Storage & Databases:**\n- [ ] SQL vs NoSQL trade-offs\n- [ ] CAP Theorem implications\n- [ ] Consistency patterns (Eventual, Strong)\n- [ ] Replication strategies (Master-Slave, Master-Master)\n\n**Practice Problems:**\n- [ ] Design URL Shortener (like bit.ly)\n- [ ] Design Chat System (like WhatsApp)\n- [ ] Design Social Media Feed (like Twitter)\n- [ ] Design Video Streaming (like YouTube)\n- [ ] Design Search Engine (like Google)\n- [ ] Design Ride Sharing (like Uber)\n- [ ] Design Key-Value Store (like DynamoDB)\n- [ ] Design Notification System' },
+
+                        { id: 'tp12', type: 'divider', content: '' },
+
+                        { id: 'tp13', type: 'header', level: 2, content: 'Company-Specific Preparation' },
+                        { id: 'tp14', type: 'table', content: 'Company,Interview Focus,Preparation Strategy,Resources\nGoogle,Algorithm depth & optimization,LeetCode Hard problems,Google interview guide\nMeta,System design & architecture,Practice designing social features,Meta engineering blog\nAmazon,Leadership principles & coding,Behavioral examples + algorithms,Amazon LP guide\nMicrosoft,Problem-solving approach,Explain thought process clearly,Microsoft careers site\nApple,Attention to detail & quality,Clean well-tested code,Apple developer resources\nNetflix,Cultural fit & scaling,High-performance systems design,Netflix tech blog\nUber,Real-world problem solving,Location-based system design,Uber engineering blog\nAirbnb,Product thinking & engineering,User-focused system design,Airbnb engineering blog' },
+
+                        { id: 'tp15', type: 'header', level: 2, content: 'Performance Tracking' },
+                        { id: 'tp16', type: 'latex', content: '\\text{Weekly Progress Metrics:}\n\n\\text{Problem Solving Rate} = \\frac{\\text{Problems Solved Correctly}}{\\text{Total Problems Attempted}} \\times 100\\%\n\n\\text{Target: } \\geq 75\\% \\text{ by Week 4, } \\geq 85\\% \\text{ by Week 8}\n\n\\text{Time Efficiency} = \\frac{\\text{Optimal Solution Time}}{\\text{Actual Solution Time}}\n\n\\text{Target: } \\geq 0.8 \\text{ for Medium problems, } \\geq 0.6 \\text{ for Hard problems}' },
+
+                        { id: 'tp17', type: 'header', level: 2, content: 'Mock Interview Schedule' },
+                        { id: 'tp18', type: 'text', content: 'Final two weeks focus on realistic interview simulation with peers and mentors. Schedule 2-3 mock interviews per week covering different formats: phone screens, technical deep-dives, system design discussions, and behavioral interviews. Record sessions for review and improvement.' }
+                    ]
                 }
             ];
 
@@ -17133,6 +18067,42 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     documentType: 'unstructured',
                     sharedWith: ['PM', 'UX', 'EN'],
                     richTextContent: '<h1>A/B Test Results: Checkout Flow Optimization</h1><h2>Executive Summary</h2><p>Our 4-week A/B test comparing the simplified checkout flow (Variant B) against the current 3-step process (Control A) shows significant improvements in conversion rates and user experience metrics. Variant B achieved an 18% increase in checkout completion rate and 12% increase in overall revenue per visitor.</p><h2>Test Design</h2><p><strong>Hypothesis:</strong> Reducing checkout steps from 3 to 2 will increase conversion by minimizing abandonment opportunities.</p><p><strong>Traffic Allocation:</strong> 50% Control A (3-step), 50% Variant B (2-step)<br><strong>Sample Size:</strong> 24,847 users (12,394 Control, 12,453 Variant)<br><strong>Test Duration:</strong> October 1-28, 2025<br><strong>Primary Metric:</strong> Checkout completion rate<br><strong>Secondary Metrics:</strong> Revenue per visitor, time to complete checkout, user satisfaction score</p><h2>Results Analysis</h2><p><strong>Statistical Significance:</strong> All primary and secondary metrics achieved 95% confidence intervals with p-values < 0.05, indicating statistically significant results.</p><h3>Key Metrics Performance</h3><ul><li><strong>Checkout Completion Rate:</strong> Control 64.2% vs Variant 75.8% (+18.1% relative lift)</li><li><strong>Revenue per Visitor:</strong> Control $18.42 vs Variant $20.63 (+12.0% relative lift)</li><li><strong>Average Time to Complete:</strong> Control 4:23 vs Variant 2:47 (-36.8% reduction)</li><li><strong>User Satisfaction Score:</strong> Control 3.4/5 vs Variant 4.1/5 (+20.6% improvement)</li></ul><h2>Segment Analysis</h2><p>Improvement was consistent across user segments, with particularly strong performance in mobile users (+24% completion rate lift) and new customers (+21% lift). Returning customers showed smaller but still significant improvement (+14% lift).</p><p>Geographic analysis revealed stronger lift in international markets (avg +22%) compared to domestic (+16%), likely due to reduced form complexity benefiting non-native English speakers.</p><h2>Implementation Recommendation</h2><p><strong>Recommendation:</strong> Implement Variant B (2-step checkout) for 100% of traffic based on strong statistical evidence and positive user feedback.</p><p><strong>Expected Annual Impact:</strong> $2.1M additional revenue based on current traffic projections, with improved customer satisfaction leading to higher retention rates.</p><p><strong>Implementation Timeline:</strong> 2 weeks for full rollout, including monitoring dashboards and rollback capability. Monitor closely for first 30 days post-launch to ensure sustained performance gains.</p>'
+                },
+                {
+                    title: 'Sales Forecasting Model - Q1 2026 Predictions',
+                    lastModified: new Date('2025-11-04').toISOString(),
+                    documentType: 'structured',
+                    sharedWith: ['FP', 'VP', 'DS'],
+                    blocks: [
+                        { id: 'sf1', type: 'header', level: 1, content: 'Q1 2026 Sales Forecasting Model' },
+                        { id: 'sf2', type: 'text', content: 'Advanced time series forecasting model combining ARIMA, Prophet, and ensemble methods to predict Q1 2026 sales performance. Model incorporates seasonal patterns, external economic indicators, and promotional calendar effects. Forecast confidence intervals: 80% and 95%.' },
+
+                        { id: 'sf3', type: 'header', level: 2, content: 'Model Architecture & Data Sources' },
+                        { id: 'sf4', type: 'mermaid', content: 'graph TB\n    A[Historical Sales Data<br>36 months] --> D[Feature Engineering]\n    B[Economic Indicators<br>GDP, CPI, Unemployment] --> D\n    C[Marketing Calendar<br>Campaigns, Promotions] --> D\n    D --> E[ARIMA Model<br>Trend + Seasonality]\n    D --> F[Prophet Model<br>Holiday Effects]\n    D --> G[Random Forest<br>External Factors]\n    E --> H[Ensemble Combining<br>Weighted Average]\n    F --> H\n    G --> H\n    H --> I[Final Predictions<br>with Confidence Intervals]\n    style H fill:#e3f2fd\n    style I fill:#e8f5e8' },
+
+                        { id: 'sf5', type: 'header', level: 2, content: 'Feature Engineering Pipeline' },
+                        { id: 'sf6', type: 'code', language: 'python', content: 'import pandas as pd\nimport numpy as np\nfrom sklearn.ensemble import RandomForestRegressor\nfrom statsmodels.tsa.arima.model import ARIMA\nfrom prophet import Prophet\nfrom sklearn.metrics import mean_absolute_percentage_error\n\n# Feature engineering pipeline\ndef create_features(df):\n    """\n    Generate time series features for sales forecasting\n    """\n    df = df.copy()\n    \n    # Temporal features\n    df[\'month\'] = df[\'date\'].dt.month\n    df[\'quarter\'] = df[\'date\'].dt.quarter\n    df[\'day_of_year\'] = df[\'date\'].dt.dayofyear\n    df[\'week_of_year\'] = df[\'date\'].dt.isocalendar().week\n    \n    # Lag features (previous periods)\n    for lag in [1, 3, 6, 12]:  # 1, 3, 6, 12 months ago\n        df[f\'sales_lag_{lag}\'] = df[\'sales\'].shift(lag)\n    \n    # Rolling statistics\n    for window in [3, 6, 12]:\n        df[f\'sales_rolling_mean_{window}\'] = df[\'sales\'].rolling(window).mean()\n        df[f\'sales_rolling_std_{window}\'] = df[\'sales\'].rolling(window).std()\n    \n    # Economic indicators (external data)\n    df[\'gdp_growth_rate\'] = df[\'gdp\'].pct_change(periods=12) * 100\n    df[\'unemployment_change\'] = df[\'unemployment\'].diff()\n    df[\'consumer_confidence_ma\'] = df[\'consumer_confidence\'].rolling(3).mean()\n    \n    # Promotional effects\n    df[\'promo_intensity\'] = df[\'promo_spend\'] / df[\'promo_spend\'].rolling(12).mean()\n    df[\'days_since_last_promo\'] = (df[\'date\'] - df[\'last_promo_date\']).dt.days\n    \n    return df\n\n# Model ensemble weights (optimized via cross-validation)\nmodel_weights = {\n    \'arima\': 0.35,      # Strong for trend/seasonality\n    \'prophet\': 0.40,    # Excellent for holidays/events  \n    \'rf\': 0.25         # Good for external factors\n}\n\nprint("Feature engineering pipeline ready for Q1 2026 forecast generation")' },
+
+                        { id: 'sf7', type: 'header', level: 2, content: 'Historical Model Performance' },
+                        { id: 'sf8', type: 'table', content: 'Model,MAPE (%),RMSE ($K),MAE ($K),Training Period\nARIMA(2,1,1),8.4%,245K,185K,2022-2024\nProphet with holidays,7.2%,218K,162K,2022-2024\nRandom Forest,9.1%,267K,201K,2022-2024\nEnsemble Model,6.8%,198K,148K,2022-2024\nNaive (last year),15.3%,425K,342K,Baseline comparison\nLinear Trend,12.1%,356K,278K,Simple baseline' },
+
+                        { id: 'sf9', type: 'header', level: 2, content: 'Q1 2026 Forecast Results' },
+                        { id: 'sf10', type: 'table', content: 'Month,Point Forecast ($K),80% CI Lower ($K),80% CI Upper ($K),95% CI Lower ($K),95% CI Upper ($K),Key Drivers\nJan 2026,2847,2654,3040,2543,3151,New Year promotions post-holiday recovery\nFeb 2026,2653,2471,2835,2368,2938,Valentine\'s Day campaigns seasonal dip\nMar 2026,2912,2714,3110,2605,3219,Spring launch strong economic indicators\nQ1 Total,8412,7839,8985,7716,9308,Ensemble prediction with confidence bands' },
+
+                        { id: 'sf11', type: 'header', level: 2, content: 'Statistical Analysis' },
+                        { id: 'sf12', type: 'latex', content: '\\text{Forecast Accuracy Metrics:}\n\n\\text{MAPE} = \\frac{1}{n} \\sum_{t=1}^{n} \\left| \\frac{A_t - F_t}{A_t} \\right| \\times 100\\% = 6.8\\%\n\n\\text{Prediction Intervals:}\n\n80\\% \\text{ CI: } \\hat{y} \\pm 1.28 \\times \\sigma_{forecast}\n\n95\\% \\text{ CI: } \\hat{y} \\pm 1.96 \\times \\sigma_{forecast}\n\n\\text{Where } \\sigma_{forecast} = \\sqrt{\\sigma_{model}^2 + \\sigma_{residual}^2}\n\n\\text{Ensemble Variance:}\n\n\\text{Var}(\\hat{y}_{ensemble}) = \\sum_{i=1}^{3} w_i^2 \\text{Var}(\\hat{y}_i) + 2\\sum_{i<j} w_i w_j \\text{Cov}(\\hat{y}_i, \\hat{y}_j)' },
+
+                        { id: 'sf13', type: 'divider', content: '', dividerType: 'page' },
+
+                        { id: 'sf14', type: 'header', level: 2, content: 'Risk Factors & Scenario Analysis' },
+                        { id: 'sf15', type: 'markdown', content: '**Economic Risk Factors:**\n\n🔴 **High Risk:**\n- [ ] Recession indicators (yield curve inversion)\n- [ ] Inflation above 4% (current: 3.2%)\n- [ ] Consumer confidence below 90 (current: 98.4)\n\n🟡 **Medium Risk:**\n- [ ] Supply chain disruptions (geopolitical)\n- [ ] Competitive product launches\n- [ ] Seasonal demand shifts due to weather\n\n🟢 **Low Risk:**\n- [ ] Interest rate changes (gradual adjustments expected)\n- [ ] Currency fluctuations (hedging in place)\n- [ ] Technology platform issues (robust infrastructure)\n\n**Scenario Planning:**\n\n- **Bull Case (+15%):** Strong consumer spending, successful product launches\n- **Base Case (0%):** Current economic trajectory continues\n- **Bear Case (-12%):** Economic slowdown, reduced consumer spending' },
+
+                        { id: 'sf16', type: 'header', level: 2, content: 'Model Monitoring & Updates' },
+                        { id: 'sf17', type: 'table', content: 'Monitoring Metric,Current Value,Alert Threshold,Action Required\nWeekly MAPE,7.2%,>10%,Retrain ensemble weights\nResidual Autocorrelation,0.08,>0.20,Add lag features or seasonal terms\nFeature Importance Drift,3.4%,>15%,Update feature engineering pipeline\nPrediction Bias,-1.8%,±5%,Adjust model calibration\nData Quality Score,94.2%,<90%,Investigate data pipeline issues\nModel Staleness,12 days,>30 days,Schedule model refresh' },
+
+                        { id: 'sf18', type: 'header', level: 2, content: 'Business Recommendations' },
+                        { id: 'sf19', type: 'text', content: 'Q1 2026 forecast of $8.41M represents 7.3% YoY growth, slightly below company target of 10%. Recommend increasing marketing spend in March (+$150K) to capitalize on spring demand surge. Monitor January performance closely as economic headwinds may impact consumer discretionary spending. Model suggests 73% probability of meeting quarterly revenue target of $8.2M.' }
+                    ]
                 }
             ];
 
@@ -17766,6 +18736,31 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <textarea onchange="updateBlockContent(${index}, this.value)" placeholder="Enter code..." style="width: 100%; min-height: 220px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 13px; background: #f8f8f8; resize: vertical; line-height: 1.6;">${block.content || ''}</textarea>
                     `;
                     break;
+
+                case 'divider':
+                    const dividerType = block.dividerType || 'visual';
+                    const isPageDivider = dividerType === 'page';
+                    contentHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <i class="ph ph-minus" style="color: var(--color-neutral-text);"></i>
+                            <select onchange="updateBlockDividerType(${index}, this.value)" style="padding: 4px 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-size: 12px;">
+                                <option value="visual" ${dividerType === 'visual' ? 'selected' : ''}>Visual Divider</option>
+                                <option value="page" ${dividerType === 'page' ? 'selected' : ''}>Page Divider</option>
+                            </select>
+                            <span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">
+                                ${isPageDivider ? 'Creates a page break in exports' : 'Visual separator only'}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${isPageDivider ?
+                                `<div style="flex: 1; height: 3px; background: repeating-linear-gradient(45deg, var(--color-primary-blue), var(--color-primary-blue) 8px, transparent 8px, transparent 16px); border-radius: 1px;"></div>
+                                 <div style="background: var(--color-primary-blue); color: white; padding: 4px 8px; border-radius: 12px; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; text-transform: uppercase;">PAGE BREAK</div>
+                                 <div style="flex: 1; height: 3px; background: repeating-linear-gradient(45deg, var(--color-primary-blue), var(--color-primary-blue) 8px, transparent 8px, transparent 16px); border-radius: 1px;"></div>` :
+                                `<div style="flex: 1; height: 2px; background: var(--color-neutral-border); border-radius: 1px;"></div>`
+                            }
+                        </div>
+                    `;
+                    break;
             }
 
             blockEl.innerHTML = `
@@ -17799,6 +18794,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function updateBlockLanguage(index, language) {
             currentDocumentBlocks[index].language = language;
+        }
+
+        function updateBlockDividerType(index, dividerType) {
+            currentDocumentBlocks[index].dividerType = dividerType;
+            renderDocumentBlocks();
         }
 
         function moveBlockUp(index) {
@@ -18534,6 +19534,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         content += `*No headers found in document*\n`;
                     }
                     content += `\n`;
+                } else if (blockType === 'divider') {
+                    const dividerType = block.getAttribute('data-divider-type') || 'visual';
+                    if (dividerType === 'page') {
+                        // Add page break marker for different formats
+                        if (format === 'docx' || format === 'pdf') {
+                            content += `<div style="page-break-before: always;"></div>\n\n`;
+                        } else if (format === 'markdown') {
+                            content += `\n<!-- PAGE BREAK -->\n\\newpage\n\n`;
+                        } else {
+                            content += `\n---\n\n`; // Fallback for other formats
+                        }
+                    } else {
+                        // Visual divider only
+                        content += `\n---\n\n`;
+                    }
                 }
             });
 
@@ -19094,7 +20109,22 @@ function greet(name) {
                     `;
                     break;
                 case 'divider':
-                    blockContent = '<hr style="border: none; border-top: 2px solid var(--color-neutral-border); margin: 8px 0;">';
+                    blockContent = `
+                        <div style="margin-top: 16px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <select onchange="updateDividerType('${blockId}', this.value)" class="divider-type-select" style="padding: 6px 10px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-size: 12px; font-family: var(--font-family-body); background: white; cursor: pointer;">
+                                    <option value="visual">Visual Divider</option>
+                                    <option value="page">Page Divider</option>
+                                </select>
+                                <span style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); flex: 1;">
+                                    <span class="divider-description">Visual separator only</span>
+                                </span>
+                            </div>
+                            <div class="divider-visual" style="display: flex; align-items: center; gap: 8px;">
+                                <div style="flex: 1; height: 2px; background: var(--color-neutral-border); border-radius: 1px;"></div>
+                            </div>
+                        </div>
+                    `;
                     break;
                 case 'mermaid':
                     blockContent = `
@@ -19279,6 +20309,37 @@ F &= ma \\\\
 
                 // Refresh WBS numbers if enabled
                 refreshWBS();
+            }
+        }
+
+        function updateDividerType(blockId, dividerType) {
+            const block = document.getElementById(blockId);
+            const visualDiv = block.querySelector('.divider-visual');
+            const descriptionSpan = block.querySelector('.divider-description');
+
+            // Store divider type as data attribute
+            block.setAttribute('data-divider-type', dividerType);
+
+            if (dividerType === 'page') {
+                visualDiv.innerHTML = `
+                    <div style="flex: 1; height: 3px; background: repeating-linear-gradient(45deg, var(--color-primary-blue), var(--color-primary-blue) 8px, transparent 8px, transparent 16px); border-radius: 1px;"></div>
+                    <div style="background: var(--color-primary-blue); color: white; padding: 4px 8px; border-radius: 12px; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; text-transform: uppercase;">PAGE BREAK</div>
+                    <div style="flex: 1; height: 3px; background: repeating-linear-gradient(45deg, var(--color-primary-blue), var(--color-primary-blue) 8px, transparent 8px, transparent 16px); border-radius: 1px;"></div>
+                `;
+                descriptionSpan.textContent = 'Creates a page break in exports';
+
+                // Update the select dropdown
+                const select = block.querySelector('.divider-type-select');
+                if (select) select.value = 'page';
+            } else {
+                visualDiv.innerHTML = `
+                    <div style="flex: 1; height: 2px; background: var(--color-neutral-border); border-radius: 1px;"></div>
+                `;
+                descriptionSpan.textContent = 'Visual separator only';
+
+                // Update the select dropdown
+                const select = block.querySelector('.divider-type-select');
+                if (select) select.value = 'visual';
             }
         }
 
