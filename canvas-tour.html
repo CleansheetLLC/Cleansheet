@@ -46,6 +46,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
 
+    <!-- Driver.js for UI Tour -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.iife.js"></script>
+
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -921,7 +925,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.7);
-            z-index: 300;
+            z-index: 1100;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1074,7 +1078,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 400;
+            z-index: 1100;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1150,7 +1154,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 410;
+            z-index: 1100;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1323,7 +1327,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 415;
+            z-index: 1100;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1688,6 +1692,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             color: #7b1fa2;
         }
 
+        .job-status.not-interested {
+            background: #f5f5f5;
+            color: #666666;
+        }
+
         .job-details {
             font-size: 11px;
             color: var(--color-neutral-text);
@@ -1696,6 +1705,717 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+
+        /* Job View Toggle Buttons */
+        .job-view-toggle {
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .view-toggle-btn {
+            padding: 6px 12px;
+            background: white;
+            border: none;
+            border-right: 1px solid var(--color-neutral-border);
+            color: var(--color-neutral-text);
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .view-toggle-btn:last-child {
+            border-right: none;
+        }
+
+        .view-toggle-btn:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        /* Jobs Table */
+        .jobs-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .jobs-table thead {
+            background: var(--color-dark);
+            color: white;
+        }
+
+        .jobs-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .jobs-table th:last-child {
+            border-right: none;
+        }
+
+        .jobs-table tbody tr {
+            border-bottom: 1px solid var(--color-neutral-border);
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .jobs-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .jobs-table tbody tr:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .jobs-table td {
+            padding: 12px 16px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        .job-table-position {
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 2px;
+        }
+
+        .job-table-location {
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+        }
+
+        .job-table-company {
+            font-weight: 500;
+            color: var(--color-dark);
+        }
+
+        .job-table-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .job-table-next-action {
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .job-table-next-action-task {
+            font-weight: 500;
+            color: var(--color-dark);
+            margin-bottom: 2px;
+        }
+
+        .job-table-next-action-date {
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .job-table-next-action-date.overdue {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .job-table-next-action-date.due-soon {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .job-table-alerts {
+            text-align: center;
+        }
+
+        .job-alert-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .job-alert-indicator.overdue {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #dc2626;
+        }
+
+        .job-alert-indicator.due-soon {
+            background: #fffbeb;
+            color: #f59e0b;
+            border: 2px solid #f59e0b;
+        }
+
+        .job-alert-indicator.normal {
+            background: #f0f9ff;
+            color: #0369a1;
+            border: 2px solid #e0e7ff;
+        }
+
+        .job-alert-indicator.none {
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text-muted);
+            border: 2px solid var(--color-neutral-border);
+        }
+
+        /* Job Table Action Buttons */
+        .job-table-action-btn:hover {
+            background: var(--color-neutral-background) !important;
+            color: var(--color-dark) !important;
+        }
+
+        .job-table-action-btn.delete:hover {
+            background: #fef2f2 !important;
+            color: #dc2626 !important;
+        }
+
+        /* Job Detail Modal */
+        .job-detail-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .job-detail-modal.active {
+            display: flex;
+        }
+
+        .job-detail-content {
+            width: 100%;
+            max-width: 700px;
+            max-height: calc(100% - 40px);
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .job-detail-header {
+            padding: 24px;
+            background: var(--color-dark);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .job-detail-header h3 {
+            font-family: var(--font-family-ui);
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .job-detail-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .job-detail-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .job-detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--color-neutral-background);
+        }
+
+        .job-detail-section {
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .job-detail-section h4 {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .job-detail-section h4 i {
+            font-size: 18px;
+            color: var(--color-primary-blue);
+        }
+
+        .job-status-editor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .job-status-select {
+            padding: 8px 12px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .skills-competencies-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .skill-comp-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .skill-comp-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--color-neutral-background);
+            border-radius: 6px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .skill-comp-item:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+        }
+
+        .fit-analysis-section {
+            background: var(--color-neutral-background);
+        }
+
+        .fit-score {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid var(--color-primary-blue);
+        }
+
+        .fit-score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: var(--font-family-ui);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .fit-score-details h5 {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 4px 0;
+        }
+
+        .fit-score-details p {
+            font-size: 12px;
+            color: var(--color-neutral-text-light);
+            margin: 0;
+        }
+
+        .fit-dimensions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .fit-dimension {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .dimension-info {
+            flex: 1;
+        }
+
+        .dimension-name {
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 2px 0;
+        }
+
+        .dimension-details {
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+        }
+
+        .dimension-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-bar {
+            width: 80px;
+            height: 6px;
+            background: var(--color-neutral-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .score-text {
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 35px;
+            text-align: right;
+        }
+
+        /* Application Material Items */
+        .app-material-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--color-neutral-background);
+            border-radius: 6px;
+            border: 1px solid var(--color-neutral-border);
+            transition: all 0.2s;
+        }
+
+        .app-material-item:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+        }
+
+        .app-material-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .app-material-icon.resume {
+            background: #0066CC;
+        }
+
+        .app-material-icon.cover-letter {
+            background: #004C99;
+        }
+
+        .app-material-icon.email {
+            background: #1a1a1a;
+        }
+
+        .app-material-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-material-title {
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 4px 0;
+            line-height: 1.3;
+        }
+
+        .app-material-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .app-material-tag {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .app-material-tag.format {
+            background: #f5f5f7;
+            color: #666;
+        }
+
+        .app-material-tag.ats {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .app-material-tag.date {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .app-material-preview {
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .app-material-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .app-material-item:hover .app-material-actions {
+            opacity: 1;
+        }
+
+        .app-material-action-btn {
+            padding: 4px 8px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .app-material-action-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+        }
+
+        .app-material-action-btn.delete:hover {
+            border-color: #d32f2f;
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* Job Todo Checklist Items */
+        .job-todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--color-neutral-border);
+            transition: all 0.2s;
+        }
+
+        .job-todo-item:hover {
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+        }
+
+        .job-todo-item.completed {
+            background: #f8f9fa;
+            opacity: 0.8;
+        }
+
+        .job-todo-item.completed .job-todo-text {
+            text-decoration: line-through;
+            color: var(--color-neutral-text-muted);
+        }
+
+        .job-todo-item.overdue {
+            border-left: 4px solid #dc2626;
+            background: #fef2f2;
+        }
+
+        .job-todo-item.due-soon {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+
+        .job-todo-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary-blue);
+        }
+
+        .job-todo-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .job-todo-text {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-dark);
+            line-height: 1.3;
+        }
+
+        .job-todo-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+        }
+
+        .job-todo-due-date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .job-todo-due-date.overdue {
+            color: #dc2626;
+        }
+
+        .job-todo-due-date.due-soon {
+            color: #f59e0b;
+        }
+
+        .job-todo-due-date.normal {
+            color: var(--color-neutral-text);
+        }
+
+        .job-todo-priority {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .job-todo-priority.high {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .job-todo-priority.medium {
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .job-todo-priority.low {
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+
+        .job-todo-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .job-todo-item:hover .job-todo-actions {
+            opacity: 1;
+        }
+
+        .job-todo-action-btn {
+            padding: 4px;
+            background: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--color-neutral-text-light);
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .job-todo-action-btn:hover {
+            background: var(--color-neutral-background);
+            color: var(--color-dark);
+        }
+
+        .job-todo-action-btn.delete:hover {
+            background: #fef2f2;
+            color: #dc2626;
         }
 
         /* Experience Card Styles */
@@ -2337,6 +3057,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 102, 204, 0.1);
         }
+
     </style>
 </head>
 <body>
@@ -2586,7 +3307,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-caret-down" style="font-size: 12px;"></i>
                                     </button>
                                     <!-- Export Dropdown Menu -->
-                                    <div id="exportMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); min-width: 180px; z-index: 1000;">
+                                    <div id="exportMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); min-width: 180px; z-index: 1100;">
                                         <button onclick="exportDocument('markdown')" style="width: 100%; padding: 12px 16px; border: none; background: none; text-align: left; font-family: var(--font-family-ui); font-size: 13px; font-weight: 500; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;">
                                             <i class="ph ph-file-md" style="font-size: 18px; color: var(--color-primary-blue);"></i>
                                             Markdown (.md)
@@ -2880,7 +3601,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         Publish
                                         <i class="ph ph-caret-down"></i>
                                     </button>
-                                    <div id="publishMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000;">
+                                    <div id="publishMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 220px; z-index: 1100;">
                                         <button onclick="publishFormAs('open')" style="width: 100%; padding: 12px 16px; background: none; border: none; text-align: left; font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='none'">
                                             <i class="ph ph-globe" style="font-size: 16px; color: var(--color-primary-blue);"></i>
                                             <span>Publish as Open Form</span>
@@ -3960,11 +4681,43 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             <!-- Job Opportunities Slideout Content -->
             <div class="slideout-body" id="jobOpportunitiesContent" style="display: none;">
-                <button class="add-story-btn" onclick="addJobOpportunity()">
-                    <i class="ph ph-plus-circle"></i> Add Job
-                </button>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+                    <button class="add-story-btn" onclick="addJobOpportunity()" style="flex: 0 0 auto;">
+                        <i class="ph ph-plus-circle"></i> Add Job
+                    </button>
+                    <div class="job-view-toggle" style="margin-left: auto;">
+                        <button id="jobCardViewBtn" class="view-toggle-btn active" onclick="switchJobView('cards')">
+                            <i class="ph ph-squares-four"></i> Cards
+                        </button>
+                        <button id="jobTableViewBtn" class="view-toggle-btn" onclick="switchJobView('table')">
+                            <i class="ph ph-table"></i> Table
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cards View -->
                 <div id="jobsContainer" class="stories-container">
                     <!-- Job opportunity cards will be dynamically inserted here -->
+                </div>
+
+                <!-- Table View -->
+                <div id="jobsTableContainer" style="display: none; overflow-x: auto;">
+                    <table class="jobs-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Position</th>
+                                <th style="width: 18%;">Company</th>
+                                <th style="width: 12%;">Status</th>
+                                <th style="width: 12%;">Close Date</th>
+                                <th style="width: 19%;">Next Action</th>
+                                <th style="width: 9%;">Alerts</th>
+                                <th style="width: 8%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTableBody">
+                            <!-- Job rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -4139,7 +4892,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </button>
 
                         <!-- Hover Tooltip for Connect Institution -->
-                        <div id="connectInstitutionTooltip" onmouseenter="keepConnectInstitutionTooltip()" onmouseleave="hideConnectInstitutionTooltip()" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 16px; width: 320px; z-index: 1000;">
+                        <div id="connectInstitutionTooltip" onmouseenter="keepConnectInstitutionTooltip()" onmouseleave="hideConnectInstitutionTooltip()" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 16px; width: 320px; z-index: 1100;">
                             <h4 style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); margin: 0 0 12px 0;">
                                 Connect Financial Institution
                             </h4>
@@ -4282,7 +5035,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </button>
 
                             <!-- Hover Tooltip for Manual Account -->
-                            <div id="manualAccountTooltip" onmouseenter="keepManualAccountTooltip()" onmouseleave="hideManualAccountTooltip()" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 16px; width: 400px; z-index: 1000; max-height: 500px; overflow-y: auto;">
+                            <div id="manualAccountTooltip" onmouseenter="keepManualAccountTooltip()" onmouseleave="hideManualAccountTooltip()" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 16px; width: 400px; z-index: 1100; max-height: 500px; overflow-y: auto;">
                                 <h4 style="font-family: var(--font-family-heading); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); margin: 0 0 12px 0;">
                                     Create Manual Account
                                 </h4>
@@ -4752,7 +5505,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <option value="interviewing">Interviewing</option>
                             <option value="offer">Offer</option>
                             <option value="rejected">Rejected</option>
+                            <option value="not-interested">Not Interested</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Close Date (Optional)</label>
+                        <input type="date" id="jobCloseDate" placeholder="When is this opportunity closing?">
+                        <small style="color: var(--color-neutral-text-light); font-size: 11px;">Application deadline or when opportunity ends</small>
                     </div>
                     <div class="form-group">
                         <label>Notes</label>
@@ -4767,6 +5526,112 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
     </div> <!-- End job-form-modal -->
+
+    <!-- Job Detail Modal -->
+    <div class="job-detail-modal" id="jobDetailModal">
+        <div class="job-detail-content">
+            <div class="job-detail-header">
+                <h3 id="jobDetailTitle">Job Details</h3>
+                <button class="job-detail-close" onclick="closeJobDetail()">&times;</button>
+            </div>
+            <div class="job-detail-body">
+                <!-- Job Info Section -->
+                <div class="job-detail-section">
+                    <h4><i class="ph ph-briefcase"></i> Job Information</h4>
+                    <div class="job-status-editor" style="display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 12px; align-items: center;">
+                        <label for="jobDetailStatus" style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Status:</label>
+                        <select id="jobDetailStatus" class="job-status-select" onchange="updateJobStatus()">
+                            <option value="interested">Interested</option>
+                            <option value="applied">Applied</option>
+                            <option value="interviewing">Interviewing</option>
+                            <option value="offer">Offer</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="not-interested">Not Interested</option>
+                        </select>
+                        <label for="jobDetailCloseDate" style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Close Date:</label>
+                        <input type="date" id="jobDetailCloseDate" class="job-status-select" onchange="updateJobCloseDate()" style="border: 1px solid var(--color-neutral-border); border-radius: 6px; padding: 6px 8px; font-size: 12px;">
+                    </div>
+                    <div id="jobDetailInfo" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+                        <!-- Job details will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Job Todo Checklist Section -->
+                <div class="job-detail-section">
+                    <h4><i class="ph ph-check-square"></i> Application Checklist</h4>
+                    <div id="jobTodoList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                        <!-- Todo items will be populated here -->
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="addJobTodo()" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            <i class="ph ph-plus"></i> Add Task
+                        </button>
+                        <button onclick="setJobDeadlines()" style="padding: 6px 12px; background: #16a34a; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            <i class="ph ph-calendar"></i> Set Deadlines
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Application Materials Section -->
+                <div class="job-detail-section">
+                    <h4><i class="ph ph-file-text"></i> Application Materials</h4>
+                    <div id="jobApplicationMaterials" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                        <!-- Application materials will be populated here -->
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="generateJobMaterial()" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            <i class="ph ph-sparkle"></i> Generate
+                        </button>
+                        <button onclick="uploadJobMaterial()" style="padding: 6px 12px; background: #16a34a; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            <i class="ph ph-file-arrow-up"></i> Upload
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Skills & Competencies Section -->
+                <div class="job-detail-section">
+                    <h4><i class="ph ph-gear"></i> Required Skills & Competencies</h4>
+                    <div class="skills-competencies-grid">
+                        <div>
+                            <h5 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0;">Required Skills</h5>
+                            <div id="jobDetailSkills" class="skill-comp-list">
+                                <!-- Skills will be populated here -->
+                            </div>
+                        </div>
+                        <div>
+                            <h5 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0;">Key Competencies</h5>
+                            <div id="jobDetailCompetencies" class="skill-comp-list">
+                                <!-- Competencies will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 16px;">
+                        <button onclick="addJobSkill()" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            <i class="ph ph-plus"></i> Add Skill
+                        </button>
+                        <button onclick="addJobCompetency()" style="padding: 6px 12px; background: var(--color-accent-blue); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            <i class="ph ph-plus"></i> Add Competency
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fit Analysis Section -->
+                <div class="job-detail-section fit-analysis-section">
+                    <h4><i class="ph ph-target"></i> Fit Analysis</h4>
+                    <div class="fit-score" id="overallFitScore">
+                        <div class="fit-score-circle" id="fitScoreCircle">85%</div>
+                        <div class="fit-score-details">
+                            <h5>Overall Fit Score</h5>
+                            <p>Strong match based on your skills and experience</p>
+                        </div>
+                    </div>
+                    <div class="fit-dimensions" id="fitDimensions">
+                        <!-- Fit analysis dimensions will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End job-detail-modal -->
 
     <!-- Project Repository Form Modal -->
     <div class="story-form-modal" id="projectFormModal">
@@ -5866,6 +6731,150 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         let currentPersona = 'retail-manager';
         let currentViewMode = 'seeker'; // 'seeker' or 'learner'
 
+        // AudioTourManager - Web Audio API integration for Driver.js tour narrations
+        class AudioTourManager {
+            constructor() {
+                this.audioContext = null;
+                this.audioBuffers = new Map();
+                this.currentSource = null;
+                this.isPlaying = false;
+                this.volume = 0.8;
+                this.gainNode = null;
+
+                // Audio file mappings
+                this.audioMappings = {
+                    'welcome': 'assets/audio/tour-narrations/canvas-overview/welcome-canvas-intro-30s.mp3',
+                    'view-modes': 'assets/audio/tour-narrations/canvas-overview/view-mode-selector-25s.mp3',
+                    'mindmap-navigation': 'assets/audio/tour-narrations/ui-controls/mindmap-navigation-40s.mp3',
+                    'calendar-widget': 'assets/audio/tour-narrations/ui-controls/calendar-widget-30s.mp3',
+                    'ai-assistant': 'assets/audio/tour-narrations/ui-controls/ai-assistant-35s.mp3',
+                    'job-search-view': 'assets/audio/tour-narrations/job-search/job-search-view-50s.mp3',
+                    'projects-view': 'assets/audio/tour-narrations/professional-tools/projects-view-45s.mp3',
+                    'panel-controls': 'assets/audio/tour-narrations/ui-controls/panel-controls-20s.mp3'
+                };
+
+                this.initAudioContext();
+            }
+
+            async initAudioContext() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.gainNode = this.audioContext.createGain();
+                    this.gainNode.connect(this.audioContext.destination);
+                    this.gainNode.gain.value = this.volume;
+
+                    // Handle browser autoplay policies
+                    if (this.audioContext.state === 'suspended') {
+                        console.log('AudioContext suspended - will resume on user interaction');
+                    }
+                } catch (error) {
+                    console.warn('Web Audio API not supported:', error);
+                }
+            }
+
+            async loadAudio(stepId, audioUrl) {
+                if (!this.audioContext || this.audioBuffers.has(stepId)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(audioUrl);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load audio: ${response.status}`);
+                    }
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                    this.audioBuffers.set(stepId, audioBuffer);
+
+                    console.log(`Loaded audio for step: ${stepId}`);
+                } catch (error) {
+                    console.warn(`Failed to load audio for step ${stepId}:`, error);
+                }
+            }
+
+            async preloadAllAudio() {
+                const loadPromises = Object.entries(this.audioMappings).map(([stepId, audioUrl]) =>
+                    this.loadAudio(stepId, audioUrl)
+                );
+
+                await Promise.allSettled(loadPromises);
+                console.log(`Preloaded ${this.audioBuffers.size} audio files`);
+            }
+
+            async playNarration(stepId) {
+                if (!this.audioContext) {
+                    console.warn('AudioContext not available');
+                    return false;
+                }
+
+                // Resume context if suspended (browser autoplay policy)
+                if (this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+
+                // Stop current audio if playing
+                this.stopAudio();
+
+                const buffer = this.audioBuffers.get(stepId);
+                if (!buffer) {
+                    console.warn(`No audio buffer found for step: ${stepId}`);
+                    return false;
+                }
+
+                try {
+                    this.currentSource = this.audioContext.createBufferSource();
+                    this.currentSource.buffer = buffer;
+                    this.currentSource.connect(this.gainNode);
+
+                    this.currentSource.onended = () => {
+                        this.isPlaying = false;
+                        this.currentSource = null;
+                    };
+
+                    this.currentSource.start();
+                    this.isPlaying = true;
+
+                    console.log(`Playing narration for step: ${stepId}`);
+                    return true;
+                } catch (error) {
+                    console.warn(`Failed to play audio for step ${stepId}:`, error);
+                    return false;
+                }
+            }
+
+            stopAudio() {
+                if (this.currentSource && this.isPlaying) {
+                    try {
+                        this.currentSource.stop();
+                    } catch (error) {
+                        // Ignore errors when stopping already stopped sources
+                    }
+                    this.currentSource = null;
+                    this.isPlaying = false;
+                }
+            }
+
+            setVolume(volume) {
+                this.volume = Math.max(0, Math.min(1, volume));
+                if (this.gainNode) {
+                    this.gainNode.gain.value = this.volume;
+                }
+            }
+
+            getVolume() {
+                return this.volume;
+            }
+
+            isAudioPlaying() {
+                return this.isPlaying;
+            }
+        }
+
+        // Initialize audio manager
+        const audioTourManager = new AudioTourManager();
+
+
         // Centralized function to hide all content sections (prevents bleeding between slideouts)
         function hideAllContentSections() {
             const contentSections = [
@@ -6195,6 +7204,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function switchViewMode(mode) {
             currentViewMode = mode;
 
+            // Hide tooltip when switching modes
+            guidanceTooltip.hide();
+
             // Update toggle buttons
             document.querySelectorAll('.view-mode-btn').forEach(btn => {
                 const btnMode = btn.getAttribute('data-view');
@@ -6245,6 +7257,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Clear and redraw visualization
             d3.select('#canvas-mindmap').selectAll('*').remove();
+
+            // Hide any active tooltips when mindmap is cleared
+            guidanceTooltip.hide();
 
             if (mode === 'seeker' || mode === 'professional') {
                 // Seeker and Professional use mindmap layout
@@ -6441,6 +7456,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.body.style.overflow = 'auto';
             // Clear the mindmap
             d3.select('#canvas-mindmap').selectAll('*').remove();
+
+            // Hide any active tooltips when mindmap is cleared
+            guidanceTooltip.hide();
         }
 
         // Projects View Functions
@@ -6767,6 +7785,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function updateNodeCounts() {
             // Redraw the visualization to update counts
             d3.select('#canvas-mindmap').selectAll('*').remove();
+
+            // Hide any active tooltips when mindmap is cleared
+            guidanceTooltip.hide();
             if (currentViewMode === 'learner') {
                 initializeLearnerNetwork(currentPersona);
             } else {
@@ -6776,6 +7797,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function switchPersona(persona) {
             currentPersona = persona;
+
+            // Hide tooltip when switching personas
+            guidanceTooltip.hide();
 
             // Update active button styling
             document.querySelectorAll('.persona-btn').forEach(btn => {
@@ -6804,6 +7828,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Clear and redraw mindmap
             d3.select('#canvas-mindmap').selectAll('*').remove();
+
+            // Hide any active tooltips when mindmap is cleared
+            guidanceTooltip.hide();
             initializeMindmap(persona);
         }
 
@@ -6900,6 +7927,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.getElementById('canvas-mindmap').style.display = 'block';
                 // Redraw mindmap when returning to Home view
                 d3.select('#canvas-mindmap').selectAll('*').remove();
+
+            // Hide any active tooltips when mindmap is cleared
+            guidanceTooltip.hide();
                 if (currentViewMode === 'seeker' || currentViewMode === 'professional') {
                     setTimeout(() => initializeMindmap(currentPersona), 50);
                 } else {
@@ -8163,17 +9193,49 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         handleFeatureClick(d.label);
                     }
                 })
-                .on('mouseover', function() {
+                .on('mouseover', function(event, d) {
+                    console.log('D3 mouseover triggered for node:', d.label);
+
+                    // Visual hover effect
                     d3.select(this).select('rect')
                         .transition()
                         .duration(200)
                         .attr('fill', currentViewMode === 'personal' ? 'rgba(34, 197, 94, 0.5)' : 'rgba(0, 102, 204, 0.5)');
+
+                    // Show simple guidance tooltip
+                    let tooltipText = null;
+                    if (d.label === 'Job Opportunities') {
+                        tooltipText = 'Opportunities you are pursuing appear here';
+                    } else if (d.label === 'Application Materials') {
+                        tooltipText = 'Your resumes, cover letters, and LinkedIn profile';
+                    } else if (d.label === 'Career Experience') {
+                        tooltipText = 'Your work history and professional background';
+                    } else if (d.label === 'Skills & Competencies') {
+                        tooltipText = 'Technical and professional skills you possess';
+                    } else if (d.label === 'Portfolio') {
+                        tooltipText = 'Projects and work samples to showcase your abilities';
+                    } else if (d.label === 'Interview Prep') {
+                        tooltipText = 'Practice questions and preparation materials';
+                    }
+
+                    console.log('Tooltip text for', d.label, ':', tooltipText);
+                    console.log('Mouse position:', event.pageX, event.pageY);
+
+                    if (tooltipText) {
+                        guidanceTooltip.show(tooltipText, event.pageX, event.pageY);
+                    }
                 })
                 .on('mouseout', function() {
+                    console.log('D3 mouseout triggered');
+
+                    // Visual hover effect
                     d3.select(this).select('rect')
                         .transition()
                         .duration(200)
                         .attr('fill', currentViewMode === 'personal' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(0, 102, 204, 0.3)');
+
+                    // Hide tooltip
+                    guidanceTooltip.hide();
                 });
 
             // Click handler for tertiary nodes (Learner mode features / Personal mode child nodes)
@@ -8182,17 +9244,30 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     event.stopPropagation();
                     handleFeatureClick(d.label);
                 })
-                .on('mouseover', function() {
+                .on('mouseover', function(event, d) {
+                    console.log('D3 tertiary node mouseover triggered for:', d.label);
+
+                    // Visual hover effect
                     d3.select(this).select('rect')
                         .transition()
                         .duration(200)
                         .attr('fill', currentViewMode === 'personal' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(0, 102, 204, 0.4)');
+
+                    // Simple guidance tooltip for child nodes
+                    console.log('Showing "Click to view details" tooltip at:', event.pageX, event.pageY);
+                    guidanceTooltip.show('Click to view details', event.pageX, event.pageY);
                 })
                 .on('mouseout', function() {
+                    console.log('D3 tertiary node mouseout triggered');
+
+                    // Visual hover effect
                     d3.select(this).select('rect')
                         .transition()
                         .duration(200)
                         .attr('fill', currentViewMode === 'personal' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(0, 102, 204, 0.2)');
+
+                    // Hide tooltip
+                    guidanceTooltip.hide();
                 });
 
             // Hover handlers for secondary nodes (Learner mode categories - non-clickable)
@@ -9341,15 +10416,29 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         };
 
         function loadJobOpportunities() {
-            const container = document.getElementById('jobsContainer');
-            container.innerHTML = '';
-
+            // Load job data
             loadUserJobs();
 
             // Combine user jobs with example jobs from enhanced data
             const allJobs = [...userJobs];
             const exampleJobs = exampleJobOpportunities[currentPersona] || [];
             allJobs.push(...exampleJobs);
+
+            // Load based on current view
+            if (currentJobView === 'cards') {
+                loadJobCardsView(allJobs);
+            } else {
+                loadJobTableView(allJobs);
+            }
+        }
+
+        function loadJobCardsView(allJobs) {
+            const container = document.getElementById('jobsContainer');
+            const tableContainer = document.getElementById('jobsTableContainer');
+
+            container.style.display = 'grid';
+            tableContainer.style.display = 'none';
+            container.innerHTML = '';
 
             if (allJobs.length === 0) {
                 container.innerHTML = `
@@ -9366,7 +10455,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 'applied': 'Applied',
                 'interviewing': 'Interviewing',
                 'offer': 'Offer',
-                'rejected': 'Rejected'
+                'rejected': 'Rejected',
+                'not-interested': 'Not Interested'
             };
 
             // Display all jobs
@@ -9394,16 +10484,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 ${job.isExample ? '<span class="competency-tag" style="margin-left: 6px;">Example</span>' : ''}
                             </div>
                         </div>
-                        ${isUserJob ? `
                         <div class="story-actions">
                             <button class="story-action-btn" onclick="editJob(${index})" title="Edit">
                                 <i class="ph ph-pencil-simple"></i>
                             </button>
-                            <button class="story-action-btn delete" onclick="deleteJob(${index})" title="Delete">
+                            <button class="story-action-btn delete" ${isUserJob ? `onclick="deleteJob(${index})"` : `onclick="showDemoDeleteToast()" style="opacity: 0.5; cursor: not-allowed;"`} title="${isUserJob ? 'Delete' : 'Cannot delete example jobs'}">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </div>
-                        ` : ''}
                     </div>
                     ${job.skills && job.skills.length > 0 ? `
                         <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
@@ -9423,13 +10511,235 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     ` : ''}
                     ${job.notes ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-neutral-border); font-size: 11px; color: var(--color-neutral-text-light);">${escapeHtml(job.notes)}</div>` : ''}
                 `;
+
+                // Add click handler to open job detail modal
+                card.addEventListener('click', (e) => {
+                    // Don't trigger modal if clicking on edit/delete buttons
+                    if (e.target.closest('.story-action-btn')) return;
+                    openJobDetail(index, allJobs);
+                });
+
                 container.appendChild(card);
             });
+        }
+
+        function loadJobTableView(allJobs) {
+            const container = document.getElementById('jobsContainer');
+            const tableContainer = document.getElementById('jobsTableContainer');
+            const tableBody = document.getElementById('jobsTableBody');
+
+            container.style.display = 'none';
+            tableContainer.style.display = 'block';
+            tableBody.innerHTML = '';
+
+            if (allJobs.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px 20px; color: var(--color-neutral-text-light);">
+                            <i class="ph ph-briefcase" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                            <p style="font-family: var(--font-family-ui); font-size: 15px;">No job opportunities yet. Click "Add Job" to track a new opportunity.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const statusLabels = {
+                'interested': 'Interested',
+                'applied': 'Applied',
+                'interviewing': 'Interviewing',
+                'offer': 'Offer',
+                'rejected': 'Rejected',
+                'not-interested': 'Not Interested'
+            };
+
+            // Load todos for next action calculations
+            loadJobTodos();
+
+            allJobs.forEach((job, index) => {
+                const isUserJob = index < userJobs.length;
+                const jobId = getJobIdentifier(job);
+                const todos = userJobTodos[jobId] || [];
+
+                // Find next action (first incomplete todo)
+                const nextAction = todos.find(todo => !todo.completed);
+                const { nextActionText, nextActionDate, nextActionStatus, alertLevel } = getJobNextAction(nextAction);
+
+                const row = document.createElement('tr');
+                if (job.isExample) {
+                    row.style.background = '#fafbfc';
+                }
+
+                row.innerHTML = `
+                    <td>
+                        <div class="job-table-position">${escapeHtml(job.title)}</div>
+                        ${job.location ? `<div class="job-table-location"><i class="ph ph-map-pin"></i> ${escapeHtml(job.location)}</div>` : ''}
+                    </td>
+                    <td>
+                        <div class="job-table-company">${escapeHtml(job.company)}</div>
+                        ${job.isExample ? '<div style="font-size: 10px; color: #999; margin-top: 2px;">Example</div>' : ''}
+                    </td>
+                    <td>
+                        <span class="job-table-status job-status ${job.status}">${statusLabels[job.status]}</span>
+                    </td>
+                    <td>
+                        ${job.closeDate ? `
+                            <div style="font-size: 12px; font-weight: 500; color: var(--color-dark);">
+                                ${new Date(job.closeDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                        ` : `
+                            <div style="font-size: 12px; color: var(--color-neutral-text-light); font-style: italic;">
+                                No date set
+                            </div>
+                        `}
+                    </td>
+                    <td>
+                        <div class="job-table-next-action">
+                            <div class="job-table-next-action-task">${nextActionText}</div>
+                            ${nextActionDate ? `<div class="job-table-next-action-date ${nextActionStatus}">
+                                <i class="ph ph-calendar"></i> ${nextActionDate}
+                            </div>` : ''}
+                        </div>
+                    </td>
+                    <td class="job-table-alerts">
+                        <div class="job-alert-indicator ${alertLevel}" title="${getAlertTooltip(alertLevel, nextAction)}">
+                            ${getAlertContent(alertLevel, todos)}
+                        </div>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 4px; justify-content: center;">
+                            <button class="job-table-action-btn" onclick="editJob(${index})" title="Edit" style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s;">
+                                <i class="ph ph-pencil-simple" style="font-size: 14px;"></i>
+                            </button>
+                            <button class="job-table-action-btn delete" ${isUserJob ? `onclick="deleteJob(${index})" title="Delete" style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s;"` : `onclick="showDemoDeleteToast()" title="Cannot delete example jobs" style="background: none; border: none; color: var(--color-neutral-text-light); cursor: not-allowed; padding: 4px; border-radius: 4px; opacity: 0.5;"`}>
+                                <i class="ph ph-trash" style="font-size: 14px;"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                // Add click handler to open job detail modal
+                row.addEventListener('click', (e) => {
+                    // Don't trigger modal if clicking on action buttons
+                    if (e.target.closest('.job-table-action-btn')) return;
+                    openJobDetail(index, allJobs);
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function getJobNextAction(nextAction) {
+            if (!nextAction) {
+                return {
+                    nextActionText: 'No pending tasks',
+                    nextActionDate: null,
+                    nextActionStatus: 'normal',
+                    alertLevel: 'none'
+                };
+            }
+
+            const today = new Date();
+            const due = nextAction.dueDate ? new Date(nextAction.dueDate) : null;
+
+            let nextActionDate = null;
+            let nextActionStatus = 'normal';
+            let alertLevel = 'normal';
+
+            if (due) {
+                const diffTime = due - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0) {
+                    nextActionStatus = 'overdue';
+                    alertLevel = 'overdue';
+                    nextActionDate = `${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''} overdue`;
+                } else if (diffDays === 0) {
+                    nextActionStatus = 'due-soon';
+                    alertLevel = 'due-soon';
+                    nextActionDate = 'Due today';
+                } else if (diffDays === 1) {
+                    nextActionStatus = 'due-soon';
+                    alertLevel = 'due-soon';
+                    nextActionDate = 'Due tomorrow';
+                } else if (diffDays <= 3) {
+                    nextActionStatus = 'due-soon';
+                    alertLevel = 'due-soon';
+                    nextActionDate = `Due in ${diffDays} days`;
+                } else if (diffDays <= 7) {
+                    nextActionDate = `Due in ${diffDays} days`;
+                } else {
+                    nextActionDate = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }
+            }
+
+            return {
+                nextActionText: nextAction.text.length > 40 ? nextAction.text.substring(0, 37) + '...' : nextAction.text,
+                nextActionDate,
+                nextActionStatus,
+                alertLevel
+            };
+        }
+
+        function getAlertContent(alertLevel, todos) {
+            const overdueTasks = todos.filter(todo => {
+                if (todo.completed || !todo.dueDate) return false;
+                const today = new Date();
+                const due = new Date(todo.dueDate);
+                return due < today;
+            }).length;
+
+            const dueSoonTasks = todos.filter(todo => {
+                if (todo.completed || !todo.dueDate) return false;
+                const today = new Date();
+                const due = new Date(todo.dueDate);
+                const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+                return diffDays >= 0 && diffDays <= 3;
+            }).length;
+
+            switch (alertLevel) {
+                case 'overdue':
+                    return overdueTasks.toString();
+                case 'due-soon':
+                    return dueSoonTasks.toString();
+                case 'normal':
+                    return todos.filter(t => !t.completed).length.toString();
+                default:
+                    return '0';
+            }
+        }
+
+        function getAlertTooltip(alertLevel, nextAction) {
+            switch (alertLevel) {
+                case 'overdue':
+                    return `Overdue task: ${nextAction?.text || 'Unknown task'}`;
+                case 'due-soon':
+                    return `Due soon: ${nextAction?.text || 'Unknown task'}`;
+                case 'normal':
+                    return 'Active tasks';
+                default:
+                    return 'No pending tasks';
+            }
+        }
+
+        function switchJobView(view) {
+            currentJobView = view;
+
+            // Update button states
+            const cardBtn = document.getElementById('jobCardViewBtn');
+            const tableBtn = document.getElementById('jobTableViewBtn');
+
+            cardBtn.classList.toggle('active', view === 'cards');
+            tableBtn.classList.toggle('active', view === 'table');
+
+            // Reload data in new view
+            loadJobOpportunities();
         }
 
         // Job Opportunities Management
         let userJobs = [];
         let editingJobIndex = -1;
+        let currentJobView = 'cards'; // 'cards' or 'table'
 
         function loadUserJobs() {
             const stored = localStorage.getItem('jobOpportunities_' + currentPersona);
@@ -9470,6 +10780,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 location: document.getElementById('jobLocation').value,
                 salary: document.getElementById('jobSalary').value,
                 status: document.getElementById('jobStatus').value,
+                closeDate: document.getElementById('jobCloseDate').value,
                 notes: document.getElementById('jobNotes').value,
                 url: document.getElementById('jobUrl').value
             };
@@ -9496,6 +10807,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('jobLocation').value = job.location || '';
             document.getElementById('jobSalary').value = job.salary || '';
             document.getElementById('jobStatus').value = job.status || 'interested';
+            document.getElementById('jobCloseDate').value = job.closeDate || '';
             document.getElementById('jobNotes').value = job.notes || '';
             document.getElementById('jobUrl').value = job.url || '';
 
@@ -9509,6 +10821,1028 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 loadJobOpportunities();
                 updateNodeCounts();
             }
+        }
+
+        function showDemoDeleteToast() {
+            showToast('Cannot delete example jobs. Try creating your own job opportunity!', 'info');
+        }
+
+        // Job Detail Modal Functions
+        let currentJobDetail = null;
+        let currentJobIndex = -1;
+        let currentJobArray = null;
+
+        function openJobDetail(jobIndex, jobArray) {
+            currentJobIndex = jobIndex;
+            currentJobArray = jobArray;
+            currentJobDetail = jobArray[jobIndex];
+
+            const modal = document.getElementById('jobDetailModal');
+            populateJobDetailModal(currentJobDetail, jobIndex);
+            modal.classList.add('active');
+        }
+
+        function closeJobDetail() {
+            const modal = document.getElementById('jobDetailModal');
+            modal.classList.remove('active');
+            currentJobDetail = null;
+            currentJobIndex = -1;
+            currentJobArray = null;
+        }
+
+        function populateJobDetailModal(job, jobIndex) {
+            // Set the title
+            document.getElementById('jobDetailTitle').textContent = `${job.title} at ${job.company}`;
+
+            // Set the status
+            const statusSelect = document.getElementById('jobDetailStatus');
+            statusSelect.value = job.status || 'interested';
+
+            // Set the close date
+            const closeDateInput = document.getElementById('jobDetailCloseDate');
+            closeDateInput.value = job.closeDate || '';
+
+            // Populate job info
+            const jobDetailInfo = document.getElementById('jobDetailInfo');
+            jobDetailInfo.innerHTML = `
+                <div>
+                    <strong style="color: var(--color-dark);">Company:</strong><br>
+                    <span>${escapeHtml(job.company)}</span>
+                </div>
+                <div>
+                    <strong style="color: var(--color-dark);">Location:</strong><br>
+                    <span>${job.location ? escapeHtml(job.location) : 'Not specified'}</span>
+                </div>
+                <div>
+                    <strong style="color: var(--color-dark);">Salary:</strong><br>
+                    <span>${job.salary ? escapeHtml(job.salary) : 'Not specified'}</span>
+                </div>
+                <div>
+                    <strong style="color: var(--color-dark);">Notes:</strong><br>
+                    <span>${job.notes ? escapeHtml(job.notes) : 'No notes added'}</span>
+                </div>
+            `;
+
+            // Populate todo checklist
+            populateJobTodos(job);
+
+            // Populate application materials
+            populateJobApplicationMaterials(job);
+
+            // Populate skills and competencies
+            populateJobSkills(job.skills || []);
+            populateJobCompetencies(job.competencies || []);
+
+            // Calculate and display fit analysis
+            calculateJobFit(job);
+        }
+
+        function populateJobSkills(skills) {
+            const container = document.getElementById('jobDetailSkills');
+            if (skills.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-style: italic; text-align: center;">No required skills specified</p>';
+                return;
+            }
+
+            container.innerHTML = skills.map(skill => `
+                <div class="skill-comp-item">
+                    <span style="font-size: 13px; font-weight: 500;">${escapeHtml(skill)}</span>
+                    <button onclick="removeJobSkill('${escapeHtml(skill)}')" style="background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 16px;" title="Remove skill">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function populateJobCompetencies(competencies) {
+            const container = document.getElementById('jobDetailCompetencies');
+            if (competencies.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-style: italic; text-align: center;">No key competencies specified</p>';
+                return;
+            }
+
+            container.innerHTML = competencies.map(comp => `
+                <div class="skill-comp-item">
+                    <span style="font-size: 13px; font-weight: 500;">${escapeHtml(comp)}</span>
+                    <button onclick="removeJobCompetency('${escapeHtml(comp)}')" style="background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 16px;" title="Remove competency">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateJobStatus() {
+            if (!currentJobDetail || currentJobIndex < 0) return;
+
+            const newStatus = document.getElementById('jobDetailStatus').value;
+            currentJobDetail.status = newStatus;
+
+            // Update in the appropriate array (user jobs vs example jobs)
+            if (currentJobIndex < userJobs.length) {
+                userJobs[currentJobIndex].status = newStatus;
+                saveUserJobs();
+            }
+
+            // Reload the job opportunities display
+            loadJobOpportunities();
+
+            // Update the fit analysis (status might affect scoring)
+            calculateJobFit(currentJobDetail);
+        }
+
+        function updateJobCloseDate() {
+            if (!currentJobDetail || currentJobIndex < 0) return;
+
+            const newCloseDate = document.getElementById('jobDetailCloseDate').value;
+            currentJobDetail.closeDate = newCloseDate;
+
+            // Update in the appropriate array (user jobs vs example jobs)
+            if (currentJobIndex < userJobs.length) {
+                userJobs[currentJobIndex].closeDate = newCloseDate;
+                saveUserJobs();
+            }
+
+            // Reload the job opportunities display to show updated close date
+            loadJobOpportunities();
+        }
+
+        function addJobSkill() {
+            const skill = prompt('Enter a required skill:');
+            if (!skill || !currentJobDetail) return;
+
+            if (!currentJobDetail.skills) currentJobDetail.skills = [];
+            if (currentJobDetail.skills.includes(skill.trim())) {
+                alert('This skill is already listed!');
+                return;
+            }
+
+            currentJobDetail.skills.push(skill.trim());
+
+            // Update in the appropriate array if it's a user job
+            if (currentJobIndex < userJobs.length) {
+                if (!userJobs[currentJobIndex].skills) userJobs[currentJobIndex].skills = [];
+                userJobs[currentJobIndex].skills.push(skill.trim());
+                saveUserJobs();
+            }
+
+            populateJobSkills(currentJobDetail.skills);
+            calculateJobFit(currentJobDetail);
+            loadJobOpportunities();
+        }
+
+        function addJobCompetency() {
+            const competency = prompt('Enter a key competency:');
+            if (!competency || !currentJobDetail) return;
+
+            if (!currentJobDetail.competencies) currentJobDetail.competencies = [];
+            if (currentJobDetail.competencies.includes(competency.trim())) {
+                alert('This competency is already listed!');
+                return;
+            }
+
+            currentJobDetail.competencies.push(competency.trim());
+
+            // Update in the appropriate array if it's a user job
+            if (currentJobIndex < userJobs.length) {
+                if (!userJobs[currentJobIndex].competencies) userJobs[currentJobIndex].competencies = [];
+                userJobs[currentJobIndex].competencies.push(competency.trim());
+                saveUserJobs();
+            }
+
+            populateJobCompetencies(currentJobDetail.competencies);
+            calculateJobFit(currentJobDetail);
+            loadJobOpportunities();
+        }
+
+        function removeJobSkill(skill) {
+            if (!currentJobDetail || !currentJobDetail.skills) return;
+
+            currentJobDetail.skills = currentJobDetail.skills.filter(s => s !== skill);
+
+            // Update in the appropriate array if it's a user job
+            if (currentJobIndex < userJobs.length && userJobs[currentJobIndex].skills) {
+                userJobs[currentJobIndex].skills = userJobs[currentJobIndex].skills.filter(s => s !== skill);
+                saveUserJobs();
+            }
+
+            populateJobSkills(currentJobDetail.skills);
+            calculateJobFit(currentJobDetail);
+            loadJobOpportunities();
+        }
+
+        function removeJobCompetency(competency) {
+            if (!currentJobDetail || !currentJobDetail.competencies) return;
+
+            currentJobDetail.competencies = currentJobDetail.competencies.filter(c => c !== competency);
+
+            // Update in the appropriate array if it's a user job
+            if (currentJobIndex < userJobs.length && userJobs[currentJobIndex].competencies) {
+                userJobs[currentJobIndex].competencies = userJobs[currentJobIndex].competencies.filter(c => c !== competency);
+                saveUserJobs();
+            }
+
+            populateJobCompetencies(currentJobDetail.competencies);
+            calculateJobFit(currentJobDetail);
+            loadJobOpportunities();
+        }
+
+        function calculateJobFit(job) {
+            // Load user skills and competencies
+            loadUserSkillsCompetencies();
+
+            const jobSkills = job.skills || [];
+            const jobCompetencies = job.competencies || [];
+
+            // Get user's skills and competencies
+            const userSkills = userSkillsCompetencies.filter(item => item.type === 'skill');
+            const userComps = userSkillsCompetencies.filter(item => item.type === 'competency');
+
+            // Calculate fit dimensions
+            const dimensions = [];
+
+            // Skills Match
+            const skillsMatch = calculateMatchScore(jobSkills, userSkills.map(s => s.name));
+            dimensions.push({
+                name: 'Skills Match',
+                score: skillsMatch.percentage,
+                details: `${skillsMatch.matches} of ${jobSkills.length} required skills match`,
+                color: getScoreColor(skillsMatch.percentage)
+            });
+
+            // Competencies Match
+            const compMatch = calculateMatchScore(jobCompetencies, userComps.map(c => c.name));
+            dimensions.push({
+                name: 'Competencies Match',
+                score: compMatch.percentage,
+                details: `${compMatch.matches} of ${jobCompetencies.length} key competencies match`,
+                color: getScoreColor(compMatch.percentage)
+            });
+
+            // Experience Level (based on user's skill levels)
+            const avgUserLevel = userSkills.length > 0
+                ? userSkills.reduce((sum, skill) => sum + (skill.currentLevel || 1), 0) / userSkills.length
+                : 1;
+            const experienceScore = Math.min(100, (avgUserLevel / 4) * 100);
+            dimensions.push({
+                name: 'Experience Level',
+                score: experienceScore,
+                details: `Average skill level: ${avgUserLevel.toFixed(1)}/4`,
+                color: getScoreColor(experienceScore)
+            });
+
+            // Career Stage Alignment (based on job status and user profile)
+            const careerScore = getCareerAlignmentScore(job, currentPersona);
+            dimensions.push({
+                name: 'Career Stage Fit',
+                score: careerScore,
+                details: getCareerAlignmentDetails(job, currentPersona),
+                color: getScoreColor(careerScore)
+            });
+
+            // Calculate overall score (weighted average)
+            const overallScore = Math.round(
+                (skillsMatch.percentage * 0.4) +
+                (compMatch.percentage * 0.3) +
+                (experienceScore * 0.2) +
+                (careerScore * 0.1)
+            );
+
+            // Display the results
+            displayJobFitResults(overallScore, dimensions);
+        }
+
+        function calculateMatchScore(required, userHas) {
+            if (required.length === 0) return { percentage: 100, matches: 0 };
+
+            const matches = required.filter(req =>
+                userHas.some(user => user.toLowerCase().includes(req.toLowerCase()) || req.toLowerCase().includes(user.toLowerCase()))
+            ).length;
+
+            return {
+                percentage: Math.round((matches / required.length) * 100),
+                matches: matches
+            };
+        }
+
+        function getScoreColor(score) {
+            if (score >= 80) return '#388e3c'; // Green
+            if (score >= 60) return '#f57c00'; // Orange
+            if (score >= 40) return '#ff9800'; // Amber
+            return '#d32f2f'; // Red
+        }
+
+        function getCareerAlignmentScore(job, persona) {
+            // Simple heuristic based on persona and job characteristics
+            const baseScore = 75;
+
+            // Adjust based on persona-specific factors
+            switch (persona) {
+                case 'new-graduate':
+                    return job.title.toLowerCase().includes('junior') || job.title.toLowerCase().includes('entry') ? 90 : 60;
+                case 'data-analyst':
+                    return job.title.toLowerCase().includes('analyst') || job.title.toLowerCase().includes('data') ? 90 : 70;
+                case 'retail-manager':
+                    return job.title.toLowerCase().includes('manager') || job.title.toLowerCase().includes('operations') ? 90 : 65;
+                case 'chemist':
+                    return job.title.toLowerCase().includes('scientist') || job.title.toLowerCase().includes('research') ? 90 : 55;
+                default:
+                    return baseScore;
+            }
+        }
+
+        function getCareerAlignmentDetails(job, persona) {
+            switch (persona) {
+                case 'new-graduate':
+                    return 'Entry-level position analysis';
+                case 'data-analyst':
+                    return 'Data/analytics role alignment';
+                case 'retail-manager':
+                    return 'Management/operations alignment';
+                case 'chemist':
+                    return 'Scientific role alignment';
+                default:
+                    return 'General career fit assessment';
+            }
+        }
+
+        function displayJobFitResults(overallScore, dimensions) {
+            // Update overall score
+            const scoreCircle = document.getElementById('fitScoreCircle');
+            scoreCircle.textContent = `${overallScore}%`;
+            scoreCircle.style.backgroundColor = getScoreColor(overallScore);
+
+            const scoreDetails = scoreCircle.nextElementSibling;
+            let scoreDescription;
+            if (overallScore >= 80) scoreDescription = 'Excellent match based on your profile';
+            else if (overallScore >= 60) scoreDescription = 'Good match with some development opportunities';
+            else if (overallScore >= 40) scoreDescription = 'Moderate fit, consider skill development';
+            else scoreDescription = 'Limited match, significant gaps identified';
+
+            scoreDetails.querySelector('p').textContent = scoreDescription;
+
+            // Update dimensions
+            const dimensionsContainer = document.getElementById('fitDimensions');
+            dimensionsContainer.innerHTML = dimensions.map(dim => `
+                <div class="fit-dimension">
+                    <div class="dimension-info">
+                        <div class="dimension-name">${dim.name}</div>
+                        <div class="dimension-details">${dim.details}</div>
+                    </div>
+                    <div class="dimension-score">
+                        <div class="score-bar">
+                            <div class="score-bar-fill" style="width: ${dim.score}%; background-color: ${dim.color};"></div>
+                        </div>
+                        <div class="score-text" style="color: ${dim.color};">${dim.score}%</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Application Materials Functions
+        function populateJobApplicationMaterials(job) {
+            const container = document.getElementById('jobApplicationMaterials');
+
+            // Load user application materials and example materials
+            loadUserApplicationMaterials();
+            const exampleMaterials = exampleApplicationMaterials[currentPersona] || [];
+            const allMaterials = [...userApplicationMaterials, ...exampleMaterials];
+
+            // Filter materials related to this specific job
+            const jobTitle = job.title;
+            const jobCompany = job.company;
+            const jobOpportunityString = `${jobTitle} - ${jobCompany}`;
+
+            const relatedMaterials = allMaterials.filter(material => {
+                return material.jobOpportunity === jobOpportunityString ||
+                       material.jobOpportunity === `${jobTitle} at ${jobCompany}` ||
+                       material.jobOpportunity.includes(jobTitle) ||
+                       material.jobOpportunity.includes(jobCompany);
+            });
+
+            if (relatedMaterials.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #999; font-style: italic;">
+                        <i class="ph ph-file-text" style="font-size: 32px; margin-bottom: 8px; display: block; color: #ccc;"></i>
+                        No application materials created for this opportunity yet.
+                        <br><small>Use the buttons below to generate or upload materials.</small>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = relatedMaterials.map((material, index) => {
+                const iconClass = getApplicationMaterialIcon(material.type);
+                const iconBgClass = material.type.toLowerCase().replace(' ', '-');
+
+                return `
+                    <div class="app-material-item">
+                        <div class="app-material-icon ${iconBgClass}">
+                            <i class="ph ${iconClass}"></i>
+                        </div>
+                        <div class="app-material-info">
+                            <div class="app-material-title">${escapeHtml(material.title)}</div>
+                            <div class="app-material-meta">
+                                <span class="app-material-tag format">${material.format}</span>
+                                ${material.atsOptimized ? '<span class="app-material-tag ats">ATS Optimized</span>' : ''}
+                                <span class="app-material-tag date">${new Date(material.createdDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</span>
+                            </div>
+                            <div class="app-material-preview">
+                                ${escapeHtml(material.content.substring(0, 120))}${material.content.length > 120 ? '...' : ''}
+                            </div>
+                        </div>
+                        <div class="app-material-actions">
+                            <button class="app-material-action-btn" onclick="viewApplicationMaterial(${index}, '${material.type}')">
+                                <i class="ph ph-eye"></i> View
+                            </button>
+                            <button class="app-material-action-btn" onclick="downloadApplicationMaterial(${index}, '${material.type}')">
+                                <i class="ph ph-download"></i> Download
+                            </button>
+                            ${!material.isExample ? `
+                                <button class="app-material-action-btn delete" onclick="deleteApplicationMaterial(${index}, '${material.type}')">
+                                    <i class="ph ph-trash"></i> Delete
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getApplicationMaterialIcon(type) {
+            const icons = {
+                'Resume': 'ph-file-text',
+                'Cover Letter': 'ph-envelope',
+                'Email': 'ph-at'
+            };
+            return icons[type] || 'ph-file-text';
+        }
+
+        function generateJobMaterial() {
+            if (!currentJobDetail) return;
+
+            const jobTitle = currentJobDetail.title;
+            const jobCompany = currentJobDetail.company;
+
+            // Create modal for material type selection
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; padding: 24px; max-width: 400px; width: 100%;">
+                    <h3 style="margin: 0 0 20px 0; font-family: var(--font-family-ui); color: var(--color-dark);">Generate Application Material</h3>
+                    <p style="margin: 0 0 20px 0; color: var(--color-neutral-text); font-size: 13px;">
+                        Create a customized document for <strong>${escapeHtml(jobTitle)}</strong> at <strong>${escapeHtml(jobCompany)}</strong>
+                    </p>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Material Type</label>
+                        <select id="materialTypeSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            <option value="Resume">Resume</option>
+                            <option value="Cover Letter">Cover Letter</option>
+                            <option value="Email">Email</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">Cancel</button>
+                        <button onclick="createJobApplicationMaterial()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="ph ph-sparkle"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function createJobApplicationMaterial() {
+            const materialType = document.getElementById('materialTypeSelect').value;
+            const modal = document.querySelector('div[style*="position: fixed"]');
+
+            if (!currentJobDetail) {
+                alert('No job selected');
+                modal.remove();
+                return;
+            }
+
+            // Create the material
+            const jobOpportunityString = `${currentJobDetail.title} - ${currentJobDetail.company}`;
+            const newMaterial = {
+                type: materialType,
+                title: `${materialType} for ${currentJobDetail.title}`,
+                jobOpportunity: jobOpportunityString,
+                content: generateMaterialContent(materialType, currentJobDetail),
+                format: materialType === 'Email' ? 'HTML' : (materialType === 'Resume' ? 'PDF' : 'DOCX'),
+                atsOptimized: materialType !== 'Email',
+                createdDate: new Date().toISOString()
+            };
+
+            // Add to user materials
+            loadUserApplicationMaterials();
+            userApplicationMaterials.push(newMaterial);
+            saveUserApplicationMaterials();
+
+            // Refresh the display
+            populateJobApplicationMaterials(currentJobDetail);
+
+            modal.remove();
+            alert(`${materialType} generated successfully! In a full implementation, this would create a customized ${materialType.toLowerCase()} tailored to this specific role and company.`);
+        }
+
+        function generateMaterialContent(type, job) {
+            const templates = {
+                'Resume': `Professional ${currentPersona} resume tailored for ${job.title} at ${job.company}. Highlights relevant experience, skills, and achievements that align with the job requirements. Includes contact information, professional summary, work experience, education, and key skills section.`,
+
+                'Cover Letter': `Dear Hiring Manager,\n\nI am writing to express my strong interest in the ${job.title} position at ${job.company}. Based on my background and the role requirements, I believe I would be a valuable addition to your team.\n\n[Personalized content based on job requirements and user profile would be generated here]\n\nThank you for considering my application. I look forward to the opportunity to discuss how my skills and experience can contribute to ${job.company}'s success.\n\nSincerely,\n[Your Name]`,
+
+                'Email': `Subject: Application for ${job.title} Position\n\nDear Hiring Manager,\n\nI hope this email finds you well. I am reaching out to express my interest in the ${job.title} position at ${job.company}.\n\n[Personalized email content would be generated here based on the job requirements and user profile]\n\nI have attached my resume for your review and would welcome the opportunity to discuss this position further.\n\nBest regards,\n[Your Name]`
+            };
+
+            return templates[type] || `Generated ${type} content for ${job.title} at ${job.company}`;
+        }
+
+        function uploadJobMaterial() {
+            if (!currentJobDetail) return;
+            alert(`Upload functionality coming soon! This will allow you to upload application materials specifically for ${currentJobDetail.title} at ${currentJobDetail.company}.`);
+        }
+
+        function viewApplicationMaterial(index, type) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+
+            // Get the material (this is a simplified version - in reality you'd need to track the filtered materials)
+            loadUserApplicationMaterials();
+            const exampleMaterials = exampleApplicationMaterials[currentPersona] || [];
+            const allMaterials = [...userApplicationMaterials, ...exampleMaterials];
+            const material = allMaterials[index];
+
+            if (!material) return;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; width: 90%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
+                    <div style="padding: 20px; border-bottom: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; font-family: var(--font-family-ui);">${escapeHtml(material.title)}</h3>
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                    </div>
+                    <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                        <div style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; white-space: pre-wrap;">
+                            ${escapeHtml(material.content)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function downloadApplicationMaterial(index, type) {
+            alert(`Download ${type} functionality coming soon! In a full implementation, this would download the material as a properly formatted document.`);
+        }
+
+        function deleteApplicationMaterial(index, type) {
+            if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
+
+            // Remove from user materials (this is simplified - you'd need proper index tracking)
+            loadUserApplicationMaterials();
+            if (index < userApplicationMaterials.length) {
+                userApplicationMaterials.splice(index, 1);
+                saveUserApplicationMaterials();
+                populateJobApplicationMaterials(currentJobDetail);
+            }
+        }
+
+        // Job Todo Checklist Functions
+        let userJobTodos = {};  // Will store todos by job identifier
+
+        function getJobIdentifier(job) {
+            return `${job.title}-${job.company}`.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        }
+
+        function loadJobTodos() {
+            const stored = localStorage.getItem(`jobTodos_${currentPersona}`);
+            userJobTodos = stored ? JSON.parse(stored) : {};
+        }
+
+        function saveJobTodos() {
+            localStorage.setItem(`jobTodos_${currentPersona}`, JSON.stringify(userJobTodos));
+        }
+
+        function populateJobTodos(job) {
+            const container = document.getElementById('jobTodoList');
+            loadJobTodos();
+
+            const jobId = getJobIdentifier(job);
+            let todos = userJobTodos[jobId] || [];
+
+            // If no todos exist, create default ones based on job status
+            if (todos.length === 0) {
+                todos = generateDefaultTodos(job);
+                userJobTodos[jobId] = todos;
+                saveJobTodos();
+            }
+
+            if (todos.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #999; font-style: italic;">
+                        <i class="ph ph-check-square" style="font-size: 32px; margin-bottom: 8px; display: block; color: #ccc;"></i>
+                        No application tasks created yet.
+                        <br><small>Use the buttons below to add tasks or set deadlines.</small>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort todos by due date and priority
+            todos.sort((a, b) => {
+                if (a.completed && !b.completed) return 1;
+                if (!a.completed && b.completed) return -1;
+                if (a.dueDate && b.dueDate) {
+                    return new Date(a.dueDate) - new Date(b.dueDate);
+                }
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
+            });
+
+            container.innerHTML = todos.map((todo, index) => {
+                const dueStatus = getDueStatus(todo.dueDate);
+                const dueDateClass = todo.completed ? 'normal' : dueStatus.class;
+                const itemClass = `job-todo-item ${todo.completed ? 'completed' : ''} ${dueStatus.itemClass}`;
+
+                return `
+                    <div class="${itemClass}">
+                        <input
+                            type="checkbox"
+                            class="job-todo-checkbox"
+                            ${todo.completed ? 'checked' : ''}
+                            onchange="toggleJobTodo(${index})"
+                        >
+                        <div class="job-todo-content">
+                            <div class="job-todo-text">${escapeHtml(todo.text)}</div>
+                            <div class="job-todo-meta">
+                                ${todo.dueDate ? `
+                                    <span class="job-todo-due-date ${dueDateClass}">
+                                        <i class="ph ph-calendar"></i>
+                                        Due ${formatDueDate(todo.dueDate)}
+                                    </span>
+                                ` : ''}
+                                ${todo.priority ? `
+                                    <span class="job-todo-priority ${todo.priority}">${todo.priority}</span>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="job-todo-actions">
+                            <button class="job-todo-action-btn" onclick="editJobTodo(${index})" title="Edit">
+                                <i class="ph ph-pencil-simple"></i>
+                            </button>
+                            <button class="job-todo-action-btn delete" onclick="deleteJobTodo(${index})" title="Delete">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateDefaultTodos(job) {
+            const baseDate = new Date();
+            const addDays = (days) => {
+                const date = new Date(baseDate);
+                date.setDate(date.getDate() + days);
+                return date.toISOString().split('T')[0];
+            };
+
+            const defaultTodos = [
+                { text: 'Review job description and requirements thoroughly', priority: 'high', dueDate: addDays(1), completed: false },
+                { text: 'Research company culture and recent news', priority: 'high', dueDate: addDays(2), completed: false },
+                { text: 'Tailor resume for this specific role', priority: 'high', dueDate: addDays(3), completed: false },
+                { text: 'Write personalized cover letter', priority: 'high', dueDate: addDays(4), completed: false },
+                { text: 'Submit application through company website', priority: 'high', dueDate: addDays(7), completed: false },
+                { text: 'Follow up on application status', priority: 'medium', dueDate: addDays(14), completed: false },
+                { text: 'Prepare for potential phone screening', priority: 'medium', dueDate: addDays(10), completed: false },
+                { text: 'Research interview questions for this role', priority: 'medium', dueDate: addDays(10), completed: false },
+                { text: 'Prepare behavioral interview stories', priority: 'medium', dueDate: addDays(12), completed: false },
+                { text: 'Connect with employees on LinkedIn', priority: 'low', dueDate: addDays(5), completed: false }
+            ];
+
+            return defaultTodos;
+        }
+
+        function getDueStatus(dueDate) {
+            if (!dueDate) return { class: 'normal', itemClass: '' };
+
+            const today = new Date();
+            const due = new Date(dueDate);
+            const diffTime = due - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return { class: 'overdue', itemClass: 'overdue' };
+            } else if (diffDays <= 3) {
+                return { class: 'due-soon', itemClass: 'due-soon' };
+            } else {
+                return { class: 'normal', itemClass: '' };
+            }
+        }
+
+        function formatDueDate(dueDate) {
+            const today = new Date();
+            const due = new Date(dueDate);
+            const diffTime = due - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return `${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''} ago`;
+            } else if (diffDays === 0) {
+                return 'Today';
+            } else if (diffDays === 1) {
+                return 'Tomorrow';
+            } else if (diffDays <= 7) {
+                return `in ${diffDays} days`;
+            } else {
+                return due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+        }
+
+        function toggleJobTodo(index) {
+            if (!currentJobDetail) return;
+
+            const jobId = getJobIdentifier(currentJobDetail);
+            const todos = userJobTodos[jobId] || [];
+
+            if (todos[index]) {
+                todos[index].completed = !todos[index].completed;
+                userJobTodos[jobId] = todos;
+                saveJobTodos();
+                populateJobTodos(currentJobDetail);
+            }
+        }
+
+        function addJobTodo() {
+            if (!currentJobDetail) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; padding: 24px; max-width: 500px; width: 100%;">
+                    <h3 style="margin: 0 0 20px 0; font-family: var(--font-family-ui); color: var(--color-dark);">Add Application Task</h3>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Task Description</label>
+                        <input type="text" id="todoText" placeholder="e.g., Follow up with hiring manager" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Due Date</label>
+                            <input type="date" id="todoDueDate" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Priority</label>
+                            <select id="todoPriority" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">Cancel</button>
+                        <button onclick="saveJobTodo()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="ph ph-plus"></i> Add Task
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function saveJobTodo() {
+            const text = document.getElementById('todoText').value.trim();
+            const dueDate = document.getElementById('todoDueDate').value;
+            const priority = document.getElementById('todoPriority').value;
+            const modal = document.querySelector('div[style*="position: fixed"]');
+
+            if (!text) {
+                alert('Please enter a task description');
+                return;
+            }
+
+            const jobId = getJobIdentifier(currentJobDetail);
+            if (!userJobTodos[jobId]) userJobTodos[jobId] = [];
+
+            const newTodo = {
+                text: text,
+                dueDate: dueDate || null,
+                priority: priority,
+                completed: false,
+                createdDate: new Date().toISOString()
+            };
+
+            userJobTodos[jobId].push(newTodo);
+            saveJobTodos();
+            populateJobTodos(currentJobDetail);
+
+            modal.remove();
+        }
+
+        function editJobTodo(index) {
+            if (!currentJobDetail) return;
+
+            const jobId = getJobIdentifier(currentJobDetail);
+            const todos = userJobTodos[jobId] || [];
+            const todo = todos[index];
+
+            if (!todo) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; padding: 24px; max-width: 500px; width: 100%;">
+                    <h3 style="margin: 0 0 20px 0; font-family: var(--font-family-ui); color: var(--color-dark);">Edit Application Task</h3>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Task Description</label>
+                        <input type="text" id="editTodoText" value="${escapeHtml(todo.text)}" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Due Date</label>
+                            <input type="date" id="editTodoDueDate" value="${todo.dueDate || ''}" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Priority</label>
+                            <select id="editTodoPriority" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <option value="low" ${todo.priority === 'low' ? 'selected' : ''}>Low</option>
+                                <option value="medium" ${todo.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                                <option value="high" ${todo.priority === 'high' ? 'selected' : ''}>High</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">Cancel</button>
+                        <button onclick="updateJobTodo(${index})" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="ph ph-check"></i> Update Task
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function updateJobTodo(index) {
+            const text = document.getElementById('editTodoText').value.trim();
+            const dueDate = document.getElementById('editTodoDueDate').value;
+            const priority = document.getElementById('editTodoPriority').value;
+            const modal = document.querySelector('div[style*="position: fixed"]');
+
+            if (!text) {
+                alert('Please enter a task description');
+                return;
+            }
+
+            const jobId = getJobIdentifier(currentJobDetail);
+            const todos = userJobTodos[jobId] || [];
+
+            if (todos[index]) {
+                todos[index].text = text;
+                todos[index].dueDate = dueDate || null;
+                todos[index].priority = priority;
+                userJobTodos[jobId] = todos;
+                saveJobTodos();
+                populateJobTodos(currentJobDetail);
+            }
+
+            modal.remove();
+        }
+
+        function deleteJobTodo(index) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+
+            const jobId = getJobIdentifier(currentJobDetail);
+            const todos = userJobTodos[jobId] || [];
+
+            if (todos[index]) {
+                todos.splice(index, 1);
+                userJobTodos[jobId] = todos;
+                saveJobTodos();
+                populateJobTodos(currentJobDetail);
+            }
+        }
+
+        function setJobDeadlines() {
+            if (!currentJobDetail) return;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px;';
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; padding: 24px; max-width: 400px; width: 100%;">
+                    <h3 style="margin: 0 0 20px 0; font-family: var(--font-family-ui); color: var(--color-dark);">Set Application Deadlines</h3>
+                    <p style="margin: 0 0 20px 0; color: var(--color-neutral-text); font-size: 13px;">
+                        Automatically set due dates for all tasks based on a target application date.
+                    </p>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Target Application Date</label>
+                        <input type="date" id="targetApplicationDate" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        <small style="color: var(--color-neutral-text-light); font-size: 11px;">Tasks will be scheduled to complete before this date</small>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('div[style*=fixed]').remove()" style="padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">Cancel</button>
+                        <button onclick="applyJobDeadlines()" style="padding: 8px 16px; background: #16a34a; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="ph ph-calendar"></i> Set Deadlines
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Set default date to one week from today
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 7);
+
+            document.body.appendChild(modal);
+            document.getElementById('targetApplicationDate').value = defaultDate.toISOString().split('T')[0];
+        }
+
+        function applyJobDeadlines() {
+            const targetDate = document.getElementById('targetApplicationDate').value;
+            const modal = document.querySelector('div[style*="position: fixed"]');
+
+            if (!targetDate) {
+                alert('Please select a target application date');
+                return;
+            }
+
+            const jobId = getJobIdentifier(currentJobDetail);
+            const todos = userJobTodos[jobId] || [];
+
+            if (todos.length === 0) {
+                alert('No tasks found to set deadlines for');
+                modal.remove();
+                return;
+            }
+
+            // Calculate working backwards from target date
+            const target = new Date(targetDate);
+            const today = new Date();
+            const daysAvailable = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+
+            if (daysAvailable < 1) {
+                alert('Target date must be in the future');
+                return;
+            }
+
+            // Assign deadlines based on priority and task type
+            todos.forEach((todo, index) => {
+                if (todo.completed) return; // Don't change completed tasks
+
+                let dayOffset;
+                const text = todo.text.toLowerCase();
+
+                // Assign based on task content and priority
+                if (text.includes('review') || text.includes('research company')) {
+                    dayOffset = Math.max(1, Math.floor(daysAvailable * 0.1));
+                } else if (text.includes('resume') || text.includes('tailor')) {
+                    dayOffset = Math.max(2, Math.floor(daysAvailable * 0.3));
+                } else if (text.includes('cover letter')) {
+                    dayOffset = Math.max(3, Math.floor(daysAvailable * 0.4));
+                } else if (text.includes('submit') || text.includes('apply')) {
+                    dayOffset = Math.max(1, Math.floor(daysAvailable * 0.9));
+                } else if (text.includes('follow up')) {
+                    dayOffset = daysAvailable + 7; // After application
+                } else if (text.includes('prepare') || text.includes('interview')) {
+                    dayOffset = Math.max(3, Math.floor(daysAvailable * 0.8));
+                } else {
+                    // Default based on priority
+                    switch (todo.priority) {
+                        case 'high':
+                            dayOffset = Math.max(1, Math.floor(daysAvailable * 0.5));
+                            break;
+                        case 'medium':
+                            dayOffset = Math.max(2, Math.floor(daysAvailable * 0.7));
+                            break;
+                        default:
+                            dayOffset = Math.max(3, Math.floor(daysAvailable * 0.6));
+                    }
+                }
+
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + dayOffset);
+                todo.dueDate = dueDate.toISOString().split('T')[0];
+            });
+
+            userJobTodos[jobId] = todos;
+            saveJobTodos();
+            populateJobTodos(currentJobDetail);
+
+            modal.remove();
+            alert(`Deadlines set for ${todos.filter(t => !t.completed).length} tasks based on ${targetDate} target date.`);
         }
 
         // Career Experience Management
@@ -21475,9 +23809,862 @@ F &= ma \\\\
             return false;
         }
 
-        // Auto-open Canvas Tour on page load
+        // Canvas UI Tour with Driver.js + Audio Integration
+        class CanvasTour {
+            constructor() {
+                this.driver = null;
+                this.isActive = false;
+                this.currentStep = 0;
+            }
+
+            async initTour() {
+                // Preload audio files
+                console.log('Preloading tour audio files...');
+                await audioTourManager.preloadAllAudio();
+
+                // Configure Driver.js tour steps
+                this.driver = new Driver({
+                    showProgress: true,
+                    allowClose: true,
+                    overlayClickNext: false,
+                    doneBtnText: 'Finish Tour',
+                    nextBtnText: 'Next',
+                    prevBtnText: 'Previous',
+                    onHighlightStarted: (element) => {
+                        // Enhanced step tracking with multiple identification methods
+                        const stepId = this.getCurrentStepId(element);
+                        if (stepId) {
+                            console.log(`Highlighting element for step: ${stepId}`);
+                            audioTourManager.playNarration(stepId);
+                        }
+                    },
+                    onNext: (element) => {
+                        // Track step progression
+                        this.currentStep = Math.min(this.currentStep + 1, this.tourSteps.length - 1);
+                        this.onStepChanged(this.currentStep);
+                    },
+                    onPrevious: (element) => {
+                        // Track step regression
+                        this.currentStep = Math.max(this.currentStep - 1, 0);
+                        this.onStepChanged(this.currentStep);
+                    },
+                    onDeselected: () => {
+                        // Clean up on tour end
+                        audioTourManager.stopAudio();
+                        this.isActive = false;
+                        this.currentStep = 0;
+                        console.log('Tour ended, audio stopped');
+                    }
+                });
+
+                this.defineSteps();
+            }
+
+            defineSteps() {
+                const steps = [
+                    {
+                        element: '.canvas-modal-header',
+                        popover: {
+                            title: 'Welcome to Cleansheet Canvas',
+                            description: 'This is your personal workspace for managing job search, professional projects, and career development. Let\'s take a quick tour of the key features!',
+                            position: 'bottom'
+                        },
+                        stepId: 'welcome'
+                    },
+                    {
+                        element: '[data-view="seeker"]',
+                        popover: {
+                            title: 'View Mode Selector',
+                            description: 'Switch between different workspace modes: Seeker (job search focus), Learner (skill development), and Professional (work management).',
+                            position: 'bottom'
+                        },
+                        stepId: 'view-modes'
+                    },
+                    {
+                        element: '#canvas-mindmap',
+                        popover: {
+                            title: 'Interactive Mindmap',
+                            description: 'Navigate your workspace using this interactive mindmap. Click on any node to expand sections like Job Opportunities, Application Materials, and Skills & Competencies.',
+                            position: 'right'
+                        },
+                        stepId: 'mindmap-navigation'
+                    },
+                    {
+                        element: '.calendar-widget',
+                        popover: {
+                            title: 'Upcoming Events',
+                            description: 'Track important dates like interviews, application deadlines, and networking events. Sync with your Outlook calendar for seamless integration.',
+                            position: 'left'
+                        },
+                        stepId: 'calendar-widget'
+                    },
+                    {
+                        element: '.ai-assistant-widget',
+                        popover: {
+                            title: 'AI Assistant',
+                            description: 'Get personalized career advice, application tips, and skill development recommendations powered by AI insights.',
+                            position: 'left'
+                        },
+                        stepId: 'ai-assistant'
+                    },
+                    {
+                        element: '#jobSearchView',
+                        popover: {
+                            title: 'Job Search View',
+                            description: 'Aggregate and filter job opportunities from multiple sources. Set up alerts, track applications, and manage your job search pipeline.',
+                            position: 'center'
+                        },
+                        stepId: 'job-search-view'
+                    },
+                    {
+                        element: '#projects-view',
+                        popover: {
+                            title: 'Professional Projects',
+                            description: 'Organize documents, create forms, build reports, and manage workflows. Perfect for demonstrating your professional capabilities.',
+                            position: 'center'
+                        },
+                        stepId: 'projects-view'
+                    },
+                    {
+                        element: '.panel-collapse-toggle',
+                        popover: {
+                            title: 'Panel Controls',
+                            description: 'Collapse or expand the side panel to focus on the mindmap or maximize your workspace area.',
+                            position: 'left'
+                        },
+                        stepId: 'panel-controls'
+                    }
+                ];
+
+                // Convert steps to Driver.js format
+                const driverSteps = steps.map(step => ({
+                    element: step.element,
+                    popover: step.popover
+                }));
+
+                this.driver.defineSteps(driverSteps);
+                this.tourSteps = steps;
+            }
+
+            getCurrentStepId(element) {
+                if (!this.tourSteps || !element) return null;
+
+                // Try multiple approaches to identify the current step
+                let stepIndex = -1;
+
+                // Method 1: Match by element selector
+                for (let i = 0; i < this.tourSteps.length; i++) {
+                    const stepElement = document.querySelector(this.tourSteps[i].element);
+                    if (stepElement === element || stepElement?.contains(element)) {
+                        stepIndex = i;
+                        break;
+                    }
+                }
+
+                // Method 2: Match by Driver.js step index if available
+                if (stepIndex === -1 && this.driver.getCurrentStep) {
+                    stepIndex = this.driver.getCurrentStep();
+                }
+
+                // Method 3: Use step counter as fallback
+                if (stepIndex === -1) {
+                    stepIndex = this.currentStep;
+                }
+
+                // Ensure valid index
+                if (stepIndex >= 0 && stepIndex < this.tourSteps.length) {
+                    return this.tourSteps[stepIndex].stepId;
+                }
+
+                return null;
+            }
+
+            // Enhanced step tracking
+            onStepChanged(stepIndex) {
+                this.currentStep = stepIndex;
+                const stepId = this.tourSteps[stepIndex]?.stepId;
+
+                if (stepId) {
+                    console.log(`Tour step changed to: ${stepId} (${stepIndex + 1}/${this.tourSteps.length})`);
+                    // Trigger audio playback
+                    audioTourManager.playNarration(stepId);
+
+                    // Update tour controls progress
+                    if (tourControls.isVisible) {
+                        tourControls.updateProgress();
+                    }
+                }
+            }
+
+            async startTour() {
+                if (!this.driver) {
+                    await this.initTour();
+                }
+
+                if (this.driver) {
+                    this.isActive = true;
+                    this.driver.start();
+                    console.log('Canvas tour started');
+                }
+            }
+
+            stopTour() {
+                if (this.driver && this.isActive) {
+                    audioTourManager.stopAudio();
+                    this.driver.reset();
+                    this.isActive = false;
+                    this.currentStep = 0;
+                    console.log('Canvas tour stopped');
+                }
+            }
+
+            // Jump to specific step (useful for dynamic navigation)
+            goToStep(stepIndex) {
+                if (!this.driver || !this.isActive) return false;
+
+                if (stepIndex >= 0 && stepIndex < this.tourSteps.length) {
+                    this.currentStep = stepIndex;
+                    // Driver.js doesn't have a direct goToStep method, but we can track manually
+                    this.onStepChanged(stepIndex);
+                    return true;
+                }
+                return false;
+            }
+
+            // Get current tour progress
+            getProgress() {
+                return {
+                    currentStep: this.currentStep,
+                    totalSteps: this.tourSteps?.length || 0,
+                    stepId: this.tourSteps?.[this.currentStep]?.stepId || null,
+                    isActive: this.isActive,
+                    progressPercent: this.tourSteps ? Math.round((this.currentStep / (this.tourSteps.length - 1)) * 100) : 0
+                };
+            }
+
+            // Validate tour step elements exist in DOM
+            validateSteps() {
+                if (!this.tourSteps) return { valid: false, errors: ['No steps defined'] };
+
+                const errors = [];
+                let validSteps = 0;
+
+                this.tourSteps.forEach((step, index) => {
+                    const element = document.querySelector(step.element);
+                    if (!element) {
+                        errors.push(`Step ${index + 1} (${step.stepId}): Element '${step.element}' not found`);
+                    } else {
+                        validSteps++;
+                    }
+                });
+
+                return {
+                    valid: errors.length === 0,
+                    validSteps,
+                    totalSteps: this.tourSteps.length,
+                    errors
+                };
+            }
+        }
+
+        // Simple Guidance Tooltip System
+        //
+        // This system provides basic explanatory tooltips to guide users throughout the UI.
+        // Example: "Opportunities you are pursuing appear here"
+        //
+        // Usage:
+        // 1. Call addGuidanceTooltip(selector, text) to add tooltip to any element
+        // 2. Tooltips automatically show on hover and hide on mouse leave
+        // 3. Uses dark background with white text for clear visibility
+        // 4. Positions automatically to stay within viewport bounds
+        //
+        // Pattern for expanding throughout the UI:
+        // addGuidanceTooltip('#elementId', 'Helpful explanation text');
+        // addGuidanceTooltip('.className', 'What this section does');
+        //
+        class GuidanceTooltip {
+            constructor() {
+                this.tooltip = null;
+                this.createTooltip();
+            }
+
+            createTooltip() {
+                this.tooltip = document.createElement('div');
+                this.tooltip.id = 'guidance-tooltip';
+                this.tooltip.style.cssText = `
+                    position: absolute;
+                    background: var(--color-dark);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    font-family: var(--font-family-body);
+                    font-size: 12px;
+                    line-height: 1.4;
+                    max-width: 250px;
+                    z-index: 10000;
+                    pointer-events: none;
+                    opacity: 0;
+                    transform: translateY(-4px);
+                    transition: opacity 0.2s ease, transform 0.2s ease;
+                    display: none;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                `;
+
+                document.body.appendChild(this.tooltip);
+            }
+
+            show(text, x, y) {
+                console.log('Tooltip show() called with:', { text, x, y });
+                console.log('Tooltip element exists:', !!this.tooltip);
+
+                if (!this.tooltip || !text) {
+                    console.warn('Tooltip show() early return - tooltip or text missing');
+                    return;
+                }
+
+                this.tooltip.textContent = text;
+                this.tooltip.style.display = 'block';
+                console.log('Tooltip display set to block, content set');
+
+                // Position tooltip
+                const rect = this.tooltip.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                let tooltipX = x + 10;
+                let tooltipY = y - 35;
+
+                // Keep tooltip within viewport bounds
+                if (tooltipX + rect.width > viewportWidth) {
+                    tooltipX = x - rect.width - 10;
+                }
+
+                if (tooltipY < 0) {
+                    tooltipY = y + 20;
+                }
+
+                this.tooltip.style.left = `${tooltipX}px`;
+                this.tooltip.style.top = `${tooltipY}px`;
+                console.log('Tooltip positioned at:', { tooltipX, tooltipY });
+
+                // Animate in
+                requestAnimationFrame(() => {
+                    this.tooltip.style.opacity = '1';
+                    this.tooltip.style.transform = 'translateY(0)';
+                    console.log('Tooltip animation applied - should be visible now');
+                });
+            }
+
+            hide() {
+                if (!this.tooltip) return;
+
+                this.tooltip.style.opacity = '0';
+                this.tooltip.style.transform = 'translateY(-4px)';
+
+                setTimeout(() => {
+                    this.tooltip.style.display = 'none';
+                }, 200);
+            }
+        }
+
+        // Initialize simple guidance tooltip system
+        const guidanceTooltip = new GuidanceTooltip();
+
+        // Debug: Test tooltip functionality
+        console.log('Guidance tooltip system initialized:', guidanceTooltip);
+
+        // Helper function to add guidance tooltips to any element
+        function addGuidanceTooltip(selector, text) {
+            console.log('Adding guidance tooltip to:', selector, 'with text:', text);
+            const element = document.querySelector(selector);
+
+            if (!element) {
+                console.warn('Element not found for selector:', selector);
+                return;
+            }
+
+            console.log('Element found:', element);
+
+            element.addEventListener('mouseenter', (event) => {
+                console.log('Mouse entered element, showing tooltip:', text);
+                guidanceTooltip.show(text, event.pageX, event.pageY);
+            });
+
+            element.addEventListener('mouseleave', () => {
+                console.log('Mouse left element, hiding tooltip');
+                guidanceTooltip.hide();
+            });
+
+            // Update cursor to indicate tooltip
+            element.style.cursor = 'help';
+            console.log('Tooltip event listeners added successfully');
+        }
+
+        // Example: Add tooltips to other UI elements (can be expanded throughout the app)
+        function initializeUIGuidance() {
+            // Test with a simple element first
+            setTimeout(() => {
+                console.log('Initializing UI Guidance...');
+
+                // Simple test - add tooltip to canvas header title
+                addGuidanceTooltip('.canvas-modal-header h2', 'This is your personal workspace for career management');
+
+                // Add tooltips to view mode buttons
+                addGuidanceTooltip('[data-view="seeker"]', 'Focus on job search and career advancement');
+                addGuidanceTooltip('[data-view="learner"]', 'Access learning resources and skill development');
+                addGuidanceTooltip('[data-view="professional"]', 'Manage work projects and professional tools');
+
+                // Add tooltips to persona buttons
+                addGuidanceTooltip('[data-persona="retail-manager"]', 'Sample profile: Retail manager transitioning to analytics');
+                addGuidanceTooltip('[data-persona="chemist"]', 'Sample profile: Research chemist exploring new opportunities');
+                addGuidanceTooltip('[data-persona="new-graduate"]', 'Sample profile: Recent graduate entering the job market');
+                addGuidanceTooltip('[data-persona="data-analyst"]', 'Sample profile: Experienced data analyst');
+
+                console.log('UI Guidance initialization completed');
+            }, 1000);
+        }
+
+        // Initialize tour manager
+        const canvasTour = new CanvasTour();
+
+        // Tour Controls UI Component
+        class TourControls {
+            constructor() {
+                this.controlsContainer = null;
+                this.isVisible = false;
+            }
+
+            create() {
+                if (this.controlsContainer) return;
+
+                this.controlsContainer = document.createElement('div');
+                this.controlsContainer.id = 'tourControls';
+                this.controlsContainer.className = 'tour-controls';
+                this.controlsContainer.innerHTML = `
+                    <div class="tour-controls-header">
+                        <div class="tour-progress">
+                            <span class="tour-step-counter">Step 1 of 8</span>
+                            <div class="tour-progress-bar">
+                                <div class="tour-progress-fill"></div>
+                            </div>
+                        </div>
+                        <button class="tour-minimize-btn" onclick="tourControls.toggle()">
+                            <i class="ph ph-caret-down"></i>
+                        </button>
+                    </div>
+                    <div class="tour-controls-body">
+                        <div class="audio-controls">
+                            <button id="audioPlayPause" class="audio-btn" onclick="tourControls.toggleAudio()">
+                                <i class="ph ph-pause"></i>
+                            </button>
+                            <button id="audioStop" class="audio-btn" onclick="tourControls.stopAudio()">
+                                <i class="ph ph-stop"></i>
+                            </button>
+                            <div class="volume-control">
+                                <i class="ph ph-speaker-simple-high"></i>
+                                <input type="range" id="volumeSlider" min="0" max="100" value="80"
+                                       oninput="tourControls.setVolume(this.value)">
+                            </div>
+                        </div>
+                        <div class="tour-navigation">
+                            <button id="tourPrev" class="nav-btn" onclick="tourControls.previousStep()">
+                                <i class="ph ph-caret-left"></i> Previous
+                            </button>
+                            <button id="tourNext" class="nav-btn" onclick="tourControls.nextStep()">
+                                Next <i class="ph ph-caret-right"></i>
+                            </button>
+                            <button id="tourEnd" class="end-btn" onclick="tourControls.endTour()">
+                                End Tour
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Add styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    .tour-controls {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        background: white;
+                        border-radius: 12px;
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                        border: 1px solid var(--color-neutral-border);
+                        width: 320px;
+                        z-index: 10100;
+                        font-family: var(--font-family-ui);
+                        transition: all 0.3s ease;
+                    }
+
+                    .tour-controls.minimized .tour-controls-body {
+                        display: none;
+                    }
+
+                    .tour-controls.minimized .tour-minimize-btn i {
+                        transform: rotate(180deg);
+                    }
+
+                    .tour-controls-header {
+                        padding: 12px 16px;
+                        border-bottom: 1px solid var(--color-neutral-border);
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 12px;
+                    }
+
+                    .tour-progress {
+                        flex: 1;
+                    }
+
+                    .tour-step-counter {
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: var(--color-neutral-text);
+                        display: block;
+                        margin-bottom: 4px;
+                    }
+
+                    .tour-progress-bar {
+                        width: 100%;
+                        height: 4px;
+                        background: var(--color-neutral-border);
+                        border-radius: 2px;
+                        overflow: hidden;
+                    }
+
+                    .tour-progress-fill {
+                        height: 100%;
+                        background: var(--color-primary-blue);
+                        transition: width 0.3s ease;
+                        width: 12.5%;
+                    }
+
+                    .tour-minimize-btn {
+                        background: none;
+                        border: none;
+                        color: var(--color-neutral-text);
+                        cursor: pointer;
+                        padding: 4px;
+                        border-radius: 4px;
+                        font-size: 16px;
+                        transition: all 0.2s ease;
+                    }
+
+                    .tour-minimize-btn:hover {
+                        background: var(--color-neutral-background);
+                    }
+
+                    .tour-controls-body {
+                        padding: 16px;
+                    }
+
+                    .audio-controls {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        margin-bottom: 16px;
+                        padding-bottom: 16px;
+                        border-bottom: 1px solid var(--color-neutral-border);
+                    }
+
+                    .audio-btn {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 6px;
+                        border: 1px solid var(--color-neutral-border);
+                        background: white;
+                        color: var(--color-neutral-text);
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 16px;
+                        transition: all 0.2s ease;
+                    }
+
+                    .audio-btn:hover {
+                        border-color: var(--color-primary-blue);
+                        color: var(--color-primary-blue);
+                    }
+
+                    .volume-control {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        flex: 1;
+                    }
+
+                    .volume-control i {
+                        color: var(--color-neutral-text);
+                        font-size: 16px;
+                    }
+
+                    #volumeSlider {
+                        flex: 1;
+                        height: 4px;
+                        background: var(--color-neutral-border);
+                        border-radius: 2px;
+                        outline: none;
+                        cursor: pointer;
+                    }
+
+                    .tour-navigation {
+                        display: flex;
+                        gap: 8px;
+                    }
+
+                    .nav-btn, .end-btn {
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        border: 1px solid var(--color-neutral-border);
+                        background: white;
+                        color: var(--color-neutral-text);
+                        font-family: var(--font-family-ui);
+                        font-size: 12px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        transition: all 0.2s ease;
+                    }
+
+                    .nav-btn:hover {
+                        border-color: var(--color-primary-blue);
+                        color: var(--color-primary-blue);
+                    }
+
+                    .end-btn {
+                        background: #dc2626;
+                        border-color: #dc2626;
+                        color: white;
+                        margin-left: auto;
+                    }
+
+                    .end-btn:hover {
+                        background: #b91c1c;
+                        border-color: #b91c1c;
+                    }
+                `;
+
+                document.head.appendChild(style);
+                document.body.appendChild(this.controlsContainer);
+            }
+
+            show() {
+                if (!this.controlsContainer) this.create();
+                this.controlsContainer.style.display = 'block';
+                this.isVisible = true;
+                this.updateProgress();
+            }
+
+            hide() {
+                if (this.controlsContainer) {
+                    this.controlsContainer.style.display = 'none';
+                    this.isVisible = false;
+                }
+            }
+
+            toggle() {
+                if (this.controlsContainer) {
+                    this.controlsContainer.classList.toggle('minimized');
+                }
+            }
+
+            updateProgress() {
+                if (!this.controlsContainer) return;
+
+                const progress = canvasTour.getProgress();
+                const counter = this.controlsContainer.querySelector('.tour-step-counter');
+                const progressFill = this.controlsContainer.querySelector('.tour-progress-fill');
+
+                if (counter) {
+                    counter.textContent = `Step ${progress.currentStep + 1} of ${progress.totalSteps}`;
+                }
+
+                if (progressFill) {
+                    progressFill.style.width = `${progress.progressPercent}%`;
+                }
+            }
+
+            toggleAudio() {
+                const btn = document.getElementById('audioPlayPause');
+                const icon = btn.querySelector('i');
+
+                if (audioTourManager.isAudioPlaying()) {
+                    audioTourManager.stopAudio();
+                    icon.className = 'ph ph-play';
+                } else {
+                    const progress = canvasTour.getProgress();
+                    if (progress.stepId) {
+                        audioTourManager.playNarration(progress.stepId);
+                        icon.className = 'ph ph-pause';
+                    }
+                }
+            }
+
+            stopAudio() {
+                audioTourManager.stopAudio();
+                const btn = document.getElementById('audioPlayPause');
+                const icon = btn.querySelector('i');
+                icon.className = 'ph ph-play';
+            }
+
+            setVolume(value) {
+                const volume = value / 100;
+                audioTourManager.setVolume(volume);
+            }
+
+            previousStep() {
+                // Driver.js handles the actual navigation
+                if (canvasTour.driver && canvasTour.isActive) {
+                    canvasTour.driver.movePrevious();
+                }
+            }
+
+            nextStep() {
+                // Driver.js handles the actual navigation
+                if (canvasTour.driver && canvasTour.isActive) {
+                    canvasTour.driver.moveNext();
+                }
+            }
+
+            endTour() {
+                canvasTour.stopTour();
+                this.hide();
+            }
+        }
+
+        // Initialize tour controls
+        const tourControls = new TourControls();
+
+        // Global functions for manual tour control (available in browser console)
+        window.startCanvasTour = function() {
+            console.log('Manual tour start requested');
+            canvasTour.startTour();
+            tourControls.show();
+        };
+
+        window.addTourButtonManually = function() {
+            console.log('Manual button addition requested');
+            addTourButton();
+        };
+
+        window.debugTourState = function() {
+            console.log('Tour Debug Info:');
+            console.log('- Canvas Tour:', canvasTour);
+            console.log('- Audio Manager:', audioTourManager);
+            console.log('- Tour Controls:', tourControls);
+            console.log('- Tour Button Exists:', !!document.getElementById('startTourBtn'));
+            console.log('- Canvas Header Elements:', document.querySelectorAll('[class*="header"]'));
+
+            const validation = canvasTour.validateSteps?.() || { valid: false, errors: ['Tour not initialized'] };
+            console.log('- Step Validation:', validation);
+        };
+
+        // Global function for adding guidance tooltips anywhere in the UI
+        window.addGuidanceTooltip = addGuidanceTooltip;
+
+        // Debug function to test tooltip manually
+        window.testTooltip = function(x = 200, y = 200) {
+            console.log('Manual tooltip test starting...');
+            guidanceTooltip.show('Test tooltip - this should be visible!', x, y);
+
+            setTimeout(() => {
+                console.log('Hiding test tooltip...');
+                guidanceTooltip.hide();
+            }, 3000);
+        };
+
+        // Debug function to show tooltip at current mouse position
+        window.showTooltipAtMouse = function(event) {
+            const x = event?.pageX || 300;
+            const y = event?.pageY || 300;
+            console.log('Showing tooltip at mouse position:', x, y);
+            guidanceTooltip.show('Mouse position tooltip test', x, y);
+        };
+
+        // Add tour control button to canvas header
+        function addTourButton() {
+            console.log('Attempting to add tour button...');
+
+            // Try multiple selectors to find the header
+            const selectors = ['.canvas-modal-header-top', '.canvas-modal-header', '.canvas-header'];
+            let canvasHeader = null;
+
+            for (const selector of selectors) {
+                canvasHeader = document.querySelector(selector);
+                if (canvasHeader) {
+                    console.log(`Found canvas header using selector: ${selector}`);
+                    break;
+                }
+            }
+
+            if (!canvasHeader) {
+                console.error('Canvas header not found! Available elements:', document.querySelectorAll('[class*="header"]'));
+                return;
+            }
+
+            if (document.getElementById('startTourBtn')) {
+                console.log('Tour button already exists');
+                return;
+            }
+
+            console.log('Creating tour button...');
+            const tourButton = document.createElement('button');
+            tourButton.id = 'startTourBtn';
+            tourButton.className = 'tour-btn';
+            tourButton.innerHTML = '<i class="ph ph-play"></i> Start Tour';
+            tourButton.style.cssText = `
+                padding: 8px 12px;
+                background: var(--color-primary-blue);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-family: var(--font-family-ui);
+                font-size: 12px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+                margin-left: 12px;
+                white-space: nowrap;
+            `;
+
+            tourButton.addEventListener('click', () => {
+                console.log('Tour button clicked!');
+                canvasTour.startTour();
+                tourControls.show();
+            });
+
+            canvasHeader.appendChild(tourButton);
+            console.log('Tour button added successfully!');
+        }
+
+        // Auto-open Canvas Tour on page load - simple version
         window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
             openCanvasModal();
+
+            // Add tour button after modal is open - try multiple times if needed
+            setTimeout(() => {
+                console.log('First attempt to add tour button...');
+                addTourButton();
+
+                // Initialize UI guidance tooltips
+                initializeUIGuidance();
+
+                // Fallback attempt if first one failed
+                setTimeout(() => {
+                    if (!document.getElementById('startTourBtn')) {
+                        console.log('Second attempt to add tour button...');
+                        addTourButton();
+                    }
+                }, 1000);
+            }, 500);
         });
     </script>
 </body>

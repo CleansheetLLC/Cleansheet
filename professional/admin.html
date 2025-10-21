@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleansheet Professional - Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Questrial&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Color Palette */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-highlight: #11304f;
+            --color-dark: #1a1a1a;
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-lighter: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-light: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-badge-background: #e3f2fd;
+
+            /* Status Colors */
+            --color-success: #16a34a;
+            --color-warning: #f59e0b;
+            --color-error: #dc2626;
+            --color-info: #0ea5e9;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', sans-serif;
+            --font-family-body: 'Barlow', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .admin-header {
+            background: var(--color-dark);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            height: 32px;
+        }
+
+        .header-title {
+            font-family: var(--font-family-ui);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .admin-badge {
+            background: var(--color-error);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--color-highlight);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Layout */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            background: white;
+            border-right: 1px solid var(--color-neutral-border);
+            padding: 24px 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-title {
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-neutral-text-lighter);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 24px;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 2px;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--color-neutral-text-light);
+            text-decoration: none;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-right: 3px solid transparent;
+        }
+
+        .sidebar-nav-link:hover {
+            background: var(--color-neutral-background-light);
+            color: var(--color-neutral-text);
+        }
+
+        .sidebar-nav-link.active {
+            background: var(--color-badge-background);
+            color: var(--color-primary-blue);
+            border-right-color: var(--color-primary-blue);
+        }
+
+        .sidebar-nav-link i {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .admin-main {
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: var(--font-family-ui);
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+        }
+
+        .page-description {
+            font-size: 16px;
+            color: var(--color-neutral-text-light);
+            font-weight: 300;
+        }
+
+        /* Cards */
+        .admin-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-family: var(--font-family-ui);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-connected {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--color-success);
+        }
+
+        .status-disconnected {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--color-error);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--color-warning);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-neutral-text);
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            background: white;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--color-neutral-text-lighter);
+            margin-top: 4px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-blue);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-neutral-text);
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-neutral-background-light);
+            border-color: var(--color-primary-blue);
+        }
+
+        .btn-danger {
+            background: var(--color-error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .data-table th {
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-neutral-text-lighter);
+            text-transform: uppercase;
+            background: var(--color-neutral-background-light);
+        }
+
+        .data-table td {
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: var(--color-neutral-background-light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.blue {
+            background: var(--color-badge-background);
+            color: var(--color-primary-blue);
+        }
+
+        .stat-icon.green {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--color-success);
+        }
+
+        .stat-icon.orange {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--color-warning);
+        }
+
+        .stat-icon.red {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--color-error);
+        }
+
+        .stat-value {
+            font-family: var(--font-family-ui);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--color-neutral-text-light);
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-sidebar {
+                display: none;
+            }
+
+            .admin-main {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-left .header-title {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+        }
+
+        /* Loading States */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-left">
+            <img src="../assets/high-resolution-logo-files/white-on-transparent.png"
+                 alt="Cleansheet Logo" class="header-logo">
+            <h1 class="header-title">Professional Admin</h1>
+            <span class="admin-badge">Admin</span>
+        </div>
+        <div class="header-right" id="headerRight">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">--</div>
+                <span id="userName">Loading...</span>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">
+                <i class="ph ph-sign-out"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">Dashboard</h2>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link active" data-section="overview">
+                            <i class="ph ph-house"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">Azure Services</h2>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="azure-config">
+                            <i class="ph ph-cloud"></i>
+                            <span>Azure Configuration</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="blob-storage">
+                            <i class="ph ph-database"></i>
+                            <span>Blob Storage</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="auth-config">
+                            <i class="ph ph-shield-check"></i>
+                            <span>Authentication</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">Platform</h2>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="users">
+                            <i class="ph ph-users"></i>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="analytics">
+                            <i class="ph ph-chart-bar"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="settings">
+                            <i class="ph ph-gear"></i>
+                            <span>Platform Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">System</h2>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="logs">
+                            <i class="ph ph-list-bullets"></i>
+                            <span>System Logs</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link" data-section="backup">
+                            <i class="ph ph-hard-drives"></i>
+                            <span>Backup & Recovery</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Overview Section (Default) -->
+            <div id="overview-section" class="admin-section active">
+                <div class="page-header">
+                    <h1 class="page-title">Platform Overview</h1>
+                    <p class="page-description">Monitor system health, performance metrics, and recent activity</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="ph ph-users"></i>
+                        </div>
+                        <div class="stat-value">247</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="ph ph-file-text"></i>
+                        </div>
+                        <div class="stat-value">1,834</div>
+                        <div class="stat-label">Documents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="ph ph-database"></i>
+                        </div>
+                        <div class="stat-value">15.2 GB</div>
+                        <div class="stat-label">Storage Used</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="ph ph-warning"></i>
+                        </div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Alerts</div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2 class="card-title">System Status</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Last Check</th>
+                                    <th>Response Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Azure AD B2C</td>
+                                    <td><span class="status-indicator status-connected"><span class="status-dot"></span>Connected</span></td>
+                                    <td>2 minutes ago</td>
+                                    <td>142ms</td>
+                                </tr>
+                                <tr>
+                                    <td>Blob Storage</td>
+                                    <td><span class="status-indicator status-connected"><span class="status-dot"></span>Connected</span></td>
+                                    <td>1 minute ago</td>
+                                    <td>89ms</td>
+                                </tr>
+                                <tr>
+                                    <td>Application Insights</td>
+                                    <td><span class="status-indicator status-warning"><span class="status-dot"></span>Degraded</span></td>
+                                    <td>5 minutes ago</td>
+                                    <td>2.1s</td>
+                                </tr>
+                                <tr>
+                                    <td>Search Service</td>
+                                    <td><span class="status-indicator status-disconnected"><span class="status-dot"></span>Offline</span></td>
+                                    <td>12 minutes ago</td>
+                                    <td>Timeout</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Azure Configuration Section -->
+            <div id="azure-config-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Azure Configuration</h1>
+                    <p class="page-description">Configure Azure service connections and credentials</p>
+                </div>
+
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Azure Subscription</h2>
+                        <span class="status-indicator status-connected">
+                            <span class="status-dot"></span>Connected
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Subscription ID</label>
+                                <input type="text" class="form-input"
+                                       value="12345678-1234-1234-1234-123456789012" readonly>
+                                <div class="form-help">Your Azure subscription identifier</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Resource Group</label>
+                                <input type="text" class="form-input"
+                                       value="cleansheet-professional-rg"
+                                       placeholder="Enter resource group name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Region</label>
+                                <select class="form-select">
+                                    <option value="eastus">East US</option>
+                                    <option value="westus2">West US 2</option>
+                                    <option value="centralus" selected>Central US</option>
+                                    <option value="northeurope">North Europe</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Environment</label>
+                                <select class="form-select">
+                                    <option value="development">Development</option>
+                                    <option value="staging">Staging</option>
+                                    <option value="production" selected>Production</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="ph ph-floppy-disk"></i>
+                                Save Configuration
+                            </button>
+                            <button class="btn btn-secondary">
+                                <i class="ph ph-arrow-clockwise"></i>
+                                Test Connection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blob Storage Section -->
+            <div id="blob-storage-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Blob Storage Management</h1>
+                    <p class="page-description">Manage Azure Blob Storage containers and files</p>
+                </div>
+
+                <!-- Storage Account Info -->
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Storage Account</h2>
+                        <button class="btn btn-primary">
+                            <i class="ph ph-plus"></i>
+                            Create Container
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Account Name</label>
+                                <input type="text" class="form-input"
+                                       value="cleansheetprofessional"
+                                       placeholder="Storage account name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Connection String</label>
+                                <textarea class="form-textarea"
+                                          placeholder="DefaultEndpointsProtocol=https;AccountName=..."></textarea>
+                                <div class="form-help">Keep this secure - never expose in client code</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Containers -->
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Blob Containers</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Container Name</th>
+                                    <th>Access Level</th>
+                                    <th>Items</th>
+                                    <th>Size</th>
+                                    <th>Last Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>user-documents</strong></td>
+                                    <td>Private</td>
+                                    <td>1,247</td>
+                                    <td>8.2 GB</td>
+                                    <td>2 hours ago</td>
+                                    <td>
+                                        <button class="btn btn-secondary">Browse</button>
+                                        <button class="btn btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>templates</strong></td>
+                                    <td>Public Read</td>
+                                    <td>45</td>
+                                    <td>892 MB</td>
+                                    <td>1 day ago</td>
+                                    <td>
+                                        <button class="btn btn-secondary">Browse</button>
+                                        <button class="btn btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>backups</strong></td>
+                                    <td>Private</td>
+                                    <td>12</td>
+                                    <td>6.8 GB</td>
+                                    <td>3 days ago</td>
+                                    <td>
+                                        <button class="btn btn-secondary">Browse</button>
+                                        <button class="btn btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication Config Section -->
+            <div id="auth-config-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Authentication Configuration</h1>
+                    <p class="page-description">Configure Azure AD B2C and social login providers</p>
+                </div>
+
+                <!-- Azure AD B2C -->
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Azure AD B2C</h2>
+                        <span class="status-indicator status-connected">
+                            <span class="status-dot"></span>Active
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Authentication Type</label>
+                                <select class="form-select" id="authTypeSelect">
+                                    <option value="external-id" selected>Microsoft Entra External ID (Recommended)</option>
+                                    <option value="b2c">Azure AD B2C (Legacy)</option>
+                                </select>
+                                <div class="form-help">External ID is recommended for new implementations</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Client ID</label>
+                                <input type="text" class="form-input"
+                                       value="00000000-0000-0000-0000-000000000000"
+                                       placeholder="Application (client) ID from Azure">
+                            </div>
+                            <div class="form-group" id="authorityGroup">
+                                <label class="form-label">Authority</label>
+                                <input type="text" class="form-input"
+                                       value="https://login.microsoftonline.com/common"
+                                       placeholder="Authentication authority endpoint">
+                                <div class="form-help">Multi-tenant endpoint for External ID</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Redirect URI</label>
+                                <input type="text" class="form-input"
+                                       value="https://pro.cleansheet.dev/professional/callback.html"
+                                       placeholder="https://pro.cleansheet.dev/professional/callback.html">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Admin Domain</label>
+                                <input type="text" class="form-input"
+                                       value="cleansheet.dev"
+                                       placeholder="Domain for admin users (e.g., cleansheet.dev)">
+                                <div class="form-help">Only users from this domain can access admin functions</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" id="saveAuthConfig">
+                                <i class="ph ph-floppy-disk"></i>
+                                Save Authentication Config
+                            </button>
+                            <button class="btn btn-secondary" id="testAuthConfig">
+                                <i class="ph ph-arrow-clockwise"></i>
+                                Test Authentication
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Providers -->
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Social Login Providers</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" checked>
+                                Microsoft Account
+                            </label>
+                            <div class="form-help">Allow users to sign in with Microsoft accounts</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" checked>
+                                Google
+                            </label>
+                            <div class="form-help">Allow users to sign in with Google accounts</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox">
+                                LinkedIn
+                            </label>
+                            <div class="form-help">Allow users to sign in with LinkedIn accounts</div>
+                        </div>
+                        <button class="btn btn-primary">
+                            <i class="ph ph-floppy-disk"></i>
+                            Update Providers
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other sections would be implemented similarly -->
+            <div id="users-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">User Management</h1>
+                    <p class="page-description">Manage user accounts, roles, and permissions</p>
+                </div>
+                <div class="admin-card">
+                    <div class="card-body">
+                        <p>User management interface will be implemented here...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Analytics</h1>
+                    <p class="page-description">Platform usage analytics and insights</p>
+                </div>
+                <div class="admin-card">
+                    <div class="card-body">
+                        <p>Analytics dashboard will be implemented here...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Platform Settings</h1>
+                    <p class="page-description">Configure platform-wide settings and preferences</p>
+                </div>
+                <div class="admin-card">
+                    <div class="card-body">
+                        <p>Platform settings interface will be implemented here...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="logs-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">System Logs</h1>
+                    <p class="page-description">View and analyze system logs and events</p>
+                </div>
+                <div class="admin-card">
+                    <div class="card-body">
+                        <p>System logs interface will be implemented here...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="backup-section" class="admin-section" style="display: none;">
+                <div class="page-header">
+                    <h1 class="page-title">Backup & Recovery</h1>
+                    <p class="page-description">Manage data backups and recovery procedures</p>
+                </div>
+                <div class="admin-card">
+                    <div class="card-body">
+                        <p>Backup and recovery interface will be implemented here...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Configuration and Authentication -->
+    <script src="config-loader.js"></script>
+    <script src="microsoft-auth.js"></script>
+    <script src="auth-manager.js"></script>
+
+    <script>
+        // Admin Dashboard JavaScript with Authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            // Require admin authentication
+            if (!authManager.requireAuth(true)) {
+                return; // Will redirect to login
+            }
+
+            // Initialize UI with authenticated user
+            initializeAuthenticatedUI();
+
+            // Handle authentication type switching
+            setupAuthTypeHandler();
+
+            function setupAuthTypeHandler() {
+                const authTypeSelect = document.getElementById('authTypeSelect');
+                const authorityGroup = document.getElementById('authorityGroup');
+
+                if (authTypeSelect) {
+                    authTypeSelect.addEventListener('change', function() {
+                        const authorityInput = authorityGroup.querySelector('.form-input');
+                        const helpText = authorityGroup.querySelector('.form-help');
+
+                        if (this.value === 'external-id') {
+                            authorityInput.value = 'https://login.microsoftonline.com/common';
+                            helpText.textContent = 'Multi-tenant endpoint for External ID';
+                        } else if (this.value === 'b2c') {
+                            authorityInput.value = 'https://cleansheetprofessional.b2clogin.com/cleansheetprofessional.onmicrosoft.com/B2C_1_signup_signin';
+                            helpText.textContent = 'B2C-specific tenant endpoint';
+                        }
+                    });
+                }
+            }
+
+            function initializeAuthenticatedUI() {
+                // Get user profile
+                const profile = authManager.getUserProfile();
+
+                if (profile) {
+                    // Update header with user info
+                    const userAvatar = document.getElementById('userAvatar');
+                    const userName = document.getElementById('userName');
+
+                    // Set user initials
+                    const initials = profile.name ?
+                        profile.name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase() :
+                        '??';
+                    userAvatar.textContent = initials;
+                    userAvatar.title = `${profile.name} (${profile.email})`;
+
+                    // Set user name
+                    userName.textContent = profile.name || 'Administrator';
+
+                    // Load authentication configuration
+                    loadAuthConfig();
+                } else {
+                    console.error('No user profile available');
+                }
+            }
+
+            function loadAuthConfig() {
+                // Load current authentication configuration
+                const authConfig = authManager.getAuthConfig();
+
+                if (authConfig) {
+                    // Update form fields with current configuration
+                    updateAuthConfigForm(authConfig);
+                }
+            }
+
+            function updateAuthConfigForm(config) {
+                // Update Azure AD B2C configuration form
+                const tenantInput = document.querySelector('input[placeholder="yourtenant.onmicrosoft.com"]');
+                const clientIdInput = document.querySelector('input[placeholder="Application (client) ID"]');
+                const policyInput = document.querySelector('input[placeholder="User flow policy name"]');
+                const redirectInput = document.querySelector('input[placeholder="https://yourdomain.com/callback"]');
+
+                if (tenantInput && config.authority) {
+                    // Extract tenant from authority URL
+                    const match = config.authority.match(/https:\/\/([^.]+)\.b2clogin\.com/);
+                    if (match) {
+                        tenantInput.value = match[1] + '.onmicrosoft.com';
+                    }
+                }
+
+                if (clientIdInput && config.clientId) {
+                    clientIdInput.value = config.clientId;
+                }
+
+                if (policyInput && config.authority) {
+                    // Extract policy from authority URL
+                    const policyMatch = config.authority.match(/\/([^/]+)$/);
+                    if (policyMatch) {
+                        policyInput.value = policyMatch[1];
+                    }
+                }
+
+                if (redirectInput && config.redirectUri) {
+                    redirectInput.value = config.redirectUri;
+                }
+            }
+
+            // Navigation handling
+            const navLinks = document.querySelectorAll('.sidebar-nav-link');
+            const sections = document.querySelectorAll('.admin-section');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Remove active from all links
+                    navLinks.forEach(nl => nl.classList.remove('active'));
+
+                    // Add active to clicked link
+                    this.classList.add('active');
+
+                    // Hide all sections
+                    sections.forEach(section => {
+                        section.style.display = 'none';
+                        section.classList.remove('active');
+                    });
+
+                    // Show selected section
+                    const sectionId = this.dataset.section + '-section';
+                    const targetSection = document.getElementById(sectionId);
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                        targetSection.classList.add('active');
+                    }
+                });
+            });
+
+            // Form submission handlers (non-functional for now)
+            document.querySelectorAll('form, .btn').forEach(element => {
+                element.addEventListener('submit', handleFormSubmit);
+                element.addEventListener('click', function(e) {
+                    if (this.classList.contains('btn') && !this.disabled) {
+                        handleButtonClick(e, this);
+                    }
+                });
+            });
+
+            function handleFormSubmit(e) {
+                e.preventDefault();
+                showNotification('Form submission not implemented yet - this is for design review', 'info');
+            }
+
+            function handleButtonClick(e, button) {
+                const text = button.textContent.trim();
+
+                if (text.includes('Save') || text.includes('Update')) {
+                    showLoadingState(button);
+                    setTimeout(() => {
+                        hideLoadingState(button);
+                        showNotification('Configuration saved successfully!', 'success');
+                    }, 1500);
+                } else if (text.includes('Test')) {
+                    showLoadingState(button);
+                    setTimeout(() => {
+                        hideLoadingState(button);
+                        showNotification('Connection test completed successfully!', 'success');
+                    }, 2000);
+                } else if (text.includes('Delete')) {
+                    if (confirm('Are you sure you want to delete this item?')) {
+                        showNotification('Delete functionality not implemented yet', 'warning');
+                    }
+                } else {
+                    showNotification(`${text} functionality not implemented yet - this is for design review`, 'info');
+                }
+            }
+
+            function showLoadingState(button) {
+                button.disabled = true;
+                const originalText = button.innerHTML;
+                button.dataset.originalText = originalText;
+                button.innerHTML = '<span class="loading-spinner"></span>Processing...';
+            }
+
+            function hideLoadingState(button) {
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText;
+            }
+        });
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                authManager.logout().then(() => {
+                    // Redirect will be handled by the auth manager
+                }).catch(error => {
+                    console.error('Logout error:', error);
+                    showNotification('Logout failed: ' + error.message, 'error');
+                });
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'var(--color-success)',
+                error: 'var(--color-error)',
+                warning: 'var(--color-warning)',
+                info: 'var(--color-info)'
+            };
+
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                color: ${colors[type]};
+                padding: 16px 20px;
+                border-left: 4px solid ${colors[type]};
+                border-radius: 6px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                font-family: var(--font-family-body);
+                font-size: 14px;
+                z-index: 1000;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+            `;
+
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="ph ph-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : type === 'warning' ? 'warning-circle' : 'info'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
