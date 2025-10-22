@@ -1,6 +1,7 @@
 # User Authentication & Authorization System Implementation Plan
 
-- [ ] 1. Set up project structure and core infrastructure
+- [-] 1. Set up project structure and core infrastructure
+
   - Create monorepo structure with separate service directories
   - Set up TypeScript configuration and build tools
   - Configure Docker containers for local development

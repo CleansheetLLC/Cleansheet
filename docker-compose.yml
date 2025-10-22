@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for user data and financial transactions
+  postgres:
+    image: postgres:15-alpine
+    container_name: cleansheet-postgres
+    environment:
+      POSTGRES_DB: cleansheet_auth
+      POSTGRES_USER: cleansheet
+      POSTGRES_PASSWORD: dev_password_123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cleansheet -d cleansheet_auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for session storage and caching
+  redis:
+    image: redis:7-alpine
+    container_name: cleansheet-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass dev_redis_123
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # MongoDB for configuration and profile data (for future services)
+  mongodb:
+    image: mongo:7
+    container_name: cleansheet-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: cleansheet
+      MONGO_INITDB_ROOT_PASSWORD: dev_mongo_123
+      MONGO_INITDB_DATABASE: cleansheet_platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/cleansheet_platform --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # InfluxDB for metrics and analytics (for future services)
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: cleansheet-influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: cleansheet
+      DOCKER_INFLUXDB_INIT_PASSWORD: dev_influx_123
+      DOCKER_INFLUXDB_INIT_ORG: cleansheet
+      DOCKER_INFLUXDB_INIT_BUCKET: metrics
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: dev_token_123456789
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  mongodb_data:
+  influxdb_data:
