@@ -1244,11 +1244,34 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             border: 1px solid var(--color-neutral-border);
             border-radius: 8px;
             transition: all 0.2s;
+            cursor: move;
         }
 
         .role-item:hover {
             border-color: var(--color-primary-blue);
             box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+        }
+
+        .role-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .role-item.drag-over {
+            border-top: 3px solid var(--color-primary-blue);
+        }
+
+        .role-item-drag-handle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            cursor: move;
+        }
+
+        .role-item-drag-icon {
+            color: var(--color-neutral-text-light);
+            font-size: 16px;
         }
 
         .role-item-name {
@@ -1721,19 +1744,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         <div class="raci-legend">
             <div class="legend-item">
                 <span class="raci-value R">R</span>
-                <span class="legend-text"><strong>Responsible:</strong> Person who does the work to complete the task</span>
+                <span class="legend-text"><strong>Responsible:</strong> People who do the work to <br>complete the task</span>
             </div>
             <div class="legend-item">
                 <span class="raci-value A">A</span>
-                <span class="legend-text"><strong>Accountable:</strong> Person ultimately answerable for completion (only one per task)</span>
+                <span class="legend-text"><strong>Accountable:</strong> Person ultimately answerable <br>for completion (only one per task)</span>
             </div>
             <div class="legend-item">
                 <span class="raci-value C">C</span>
-                <span class="legend-text"><strong>Consulted:</strong> People whose input is needed (two-way communication)</span>
+                <span class="legend-text"><strong>Consulted:</strong> People whose input is needed  <br>(two-way communication)</span>
             </div>
             <div class="legend-item">
                 <span class="raci-value I">I</span>
-                <span class="legend-text"><strong>Informed:</strong> People kept updated on progress (one-way communication)</span>
+                <span class="legend-text"><strong>Informed:</strong> People kept updated on progress <br>(one-way communication)</span>
             </div>
         </div>
 
@@ -2777,14 +2800,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const rolesList = document.getElementById('rolesList');
             rolesList.innerHTML = '';
 
-            raciData.roles.forEach(role => {
+            raciData.roles.forEach((role, index) => {
                 const roleItem = document.createElement('div');
                 roleItem.className = 'role-item';
+                roleItem.draggable = true;
+                roleItem.dataset.roleIndex = index;
+
+                // Drag handle and name container
+                const dragHandle = document.createElement('div');
+                dragHandle.className = 'role-item-drag-handle';
+
+                const dragIcon = document.createElement('i');
+                dragIcon.className = 'ph ph-dots-six-vertical role-item-drag-icon';
 
                 const roleName = document.createElement('span');
                 roleName.className = 'role-item-name';
                 roleName.textContent = role;
 
+                dragHandle.appendChild(dragIcon);
+                dragHandle.appendChild(roleName);
+
+                // Actions
                 const actions = document.createElement('div');
                 actions.className = 'role-item-actions';
 
@@ -2795,10 +2831,68 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 deleteBtn.onclick = () => deleteRoleFromModal(role);
 
                 actions.appendChild(deleteBtn);
-                roleItem.appendChild(roleName);
+                roleItem.appendChild(dragHandle);
                 roleItem.appendChild(actions);
+
+                // Drag event listeners
+                roleItem.addEventListener('dragstart', handleDragStart);
+                roleItem.addEventListener('dragover', handleDragOver);
+                roleItem.addEventListener('drop', handleDrop);
+                roleItem.addEventListener('dragend', handleDragEnd);
+                roleItem.addEventListener('dragleave', handleDragLeave);
+
                 rolesList.appendChild(roleItem);
             });
+        }
+
+        // Drag and Drop handlers
+        let draggedRoleIndex = null;
+
+        function handleDragStart(e) {
+            draggedRoleIndex = parseInt(e.currentTarget.dataset.roleIndex);
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const item = e.currentTarget;
+            if (!item.classList.contains('dragging')) {
+                item.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropIndex = parseInt(e.currentTarget.dataset.roleIndex);
+
+            if (draggedRoleIndex !== null && draggedRoleIndex !== dropIndex) {
+                // Reorder roles array
+                const draggedRole = raciData.roles[draggedRoleIndex];
+                raciData.roles.splice(draggedRoleIndex, 1);
+                raciData.roles.splice(dropIndex, 0, draggedRole);
+
+                // Re-render
+                renderRolesList();
+                renderTable();
+                saveToLocalStorage();
+                CleansheetCore.utils.showToast('Role order updated', 'success');
+            }
+
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.role-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            draggedRoleIndex = null;
         }
 
         function addRoleFromModal() {
