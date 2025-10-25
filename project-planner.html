@@ -697,6 +697,52 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             color: var(--color-primary-blue);
         }
 
+        /* Task Hierarchy Indentation */
+        .task-indent {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-indent-spacer {
+            width: 24px;
+            display: inline-block;
+        }
+
+        .task-collapse-btn {
+            background: none;
+            border: none;
+            color: var(--color-neutral-text-muted);
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .task-collapse-btn:hover {
+            color: var(--color-primary-blue);
+            background: rgba(0, 102, 204, 0.1);
+            border-radius: 4px;
+        }
+
+        .task-row.level-1 .task-name-wrapper { padding-left: 24px; }
+        .task-row.level-2 .task-name-wrapper { padding-left: 48px; }
+        .task-row.level-3 .task-name-wrapper { padding-left: 72px; }
+        .task-row.level-4 .task-name-wrapper { padding-left: 96px; }
+        .task-row.level-5 .task-name-wrapper { padding-left: 120px; }
+
+        .task-name-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            width: 100%;
+        }
+
         .raci-table td.role-cell {
             text-align: center;
             min-width: 120px;
@@ -1962,11 +2008,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 raciData.phases = [];
             }
 
-            // Ensure all tasks have phaseId property
+            // Ensure all tasks have required properties (backward compatibility)
             if (raciData.tasks) {
                 raciData.tasks.forEach(task => {
                     if (task.phaseId === undefined) {
                         task.phaseId = null;
+                    }
+                    if (task.parentId === undefined) {
+                        task.parentId = null;
+                    }
+                    if (task.level === undefined) {
+                        task.level = 0;
+                    }
+                    if (task.collapsed === undefined) {
+                        task.collapsed = false;
                     }
                 });
             }
@@ -2170,10 +2225,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                     tbody.appendChild(roleHeaderRow);
 
-                    // Render tasks in phase
-                    phaseTasks.forEach((task, taskIndex) => {
+                    // Render visible tasks in phase (filter out collapsed children)
+                    const visiblePhaseTasks = getVisibleTasks(phaseTasks);
+                    visiblePhaseTasks.forEach((task, taskIndex) => {
                         const phaseIndex = raciData.phases.indexOf(phase);
-                        tbody.appendChild(createTaskRow(task, phaseIndex + 1, taskIndex + 1));
+                        const wbsNumber = wbsEnabled ? calculateWBSNumber(task, phaseIndex + 1) : null;
+                        tbody.appendChild(createTaskRow(task, phaseIndex + 1, taskIndex + 1, wbsNumber));
                     });
                 }
             });
@@ -2213,8 +2270,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 unassignedCell.appendChild(unassignedHeader);
                 unassignedRow.appendChild(unassignedCell);
                 tbody.appendChild(unassignedRow);
-                unassignedTasks.forEach((task, taskIndex) => {
-                    tbody.appendChild(createTaskRow(task, unassignedPhaseNumber, taskIndex + 1));
+                const visibleUnassignedTasks = getVisibleTasks(unassignedTasks);
+                visibleUnassignedTasks.forEach((task, taskIndex) => {
+                    const wbsNumber = wbsEnabled ? calculateWBSNumber(task, unassignedPhaseNumber) : null;
+                    tbody.appendChild(createTaskRow(task, unassignedPhaseNumber, taskIndex + 1, wbsNumber));
                 });
             }
 
@@ -2222,9 +2281,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         // Create task row
-        function createTaskRow(task, phaseNumber, taskNumber) {
+        function createTaskRow(task, phaseNumber, taskNumber, hierarchicalNumber = null) {
             const tr = document.createElement('tr');
-            tr.className = 'task-row';
+            tr.className = `task-row level-${task.level || 0}`;
             tr.draggable = true;
             tr.dataset.taskId = task.id;
 
@@ -2242,18 +2301,44 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const taskInput = document.createElement('div');
             taskInput.className = 'task-input-container';
 
+            const nameWrapper = document.createElement('div');
+            nameWrapper.className = 'task-name-wrapper';
+
             // Drag handle
             const dragHandle = document.createElement('span');
             dragHandle.className = 'drag-handle';
             dragHandle.innerHTML = '<i class="ph ph-dots-six-vertical"></i>';
             dragHandle.title = 'Drag to reorder';
 
-            // WBS Number (if enabled)
-            if (wbsEnabled && phaseNumber !== null && taskNumber !== null) {
+            // Check if task has children
+            const hasChildren = raciData.tasks.some(t => t.parentId === task.id);
+
+            // Collapse/expand button for parent tasks
+            if (hasChildren) {
+                const collapseBtn = document.createElement('button');
+                collapseBtn.className = 'task-collapse-btn';
+                collapseBtn.innerHTML = task.collapsed ? '<i class="ph ph-caret-right"></i>' : '<i class="ph ph-caret-down"></i>';
+                collapseBtn.title = task.collapsed ? 'Expand' : 'Collapse';
+                collapseBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleTaskCollapse(task.id);
+                };
+                nameWrapper.appendChild(collapseBtn);
+            } else if (task.level > 0) {
+                // Add spacer for non-parent tasks to maintain alignment
+                const spacer = document.createElement('span');
+                spacer.className = 'task-indent-spacer';
+                spacer.style.width = '20px';
+                spacer.style.display = 'inline-block';
+                nameWrapper.appendChild(spacer);
+            }
+
+            // WBS Number (if enabled) - now hierarchical
+            if (wbsEnabled && hierarchicalNumber) {
                 const wbsNumber = document.createElement('span');
                 wbsNumber.className = 'wbs-number';
-                wbsNumber.textContent = `${phaseNumber}.${taskNumber}`;
-                taskInput.appendChild(wbsNumber);
+                wbsNumber.textContent = hierarchicalNumber;
+                nameWrapper.appendChild(wbsNumber);
             }
 
             const nameInput = document.createElement('input');
@@ -2318,8 +2403,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             phaseSelectorWrapper.appendChild(phaseSelectorBtn);
             phaseSelectorWrapper.appendChild(phaseDropdown);
 
+            nameWrapper.appendChild(nameInput);
+
             taskInput.appendChild(dragHandle);
-            taskInput.appendChild(nameInput);
+            taskInput.appendChild(nameWrapper);
             taskInput.appendChild(phaseSelectorWrapper);
             taskCell.appendChild(taskInput);
             tr.appendChild(taskCell);
@@ -2350,6 +2437,36 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Actions
             const actionsCell = document.createElement('td');
             actionsCell.className = 'actions-cell';
+
+            // Add sub-task button
+            if ((task.level || 0) < 5) {
+                const addSubBtn = document.createElement('button');
+                addSubBtn.className = 'action-btn';
+                addSubBtn.title = 'Add sub-task';
+                addSubBtn.innerHTML = '<i class="ph ph-plus-circle"></i>';
+                addSubBtn.onclick = () => addSubTask(task.id);
+                actionsCell.appendChild(addSubBtn);
+            }
+
+            // Indent button (if can indent)
+            if ((task.level || 0) < 5) {
+                const indentBtn = document.createElement('button');
+                indentBtn.className = 'action-btn';
+                indentBtn.title = 'Indent (make sub-task)';
+                indentBtn.innerHTML = '<i class="ph ph-arrow-right"></i>';
+                indentBtn.onclick = () => indentTask(task.id);
+                actionsCell.appendChild(indentBtn);
+            }
+
+            // Outdent button (if has parent)
+            if (task.parentId) {
+                const outdentBtn = document.createElement('button');
+                outdentBtn.className = 'action-btn';
+                outdentBtn.title = 'Outdent (promote level)';
+                outdentBtn.innerHTML = '<i class="ph ph-arrow-left"></i>';
+                outdentBtn.onclick = () => outdentTask(task.id);
+                actionsCell.appendChild(outdentBtn);
+            }
 
             // Date button
             const dateBtn = document.createElement('button');
@@ -2504,6 +2621,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 id: generateId(),
                 name: taskName,
                 phaseId: null,
+                parentId: null,
+                level: 0,
+                collapsed: false,
                 assignments: {}
             };
 
@@ -2526,6 +2646,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 id: generateId(),
                 name: taskName,
                 phaseId: phaseId,
+                parentId: null,
+                level: 0,
+                collapsed: false,
                 assignments: {}
             };
 
@@ -2769,6 +2892,206 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             CleansheetCore.utils.showToast('Task details saved', 'success');
         }
 
+        // Hierarchy Management Functions
+
+        // Add sub-task under a parent
+        function addSubTask(parentTaskId) {
+            const parentTask = raciData.tasks.find(t => t.id === parentTaskId);
+            if (!parentTask) return;
+
+            const newLevel = (parentTask.level || 0) + 1;
+            if (newLevel > 5) {
+                CleansheetCore.utils.showToast('Maximum hierarchy depth (5 levels) reached', 'error');
+                return;
+            }
+
+            const taskName = prompt('Enter sub-task name:');
+            if (!taskName) return;
+
+            const newTask = {
+                id: generateId(),
+                name: taskName,
+                phaseId: parentTask.phaseId,
+                parentId: parentTaskId,
+                level: newLevel,
+                collapsed: false,
+                assignments: {}
+            };
+
+            // Initialize empty assignments for all roles
+            raciData.roles.forEach(role => {
+                newTask.assignments[role] = '';
+            });
+
+            // Insert after parent (and all its children)
+            const parentIndex = raciData.tasks.indexOf(parentTask);
+            let insertIndex = parentIndex + 1;
+
+            // Find the last child/descendant of parent
+            while (insertIndex < raciData.tasks.length) {
+                const nextTask = raciData.tasks[insertIndex];
+                if (nextTask.parentId === parentTaskId || isDescendantOf(nextTask.id, parentTaskId)) {
+                    insertIndex++;
+                } else {
+                    break;
+                }
+            }
+
+            raciData.tasks.splice(insertIndex, 0, newTask);
+            renderTable();
+            saveToLocalStorage();
+            CleansheetCore.utils.showToast('Sub-task added', 'success');
+        }
+
+        // Check if a task is a descendant of another
+        function isDescendantOf(taskId, ancestorId) {
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task || !task.parentId) return false;
+            if (task.parentId === ancestorId) return true;
+            return isDescendantOf(task.parentId, ancestorId);
+        }
+
+        // Indent task (make it a child of previous sibling)
+        function indentTask(taskId) {
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const newLevel = (task.level || 0) + 1;
+            if (newLevel > 5) {
+                CleansheetCore.utils.showToast('Maximum hierarchy depth (5 levels) reached', 'error');
+                return;
+            }
+
+            // Find previous sibling at same level in same phase
+            const taskIndex = raciData.tasks.indexOf(task);
+            let previousSibling = null;
+
+            for (let i = taskIndex - 1; i >= 0; i--) {
+                const prevTask = raciData.tasks[i];
+                if (prevTask.phaseId === task.phaseId &&
+                    prevTask.parentId === task.parentId &&
+                    prevTask.level === task.level) {
+                    previousSibling = prevTask;
+                    break;
+                }
+                // Stop if we hit a task at a lower level (parent level)
+                if (prevTask.level < task.level) break;
+            }
+
+            if (!previousSibling) {
+                CleansheetCore.utils.showToast('No previous sibling to indent under', 'error');
+                return;
+            }
+
+            // Update task to be child of previous sibling
+            task.parentId = previousSibling.id;
+            task.level = newLevel;
+
+            // Update all children recursively
+            updateChildrenLevels(taskId, 1);
+
+            renderTable();
+            saveToLocalStorage();
+            CleansheetCore.utils.showToast('Task indented', 'success');
+        }
+
+        // Outdent task (promote to parent's level)
+        function outdentTask(taskId) {
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task || !task.parentId) return;
+
+            const parent = raciData.tasks.find(t => t.id === task.parentId);
+            if (!parent) return;
+
+            // Move to parent's level
+            task.parentId = parent.parentId;
+            task.level = Math.max(0, task.level - 1);
+
+            // Update all children recursively
+            updateChildrenLevels(taskId, -1);
+
+            renderTable();
+            saveToLocalStorage();
+            CleansheetCore.utils.showToast('Task outdented', 'success');
+        }
+
+        // Update children levels recursively
+        function updateChildrenLevels(parentTaskId, levelDelta) {
+            const children = raciData.tasks.filter(t => t.parentId === parentTaskId);
+            children.forEach(child => {
+                child.level = Math.max(0, Math.min(5, child.level + levelDelta));
+                updateChildrenLevels(child.id, levelDelta);
+            });
+        }
+
+        // Toggle task collapse/expand
+        function toggleTaskCollapse(taskId) {
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            task.collapsed = !task.collapsed;
+            renderTable();
+            saveToLocalStorage();
+        }
+
+        // Get visible tasks (filter out children of collapsed parents)
+        function getVisibleTasks(tasks) {
+            const visible = [];
+            const collapsedParents = new Set();
+
+            tasks.forEach(task => {
+                // Check if any ancestor is collapsed
+                let isHidden = false;
+                let checkParentId = task.parentId;
+
+                while (checkParentId) {
+                    if (collapsedParents.has(checkParentId)) {
+                        isHidden = true;
+                        break;
+                    }
+                    const parent = tasks.find(t => t.id === checkParentId);
+                    if (parent && parent.collapsed) {
+                        collapsedParents.add(parent.id);
+                        isHidden = true;
+                        break;
+                    }
+                    checkParentId = parent ? parent.parentId : null;
+                }
+
+                if (!isHidden) {
+                    visible.push(task);
+                }
+            });
+
+            return visible;
+        }
+
+        // Calculate hierarchical WBS number
+        function calculateWBSNumber(task, phaseNumber) {
+            if (!task) return null;
+
+            // Build the hierarchy path
+            const path = [];
+            let current = task;
+
+            while (current) {
+                // Count siblings before this task at the same level with same parent
+                const siblings = raciData.tasks.filter(t =>
+                    t.phaseId === current.phaseId &&
+                    t.parentId === current.parentId &&
+                    t.level === current.level
+                );
+                const taskNumber = siblings.indexOf(current) + 1;
+                path.unshift(taskNumber);
+
+                // Move to parent
+                current = current.parentId ? raciData.tasks.find(t => t.id === current.parentId) : null;
+            }
+
+            // Prepend phase number
+            return `${phaseNumber}.${path.join('.')}`;
+        }
+
         // Copy Task
         function copyTask(taskId) {
             const task = raciData.tasks.find(t => t.id === taskId);
@@ -2796,9 +3119,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function deleteTask(taskId) {
-            if (!confirm('Are you sure you want to delete this task?')) return;
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task) return;
 
-            raciData.tasks = raciData.tasks.filter(t => t.id !== taskId);
+            // Check if task has children
+            const children = raciData.tasks.filter(t => t.parentId === taskId);
+
+            let confirmMessage = 'Are you sure you want to delete this task?';
+            if (children.length > 0) {
+                confirmMessage = `This task has ${children.length} sub-task(s). Delete task and all its sub-tasks?`;
+            }
+
+            if (!confirm(confirmMessage)) return;
+
+            // Delete task and all descendants recursively
+            function deleteTaskAndDescendants(id) {
+                const descendants = raciData.tasks.filter(t => t.parentId === id);
+                descendants.forEach(child => deleteTaskAndDescendants(child.id));
+                raciData.tasks = raciData.tasks.filter(t => t.id !== id);
+            }
+
+            deleteTaskAndDescendants(taskId);
             renderTable();
             CleansheetCore.utils.showToast('Task deleted', 'success');
         }
