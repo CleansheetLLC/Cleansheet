@@ -265,7 +265,7 @@ const CleansheetCore = {
                 padding: 16px 24px;
                 border-radius: 8px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                font-family: ${this.fonts.body};
+                font-family: ${CleansheetCore.fonts.body};
                 font-size: 14px;
                 z-index: 10000;
                 animation: slideInUp 0.3s ease;
