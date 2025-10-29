@@ -317,30 +317,53 @@ Different personas use different accent colors for their personal canvas feature
 }
 ```
 
-### Floating Action Buttons
+### Floating Home Button
+A fixed-position navigation button that appears in the top-left corner of pages, providing consistent navigation back to the homepage.
+
+**Current Implementation** (as of 2025-10-29):
 ```css
 .floating-home-btn {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    padding: 12px 20px;
+    top: 16px;
+    left: 16px;
+    padding: 8px 16px;
     background: rgba(26, 26, 26, 0.85);
     backdrop-filter: blur(10px);
     color: white;
     text-decoration: none;
     border-radius: 8px;
-    border: 2px solid var(--color-primary-blue);
     font-family: var(--font-family-ui);
+    font-size: 12px;
     font-weight: 600;
-    z-index: 1000;
+    z-index: 1001;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .floating-home-btn:hover {
-    background: rgba(26, 26, 26, 0.95);
-    transform: translateY(-2px);
+    background: rgba(0, 102, 204, 0.95);
 }
 ```
+
+**HTML Structure**:
+```html
+<a href="index.html" class="floating-home-btn">
+    <i class="ph ph-arrow-left"></i>
+    <span>Home</span>
+</a>
+```
+
+**Design Specifications**:
+- **Position**: Fixed, top: 16px, left: 16px
+- **Background**: Dark translucent (`rgba(26, 26, 26, 0.85)`) with backdrop blur
+- **Text**: White, Questrial 12px, weight 600
+- **Icon**: Phosphor Icons `ph-arrow-left`
+- **Hover State**: Changes to blue background (`rgba(0, 102, 204, 0.95)`)
+- **Z-index**: 1001 (appears above most content)
+
+**Usage**: Apply to all secondary pages (career-paths.html, role-translator.html, about-cleansheet.html, privacy pages, etc.)
 
 ### Pills & Tags
 ```css

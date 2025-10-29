@@ -743,6 +743,25 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             width: 100%;
         }
 
+        .dependency-indicators {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .dependency-indicator {
+            font-size: 12px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .dependency-indicator {
+            border: 1px solid;
+        }
+
         .raci-table td.role-cell {
             text-align: center;
             min-width: 120px;
@@ -756,6 +775,15 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             gap: 6px;
             align-items: center;
             justify-content: flex-end;
+            width: 1%;
+            min-width: max-content;
+        }
+
+        .raci-table th.actions-header {
+            text-align: right;
+            white-space: nowrap;
+            width: 1%;
+            min-width: max-content;
         }
 
         /* Hide role columns when roles are not visible */
@@ -1001,6 +1029,56 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             color: #16a34a;
         }
 
+        .action-btn.phase-btn.has-phase {
+            color: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+        }
+
+        .action-btn.phase-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+        }
+
+        .action-btn.dependency-btn.has-dependencies {
+            color: #d97706;
+            border-color: #d97706;
+            background: #fef3c7;
+        }
+
+        .action-btn.dependency-btn:hover {
+            border-color: #d97706;
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .action-btn.document-btn.has-documents {
+            color: #7c3aed;
+            border-color: #7c3aed;
+            background: #faf5ff;
+        }
+
+        .action-btn.document-btn:hover {
+            border-color: #7c3aed;
+            background: #faf5ff;
+            color: #7c3aed;
+        }
+
+        /* Disabled Action Buttons */
+        .action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #f5f5f5;
+            color: #999999;
+            border-color: #e5e5e7;
+        }
+
+        .action-btn:disabled:hover {
+            background: #f5f5f5;
+            border-color: #e5e5e7;
+            color: #999999;
+        }
+
         /* Date Picker Modal */
         .date-picker-overlay {
             position: fixed;
@@ -1096,6 +1174,24 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
         }
 
+        .date-field select {
+            padding: 10px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            transition: all 0.2s;
+            background: white;
+            cursor: pointer;
+        }
+
+        .date-field select:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
         .date-field textarea {
             padding: 10px;
             border: 1px solid var(--color-neutral-border);
@@ -1185,7 +1281,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .raci-modal {
             background: white;
             border-radius: 12px;
-            width: 500px;
+            width: 800px;
             max-width: 90%;
             max-height: 80vh;
             display: flex;
@@ -1234,6 +1330,637 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             padding: 24px;
             overflow-y: auto;
             flex: 1;
+        }
+
+        /* Dependency Modal Styles */
+        .dependency-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dependency-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .dependency-item:last-child {
+            border-bottom: none;
+        }
+
+        .dependency-checkbox {
+            margin: 0;
+        }
+
+        .dependency-task-name {
+            flex: 1;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            color: var(--color-dark);
+        }
+
+        .dependency-phase-name {
+            font-size: 12px;
+            color: var(--color-neutral-text);
+            background: var(--color-neutral-background);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .current-dependency {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #fef3c7;
+            border: 1px solid #d97706;
+            border-radius: 6px;
+            margin: 4px 4px 4px 0;
+            font-size: 13px;
+            color: #92400e;
+        }
+
+        .current-dependency .remove-dependency {
+            background: none;
+            border: none;
+            color: #92400e;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            margin-left: 4px;
+        }
+
+        .current-dependency .remove-dependency:hover {
+            color: #78350f;
+        }
+
+        /* Dependency Type Styles */
+        .dependency-type-selector {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            background: white;
+            margin-left: 8px;
+            min-width: 80px;
+        }
+
+        .timing-type-selector {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            background: white;
+            margin-left: 4px;
+            min-width: 60px;
+        }
+
+        .dependency-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 8px;
+        }
+
+        .timing-legend {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .timing-legend h6 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .timing-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .timing-icon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .current-dependency.type-logical {
+            background: #fef2f2;
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        .current-dependency.type-resource {
+            background: #fff7ed;
+            border-color: #ea580c;
+            color: #ea580c;
+        }
+
+        .current-dependency.type-external {
+            background: #faf5ff;
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+
+        .current-dependency.type-preferential {
+            background: #f0fdf4;
+            border-color: #059669;
+            color: #059669;
+        }
+
+        .dependency-type-legend {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .dependency-type-legend h6 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .dependency-type-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .dependency-type-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .dependency-type-color.logical { background: #dc2626; }
+        .dependency-type-color.resource { background: #ea580c; }
+        .dependency-type-color.external { background: #7c3aed; }
+        .dependency-type-color.preferential { background: #059669; }
+
+        /* Document Slideout Styles */
+        .document-slideout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .document-slideout {
+            width: 60%;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .document-slideout.show {
+            transform: translateX(0);
+        }
+
+        .document-slideout-header {
+            padding: 24px;
+            background: var(--color-dark);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .document-slideout-header h3 {
+            margin: 0 0 4px 0;
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+        }
+
+        .document-count {
+            font-size: 14px;
+            opacity: 0.7;
+            font-family: var(--font-family-body);
+        }
+
+        .document-slideout-body {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--color-neutral-background);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Document Tabs */
+        .document-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid var(--color-neutral-border);
+            padding: 0 24px;
+        }
+
+        .document-tab {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-neutral-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .document-tab:hover {
+            color: var(--color-primary-blue);
+            background: var(--color-neutral-background);
+        }
+
+        .document-tab.active {
+            color: var(--color-primary-blue);
+            border-bottom-color: var(--color-primary-blue);
+        }
+
+        .document-tab i {
+            font-size: 16px;
+        }
+
+        /* Document Panels */
+        .document-panel {
+            display: none;
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .document-panel.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Document List */
+        .document-list-header {
+            margin-bottom: 16px;
+        }
+
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .document-item {
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .document-item:hover {
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.15);
+        }
+
+        .document-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .document-item-icon.richtext {
+            background: #faf5ff;
+            color: #7c3aed;
+        }
+
+        .document-item-icon.markdown {
+            background: #f0fdf4;
+            color: #059669;
+        }
+
+        .document-item-icon.mermaid {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .document-item-icon.link {
+            background: #e0f2fe;
+            color: #0277bd;
+        }
+
+        .document-item-content {
+            flex: 1;
+        }
+
+        .document-item-title {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 4px;
+        }
+
+        .document-item-meta {
+            font-size: 13px;
+            color: var(--color-neutral-text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .document-item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .document-item-action {
+            padding: 6px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .document-item-action:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .document-item-action.delete:hover {
+            border-color: #dc2626;
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        /* Document Editor Components */
+        .document-editor-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+        }
+
+        .document-title-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .document-editor-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Rich Text Editor */
+        .rich-text-editor {
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            min-height: 400px;
+            flex: 1;
+        }
+
+        /* Markdown Editor */
+        .markdown-editor-container {
+            flex: 1;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .markdown-editor-panes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+            min-height: 400px;
+        }
+
+        .markdown-pane {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .markdown-pane h4 {
+            margin: 0;
+            padding: 12px 16px;
+            background: var(--color-neutral-background);
+            border-bottom: 1px solid var(--color-neutral-border);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .markdown-pane:first-child {
+            border-right: 1px solid var(--color-neutral-border);
+        }
+
+        .markdown-textarea {
+            flex: 1;
+            border: none;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .markdown-preview {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: var(--font-family-body);
+            line-height: 1.6;
+        }
+
+        .markdown-preview h1,
+        .markdown-preview h2,
+        .markdown-preview h3,
+        .markdown-preview h4,
+        .markdown-preview h5,
+        .markdown-preview h6 {
+            font-family: var(--font-family-ui);
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .markdown-preview h1 {
+            font-size: 1.5em;
+        }
+
+        .markdown-preview h2 {
+            font-size: 1.3em;
+        }
+
+        .markdown-preview h3 {
+            font-size: 1.1em;
+        }
+
+        .markdown-preview code {
+            background: var(--color-neutral-background);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown-preview pre {
+            background: var(--color-neutral-background);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        .markdown-preview pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* Mermaid Editor */
+        .mermaid-editor-container {
+            flex: 1;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .mermaid-editor-panes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+            min-height: 400px;
+        }
+
+        .mermaid-pane {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mermaid-pane:first-child {
+            border-right: 1px solid var(--color-neutral-border);
+        }
+
+        .mermaid-textarea {
+            flex: 1;
+            border: none;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .mermaid-preview {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Link Editor */
+        .link-editor-container {
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .document-slideout {
+                width: 90%;
+            }
+
+            .markdown-editor-panes,
+            .mermaid-editor-panes {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
         }
 
         /* RACI Visibility Toggle */
@@ -1846,6 +2573,240 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
+        <!-- Dependency Management Modal -->
+        <div class="raci-modal-overlay" id="dependencyModal" style="display: none;" onclick="if(event.target === this) closeDependencyModal()">
+            <div class="raci-modal">
+                <div class="raci-modal-header">
+                    <h3>Manage Task Dependencies</h3>
+                    <button class="raci-modal-close" onclick="closeDependencyModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="raci-modal-body">
+                    <div style="margin-bottom: 16px;">
+                        <h4 id="dependencyTaskName" style="margin: 0 0 8px 0; color: var(--color-dark);">Task Name</h4>
+                        <p style="color: var(--color-neutral-text); margin: 0; font-size: 14px;">Select which tasks must be completed before this task can begin.</p>
+                    </div>
+
+                    <!-- Legends Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <!-- Dependency Type Legend -->
+                        <div class="dependency-type-legend">
+                            <h6>Dependency Types:</h6>
+                            <div class="dependency-type-item">
+                                <div class="dependency-type-color logical"></div>
+                                <span><strong>Logical:</strong> Sequential tasks</span>
+                            </div>
+                            <div class="dependency-type-item">
+                                <div class="dependency-type-color resource"></div>
+                                <span><strong>Resource:</strong> Shared resources</span>
+                            </div>
+                            <div class="dependency-type-item">
+                                <div class="dependency-type-color external"></div>
+                                <span><strong>External:</strong> External factors</span>
+                            </div>
+                            <div class="dependency-type-item">
+                                <div class="dependency-type-color preferential"></div>
+                                <span><strong>Preferential:</strong> Preferred order</span>
+                            </div>
+                        </div>
+
+                        <!-- Timing Relationship Legend -->
+                        <div class="timing-legend">
+                            <h6>Timing Relationships:</h6>
+                            <div class="timing-item">
+                                <span class="timing-icon">→</span>
+                                <span><strong>FS:</strong> Finish to Start (default)</span>
+                            </div>
+                            <div class="timing-item">
+                                <span class="timing-icon">⇉</span>
+                                <span><strong>SS:</strong> Start to Start</span>
+                            </div>
+                            <div class="timing-item">
+                                <span class="timing-icon">⇶</span>
+                                <span><strong>FF:</strong> Finish to Finish</span>
+                            </div>
+                            <div class="timing-item">
+                                <span class="timing-icon">↶</span>
+                                <span><strong>SF:</strong> Start to Finish</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Dependencies -->
+                    <div style="margin-bottom: 24px;">
+                        <h5 style="margin: 0 0 12px 0; color: var(--color-dark); font-size: 14px; font-weight: 600;">Current Prerequisites:</h5>
+                        <div id="currentDependencies" style="min-height: 40px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid var(--color-neutral-border);">
+                            <span style="color: var(--color-neutral-text); font-style: italic;">No prerequisites set</span>
+                        </div>
+                    </div>
+
+                    <!-- Available Tasks -->
+                    <div>
+                        <h5 style="margin: 0 0 12px 0; color: var(--color-dark); font-size: 14px; font-weight: 600;">Available Tasks:</h5>
+
+                        <!-- Filter Input -->
+                        <div style="margin-bottom: 12px;">
+                            <input type="text" id="dependencyFilterInput"
+                                   placeholder="Filter tasks..."
+                                   style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;"
+                                   oninput="filterAvailableTasks()">
+                        </div>
+
+                        <div id="availableTasks" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--color-neutral-border); border-radius: 6px;">
+                            <!-- Tasks will be dynamically added here -->
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn btn-secondary" onclick="closeDependencyModal()" style="margin-right: 8px;">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveDependencies()">Save Dependencies</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Management Slideout -->
+        <div class="document-slideout-overlay" id="documentSlideout" style="display: none;">
+            <div class="document-slideout">
+                <div class="document-slideout-header">
+                    <div>
+                        <h3 id="documentTaskName">Task Documents</h3>
+                        <span id="documentCount" class="document-count">0 documents</span>
+                    </div>
+                    <button class="raci-modal-close" onclick="closeDocumentSlideout()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+
+                <div class="document-slideout-body">
+                    <!-- Document Type Tabs -->
+                    <div class="document-tabs">
+                        <button class="document-tab active" data-tab="list" onclick="switchDocumentTab('list')">
+                            <i class="ph ph-list"></i> Documents
+                        </button>
+                        <button class="document-tab" data-tab="richtext" onclick="switchDocumentTab('richtext')">
+                            <i class="ph ph-file-text"></i> Rich Text
+                        </button>
+                        <button class="document-tab" data-tab="markdown" onclick="switchDocumentTab('markdown')">
+                            <i class="ph ph-markdown-logo"></i> Markdown
+                        </button>
+                        <button class="document-tab" data-tab="mermaid" onclick="switchDocumentTab('mermaid')">
+                            <i class="ph ph-flow-arrow"></i> Diagrams
+                        </button>
+                        <button class="document-tab" data-tab="link" onclick="switchDocumentTab('link')">
+                            <i class="ph ph-link"></i> Links
+                        </button>
+                    </div>
+
+                    <!-- Document List Panel -->
+                    <div class="document-panel active" id="documentPanel-list">
+                        <div class="document-list-header">
+                            <button class="btn btn-primary" onclick="showCreateDocumentModal()">
+                                <i class="ph ph-plus"></i> New Document
+                            </button>
+                        </div>
+                        <div id="documentList" class="document-list">
+                            <!-- Documents will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Rich Text Editor Panel -->
+                    <div class="document-panel" id="documentPanel-richtext">
+                        <div class="document-editor-header">
+                            <input type="text" id="richtextTitle" class="document-title-input" placeholder="Document title...">
+                            <div class="document-editor-actions">
+                                <button class="btn btn-secondary" onclick="cancelDocumentEdit()">Cancel</button>
+                                <button class="btn btn-primary" onclick="saveDocument('richtext')">Save</button>
+                            </div>
+                        </div>
+                        <div id="richtextEditor" class="rich-text-editor">
+                            <!-- Quill editor will be initialized here -->
+                        </div>
+                    </div>
+
+                    <!-- Markdown Editor Panel -->
+                    <div class="document-panel" id="documentPanel-markdown">
+                        <div class="document-editor-header">
+                            <input type="text" id="markdownTitle" class="document-title-input" placeholder="Document title...">
+                            <div class="document-editor-actions">
+                                <button class="btn btn-secondary" onclick="cancelDocumentEdit()">Cancel</button>
+                                <button class="btn btn-primary" onclick="saveDocument('markdown')">Save</button>
+                            </div>
+                        </div>
+                        <div class="markdown-editor-container">
+                            <div class="markdown-editor-panes">
+                                <div class="markdown-pane">
+                                    <h4>Editor</h4>
+                                    <textarea id="markdownEditor" class="markdown-textarea" placeholder="Enter your markdown here..."></textarea>
+                                </div>
+                                <div class="markdown-pane">
+                                    <h4>Preview</h4>
+                                    <div id="markdownPreview" class="markdown-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mermaid Diagram Panel -->
+                    <div class="document-panel" id="documentPanel-mermaid">
+                        <div class="document-editor-header">
+                            <input type="text" id="mermaidTitle" class="document-title-input" placeholder="Diagram title...">
+                            <div class="document-editor-actions">
+                                <button class="btn btn-secondary" onclick="cancelDocumentEdit()">Cancel</button>
+                                <button class="btn btn-primary" onclick="saveDocument('mermaid')">Save</button>
+                            </div>
+                        </div>
+                        <div class="mermaid-editor-container">
+                            <div class="mermaid-editor-panes">
+                                <div class="mermaid-pane">
+                                    <h4>Mermaid Code</h4>
+                                    <textarea id="mermaidEditor" class="mermaid-textarea" placeholder="Enter your Mermaid diagram code here..."></textarea>
+                                </div>
+                                <div class="mermaid-pane">
+                                    <h4>Preview</h4>
+                                    <div id="mermaidPreview" class="mermaid-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Links Panel -->
+                    <div class="document-panel" id="documentPanel-link">
+                        <div class="document-editor-header">
+                            <input type="text" id="linkTitle" class="document-title-input" placeholder="Link title...">
+                            <div class="document-editor-actions">
+                                <button class="btn btn-secondary" onclick="cancelDocumentEdit()">Cancel</button>
+                                <button class="btn btn-primary" onclick="saveDocument('link')">Save</button>
+                            </div>
+                        </div>
+                        <div class="link-editor-container">
+                            <div class="form-group">
+                                <label for="linkUrl">URL</label>
+                                <input type="url" id="linkUrl" class="form-input" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <label for="linkDescription">Description</label>
+                                <textarea id="linkDescription" class="form-textarea" placeholder="Optional description..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="linkType">Link Type</label>
+                                <select id="linkType" class="form-select">
+                                    <option value="general">General</option>
+                                    <option value="repository">Repository</option>
+                                    <option value="onedrive">OneDrive</option>
+                                    <option value="box">Box</option>
+                                    <option value="googledrive">Google Drive</option>
+                                    <option value="sharepoint">SharePoint</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="raci-legend">
             <div class="legend-item">
                 <span class="raci-value R">R</span>
@@ -1895,8 +2856,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // WBS Numbering State
         let wbsEnabled = false;
         // Roles Visibility State
-        // Initialize based on viewport: desktop shows RACI by default, mobile hides it
-        let rolesVisible = window.innerWidth > 768;
+        // Initialize with RACI disabled by default
+        let rolesVisible = false;
 
         let raciData = {
             projectName: 'Untitled Project',
@@ -2022,6 +2983,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     }
                     if (task.collapsed === undefined) {
                         task.collapsed = false;
+                    }
+                    if (!task.dependencies) {
+                        task.dependencies = [];
+                    }
+                    // Convert old dependency format (string array) to new format (object array)
+                    if (task.dependencies.length > 0 && typeof task.dependencies[0] === 'string') {
+                        task.dependencies = task.dependencies.map(depId => ({
+                            taskId: depId,
+                            type: 'Logical', // Default to Logical for legacy dependencies
+                            timing: 'FS' // Default to Finish to Start
+                        }));
+                    }
+                    // Ensure existing object dependencies have timing property
+                    task.dependencies.forEach(dep => {
+                        if (typeof dep === 'object' && !dep.timing) {
+                            dep.timing = 'FS'; // Default to Finish to Start
+                        }
+                    });
+                    // Ensure task has documents array
+                    if (!task.documents) {
+                        task.documents = [];
                     }
                 });
             }
@@ -2220,7 +3202,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     // Actions column header
                     const actionsHeader = document.createElement('th');
                     actionsHeader.textContent = 'Actions';
-                    actionsHeader.style.width = '100px';
+                    actionsHeader.className = 'actions-header';
                     roleHeaderRow.appendChild(actionsHeader);
 
                     tbody.appendChild(roleHeaderRow);
@@ -2346,18 +3328,179 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             nameInput.value = task.name;
             nameInput.onchange = () => updateTaskName(task.id, nameInput.value);
 
-            // Phase selector with icon dropdown
+            nameWrapper.appendChild(nameInput);
+
+            // Add dependency indicators
+            const dependencyIndicators = document.createElement('div');
+            dependencyIndicators.className = 'dependency-indicators';
+
+            // Check if task has dependencies (prerequisites)
+            if (task.dependencies && task.dependencies.length > 0) {
+                // Group dependencies by type and timing
+                const depsByTypeAndTiming = {};
+                task.dependencies.forEach(dep => {
+                    const type = typeof dep === 'string' ? 'Logical' : (dep.type || 'Logical');
+                    const timing = typeof dep === 'string' ? 'FS' : (dep.timing || 'FS');
+                    const key = `${type}-${timing}`;
+                    if (!depsByTypeAndTiming[key]) {
+                        depsByTypeAndTiming[key] = { type, timing, count: 0 };
+                    }
+                    depsByTypeAndTiming[key].count++;
+                });
+
+                // Create indicator for each type-timing combination
+                Object.values(depsByTypeAndTiming).forEach(({ type, timing, count }) => {
+                    const typeConfig = dependencyTypes[type];
+                    const timingConfig = timingTypes[timing];
+                    const hasDepIndicator = document.createElement('span');
+                    hasDepIndicator.className = 'dependency-indicator has-dependencies';
+                    hasDepIndicator.style.background = typeConfig.bgColor;
+                    hasDepIndicator.style.color = typeConfig.color;
+                    hasDepIndicator.style.borderColor = typeConfig.color;
+                    hasDepIndicator.innerHTML = `<i class="ph ph-arrow-circle-down"></i> ${count} ${timingConfig.icon}${timing}`;
+
+                    const typeDesc = typeConfig.description;
+                    const timingDesc = timingConfig.description;
+                    hasDepIndicator.title = `${count} ${type} ${timing} prerequisite${count > 1 ? 's' : ''}\nType: ${typeDesc}\nTiming: ${timingDesc}`;
+                    dependencyIndicators.appendChild(hasDepIndicator);
+                });
+            }
+
+            // Check if other tasks depend on this task
+            const dependentTasks = raciData.tasks.filter(t =>
+                hasDependencyOn(t, task.id)
+            );
+            if (dependentTasks.length > 0) {
+                // Group by dependency types and timing
+                const depTypeTimingCounts = {};
+                dependentTasks.forEach(depTask => {
+                    const dep = getDependencyByTaskId(depTask, task.id);
+                    const type = typeof dep === 'string' ? 'Logical' : (dep.type || 'Logical');
+                    const timing = typeof dep === 'string' ? 'FS' : (dep.timing || 'FS');
+                    const key = `${type}-${timing}`;
+                    if (!depTypeTimingCounts[key]) {
+                        depTypeTimingCounts[key] = { type, timing, count: 0 };
+                    }
+                    depTypeTimingCounts[key].count++;
+                });
+
+                // Create indicator for each type-timing combination
+                Object.values(depTypeTimingCounts).forEach(({ type, timing, count }) => {
+                    const typeConfig = dependencyTypes[type];
+                    const timingConfig = timingTypes[timing];
+                    const isDepIndicator = document.createElement('span');
+                    isDepIndicator.className = 'dependency-indicator is-dependency';
+                    isDepIndicator.style.background = typeConfig.bgColor;
+                    isDepIndicator.style.color = typeConfig.color;
+                    isDepIndicator.style.borderColor = typeConfig.color;
+                    isDepIndicator.innerHTML = `<i class="ph ph-arrow-circle-up"></i> ${count} ${timingConfig.icon}${timing}`;
+
+                    const typeDesc = typeConfig.description;
+                    const timingDesc = timingConfig.description;
+                    isDepIndicator.title = `${count} task${count > 1 ? 's' : ''} depend${count === 1 ? 's' : ''} on this (${type} ${timing})\nType: ${typeDesc}\nTiming: ${timingDesc}`;
+                    dependencyIndicators.appendChild(isDepIndicator);
+                });
+            }
+
+            nameWrapper.appendChild(dependencyIndicators);
+
+            taskInput.appendChild(dragHandle);
+            taskInput.appendChild(nameWrapper);
+            taskCell.appendChild(taskInput);
+            tr.appendChild(taskCell);
+
+            // Role assignment columns (one cell per role)
+            raciData.roles.forEach(role => {
+                const roleCell = document.createElement('td');
+                const value = task.assignments[role] || '';
+                roleCell.className = 'role-cell editable';
+
+                // Add color coding class based on value
+                if (value) {
+                    roleCell.classList.add(`raci-${value}`);
+                }
+
+                roleCell.innerHTML = `
+                    <select onchange="updateAssignment('${task.id}', '${role}', this.value)">
+                        <option value="">-</option>
+                        <option value="R" ${value === 'R' ? 'selected' : ''}>R</option>
+                        <option value="A" ${value === 'A' ? 'selected' : ''}>A</option>
+                        <option value="C" ${value === 'C' ? 'selected' : ''}>C</option>
+                        <option value="I" ${value === 'I' ? 'selected' : ''}>I</option>
+                    </select>
+                `;
+                tr.appendChild(roleCell);
+            });
+
+            // Actions
+            const actionsCell = document.createElement('td');
+            actionsCell.className = 'actions-cell';
+
+            // Check if indent is possible (has previous sibling at same level)
+            const canIndent = () => {
+                if ((task.level || 0) >= 5) return false;
+                const taskIndex = raciData.tasks.indexOf(task);
+                for (let i = taskIndex - 1; i >= 0; i--) {
+                    const prevTask = raciData.tasks[i];
+                    if (prevTask.phaseId === task.phaseId &&
+                        prevTask.parentId === task.parentId &&
+                        prevTask.level === task.level) {
+                        return true;
+                    }
+                    if (prevTask.level < task.level) break;
+                }
+                return false;
+            };
+
+            // Add sub-task button (always shown)
+            const addSubBtn = document.createElement('button');
+            addSubBtn.className = 'action-btn';
+            const canAddSub = (task.level || 0) < 5;
+            addSubBtn.title = canAddSub ? 'Add sub-task' : 'Maximum depth reached (5 levels)';
+            addSubBtn.innerHTML = '<i class="ph ph-plus-circle"></i>';
+            addSubBtn.disabled = !canAddSub;
+            if (canAddSub) {
+                addSubBtn.onclick = () => addSubTask(task.id);
+            }
+            actionsCell.appendChild(addSubBtn);
+
+            // Indent button (always shown)
+            const indentBtn = document.createElement('button');
+            indentBtn.className = 'action-btn';
+            const canIndentTask = canIndent();
+            indentBtn.title = canIndentTask ? 'Indent (make sub-task)' :
+                              (task.level || 0) >= 5 ? 'Maximum depth reached' : 'No previous sibling to indent under';
+            indentBtn.innerHTML = '<i class="ph ph-arrow-right"></i>';
+            indentBtn.disabled = !canIndentTask;
+            if (canIndentTask) {
+                indentBtn.onclick = () => indentTask(task.id);
+            }
+            actionsCell.appendChild(indentBtn);
+
+            // Outdent button (always shown)
+            const outdentBtn = document.createElement('button');
+            outdentBtn.className = 'action-btn';
+            const canOutdent = !!task.parentId;
+            outdentBtn.title = canOutdent ? 'Outdent (promote level)' : 'Task is at root level';
+            outdentBtn.innerHTML = '<i class="ph ph-arrow-left"></i>';
+            outdentBtn.disabled = !canOutdent;
+            if (canOutdent) {
+                outdentBtn.onclick = () => outdentTask(task.id);
+            }
+            actionsCell.appendChild(outdentBtn);
+
+            // Phase selector button with dropdown
             const phaseSelectorWrapper = document.createElement('div');
-            phaseSelectorWrapper.className = 'phase-selector-wrapper';
+            phaseSelectorWrapper.style.position = 'relative';
+            phaseSelectorWrapper.style.display = 'inline-block';
 
             const phaseSelectorBtn = document.createElement('button');
-            phaseSelectorBtn.className = 'phase-selector-btn';
+            phaseSelectorBtn.className = 'action-btn phase-btn';
             if (task.phaseId) {
                 phaseSelectorBtn.classList.add('has-phase');
             }
-            phaseSelectorBtn.innerHTML = '<i class="ph ph-folder"></i>';
+            phaseSelectorBtn.innerHTML = '<i class="ph ph-folders"></i>';
             phaseSelectorBtn.title = 'Assign to phase';
-            phaseSelectorBtn.type = 'button';
 
             const phaseDropdown = document.createElement('div');
             phaseDropdown.className = 'phase-dropdown';
@@ -2402,71 +3545,31 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             phaseSelectorWrapper.appendChild(phaseSelectorBtn);
             phaseSelectorWrapper.appendChild(phaseDropdown);
+            actionsCell.appendChild(phaseSelectorWrapper);
 
-            nameWrapper.appendChild(nameInput);
-
-            taskInput.appendChild(dragHandle);
-            taskInput.appendChild(nameWrapper);
-            taskInput.appendChild(phaseSelectorWrapper);
-            taskCell.appendChild(taskInput);
-            tr.appendChild(taskCell);
-
-            // Role assignment columns (one cell per role)
-            raciData.roles.forEach(role => {
-                const roleCell = document.createElement('td');
-                const value = task.assignments[role] || '';
-                roleCell.className = 'role-cell editable';
-
-                // Add color coding class based on value
-                if (value) {
-                    roleCell.classList.add(`raci-${value}`);
-                }
-
-                roleCell.innerHTML = `
-                    <select onchange="updateAssignment('${task.id}', '${role}', this.value)">
-                        <option value="">-</option>
-                        <option value="R" ${value === 'R' ? 'selected' : ''}>R</option>
-                        <option value="A" ${value === 'A' ? 'selected' : ''}>A</option>
-                        <option value="C" ${value === 'C' ? 'selected' : ''}>C</option>
-                        <option value="I" ${value === 'I' ? 'selected' : ''}>I</option>
-                    </select>
-                `;
-                tr.appendChild(roleCell);
-            });
-
-            // Actions
-            const actionsCell = document.createElement('td');
-            actionsCell.className = 'actions-cell';
-
-            // Add sub-task button
-            if ((task.level || 0) < 5) {
-                const addSubBtn = document.createElement('button');
-                addSubBtn.className = 'action-btn';
-                addSubBtn.title = 'Add sub-task';
-                addSubBtn.innerHTML = '<i class="ph ph-plus-circle"></i>';
-                addSubBtn.onclick = () => addSubTask(task.id);
-                actionsCell.appendChild(addSubBtn);
+            // Dependency button
+            const dependencyBtn = document.createElement('button');
+            dependencyBtn.className = 'action-btn dependency-btn';
+            dependencyBtn.title = 'Manage dependencies';
+            dependencyBtn.innerHTML = '<i class="ph ph-flow-arrow"></i>';
+            if (task.dependencies && task.dependencies.length > 0) {
+                dependencyBtn.classList.add('has-dependencies');
+                dependencyBtn.title = `Manage dependencies (${task.dependencies.length} prerequisites)`;
             }
+            dependencyBtn.onclick = () => openDependencyModal(task.id);
+            actionsCell.appendChild(dependencyBtn);
 
-            // Indent button (if can indent)
-            if ((task.level || 0) < 5) {
-                const indentBtn = document.createElement('button');
-                indentBtn.className = 'action-btn';
-                indentBtn.title = 'Indent (make sub-task)';
-                indentBtn.innerHTML = '<i class="ph ph-arrow-right"></i>';
-                indentBtn.onclick = () => indentTask(task.id);
-                actionsCell.appendChild(indentBtn);
+            // Document button
+            const documentBtn = document.createElement('button');
+            documentBtn.className = 'action-btn document-btn';
+            documentBtn.title = 'Manage documents';
+            documentBtn.innerHTML = '<i class="ph ph-file-text"></i>';
+            if (task.documents && task.documents.length > 0) {
+                documentBtn.classList.add('has-documents');
+                documentBtn.title = `Manage documents (${task.documents.length} documents)`;
             }
-
-            // Outdent button (if has parent)
-            if (task.parentId) {
-                const outdentBtn = document.createElement('button');
-                outdentBtn.className = 'action-btn';
-                outdentBtn.title = 'Outdent (promote level)';
-                outdentBtn.innerHTML = '<i class="ph ph-arrow-left"></i>';
-                outdentBtn.onclick = () => outdentTask(task.id);
-                actionsCell.appendChild(outdentBtn);
-            }
+            documentBtn.onclick = () => openDocumentSlideout(task.id);
+            actionsCell.appendChild(documentBtn);
 
             // Date button
             const dateBtn = document.createElement('button');
@@ -2624,7 +3727,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 parentId: null,
                 level: 0,
                 collapsed: false,
-                assignments: {}
+                assignments: {},
+                dependencies: [],
+                documents: []
             };
 
             // Initialize empty assignments for all roles
@@ -2649,7 +3754,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 parentId: null,
                 level: 0,
                 collapsed: false,
-                assignments: {}
+                assignments: {},
+                dependencies: [],
+                documents: []
             };
 
             // Initialize empty assignments for all roles
@@ -2819,6 +3926,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             taskName.style.cssText = 'font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text-light); margin-bottom: 16px;';
             taskName.textContent = task.name;
 
+            const statusField = document.createElement('div');
+            statusField.className = 'date-field';
+            statusField.innerHTML = `
+                <label for="taskStatus">Status</label>
+                <select id="taskStatus">
+                    <option value="" ${!task.status ? 'selected' : ''}>Not started</option>
+                    <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="done" ${task.status === 'done' ? 'selected' : ''}>Done</option>
+                    <option value="blocked" ${task.status === 'blocked' ? 'selected' : ''}>Blocked</option>
+                    <option value="on-hold" ${task.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+                    <option value="cancelled" ${task.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                </select>
+            `;
+
             const startField = document.createElement('div');
             startField.className = 'date-field';
             startField.innerHTML = `
@@ -2841,6 +3962,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             `;
 
             body.appendChild(taskName);
+            body.appendChild(statusField);
             body.appendChild(startField);
             body.appendChild(endField);
             body.appendChild(dodField);
@@ -2873,6 +3995,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const task = raciData.tasks.find(t => t.id === taskId);
             if (!task) return;
 
+            const status = document.getElementById('taskStatus').value;
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const definitionOfDone = document.getElementById('definitionOfDone').value.trim();
@@ -2883,6 +4006,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 return;
             }
 
+            task.status = status || null;
             task.startDate = startDate || null;
             task.endDate = endDate || null;
             task.definitionOfDone = definitionOfDone || null;
@@ -2915,7 +4039,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 parentId: parentTaskId,
                 level: newLevel,
                 collapsed: false,
-                assignments: {}
+                assignments: {},
+                dependencies: [],
+                documents: []
             };
 
             // Initialize empty assignments for all roles
@@ -3105,7 +4231,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 startDate: task.startDate || null,
                 endDate: task.endDate || null,
                 definitionOfDone: task.definitionOfDone || null,
-                assignments: { ...task.assignments }
+                assignments: { ...task.assignments },
+                dependencies: task.dependencies ? task.dependencies.map(dep =>
+                    typeof dep === 'string'
+                        ? { taskId: dep, type: 'Logical', timing: 'FS' }
+                        : { ...dep, timing: dep.timing || 'FS' }
+                ) : [],
+                documents: task.documents ? task.documents.map(doc => ({
+                    ...doc,
+                    id: generateId(), // Generate new ID for copied document
+                    lastModified: new Date().getTime()
+                })) : []
             };
 
             // Find the index of the original task
@@ -3194,6 +4330,407 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function closeRaciModal() {
             const modal = document.getElementById('raciModal');
             modal.style.display = 'none';
+        }
+
+        // Dependency Management Functions
+        let currentTaskForDependencies = null;
+
+        // Dependency type configuration
+        const dependencyTypes = {
+            'Logical': {
+                name: 'Logical',
+                description: 'Tasks that logically need to be done in sequence',
+                color: '#dc2626',
+                bgColor: '#fef2f2'
+            },
+            'Resource': {
+                name: 'Resource',
+                description: 'Tasks that depend on shared resources',
+                color: '#ea580c',
+                bgColor: '#fff7ed'
+            },
+            'External': {
+                name: 'External',
+                description: 'Tasks that depend on external factors',
+                color: '#7c3aed',
+                bgColor: '#faf5ff'
+            },
+            'Preferential': {
+                name: 'Preferential',
+                description: 'Tasks preferred to be done in a certain order',
+                color: '#059669',
+                bgColor: '#f0fdf4'
+            }
+        };
+
+        // Timing relationship configuration
+        const timingTypes = {
+            'FS': {
+                name: 'Finish to Start',
+                abbreviation: 'FS',
+                description: 'Predecessor task must finish before successor can start (default)',
+                icon: '→',
+                color: '#374151'
+            },
+            'SS': {
+                name: 'Start to Start',
+                abbreviation: 'SS',
+                description: 'Both tasks can start at the same time',
+                icon: '⇉',
+                color: '#059669'
+            },
+            'FF': {
+                name: 'Finish to Finish',
+                abbreviation: 'FF',
+                description: 'Both tasks must finish at the same time',
+                icon: '⇶',
+                color: '#dc2626'
+            },
+            'SF': {
+                name: 'Start to Finish',
+                abbreviation: 'SF',
+                description: 'Successor cannot finish until predecessor starts',
+                icon: '↶',
+                color: '#7c3aed'
+            }
+        };
+
+        // Utility functions for dependency management
+        function getDependencyTaskIds(task) {
+            if (!task.dependencies) return [];
+            return task.dependencies.map(dep => typeof dep === 'string' ? dep : dep.taskId);
+        }
+
+        function hasDependencyOn(task, targetTaskId) {
+            return getDependencyTaskIds(task).includes(targetTaskId);
+        }
+
+        function getDependencyByTaskId(task, taskId) {
+            if (!task.dependencies) return null;
+            return task.dependencies.find(dep =>
+                (typeof dep === 'string' ? dep : dep.taskId) === taskId
+            );
+        }
+
+        function addDependency(task, taskId, type = 'Logical', timing = 'FS') {
+            if (!task.dependencies) task.dependencies = [];
+
+            // Remove if already exists
+            task.dependencies = task.dependencies.filter(dep =>
+                (typeof dep === 'string' ? dep : dep.taskId) !== taskId
+            );
+
+            // Add new dependency
+            task.dependencies.push({ taskId, type, timing });
+        }
+
+        function removeDependencyByTaskId(task, taskId) {
+            if (!task.dependencies) return;
+            task.dependencies = task.dependencies.filter(dep =>
+                (typeof dep === 'string' ? dep : dep.taskId) !== taskId
+            );
+        }
+
+        function openDependencyModal(taskId) {
+            currentTaskForDependencies = taskId;
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            // Ensure task has dependencies array
+            if (!task.dependencies) {
+                task.dependencies = [];
+            }
+
+            const modal = document.getElementById('dependencyModal');
+            const taskNameElement = document.getElementById('dependencyTaskName');
+            taskNameElement.textContent = task.name;
+
+            // Clear the filter input
+            const filterInput = document.getElementById('dependencyFilterInput');
+            if (filterInput) {
+                filterInput.value = '';
+            }
+
+            renderCurrentDependencies(task);
+            renderAvailableTasks(task);
+
+            modal.style.display = 'flex';
+        }
+
+        function closeDependencyModal() {
+            const modal = document.getElementById('dependencyModal');
+            modal.style.display = 'none';
+            currentTaskForDependencies = null;
+        }
+
+        function renderCurrentDependencies(task) {
+            const container = document.getElementById('currentDependencies');
+
+            if (!task.dependencies || task.dependencies.length === 0) {
+                container.innerHTML = '<span style="color: var(--color-neutral-text); font-style: italic;">No prerequisites set</span>';
+                return;
+            }
+
+            container.innerHTML = '';
+            task.dependencies.forEach(dep => {
+                const depTaskId = typeof dep === 'string' ? dep : dep.taskId;
+                const depType = typeof dep === 'string' ? 'Logical' : (dep.type || 'Logical');
+                const depTiming = typeof dep === 'string' ? 'FS' : (dep.timing || 'FS');
+                const depTask = raciData.tasks.find(t => t.id === depTaskId);
+
+                if (depTask) {
+                    const depElement = document.createElement('span');
+                    depElement.className = `current-dependency type-${depType.toLowerCase()}`;
+                    depElement.innerHTML = `
+                        <span style="font-weight: 500;">[${depType}]</span>
+                        <span style="font-weight: 500; color: ${timingTypes[depTiming].color};">${timingTypes[depTiming].icon} ${depTiming}</span>
+                        ${depTask.name}
+                        <div class="dependency-controls">
+                            <select class="dependency-type-selector" onchange="changeDependencyType('${depTaskId}', this.value, '${depTiming}')">
+                                <option value="Logical" ${depType === 'Logical' ? 'selected' : ''}>Logical</option>
+                                <option value="Resource" ${depType === 'Resource' ? 'selected' : ''}>Resource</option>
+                                <option value="External" ${depType === 'External' ? 'selected' : ''}>External</option>
+                                <option value="Preferential" ${depType === 'Preferential' ? 'selected' : ''}>Preferential</option>
+                            </select>
+                            <select class="timing-type-selector" onchange="changeDependencyTiming('${depTaskId}', '${depType}', this.value)">
+                                <option value="FS" ${depTiming === 'FS' ? 'selected' : ''}>FS</option>
+                                <option value="SS" ${depTiming === 'SS' ? 'selected' : ''}>SS</option>
+                                <option value="FF" ${depTiming === 'FF' ? 'selected' : ''}>FF</option>
+                                <option value="SF" ${depTiming === 'SF' ? 'selected' : ''}>SF</option>
+                            </select>
+                            <button class="remove-dependency" onclick="removeDependency('${depTaskId}')" title="Remove dependency">
+                                <i class="ph ph-x"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(depElement);
+                }
+            });
+        }
+
+        function renderAvailableTasks(task, filterText = '') {
+            const container = document.getElementById('availableTasks');
+            container.innerHTML = '';
+
+            // Get all tasks except the current task and its descendants
+            let availableTasks = raciData.tasks.filter(t => {
+                if (t.id === task.id) return false; // Can't depend on itself
+                if (isDescendantOf(t.id, task.id)) return false; // Can't depend on descendants
+                return true;
+            });
+
+            // Apply filter if provided
+            if (filterText) {
+                const filter = filterText.toLowerCase().trim();
+                availableTasks = availableTasks.filter(t => {
+                    const taskName = t.name.toLowerCase();
+                    const phase = raciData.phases.find(p => p.id === t.phaseId);
+                    const phaseName = phase ? phase.name.toLowerCase() : '';
+                    return taskName.includes(filter) || phaseName.includes(filter);
+                });
+            }
+
+            if (availableTasks.length === 0) {
+                const message = filterText
+                    ? `No tasks found matching "${filterText}"`
+                    : 'No available tasks for dependencies';
+                container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--color-neutral-text);">${message}</div>`;
+                return;
+            }
+
+            availableTasks.forEach(availableTask => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'dependency-item';
+
+                const isSelected = hasDependencyOn(task, availableTask.id);
+                const existingDep = getDependencyByTaskId(task, availableTask.id);
+                const currentType = existingDep ? (typeof existingDep === 'string' ? 'Logical' : existingDep.type) : 'Logical';
+                const currentTiming = existingDep ? (typeof existingDep === 'string' ? 'FS' : (existingDep.timing || 'FS')) : 'FS';
+                const phase = raciData.phases.find(p => p.id === availableTask.phaseId);
+
+                itemElement.innerHTML = `
+                    <input type="checkbox" class="dependency-checkbox" ${isSelected ? 'checked' : ''}
+                           onchange="toggleTaskDependency('${availableTask.id}')">
+                    <span class="dependency-task-name">${availableTask.name}</span>
+                    ${phase ? `<span class="dependency-phase-name">${phase.name}</span>` : ''}
+                    <div class="dependency-controls">
+                        <select class="dependency-type-selector"
+                                ${!isSelected ? 'disabled' : ''}
+                                onchange="changeDependencyTypeInList('${availableTask.id}', this.value)">
+                            <option value="Logical" ${currentType === 'Logical' ? 'selected' : ''}>Logical</option>
+                            <option value="Resource" ${currentType === 'Resource' ? 'selected' : ''}>Resource</option>
+                            <option value="External" ${currentType === 'External' ? 'selected' : ''}>External</option>
+                            <option value="Preferential" ${currentType === 'Preferential' ? 'selected' : ''}>Preferential</option>
+                        </select>
+                        <select class="timing-type-selector"
+                                ${!isSelected ? 'disabled' : ''}
+                                onchange="changeDependencyTimingInList('${availableTask.id}', this.value)">
+                            <option value="FS" ${currentTiming === 'FS' ? 'selected' : ''}>FS</option>
+                            <option value="SS" ${currentTiming === 'SS' ? 'selected' : ''}>SS</option>
+                            <option value="FF" ${currentTiming === 'FF' ? 'selected' : ''}>FF</option>
+                            <option value="SF" ${currentTiming === 'SF' ? 'selected' : ''}>SF</option>
+                        </select>
+                    </div>
+                `;
+
+                container.appendChild(itemElement);
+            });
+        }
+
+        function toggleTaskDependency(taskId) {
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task) return;
+
+            if (!task.dependencies) {
+                task.dependencies = [];
+            }
+
+            if (hasDependencyOn(task, taskId)) {
+                removeDependencyByTaskId(task, taskId);
+                // Disable the type and timing selectors
+                const typeSelector = document.querySelector(`select[onchange="changeDependencyTypeInList('${taskId}', this.value)"]`);
+                const timingSelector = document.querySelector(`select[onchange="changeDependencyTimingInList('${taskId}', this.value)"]`);
+                if (typeSelector) typeSelector.disabled = true;
+                if (timingSelector) timingSelector.disabled = true;
+            } else {
+                // Check for circular dependency before adding
+                if (wouldCreateCircularDependency(currentTaskForDependencies, taskId)) {
+                    CleansheetCore.utils.showToast('Cannot add dependency: would create circular dependency', 'error');
+                    // Uncheck the checkbox
+                    const checkbox = document.querySelector(`input[onchange="toggleTaskDependency('${taskId}')"]`);
+                    if (checkbox) checkbox.checked = false;
+                    return;
+                }
+
+                // Get the selected type and timing from the dropdowns or use defaults
+                const typeSelector = document.querySelector(`select[onchange="changeDependencyTypeInList('${taskId}', this.value)"]`);
+                const timingSelector = document.querySelector(`select[onchange="changeDependencyTimingInList('${taskId}', this.value)"]`);
+                const selectedType = typeSelector ? typeSelector.value : 'Logical';
+                const selectedTiming = timingSelector ? timingSelector.value : 'FS';
+
+                addDependency(task, taskId, selectedType, selectedTiming);
+
+                // Enable the selectors
+                if (typeSelector) typeSelector.disabled = false;
+                if (timingSelector) timingSelector.disabled = false;
+            }
+
+            renderCurrentDependencies(task);
+        }
+
+        function changeDependencyType(taskId, newType, timing) {
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task) return;
+
+            // Update the dependency type
+            if (task.dependencies) {
+                const depIndex = task.dependencies.findIndex(dep =>
+                    (typeof dep === 'string' ? dep : dep.taskId) === taskId
+                );
+                if (depIndex > -1) {
+                    const currentTiming = timing || (typeof task.dependencies[depIndex] === 'string' ? 'FS' : task.dependencies[depIndex].timing) || 'FS';
+                    task.dependencies[depIndex] = { taskId, type: newType, timing: currentTiming };
+                }
+            }
+
+            renderCurrentDependencies(task);
+        }
+
+        function changeDependencyTiming(taskId, type, newTiming) {
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task) return;
+
+            // Update the dependency timing
+            if (task.dependencies) {
+                const depIndex = task.dependencies.findIndex(dep =>
+                    (typeof dep === 'string' ? dep : dep.taskId) === taskId
+                );
+                if (depIndex > -1) {
+                    const currentType = type || (typeof task.dependencies[depIndex] === 'string' ? 'Logical' : task.dependencies[depIndex].type) || 'Logical';
+                    task.dependencies[depIndex] = { taskId, type: currentType, timing: newTiming };
+                }
+            }
+
+            renderCurrentDependencies(task);
+        }
+
+        function changeDependencyTypeInList(taskId, newType) {
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task || !hasDependencyOn(task, taskId)) return;
+
+            // Get current timing to preserve it
+            const existingDep = getDependencyByTaskId(task, taskId);
+            const currentTiming = typeof existingDep === 'string' ? 'FS' : (existingDep.timing || 'FS');
+
+            // Update the dependency type
+            changeDependencyType(taskId, newType, currentTiming);
+        }
+
+        function changeDependencyTimingInList(taskId, newTiming) {
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task || !hasDependencyOn(task, taskId)) return;
+
+            // Get current type to preserve it
+            const existingDep = getDependencyByTaskId(task, taskId);
+            const currentType = typeof existingDep === 'string' ? 'Logical' : (existingDep.type || 'Logical');
+
+            // Update the dependency timing
+            changeDependencyTiming(taskId, currentType, newTiming);
+        }
+
+        function removeDependency(taskId) {
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task || !task.dependencies) return;
+
+            removeDependencyByTaskId(task, taskId);
+            renderCurrentDependencies(task);
+            renderAvailableTasks(task); // Re-render to update checkboxes
+        }
+
+        function saveDependencies() {
+            saveToLocalStorage();
+            renderTable();
+            closeDependencyModal();
+            CleansheetCore.utils.showToast('Dependencies saved', 'success');
+        }
+
+        function filterAvailableTasks() {
+            if (!currentTaskForDependencies) return;
+
+            const task = raciData.tasks.find(t => t.id === currentTaskForDependencies);
+            if (!task) return;
+
+            const filterInput = document.getElementById('dependencyFilterInput');
+            const filterText = filterInput ? filterInput.value : '';
+
+            renderAvailableTasks(task, filterText);
+        }
+
+        // Helper function to check if taskA is a descendant of taskB
+        function isDescendantOf(taskAId, taskBId) {
+            const taskA = raciData.tasks.find(t => t.id === taskAId);
+            if (!taskA || !taskA.parentId) return false;
+
+            if (taskA.parentId === taskBId) return true;
+            return isDescendantOf(taskA.parentId, taskBId);
+        }
+
+        // Helper function to check for circular dependencies
+        function wouldCreateCircularDependency(taskId, dependencyId) {
+            // Check if dependencyId already depends on taskId (directly or indirectly)
+            return hasPath(dependencyId, taskId);
+        }
+
+        function hasPath(fromTaskId, toTaskId) {
+            const fromTask = raciData.tasks.find(t => t.id === fromTaskId);
+            if (!fromTask || !fromTask.dependencies) return false;
+
+            const dependencyIds = getDependencyTaskIds(fromTask);
+            for (let depId of dependencyIds) {
+                if (depId === toTaskId) return true;
+                if (hasPath(depId, toTaskId)) return true;
+            }
+            return false;
         }
 
         function renderRolesList() {
@@ -3547,6 +5084,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         loadedData.tasks.forEach(task => {
                             if (task.phaseId === undefined) {
                                 task.phaseId = null;
+                            }
+                            // Ensure all tasks have documents array (backward compatibility)
+                            if (!task.documents) {
+                                task.documents = [];
                             }
                         });
                     }
@@ -4258,7 +5799,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     id: generateId(),
                     name: task.name,
                     phaseId: phaseIdMap[task.phaseId] || null,
-                    assignments: { ...task.assignments }
+                    assignments: { ...task.assignments },
+                    dependencies: [],
+                    documents: []
                 }));
 
                 // Hide examples panel
@@ -4273,6 +5816,590 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 console.error('Load example error:', error);
             }
         }
+
+        // Document Management System
+        let currentEditingTaskId = null;
+        let currentEditingDocumentId = null;
+        let librariesLoaded = {
+            quill: false,
+            markedjs: false,
+            mermaid: false
+        };
+
+        // HTML escape function for security
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Progressive Library Loading System
+        function loadLibrary(library) {
+            return new Promise((resolve, reject) => {
+                if (librariesLoaded[library]) {
+                    resolve();
+                    return;
+                }
+
+                switch (library) {
+                    case 'quill':
+                        // Load Quill CSS first
+                        const quillCSS = document.createElement('link');
+                        quillCSS.rel = 'stylesheet';
+                        quillCSS.href = 'https://cdn.quilljs.com/1.3.7/quill.snow.css';
+                        document.head.appendChild(quillCSS);
+
+                        // Then load Quill JS
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.quilljs.com/1.3.7/quill.min.js';
+                        script.onload = () => {
+                            librariesLoaded.quill = true;
+                            resolve();
+                        };
+                        script.onerror = () => reject(new Error('Failed to load Quill'));
+                        document.head.appendChild(script);
+                        break;
+
+                    case 'markedjs':
+                        const markedScript = document.createElement('script');
+                        markedScript.src = 'https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js';
+                        markedScript.onload = () => {
+                            librariesLoaded.markedjs = true;
+                            resolve();
+                        };
+                        markedScript.onerror = () => reject(new Error('Failed to load MarkedJS'));
+                        document.head.appendChild(markedScript);
+                        break;
+
+                    case 'mermaid':
+                        const mermaidScript = document.createElement('script');
+                        mermaidScript.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.6.0/dist/mermaid.min.js';
+                        mermaidScript.onload = () => {
+                            librariesLoaded.mermaid = true;
+                            // Initialize mermaid
+                            mermaid.initialize({
+                                startOnLoad: false,
+                                theme: 'default',
+                                securityLevel: 'loose',
+                                flowchart: { useMaxWidth: true }
+                            });
+                            resolve();
+                        };
+                        mermaidScript.onerror = () => reject(new Error('Failed to load Mermaid'));
+                        document.head.appendChild(mermaidScript);
+                        break;
+
+                    default:
+                        reject(new Error('Unknown library: ' + library));
+                        return;
+                }
+            });
+        }
+
+        // Open Document Slideout
+        async function openDocumentSlideout(taskId) {
+            const task = raciData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            currentEditingTaskId = taskId;
+
+            // Update slideout header
+            document.getElementById('documentTaskName').textContent = `${task.name} - Documents`;
+            updateDocumentCount(task);
+
+            // Show slideout
+            const slideout = document.getElementById('documentSlideout');
+            slideout.style.display = 'flex';
+
+            // Add show class to trigger slide-in animation
+            setTimeout(() => {
+                slideout.querySelector('.document-slideout').classList.add('show');
+            }, 10);
+
+            // Switch to documents list tab
+            switchDocumentTab('list');
+
+            // Load libraries in the background
+            Promise.all([
+                loadLibrary('quill').catch(e => console.warn('Quill load failed:', e)),
+                loadLibrary('markedjs').catch(e => console.warn('MarkedJS load failed:', e)),
+                loadLibrary('mermaid').catch(e => console.warn('Mermaid load failed:', e))
+            ]).then(() => {
+                console.log('All document libraries loaded');
+            });
+
+            renderDocumentList(task);
+        }
+
+        // Close Document Slideout
+        function closeDocumentSlideout() {
+            const slideout = document.getElementById('documentSlideout');
+            const slideoutPanel = slideout.querySelector('.document-slideout');
+
+            // Remove show class to trigger slide-out animation
+            slideoutPanel.classList.remove('show');
+
+            // Hide the overlay after animation completes
+            setTimeout(() => {
+                slideout.style.display = 'none';
+            }, 300); // Match the CSS transition duration
+
+            currentEditingTaskId = null;
+            currentEditingDocumentId = null;
+
+            // Clear any active editors
+            clearEditors();
+        }
+
+        // Switch Document Tab
+        function switchDocumentTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.document-tab').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tab) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update panels
+            document.querySelectorAll('.document-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            const targetPanel = document.getElementById(`documentPanel-${tab}`);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            } else {
+                console.error(`Document panel not found: documentPanel-${tab}`);
+            }
+
+            // Initialize editors as needed
+            if (tab === 'richtext' && librariesLoaded.quill && !window.quillEditor) {
+                initializeRichTextEditor();
+            }
+        }
+
+        // Render Document List
+        function renderDocumentList(task) {
+            const listContainer = document.getElementById('documentList');
+
+            if (!task.documents || task.documents.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--color-neutral-text);">
+                        <i class="ph ph-file-text" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                        <p>No documents yet</p>
+                        <p style="font-size: 14px;">Click "New Document" to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = task.documents.map(doc => `
+                <div class="document-item">
+                    <div class="document-item-icon ${doc.type}">
+                        <i class="ph ${getDocumentIcon(doc.type)}"></i>
+                    </div>
+                    <div class="document-item-content">
+                        <div class="document-item-title">${escapeHtml(doc.title)}</div>
+                        <div class="document-item-meta">
+                            ${doc.type === 'link' ? escapeHtml(doc.url) : `${doc.type} • Modified ${new Date(doc.lastModified).toLocaleDateString()}`}
+                        </div>
+                    </div>
+                    <div class="document-item-actions">
+                        <button class="action-btn" onclick="editDocument('${doc.id}')" title="Edit">
+                            <i class="ph ph-pencil"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteDocument('${doc.id}')" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get Document Icon
+        function getDocumentIcon(type) {
+            switch (type) {
+                case 'richtext': return 'ph-file-text';
+                case 'markdown': return 'ph-markdown-logo';
+                case 'mermaid': return 'ph-flow-arrow';
+                case 'link': return 'ph-link';
+                default: return 'ph-file';
+            }
+        }
+
+        // Show Create Document Modal
+        function showCreateDocumentModal() {
+            const types = [
+                { id: 'richtext', label: 'Rich Text Document', icon: 'ph-file-text' },
+                { id: 'markdown', label: 'Markdown Document', icon: 'ph-markdown-logo' },
+                { id: 'mermaid', label: 'Mermaid Diagram', icon: 'ph-flow-arrow' },
+                { id: 'link', label: 'External Link', icon: 'ph-link' }
+            ];
+
+            const modal = document.createElement('div');
+            modal.className = 'raci-modal-overlay';
+            modal.innerHTML = `
+                <div class="raci-modal" style="width: 400px;">
+                    <div class="raci-modal-header">
+                        <h3>Create New Document</h3>
+                        <button class="raci-modal-close" onclick="this.closest('.raci-modal-overlay').remove()">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                    <div class="raci-modal-body" style="padding: 24px;">
+                        <p style="margin-bottom: 20px; color: var(--color-neutral-text);">Choose a document type:</p>
+                        <div style="display: grid; gap: 12px;">
+                            ${types.map(type => `
+                                <button class="document-type-btn" onclick="createDocument('${type.id}'); this.closest('.raci-modal-overlay').remove();"
+                                        style="display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--color-neutral-border);
+                                               border-radius: 8px; background: white; text-align: left; cursor: pointer; transition: all 0.2s;">
+                                    <i class="ph ${type.icon}" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                    <span style="font-family: var(--font-family-ui); font-weight: 500;">${type.label}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add hover styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .document-type-btn:hover {
+                    border-color: var(--color-primary-blue) !important;
+                    background: #e3f2fd !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(modal);
+        }
+
+        // Create Document
+        function createDocument(type) {
+            currentEditingDocumentId = null; // New document
+            switchDocumentTab(type);
+
+            // Clear form fields
+            switch (type) {
+                case 'richtext':
+                    document.getElementById('richtextTitle').value = '';
+                    if (window.quillEditor) {
+                        window.quillEditor.setText('');
+                    }
+                    break;
+                case 'markdown':
+                    document.getElementById('markdownTitle').value = '';
+                    document.getElementById('markdownEditor').value = '';
+                    updateMarkdownPreview();
+                    break;
+                case 'mermaid':
+                    document.getElementById('mermaidTitle').value = '';
+                    document.getElementById('mermaidEditor').value = '';
+                    updateMermaidPreview();
+                    break;
+                case 'link':
+                    document.getElementById('linkTitle').value = '';
+                    document.getElementById('linkUrl').value = '';
+                    document.getElementById('linkDescription').value = '';
+                    break;
+            }
+        }
+
+        // Edit Document
+        function editDocument(documentId) {
+            const task = raciData.tasks.find(t => t.id === currentEditingTaskId);
+            if (!task) return;
+
+            const document = task.documents.find(d => d.id === documentId);
+            if (!document) return;
+
+            currentEditingDocumentId = documentId;
+            switchDocumentTab(document.type);
+
+            // Populate form with document data
+            switch (document.type) {
+                case 'richtext':
+                    document.getElementById('richtextTitle').value = document.title;
+                    // Wait for rich text editor to be available
+                    const waitForRTE = () => {
+                        if (window.quillEditor) {
+                            // Handle both string content and Quill delta format
+                            const content = document.content || '';
+                            if (typeof content === 'string') {
+                                window.quillEditor.setText(content);
+                            } else if (content.ops) {
+                                window.quillEditor.setContents(content);
+                            } else {
+                                window.quillEditor.setText('');
+                            }
+                        } else {
+                            setTimeout(waitForRTE, 100);
+                        }
+                    };
+                    waitForRTE();
+                    break;
+                case 'markdown':
+                    document.getElementById('markdownTitle').value = document.title;
+                    document.getElementById('markdownEditor').value = document.content || '';
+                    updateMarkdownPreview();
+                    break;
+                case 'mermaid':
+                    document.getElementById('mermaidTitle').value = document.title;
+                    document.getElementById('mermaidEditor').value = document.content || '';
+                    updateMermaidPreview();
+                    break;
+                case 'link':
+                    document.getElementById('linkTitle').value = document.title;
+                    document.getElementById('linkUrl').value = document.url || '';
+                    document.getElementById('linkDescription').value = document.description || '';
+                    break;
+            }
+        }
+
+        // Save Document
+        function saveDocument(type) {
+            const task = raciData.tasks.find(t => t.id === currentEditingTaskId);
+            if (!task) return;
+
+            let title, content, url, description;
+
+            // Get form data
+            switch (type) {
+                case 'richtext':
+                    title = document.getElementById('richtextTitle').value.trim();
+                    // Store rich content as Quill delta format for better compatibility
+                    content = window.quillEditor ? window.quillEditor.getContents() : '';
+                    break;
+                case 'markdown':
+                    title = document.getElementById('markdownTitle').value.trim();
+                    content = document.getElementById('markdownEditor').value;
+                    break;
+                case 'mermaid':
+                    title = document.getElementById('mermaidTitle').value.trim();
+                    content = document.getElementById('mermaidEditor').value;
+                    break;
+                case 'link':
+                    title = document.getElementById('linkTitle').value.trim();
+                    url = document.getElementById('linkUrl').value.trim();
+                    description = document.getElementById('linkDescription').value.trim();
+                    break;
+            }
+
+            // Validate required fields
+            if (!title) {
+                CleansheetCore.utils.showToast('Please enter a document title', 'error');
+                return;
+            }
+
+            if (type === 'link' && !url) {
+                CleansheetCore.utils.showToast('Please enter a URL', 'error');
+                return;
+            }
+
+            // Prepare document object
+            const now = new Date().getTime();
+            const docData = {
+                id: currentEditingDocumentId || generateId(),
+                title,
+                type,
+                lastModified: now
+            };
+
+            if (type === 'link') {
+                docData.url = url;
+                docData.description = description;
+            } else {
+                docData.content = content;
+            }
+
+            // Save or update document
+            if (!task.documents) {
+                task.documents = [];
+            }
+
+            if (currentEditingDocumentId) {
+                // Update existing document
+                const index = task.documents.findIndex(d => d.id === currentEditingDocumentId);
+                if (index !== -1) {
+                    task.documents[index] = docData;
+                }
+            } else {
+                // Add new document
+                docData.created = now;
+                task.documents.push(docData);
+            }
+
+            // Update UI
+            updateDocumentCount(task);
+            renderDocumentList(task);
+            renderTable(); // Update task row indicators
+
+            // Switch back to document list
+            switchDocumentTab('list');
+
+            CleansheetCore.utils.showToast(currentEditingDocumentId ? 'Document updated' : 'Document created', 'success');
+            currentEditingDocumentId = null;
+        }
+
+        // Cancel Document Edit
+        function cancelDocumentEdit() {
+            switchDocumentTab('list');
+            currentEditingDocumentId = null;
+        }
+
+        // Delete Document
+        function deleteDocument(documentId) {
+            const task = raciData.tasks.find(t => t.id === currentEditingTaskId);
+            if (!task || !task.documents) return;
+
+            const document = task.documents.find(d => d.id === documentId);
+            if (!document) return;
+
+            if (!confirm(`Are you sure you want to delete "${document.title}"?`)) return;
+
+            // Remove document
+            task.documents = task.documents.filter(d => d.id !== documentId);
+
+            // Update UI
+            updateDocumentCount(task);
+            renderDocumentList(task);
+            renderTable(); // Update task row indicators
+
+            CleansheetCore.utils.showToast('Document deleted', 'success');
+        }
+
+        // Update Document Count
+        function updateDocumentCount(task) {
+            const count = task.documents ? task.documents.length : 0;
+            document.getElementById('documentCount').textContent = `${count} document${count !== 1 ? 's' : ''}`;
+        }
+
+        // Initialize Rich Text Editor
+        function initializeRichTextEditor() {
+            if (window.quillEditor || !window.Quill) return;
+
+            try {
+                // Clear any existing content in the editor container
+                document.getElementById('richtextEditor').innerHTML = '<div id="quillEditorContainer"></div>';
+
+                window.quillEditor = new Quill('#quillEditorContainer', {
+                    theme: 'snow',
+                    placeholder: 'Start writing your document...',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link'],
+                            ['clean']
+                        ]
+                    }
+                });
+
+                // Set minimum height
+                const editorContainer = document.querySelector('#quillEditorContainer .ql-editor');
+                if (editorContainer) {
+                    editorContainer.style.minHeight = '300px';
+                }
+            } catch (error) {
+                console.error('Failed to initialize Quill:', error);
+                // Fallback to textarea
+                document.getElementById('richtextEditor').innerHTML = `
+                    <textarea id="richtextFallback" placeholder="Start writing your document..."
+                              style="width: 100%; height: 400px; font-family: var(--font-family-body);
+                                     font-size: 14px; line-height: 1.6; border: 1px solid var(--color-neutral-border);
+                                     border-radius: 8px; padding: 16px; resize: vertical;"></textarea>
+                `;
+                window.quillEditor = {
+                    getContents: () => ({ ops: [{ insert: document.getElementById('richtextFallback').value }] }),
+                    setContents: (data) => document.getElementById('richtextFallback').value = data && data.ops ? data.ops.map(op => op.insert || '').join('') : data || '',
+                    getText: () => document.getElementById('richtextFallback').value,
+                    setText: (text) => document.getElementById('richtextFallback').value = text
+                };
+            }
+        }
+
+        // Update Markdown Preview
+        function updateMarkdownPreview() {
+            const editor = document.getElementById('markdownEditor');
+            const preview = document.getElementById('markdownPreview');
+
+            if (librariesLoaded.markedjs && window.marked) {
+                try {
+                    preview.innerHTML = marked.parse(editor.value || '');
+                } catch (error) {
+                    preview.innerHTML = '<p style="color: red;">Markdown parsing error: ' + error.message + '</p>';
+                }
+            } else {
+                preview.innerHTML = '<p style="color: var(--color-neutral-text);">Loading preview...</p>';
+            }
+        }
+
+        // Update Mermaid Preview
+        function updateMermaidPreview() {
+            const editor = document.getElementById('mermaidEditor');
+            const preview = document.getElementById('mermaidPreview');
+
+            if (!librariesLoaded.mermaid || !window.mermaid) {
+                preview.innerHTML = '<p style="color: var(--color-neutral-text);">Loading preview...</p>';
+                return;
+            }
+
+            const content = editor.value.trim();
+            if (!content) {
+                preview.innerHTML = '<p style="color: var(--color-neutral-text);">Enter Mermaid diagram code to see preview</p>';
+                return;
+            }
+
+            try {
+                // Clear previous content
+                preview.innerHTML = '';
+
+                // Create unique ID for this diagram
+                const diagramId = 'mermaid-' + Date.now();
+                const diagramDiv = document.createElement('div');
+                diagramDiv.id = diagramId;
+                preview.appendChild(diagramDiv);
+
+                // Render mermaid diagram
+                mermaid.render(diagramId + '-svg', content).then(result => {
+                    diagramDiv.innerHTML = result.svg;
+                }).catch(error => {
+                    preview.innerHTML = '<p style="color: red;">Mermaid syntax error: ' + error.message + '</p>';
+                });
+            } catch (error) {
+                preview.innerHTML = '<p style="color: red;">Mermaid rendering error: ' + error.message + '</p>';
+            }
+        }
+
+        // Clear Editors
+        function clearEditors() {
+            if (window.quillEditor) {
+                try {
+                    window.quillEditor.setText('');
+                } catch (e) {
+                    console.warn('Could not clear Quill editor:', e);
+                }
+            }
+        }
+
+        // Add event listeners for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            // Markdown editor real-time preview
+            const markdownEditor = document.getElementById('markdownEditor');
+            if (markdownEditor) {
+                markdownEditor.addEventListener('input', CleansheetCore.utils.debounce(updateMarkdownPreview, 500));
+            }
+
+            // Mermaid editor real-time preview
+            const mermaidEditor = document.getElementById('mermaidEditor');
+            if (mermaidEditor) {
+                mermaidEditor.addEventListener('input', CleansheetCore.utils.debounce(updateMermaidPreview, 1000));
+            }
+        });
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', init);
