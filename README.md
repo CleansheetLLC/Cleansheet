@@ -332,6 +332,7 @@ Cleansheet is developed by a solo technical founder actively working in cloud ar
 - **Google Fonts** - Questrial and Barlow typefaces (Open Font License)
 
 ### Inspiration
+- **DugganUSA** - Build and security approach
 - **Linear** - Clean, benefit-focused product design
 - **Notion** - Story-driven mission communication
 - **Plausible Analytics** - Privacy-first approach
