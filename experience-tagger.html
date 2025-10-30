@@ -375,6 +375,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            padding: 8px;
+            margin: -8px -8px 12px -8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .timeline-header:hover {
+            background: var(--color-neutral-background);
         }
 
         .timeline-header h3 {
@@ -382,6 +390,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-size: 20px;
             color: var(--color-dark);
             margin: 0;
+            display: flex;
+            align-items: center;
         }
 
         .timeline-controls {
@@ -1597,9 +1607,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <div class="main-content">
                 <!-- Timeline Visualization -->
                 <div class="timeline-container" id="timelineContainer" style="display: none;">
-                    <div class="timeline-header">
-                        <h3><i class="fas fa-chart-line"></i> Career Timeline</h3>
-                        <div class="timeline-controls">
+                    <div class="timeline-header" onclick="toggleTimeline()" style="cursor: pointer;">
+                        <h3>
+                            <i class="fas fa-chart-line"></i> Career Timeline
+                            <i class="fas fa-chevron-down" id="timelineChevron" style="font-size: 14px; margin-left: 8px; transition: transform 0.3s;"></i>
+                        </h3>
+                        <div class="timeline-controls" onclick="event.stopPropagation()">
                             <button class="btn-timeline" onclick="resetTimelineZoom()">
                                 <i class="fas fa-search-minus"></i> Reset Zoom
                             </button>
@@ -1608,7 +1621,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </button>
                         </div>
                     </div>
-                    <div id="timelineChart"></div>
+                    <div id="timelineChart" style="display: none;"></div>
                     <div class="timeline-tooltip" id="timelineTooltip"></div>
                 </div>
 
@@ -2250,7 +2263,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             emptyState.style.display = 'none';
             timelineContainer.style.display = 'block';
             updateSummaryPanel();
-            renderTimeline();
+            // Don't auto-render timeline - it starts collapsed by default
 
             // Sort experiences by start date (most recent first)
             const sortedExperiences = [...experiences].sort((a, b) => {
@@ -3058,6 +3071,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function fitTimelineToWindow() {
             renderTimeline();
+        }
+
+        function toggleTimeline() {
+            const chart = document.getElementById('timelineChart');
+            const chevron = document.getElementById('timelineChevron');
+
+            if (chart.style.display === 'none') {
+                chart.style.display = 'block';
+                chevron.style.transform = 'rotate(180deg)';
+                // Render timeline if it hasn't been rendered yet or needs refresh
+                if (!chart.querySelector('svg')) {
+                    renderTimeline();
+                }
+            } else {
+                chart.style.display = 'none';
+                chevron.style.transform = 'rotate(0deg)';
+            }
         }
 
         // Initialize on load
