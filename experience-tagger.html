@@ -21,6 +21,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&family=Questrial&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -358,6 +359,102 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         .btn-danger:hover {
             background: #c82333;
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .timeline-header h3 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            color: var(--color-dark);
+            margin: 0;
+        }
+
+        .timeline-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-timeline {
+            padding: 6px 12px;
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-timeline:hover {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
+
+        #timelineChart {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .timeline-bar {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .timeline-bar:hover {
+            opacity: 0.8;
+        }
+
+        .timeline-bar.selected {
+            stroke: var(--color-dark);
+            stroke-width: 2px;
+        }
+
+        .timeline-axis text {
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            fill: var(--color-neutral-text-light);
+        }
+
+        .timeline-axis path,
+        .timeline-axis line {
+            stroke: var(--color-neutral-border);
+        }
+
+        .timeline-label {
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            fill: white;
+            pointer-events: none;
+        }
+
+        .timeline-tooltip {
+            position: absolute;
+            background: var(--color-dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            font-family: var(--font-family-body);
         }
 
         /* Experience List */
@@ -1494,6 +1591,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         <!-- Two Column Layout -->
         <div class="two-column-layout">
             <div class="main-content">
+                <!-- Timeline Visualization -->
+                <div class="timeline-container" id="timelineContainer" style="display: none;">
+                    <div class="timeline-header">
+                        <h3><i class="fas fa-chart-line"></i> Career Timeline</h3>
+                        <div class="timeline-controls">
+                            <button class="btn-timeline" onclick="resetTimelineZoom()">
+                                <i class="fas fa-search-minus"></i> Reset Zoom
+                            </button>
+                            <button class="btn-timeline" onclick="fitTimelineToWindow()">
+                                <i class="fas fa-expand-arrows-alt"></i> Fit All
+                            </button>
+                        </div>
+                    </div>
+                    <div id="timelineChart"></div>
+                    <div class="timeline-tooltip" id="timelineTooltip"></div>
+                </div>
+
                 <div id="experienceList" class="experience-list">
                     <!-- Experiences will be rendered here -->
                 </div>
@@ -2118,17 +2232,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function renderExperiences() {
             const list = document.getElementById('experienceList');
             const emptyState = document.getElementById('emptyState');
+            const timelineContainer = document.getElementById('timelineContainer');
 
             if (experiences.length === 0) {
                 list.style.display = 'none';
                 emptyState.style.display = 'block';
+                timelineContainer.style.display = 'none';
                 updateSummaryPanel();
                 return;
             }
 
             list.style.display = 'grid';
             emptyState.style.display = 'none';
+            timelineContainer.style.display = 'block';
             updateSummaryPanel();
+            renderTimeline();
 
             // Sort experiences by start date (most recent first)
             const sortedExperiences = [...experiences].sort((a, b) => {
@@ -2757,6 +2875,183 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function updateSummaryPanel() {
             generateReportingPanel();
+        }
+
+        // D3 Timeline Functions
+        let timelineZoom = null;
+        let selectedExperienceIndex = null;
+
+        function renderTimeline() {
+            const container = document.getElementById('timelineChart');
+            const tooltip = document.getElementById('timelineTooltip');
+
+            // Clear existing
+            d3.select(container).selectAll('*').remove();
+
+            if (experiences.length === 0) return;
+
+            // Prepare data - filter out experiences without dates
+            const timelineData = experiences
+                .map((exp, index) => ({
+                    ...exp,
+                    index,
+                    start: exp.startDate ? new Date(exp.startDate) : null,
+                    end: exp.endDate ? new Date(exp.endDate) : new Date()
+                }))
+                .filter(d => d.start !== null)
+                .sort((a, b) => a.start - b.start);
+
+            if (timelineData.length === 0) return;
+
+            // Dimensions
+            const margin = { top: 30, right: 40, bottom: 50, left: 120 };
+            const width = container.clientWidth;
+            const height = Math.max(250, timelineData.length * 35 + margin.top + margin.bottom);
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Create SVG
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Scales
+            const allDates = timelineData.flatMap(d => [d.start, d.end]);
+            const minDate = d3.min(allDates);
+            const maxDate = d3.max(allDates);
+
+            const xScale = d3.scaleTime()
+                .domain([minDate, maxDate])
+                .range([0, chartWidth])
+                .nice();
+
+            const yScale = d3.scaleBand()
+                .domain(timelineData.map((d, i) => i))
+                .range([0, chartHeight])
+                .padding(0.2);
+
+            // Color scale
+            const colorScale = d3.scaleOrdinal()
+                .domain(['Technology', 'Management', 'Research', 'Other'])
+                .range(['#0066CC', '#7c3aed', '#16a34a', '#dc2626']);
+
+            // Axes
+            const xAxis = d3.axisBottom(xScale)
+                .ticks(d3.timeYear.every(1))
+                .tickFormat(d3.timeFormat('%Y'));
+
+            g.append('g')
+                .attr('class', 'timeline-axis')
+                .attr('transform', `translate(0,${chartHeight})`)
+                .call(xAxis);
+
+            // Zoom behavior
+            timelineZoom = d3.zoom()
+                .scaleExtent([1, 10])
+                .translateExtent([[0, 0], [chartWidth, chartHeight]])
+                .extent([[0, 0], [chartWidth, chartHeight]])
+                .on('zoom', (event) => {
+                    const newXScale = event.transform.rescaleX(xScale);
+
+                    // Update axis
+                    g.select('.timeline-axis').call(xAxis.scale(newXScale));
+
+                    // Update bars
+                    g.selectAll('.timeline-bar')
+                        .attr('x', d => newXScale(d.start))
+                        .attr('width', d => Math.max(2, newXScale(d.end) - newXScale(d.start)));
+                });
+
+            svg.call(timelineZoom);
+
+            // Draw timeline bars
+            const bars = g.selectAll('.timeline-bar')
+                .data(timelineData)
+                .enter()
+                .append('rect')
+                .attr('class', 'timeline-bar')
+                .attr('x', d => xScale(d.start))
+                .attr('y', (d, i) => yScale(i))
+                .attr('width', d => Math.max(2, xScale(d.end) - xScale(d.start)))
+                .attr('height', yScale.bandwidth())
+                .attr('fill', d => {
+                    // Color by primary technology or role type
+                    if (d.technologies && d.technologies.length > 0) return colorScale('Technology');
+                    if (d.role && d.role.toLowerCase().includes('manager')) return colorScale('Management');
+                    if (d.role && d.role.toLowerCase().includes('research')) return colorScale('Research');
+                    return colorScale('Other');
+                })
+                .attr('rx', 4)
+                .attr('ry', 4)
+                .on('mouseover', function(event, d) {
+                    tooltip.style.opacity = 1;
+                    const startStr = d3.timeFormat('%b %Y')(d.start);
+                    const endStr = d.end.getTime() === new Date().getTime() ? 'Present' : d3.timeFormat('%b %Y')(d.end);
+                    tooltip.innerHTML = `
+                        <strong>${d.role}</strong><br/>
+                        ${d.organizationName}<br/>
+                        ${startStr} - ${endStr}
+                    `;
+                })
+                .on('mousemove', function(event) {
+                    tooltip.style.left = (event.pageX + 10) + 'px';
+                    tooltip.style.top = (event.pageY - 20) + 'px';
+                })
+                .on('mouseout', function() {
+                    tooltip.style.opacity = 0;
+                })
+                .on('click', function(event, d) {
+                    // Remove previous selection
+                    g.selectAll('.timeline-bar').classed('selected', false);
+
+                    // Add selection to clicked bar
+                    d3.select(this).classed('selected', true);
+                    selectedExperienceIndex = d.index;
+
+                    // Scroll to experience card
+                    const card = document.querySelector(`[data-exp-index="${d.index}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.boxShadow = '0 8px 24px rgba(0, 102, 204, 0.3)';
+                        setTimeout(() => {
+                            card.style.boxShadow = '';
+                        }, 2000);
+                    }
+                });
+
+            // Add labels for organization names
+            g.selectAll('.timeline-label-bg')
+                .data(timelineData)
+                .enter()
+                .append('text')
+                .attr('class', 'timeline-label')
+                .attr('x', -5)
+                .attr('y', (d, i) => yScale(i) + yScale.bandwidth() / 2)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'end')
+                .style('fill', 'var(--color-neutral-text)')
+                .style('font-size', '11px')
+                .text(d => {
+                    const text = d.organizationName || d.role || 'Experience';
+                    return text.length > 15 ? text.substring(0, 15) + '...' : text;
+                });
+        }
+
+        function resetTimelineZoom() {
+            if (timelineZoom) {
+                d3.select('#timelineChart svg')
+                    .transition()
+                    .duration(750)
+                    .call(timelineZoom.transform, d3.zoomIdentity);
+            }
+        }
+
+        function fitTimelineToWindow() {
+            renderTimeline();
         }
 
         // Initialize on load
