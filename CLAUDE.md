@@ -828,9 +828,12 @@ Before adding ANY service:
 
 ### Cleansheet Quarters
 - 12-week coaching engagements
+- Success Manager consultation
+- Detailed goal setting
+- Capstone Project Planning
+- Success Manager coach match on profile and goals
 - 4 synchronous virtual meetings (30-45 min)
 - Asynchronous collaboration
-- Success Manager matchmaking
 
 ### Coach Resources
 - Comprehensive learner profiles
