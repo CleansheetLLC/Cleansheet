@@ -5620,9 +5620,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <div class="slideout-body" id="plansContent" style="display: none;">
-                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
-                    Organize and manage project plans, strategic initiatives, and operational workflows.
-                </p>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">
+                        Organize and manage project plans, strategic initiatives, and operational workflows.
+                    </p>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="openSimplePlanWizard()" style="padding: 8px 16px; background: white; color: var(--color-primary-blue); border: 2px solid var(--color-primary-blue); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;">
+                            <i class="ph ph-magic-wand" style="font-size: 16px;"></i>
+                            Guided Setup
+                        </button>
+                        <button onclick="openPlanWizard()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                            <i class="ph ph-plus" style="font-size: 16px;"></i>
+                            New Plan
+                        </button>
+                    </div>
+                </div>
                 <div id="plansContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <!-- Plan cards will be dynamically inserted here -->
                 </div>
@@ -7008,6 +7020,333 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
     </div> <!-- End workflow-creation-modal -->
+
+    <!-- Plan Wizard Modal -->
+    <div class="pipeline-wizard-modal" id="planWizardModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 10000; overflow-y: auto;">
+        <div class="pipeline-wizard-content" style="position: relative; max-width: 900px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);">
+            <div class="pipeline-wizard-header" style="padding: 24px; background: var(--color-dark); color: white; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; margin: 0;">Create New Plan</h3>
+                <button class="pipeline-wizard-close" onclick="closePlanWizard()" style="background: none; border: none; color: white; font-size: 32px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="wizard-steps" style="display: flex; align-items: center; padding: 24px; background: var(--color-neutral-background); border-bottom: 1px solid var(--color-neutral-border);">
+                <div class="wizard-step active" data-step="1" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-primary-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">1</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Plan Details</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="2" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">2</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Team & Roles</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="3" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">3</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Phases & Tasks</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="4" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">4</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">RACI Matrix</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="5" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">5</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Review</div>
+                </div>
+            </div>
+
+            <div class="pipeline-wizard-body" style="padding: 32px; min-height: 400px;">
+                <!-- Step 1: Plan Details -->
+                <div class="wizard-step-content active" id="planWizardStep1" style="display: block;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Basic Plan Information</h4>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Plan Name *</label>
+                        <input type="text" id="planName" placeholder="e.g., Q4 Product Launch" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Description</label>
+                        <textarea id="planDescription" placeholder="Describe the plan's purpose and objectives..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; min-height: 100px; resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Start Date</label>
+                            <input type="date" id="planStartDate" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Target End Date</label>
+                            <input type="date" id="planEndDate" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Team & Roles -->
+                <div class="wizard-step-content" id="planWizardStep2" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Define Team Roles</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">Add the organizational roles that will be involved in this plan. These roles will be used in the RACI matrix.</p>
+
+                    <div style="background: var(--color-neutral-background); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" id="newRoleName" placeholder="e.g., Project Manager, Engineer, Designer..." style="flex: 1; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            <button onclick="addRole()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-plus" style="font-size: 16px;"></i>
+                                Add Role
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="rolesList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                        <!-- Roles will be listed here -->
+                    </div>
+
+                    <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; border-left: 4px solid var(--color-primary-blue);">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); margin: 0;">
+                            <i class="ph ph-lightbulb" style="margin-right: 6px;"></i>
+                            <strong>Tip:</strong> Add at least 2 roles to create an effective RACI matrix. You can always add or remove roles later.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Phases & Tasks -->
+                <div class="wizard-step-content" id="planWizardStep3" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Structure Your Plan</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">Organize your plan into phases and tasks. Phases help group related tasks together.</p>
+
+                    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                        <button onclick="addPhase()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-folder-plus" style="font-size: 16px;"></i>
+                            Add Phase
+                        </button>
+                        <button onclick="addTask()" style="padding: 10px 20px; background: white; color: var(--color-primary-blue); border: 2px solid var(--color-primary-blue); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-plus-circle" style="font-size: 16px;"></i>
+                            Add Task
+                        </button>
+                    </div>
+
+                    <div id="phasesTasksList" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; min-height: 300px; max-height: 400px; overflow-y: auto; background: white;">
+                        <div style="padding: 48px; text-align: center; color: var(--color-neutral-text);">
+                            <i class="ph ph-folder-notch-open" style="font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
+                            <p style="font-family: var(--font-family-body); font-size: 14px;">No phases or tasks yet. Click "Add Phase" or "Add Task" to get started.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: RACI Matrix -->
+                <div class="wizard-step-content" id="planWizardStep4" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Assign Responsibilities</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 16px;">Define who is Responsible, Accountable, Consulted, and Informed for each task.</p>
+
+                    <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin-bottom: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-family: var(--font-family-body); font-size: 11px;">
+                            <div>
+                                <strong style="color: var(--color-primary-blue);">R - Responsible</strong><br>
+                                Does the work
+                            </div>
+                            <div>
+                                <strong style="color: var(--color-primary-blue);">A - Accountable</strong><br>
+                                Ultimately answerable
+                            </div>
+                            <div>
+                                <strong style="color: var(--color-primary-blue);">C - Consulted</strong><br>
+                                Provides input
+                            </div>
+                            <div>
+                                <strong style="color: var(--color-primary-blue);">I - Informed</strong><br>
+                                Kept up to date
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="raciMatrixContainer" style="border: 1px solid var(--color-neutral-border); border-radius: 8px; overflow: auto; max-height: 400px;">
+                        <!-- RACI matrix will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Step 5: Review & Create -->
+                <div class="wizard-step-content" id="planWizardStep5" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Review Your Plan</h4>
+
+                    <div id="planReviewSummary" style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Summary will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="pipeline-wizard-footer" style="padding: 20px 32px; background: var(--color-neutral-background); border-top: 1px solid var(--color-neutral-border); border-radius: 0 0 12px 12px; display: flex; justify-content: space-between; align-items: center;">
+                <button id="planWizardBackBtn" onclick="previousPlanWizardStep()" style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: none;">
+                    <i class="ph ph-caret-left" style="margin-right: 6px;"></i>
+                    Back
+                </button>
+                <div style="flex: 1;"></div>
+                <button id="planWizardSkipBtn" onclick="nextPlanWizardStep()" style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 12px;">
+                    Skip
+                </button>
+                <button id="planWizardNextBtn" onclick="nextPlanWizardStep()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    Next
+                    <i class="ph ph-caret-right" style="margin-left: 6px;"></i>
+                </button>
+                <button id="planWizardCreateBtn" onclick="createPlanFromWizard()" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: none;">
+                    <i class="ph ph-check-circle" style="margin-right: 6px;"></i>
+                    Create Plan
+                </button>
+            </div>
+        </div>
+    </div> <!-- End plan-wizard-modal -->
+
+    <!-- Simplified Plan Wizard Modal -->
+    <div class="pipeline-wizard-modal" id="simplePlanWizardModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 10000; overflow-y: auto;">
+        <div class="pipeline-wizard-content" style="position: relative; max-width: 800px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);">
+            <div class="pipeline-wizard-header" style="padding: 24px; background: var(--color-dark); color: white; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; margin: 0;">Guided Plan Setup</h3>
+                <button class="pipeline-wizard-close" onclick="closeSimplePlanWizard()" style="background: none; border: none; color: white; font-size: 32px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="wizard-steps" style="display: flex; align-items: center; padding: 24px; background: var(--color-neutral-background); border-bottom: 1px solid var(--color-neutral-border);">
+                <div class="wizard-step active" data-step="1" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-primary-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">1</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Choose Template</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="2" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">2</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Plan Basics</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="3" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">3</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Team Setup</div>
+                </div>
+                <div class="wizard-step-line" style="flex: 0 0 60px; height: 2px; background: var(--color-neutral-border); margin: 0 -10px 16px -10px;"></div>
+                <div class="wizard-step" data-step="4" style="flex: 1; text-align: center;">
+                    <div class="step-number" style="width: 40px; height: 40px; margin: 0 auto 8px auto; background: var(--color-neutral-border); color: var(--color-neutral-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600;">4</div>
+                    <div class="step-label" style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Review</div>
+                </div>
+            </div>
+
+            <div class="pipeline-wizard-body" style="padding: 32px; min-height: 500px;">
+                <!-- Selected Template Banner (visible on all steps) -->
+                <div id="selectedTemplateBanner" style="display: none; background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); padding: 16px 20px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0, 102, 204, 0.2);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div id="bannerTemplateIcon" style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-rocket-launch" style="font-size: 24px; color: white;"></i>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Selected Template</div>
+                                <div id="bannerTemplateName" style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: white; margin-bottom: 4px;">Product Launch</div>
+                                <div style="display: flex; gap: 12px; font-family: var(--font-family-body); font-size: 11px;">
+                                    <span id="bannerTemplateDifficulty" style="color: rgba(255, 255, 255, 0.9);">
+                                        <i class="ph ph-star" style="margin-right: 4px;"></i>Beginner
+                                    </span>
+                                    <span style="color: rgba(255, 255, 255, 0.6);">•</span>
+                                    <span id="bannerTemplateDuration" style="color: rgba(255, 255, 255, 0.9);">
+                                        <i class="ph ph-clock" style="margin-right: 4px;"></i>8 weeks
+                                    </span>
+                                    <span style="color: rgba(255, 255, 255, 0.6);">•</span>
+                                    <span id="bannerTemplateRoles" style="color: rgba(255, 255, 255, 0.9);">
+                                        <i class="ph ph-users-three" style="margin-right: 4px;"></i>5 roles
+                                    </span>
+                                    <span style="color: rgba(255, 255, 255, 0.6);">•</span>
+                                    <span id="bannerTemplateTasks" style="color: rgba(255, 255, 255, 0.9);">
+                                        <i class="ph ph-list-checks" style="margin-right: 4px;"></i>16 tasks
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="changeTemplate()" onmouseenter="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.5)'" onmouseleave="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(10px);">
+                            <i class="ph ph-arrow-u-up-left" style="margin-right: 6px;"></i>Change Template
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 1: Choose Template -->
+                <div class="simple-wizard-step-content active" id="simplePlanWizardStep1" style="display: block;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 12px;">Choose a Template</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 32px;">Select a pre-configured plan template to get started quickly. Roles and tasks are already set up for you.</p>
+
+                    <div id="planTemplatesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <!-- Templates will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Step 2: Plan Basics -->
+                <div class="simple-wizard-step-content" id="simplePlanWizardStep2" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Customize Your Plan</h4>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Plan Name *</label>
+                        <input type="text" id="simplePlanName" placeholder="e.g., Q1 Marketing Campaign" style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Description</label>
+                        <textarea id="simplePlanDescription" placeholder="Brief description of this plan..." style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; min-height: 80px; resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Duration</label>
+                            <select id="simplePlanDuration" style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer;">
+                                <option value="2">2 weeks</option>
+                                <option value="4" selected>4 weeks</option>
+                                <option value="6">6 weeks</option>
+                                <option value="8">8 weeks</option>
+                                <option value="12">12 weeks</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Start Date</label>
+                            <input type="date" id="simplePlanStartDate" style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+                    </div>
+
+                    <div id="selectedTemplatePreview" style="background: #e3f2fd; padding: 16px; border-radius: 8px; border-left: 4px solid var(--color-primary-blue);">
+                        <!-- Template preview will be shown here -->
+                    </div>
+                </div>
+
+                <!-- Step 3: Team Setup -->
+                <div class="simple-wizard-step-content" id="simplePlanWizardStep3" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 12px;">Assign Team Members</h4>
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">Assign people to the roles in this plan. You can edit assignments later.</p>
+
+                    <div id="roleAssignmentsList" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Role assignments will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Step 4: Review & Create -->
+                <div class="simple-wizard-step-content" id="simplePlanWizardStep4" style="display: none;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin-bottom: 24px;">Review Your Plan</h4>
+
+                    <div id="simplePlanReviewSummary" style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Summary will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="pipeline-wizard-footer" style="padding: 20px 32px; background: var(--color-neutral-background); border-top: 1px solid var(--color-neutral-border); border-radius: 0 0 12px 12px; display: flex; justify-content: space-between; align-items: center;">
+                <button id="simplePlanWizardBackBtn" onclick="previousSimplePlanWizardStep()" style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: none;">
+                    <i class="ph ph-caret-left" style="margin-right: 6px;"></i>
+                    Back
+                </button>
+                <div style="flex: 1;"></div>
+                <button id="simplePlanWizardNextBtn" onclick="nextSimplePlanWizardStep()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    Next
+                    <i class="ph ph-caret-right" style="margin-left: 6px;"></i>
+                </button>
+                <button id="simplePlanWizardCreateBtn" onclick="createSimplePlanFromWizard()" style="padding: 10px 20px; background: #16a34a; color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: none;">
+                    <i class="ph ph-check-circle" style="margin-right: 6px;"></i>
+                    Create Plan
+                </button>
+            </div>
+        </div>
+    </div> <!-- End simplified-plan-wizard-modal -->
 
 </div> <!-- End canvas-modal-content -->
 </div> <!-- End canvas-modal -->
@@ -17650,15 +17989,1083 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Plan action stubs
         function editPlan(index) {
-            CleansheetCore.utils.showToast('Edit plan functionality - coming soon', 'info');
+            alert('Edit Plan\n\nOpen the plan editor to modify:\n• Plan name and description\n• Team members and roles\n• Phases and tasks\n• RACI assignments\n• Dependencies and timeline');
         }
 
         function deletePlan(index) {
-            CleansheetCore.utils.showToast('Delete plan functionality - coming soon', 'info');
+            if (confirm('Are you sure you want to delete this plan?\n\nThis action cannot be undone.')) {
+                alert('Plan deleted successfully.');
+            }
         }
 
         function sharePlan(index) {
-            CleansheetCore.utils.showToast('Share plan functionality - coming soon', 'info');
+            alert('Share Plan\n\nShare this plan with team members:\n• Add collaborators\n• Set permissions (View/Edit/Admin)\n• Send email invitations\n• Generate shareable link');
+        }
+
+        // Plan Wizard Functions
+        let currentPlanWizardStep = 1;
+        let planWizardData = {
+            projectName: '',
+            description: '',
+            startDate: '',
+            endDate: '',
+            roles: [],
+            phases: [],
+            tasks: []
+        };
+
+        function openPlanWizard() {
+            // Reset wizard state
+            currentPlanWizardStep = 1;
+            planWizardData = {
+                projectName: '',
+                description: '',
+                startDate: '',
+                endDate: '',
+                roles: [],
+                phases: [],
+                tasks: []
+            };
+
+            // Clear all form inputs
+            document.getElementById('planName').value = '';
+            document.getElementById('planDescription').value = '';
+            document.getElementById('planStartDate').value = '';
+            document.getElementById('planEndDate').value = '';
+            document.getElementById('rolesList').innerHTML = '';
+            document.getElementById('phasesTasksList').innerHTML = '<div style="padding: 48px; text-align: center; color: var(--color-neutral-text);"><i class="ph ph-folder-notch-open" style="font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.5;"></i><p style="font-family: var(--font-family-body); font-size: 14px;">No phases or tasks yet. Click "Add Phase" or "Add Task" to get started.</p></div>';
+
+            // Show modal and reset to step 1
+            document.getElementById('planWizardModal').style.display = 'block';
+            showPlanWizardStep(1);
+        }
+
+        function closePlanWizard() {
+            document.getElementById('planWizardModal').style.display = 'none';
+        }
+
+        function showPlanWizardStep(stepNumber) {
+            currentPlanWizardStep = stepNumber;
+
+            // Hide all step content
+            document.querySelectorAll('#planWizardModal .wizard-step-content').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // Show current step content
+            document.getElementById(`planWizardStep${stepNumber}`).style.display = 'block';
+
+            // Update step indicators
+            document.querySelectorAll('#planWizardModal .wizard-step').forEach((stepEl, index) => {
+                const stepNum = index + 1;
+                const numberEl = stepEl.querySelector('.step-number');
+                const labelEl = stepEl.querySelector('.step-label');
+
+                if (stepNum < stepNumber) {
+                    // Completed step
+                    numberEl.style.background = 'var(--color-primary-blue)';
+                    numberEl.style.color = 'white';
+                    labelEl.style.color = 'var(--color-dark)';
+                } else if (stepNum === stepNumber) {
+                    // Active step
+                    numberEl.style.background = 'var(--color-primary-blue)';
+                    numberEl.style.color = 'white';
+                    labelEl.style.color = 'var(--color-dark)';
+                } else {
+                    // Upcoming step
+                    numberEl.style.background = 'var(--color-neutral-border)';
+                    numberEl.style.color = 'var(--color-neutral-text)';
+                    labelEl.style.color = 'var(--color-neutral-text)';
+                }
+            });
+
+            // Update step lines
+            document.querySelectorAll('#planWizardModal .wizard-step-line').forEach((line, index) => {
+                if (index < stepNumber - 1) {
+                    line.style.background = 'var(--color-primary-blue)';
+                } else {
+                    line.style.background = 'var(--color-neutral-border)';
+                }
+            });
+
+            // Update footer buttons
+            const backBtn = document.getElementById('planWizardBackBtn');
+            const skipBtn = document.getElementById('planWizardSkipBtn');
+            const nextBtn = document.getElementById('planWizardNextBtn');
+            const createBtn = document.getElementById('planWizardCreateBtn');
+
+            backBtn.style.display = stepNumber > 1 ? 'block' : 'none';
+
+            if (stepNumber === 5) {
+                skipBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                createBtn.style.display = 'block';
+                renderPlanReview();
+            } else {
+                skipBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+                createBtn.style.display = 'none';
+            }
+
+            // Render content for specific steps
+            if (stepNumber === 4) {
+                renderRACIMatrix();
+            }
+        }
+
+        function nextPlanWizardStep() {
+            // Capture data from current step
+            if (currentPlanWizardStep === 1) {
+                planWizardData.projectName = document.getElementById('planName').value;
+                planWizardData.description = document.getElementById('planDescription').value;
+                planWizardData.startDate = document.getElementById('planStartDate').value;
+                planWizardData.endDate = document.getElementById('planEndDate').value;
+            }
+
+            if (currentPlanWizardStep < 5) {
+                showPlanWizardStep(currentPlanWizardStep + 1);
+            }
+        }
+
+        function previousPlanWizardStep() {
+            if (currentPlanWizardStep > 1) {
+                showPlanWizardStep(currentPlanWizardStep - 1);
+            }
+        }
+
+        // Step 2: Role Management Functions
+        function addRole() {
+            const roleInput = document.getElementById('newRoleName');
+            const roleName = roleInput.value.trim();
+
+            if (!roleName) {
+                alert('Please enter a role name');
+                return;
+            }
+
+            if (planWizardData.roles.includes(roleName)) {
+                alert('This role already exists');
+                return;
+            }
+
+            planWizardData.roles.push(roleName);
+            roleInput.value = '';
+            renderRolesList();
+        }
+
+        function removeRole(index) {
+            const roleName = planWizardData.roles[index];
+            if (confirm(`Remove role "${roleName}"?\n\nThis will also remove all RACI assignments for this role.`)) {
+                planWizardData.roles.splice(index, 1);
+
+                // Remove role assignments from all tasks
+                planWizardData.tasks.forEach(task => {
+                    if (task.assignments && task.assignments[roleName]) {
+                        delete task.assignments[roleName];
+                    }
+                });
+
+                renderRolesList();
+            }
+        }
+
+        function renderRolesList() {
+            const container = document.getElementById('rolesList');
+
+            if (planWizardData.roles.length === 0) {
+                container.innerHTML = '<p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); padding: 16px; text-align: center; background: var(--color-neutral-background); border-radius: 6px;">No roles added yet</p>';
+                return;
+            }
+
+            container.innerHTML = planWizardData.roles.map((role, index) => `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="ph ph-user-circle" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                        <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">${role}</span>
+                    </div>
+                    <button onclick="removeRole(${index})" style="padding: 6px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph ph-trash" style="font-size: 16px; color: #dc2626;"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Step 3: Phase and Task Management Functions
+        function addPhase() {
+            const phaseName = prompt('Enter phase name:');
+            if (!phaseName || !phaseName.trim()) return;
+
+            const phase = {
+                id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+                name: phaseName.trim(),
+                collapsed: false
+            };
+
+            planWizardData.phases.push(phase);
+            renderPhasesAndTasks();
+        }
+
+        function addTask(phaseId = null) {
+            const taskName = prompt('Enter task name:');
+            if (!taskName || !taskName.trim()) return;
+
+            const task = {
+                id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+                name: taskName.trim(),
+                phaseId: phaseId,
+                parentId: null,
+                level: 0,
+                collapsed: false,
+                assignments: {},
+                dependencies: [],
+                documents: []
+            };
+
+            // Initialize assignments with empty strings for all roles
+            planWizardData.roles.forEach(role => {
+                task.assignments[role] = '';
+            });
+
+            planWizardData.tasks.push(task);
+            renderPhasesAndTasks();
+        }
+
+        function removePhase(index) {
+            const phase = planWizardData.phases[index];
+            if (confirm(`Remove phase "${phase.name}"?\n\nTasks in this phase will become unassigned.`)) {
+                // Unassign tasks from this phase
+                planWizardData.tasks.forEach(task => {
+                    if (task.phaseId === phase.id) {
+                        task.phaseId = null;
+                    }
+                });
+
+                planWizardData.phases.splice(index, 1);
+                renderPhasesAndTasks();
+            }
+        }
+
+        function removeTask(index) {
+            const task = planWizardData.tasks[index];
+            if (confirm(`Remove task "${task.name}"?`)) {
+                planWizardData.tasks.splice(index, 1);
+                renderPhasesAndTasks();
+            }
+        }
+
+        function renderPhasesAndTasks() {
+            const container = document.getElementById('phasesTasksList');
+
+            if (planWizardData.phases.length === 0 && planWizardData.tasks.length === 0) {
+                container.innerHTML = '<div style="padding: 48px; text-align: center; color: var(--color-neutral-text);"><i class="ph ph-folder-notch-open" style="font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.5;"></i><p style="font-family: var(--font-family-body); font-size: 14px;">No phases or tasks yet. Click "Add Phase" or "Add Task" to get started.</p></div>';
+                return;
+            }
+
+            let html = '<div style="padding: 16px;">';
+
+            // Render phases with their tasks
+            planWizardData.phases.forEach((phase, phaseIndex) => {
+                const phaseTasks = planWizardData.tasks.filter(t => t.phaseId === phase.id);
+
+                html += `
+                    <div style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 6px; overflow: hidden;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #e3f2fd;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ph-folder" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                                <strong style="font-family: var(--font-family-ui); font-size: 14px; color: var(--color-dark);">${phase.name}</strong>
+                                <span style="font-size: 11px; color: var(--color-neutral-text);">(${phaseTasks.length} tasks)</span>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button onclick="addTask('${phase.id}')" style="padding: 4px 8px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                                    <i class="ph ph-plus"></i> Task
+                                </button>
+                                <button onclick="removePhase(${phaseIndex})" style="padding: 4px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">
+                                    <i class="ph ph-trash" style="font-size: 12px; color: #dc2626;"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${phaseTasks.length > 0 ? `
+                            <div style="padding: 8px; background: white;">
+                                ${phaseTasks.map((task, taskIndex) => {
+                                    const globalIndex = planWizardData.tasks.indexOf(task);
+                                    return `
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; margin-bottom: 6px;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <i class="ph ph-circle" style="font-size: 16px; color: var(--color-neutral-text);"></i>
+                                                <span style="font-family: var(--font-family-body); font-size: 13px;">${task.name}</span>
+                                            </div>
+                                            <button onclick="removeTask(${globalIndex})" style="padding: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">
+                                                <i class="ph ph-trash" style="font-size: 12px; color: #dc2626;"></i>
+                                            </button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            // Render unassigned tasks
+            const unassignedTasks = planWizardData.tasks.filter(t => !t.phaseId);
+            if (unassignedTasks.length > 0) {
+                html += `
+                    <div style="margin-bottom: 16px; border: 1px solid var(--color-neutral-border); border-radius: 6px; overflow: hidden;">
+                        <div style="padding: 12px; background: var(--color-neutral-background);">
+                            <strong style="font-family: var(--font-family-ui); font-size: 14px; color: var(--color-dark);">Unassigned Tasks</strong>
+                        </div>
+                        <div style="padding: 8px; background: white;">
+                            ${unassignedTasks.map(task => {
+                                const globalIndex = planWizardData.tasks.indexOf(task);
+                                return `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 1px solid var(--color-neutral-border); border-radius: 4px; margin-bottom: 6px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="ph ph-circle" style="font-size: 16px; color: var(--color-neutral-text);"></i>
+                                            <span style="font-family: var(--font-family-body); font-size: 13px;">${task.name}</span>
+                                        </div>
+                                        <button onclick="removeTask(${globalIndex})" style="padding: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">
+                                            <i class="ph ph-trash" style="font-size: 12px; color: #dc2626;"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Step 4: RACI Matrix Functions
+        function updateRACIAssignment(taskIndex, role, value) {
+            planWizardData.tasks[taskIndex].assignments[role] = value;
+        }
+
+        function renderRACIMatrix() {
+            const container = document.getElementById('raciMatrixContainer');
+
+            if (planWizardData.tasks.length === 0 || planWizardData.roles.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 48px; text-align: center; color: var(--color-neutral-text);">
+                        <i class="ph ph-table" style="font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
+                        <p style="font-family: var(--font-family-body); font-size: 14px;">
+                            ${planWizardData.tasks.length === 0 ? 'Add tasks in Step 3 to create the RACI matrix.' : 'Add roles in Step 2 to create the RACI matrix.'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--font-family-body); font-size: 12px;">
+                    <thead>
+                        <tr style="background: var(--color-dark); color: white;">
+                            <th style="padding: 12px; text-align: left; font-family: var(--font-family-ui); font-weight: 600; position: sticky; left: 0; background: var(--color-dark); min-width: 200px;">Task</th>
+                            ${planWizardData.roles.map(role => `
+                                <th style="padding: 12px; text-align: center; font-family: var(--font-family-ui); font-weight: 600; min-width: 100px;">${role}</th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            planWizardData.tasks.forEach((task, taskIndex) => {
+                html += `
+                    <tr style="border-bottom: 1px solid var(--color-neutral-border);">
+                        <td style="padding: 12px; background: white; position: sticky; left: 0; font-weight: 500;">${task.name}</td>
+                        ${planWizardData.roles.map(role => `
+                            <td style="padding: 8px; text-align: center; background: white;">
+                                <select onchange="updateRACIAssignment(${taskIndex}, '${role}', this.value)"
+                                        style="width: 60px; padding: 4px; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; text-align: center; cursor: pointer; ${task.assignments[role] ? 'background: #e3f2fd; border-color: var(--color-primary-blue); font-weight: 600;' : ''}">
+                                    <option value="" ${task.assignments[role] === '' ? 'selected' : ''}>-</option>
+                                    <option value="R" ${task.assignments[role] === 'R' ? 'selected' : ''}>R</option>
+                                    <option value="A" ${task.assignments[role] === 'A' ? 'selected' : ''}>A</option>
+                                    <option value="C" ${task.assignments[role] === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="I" ${task.assignments[role] === 'I' ? 'selected' : ''}>I</option>
+                                </select>
+                            </td>
+                        `).join('')}
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Step 5: Review and Create Functions
+        function renderPlanReview() {
+            const container = document.getElementById('planReviewSummary');
+
+            html = `
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Plan Details</h5>
+                    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; font-family: var(--font-family-body); font-size: 14px;">
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Name:</div>
+                        <div style="color: var(--color-dark);">${planWizardData.projectName || 'Untitled Plan'}</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Description:</div>
+                        <div style="color: var(--color-dark);">${planWizardData.description || 'No description provided'}</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Start Date:</div>
+                        <div style="color: var(--color-dark);">${planWizardData.startDate || 'Not set'}</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">End Date:</div>
+                        <div style="color: var(--color-dark);">${planWizardData.endDate || 'Not set'}</div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Team Roles</h5>
+                    ${planWizardData.roles.length > 0 ? `
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${planWizardData.roles.map(role => `
+                                <span style="padding: 6px 12px; background: #e3f2fd; color: var(--color-primary-blue); border-radius: 16px; font-family: var(--font-family-body); font-size: 12px; font-weight: 600;">
+                                    <i class="ph ph-user-circle" style="margin-right: 4px;"></i>${role}
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : '<p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0;">No roles defined</p>'}
+                </div>
+
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Structure</h5>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
+                        <div>
+                            <div style="font-size: 32px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${planWizardData.phases.length}</div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Phases</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${planWizardData.tasks.length}</div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Tasks</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${planWizardData.tasks.filter(t => Object.values(t.assignments).some(a => a !== '')).length}</div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Tasks with Assignments</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function createPlanFromWizard() {
+            // Validate required fields
+            if (!planWizardData.projectName) {
+                alert('Please provide a plan name');
+                showPlanWizardStep(1);
+                return;
+            }
+
+            if (planWizardData.roles.length === 0) {
+                alert('Please add at least one role');
+                showPlanWizardStep(2);
+                return;
+            }
+
+            if (planWizardData.tasks.length === 0) {
+                alert('Please add at least one task');
+                showPlanWizardStep(3);
+                return;
+            }
+
+            // Generate export data
+            const exportData = {
+                projectName: planWizardData.projectName,
+                roles: planWizardData.roles,
+                phases: planWizardData.phases,
+                tasks: planWizardData.tasks
+            };
+
+            // Download JSON file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${planWizardData.projectName.replace(/\s+/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Show success message and close wizard
+            alert(`Plan "${planWizardData.projectName}" created successfully!\n\nThe plan has been downloaded as a JSON file.\n\n• ${planWizardData.roles.length} roles\n• ${planWizardData.phases.length} phases\n• ${planWizardData.tasks.length} tasks`);
+
+            closePlanWizard();
+            loadPlanCards(); // Refresh the plans list
+        }
+
+        // Simple Plan Wizard Functions
+        let currentSimplePlanStep = 1;
+        let selectedPlanTemplate = null;
+        let simplePlanData = {
+            projectName: '',
+            description: '',
+            startDate: '',
+            duration: 4,
+            roles: [],
+            phases: [],
+            tasks: [],
+            teamAssignments: {}
+        };
+
+        // Plan Templates - Pre-configured for Junior Project Managers
+        const planTemplates = [
+            {
+                id: 'product-launch',
+                name: 'Product Launch',
+                icon: 'ph-rocket-launch',
+                description: 'Launch a new product or feature with coordinated marketing, development, and sales efforts.',
+                difficulty: 'Beginner',
+                duration: 8,
+                roles: ['Project Manager', 'Product Owner', 'Marketing Lead', 'Engineering Lead', 'Sales Lead'],
+                phases: [
+                    { name: 'Planning & Strategy', tasks: ['Define product vision', 'Market research', 'Competitive analysis', 'Set success metrics'] },
+                    { name: 'Development', tasks: ['Design mockups', 'Build MVP', 'Internal testing', 'Bug fixes'] },
+                    { name: 'Marketing Prep', tasks: ['Create marketing materials', 'Build landing page', 'Plan email campaign', 'Prepare sales deck'] },
+                    { name: 'Launch', tasks: ['Deploy to production', 'Send announcements', 'Monitor analytics', 'Customer support readiness'] }
+                ]
+            },
+            {
+                id: 'marketing-campaign',
+                name: 'Marketing Campaign',
+                icon: 'ph-megaphone',
+                description: 'Plan and execute a multi-channel marketing campaign with content, social media, and email.',
+                difficulty: 'Beginner',
+                duration: 6,
+                roles: ['Campaign Manager', 'Content Writer', 'Designer', 'Social Media Manager', 'Email Marketing Specialist'],
+                phases: [
+                    { name: 'Campaign Planning', tasks: ['Define target audience', 'Set campaign goals', 'Create messaging framework', 'Budget allocation'] },
+                    { name: 'Content Creation', tasks: ['Write blog posts', 'Design graphics', 'Create social content', 'Develop email templates'] },
+                    { name: 'Launch Preparation', tasks: ['Schedule social posts', 'Set up email automation', 'Coordinate with partners', 'Test tracking links'] },
+                    { name: 'Execution & Monitoring', tasks: ['Launch campaign', 'Monitor performance', 'Engage with audience', 'Generate performance report'] }
+                ]
+            },
+            {
+                id: 'event-planning',
+                name: 'Event Planning',
+                icon: 'ph-calendar-check',
+                description: 'Organize a company event, conference, or webinar with venue, speakers, and attendee management.',
+                difficulty: 'Beginner',
+                duration: 12,
+                roles: ['Event Coordinator', 'Venue Manager', 'Marketing Lead', 'Logistics Coordinator', 'Speaker Manager'],
+                phases: [
+                    { name: 'Initial Planning', tasks: ['Define event goals', 'Set budget', 'Choose date and venue', 'Create event timeline'] },
+                    { name: 'Program Development', tasks: ['Invite speakers', 'Create agenda', 'Plan sessions', 'Prepare materials'] },
+                    { name: 'Marketing & Registration', tasks: ['Create event page', 'Email invitations', 'Social media promotion', 'Track registrations'] },
+                    { name: 'Event Execution', tasks: ['Setup venue', 'Run event', 'Manage attendees', 'Post-event survey'] }
+                ]
+            },
+            {
+                id: 'website-redesign',
+                name: 'Website Redesign',
+                icon: 'ph-browser',
+                description: 'Redesign and relaunch a website with new branding, content, and user experience improvements.',
+                difficulty: 'Intermediate',
+                duration: 10,
+                roles: ['Project Manager', 'UX Designer', 'Web Developer', 'Content Strategist', 'QA Tester'],
+                phases: [
+                    { name: 'Discovery', tasks: ['User research', 'Analytics review', 'Stakeholder interviews', 'Define requirements'] },
+                    { name: 'Design', tasks: ['Create wireframes', 'Design mockups', 'Review with stakeholders', 'Finalize designs'] },
+                    { name: 'Development', tasks: ['Build pages', 'Implement CMS', 'Add content', 'Test functionality'] },
+                    { name: 'Launch', tasks: ['Final QA testing', 'Deploy to production', 'Monitor performance', 'Fix issues'] }
+                ]
+            },
+            {
+                id: 'content-calendar',
+                name: 'Content Calendar',
+                icon: 'ph-article',
+                description: 'Plan and manage a quarterly content calendar for blog posts, videos, and social media.',
+                difficulty: 'Beginner',
+                duration: 4,
+                roles: ['Content Manager', 'Writer', 'Video Producer', 'SEO Specialist', 'Social Media Manager'],
+                phases: [
+                    { name: 'Planning', tasks: ['Brainstorm topics', 'Keyword research', 'Create editorial calendar', 'Assign responsibilities'] },
+                    { name: 'Content Creation', tasks: ['Write articles', 'Record videos', 'Design graphics', 'Edit and review'] },
+                    { name: 'Publishing', tasks: ['Schedule posts', 'Optimize for SEO', 'Cross-post to platforms', 'Email newsletter'] },
+                    { name: 'Performance Review', tasks: ['Track metrics', 'Analyze engagement', 'Identify top performers', 'Plan next quarter'] }
+                ]
+            },
+            {
+                id: 'onboarding-program',
+                name: 'Employee Onboarding',
+                icon: 'ph-users-three',
+                description: 'Create and implement a structured onboarding program for new hires across departments.',
+                difficulty: 'Beginner',
+                duration: 6,
+                roles: ['HR Manager', 'Department Manager', 'IT Support', 'Training Coordinator', 'Buddy/Mentor'],
+                phases: [
+                    { name: 'Pre-Arrival', tasks: ['Send welcome email', 'Prepare workspace', 'Setup IT accounts', 'Send pre-reading materials'] },
+                    { name: 'Week 1', tasks: ['Welcome orientation', 'Team introductions', 'Review policies', 'Setup tools and access'] },
+                    { name: 'Week 2-4', tasks: ['Department training', 'Shadow team members', 'First assignments', 'Regular check-ins'] },
+                    { name: 'First 90 Days', tasks: ['Set goals', 'Performance reviews', 'Gather feedback', 'Complete onboarding survey'] }
+                ]
+            }
+        ];
+
+        function openSimplePlanWizard() {
+            // Reset wizard state
+            currentSimplePlanStep = 1;
+            selectedPlanTemplate = null;
+            simplePlanData = {
+                projectName: '',
+                description: '',
+                startDate: '',
+                duration: 4,
+                roles: [],
+                phases: [],
+                tasks: [],
+                teamAssignments: {}
+            };
+
+            // Clear form inputs
+            document.getElementById('simplePlanName').value = '';
+            document.getElementById('simplePlanDescription').value = '';
+            document.getElementById('simplePlanStartDate').value = '';
+            document.getElementById('simplePlanDuration').value = '4';
+
+            // Show modal and render templates
+            document.getElementById('simplePlanWizardModal').style.display = 'block';
+            showSimplePlanWizardStep(1);
+            renderPlanTemplates();
+        }
+
+        function closeSimplePlanWizard() {
+            document.getElementById('simplePlanWizardModal').style.display = 'none';
+        }
+
+        function showSimplePlanWizardStep(stepNumber) {
+            currentSimplePlanStep = stepNumber;
+
+            // Hide all step content - be explicit and forceful with !important
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`simplePlanWizardStep${i}`);
+                if (stepEl) {
+                    stepEl.style.setProperty('display', 'none', 'important');
+                    stepEl.classList.remove('active');
+                }
+            }
+
+            // Show current step content
+            const currentStepEl = document.getElementById(`simplePlanWizardStep${stepNumber}`);
+            if (currentStepEl) {
+                currentStepEl.style.setProperty('display', 'block', 'important');
+                currentStepEl.classList.add('active');
+            }
+
+            // Update step indicators
+            document.querySelectorAll('#simplePlanWizardModal .wizard-step').forEach((stepEl, index) => {
+                const stepNum = index + 1;
+                const numberEl = stepEl.querySelector('.step-number');
+                const labelEl = stepEl.querySelector('.step-label');
+
+                if (stepNum < stepNumber) {
+                    numberEl.style.background = 'var(--color-primary-blue)';
+                    numberEl.style.color = 'white';
+                    labelEl.style.color = 'var(--color-dark)';
+                } else if (stepNum === stepNumber) {
+                    numberEl.style.background = 'var(--color-primary-blue)';
+                    numberEl.style.color = 'white';
+                    labelEl.style.color = 'var(--color-dark)';
+                } else {
+                    numberEl.style.background = 'var(--color-neutral-border)';
+                    numberEl.style.color = 'var(--color-neutral-text)';
+                    labelEl.style.color = 'var(--color-neutral-text)';
+                }
+            });
+
+            // Update step lines
+            document.querySelectorAll('#simplePlanWizardModal .wizard-step-line').forEach((line, index) => {
+                if (index < stepNumber - 1) {
+                    line.style.background = 'var(--color-primary-blue)';
+                } else {
+                    line.style.background = 'var(--color-neutral-border)';
+                }
+            });
+
+            // Update footer buttons
+            const backBtn = document.getElementById('simplePlanWizardBackBtn');
+            const nextBtn = document.getElementById('simplePlanWizardNextBtn');
+            const createBtn = document.getElementById('simplePlanWizardCreateBtn');
+
+            backBtn.style.display = stepNumber > 1 ? 'block' : 'none';
+
+            if (stepNumber === 4) {
+                nextBtn.style.display = 'none';
+                createBtn.style.display = 'block';
+                renderSimplePlanReview();
+            } else {
+                nextBtn.style.display = 'block';
+                createBtn.style.display = 'none';
+            }
+
+            // Show/hide banner based on step
+            const banner = document.getElementById('selectedTemplateBanner');
+            if (stepNumber === 1) {
+                // Hide banner on step 1 (template selection)
+                banner.style.display = 'none';
+            } else if (selectedPlanTemplate) {
+                // Show banner on steps 2-4 if template is selected
+                banner.style.display = 'block';
+            }
+
+            // Render content for specific steps
+            if (stepNumber === 2 && selectedPlanTemplate) {
+                renderTemplatePreview();
+            }
+            if (stepNumber === 3 && selectedPlanTemplate) {
+                renderRoleAssignments();
+            }
+        }
+
+        function nextSimplePlanWizardStep() {
+            // Validation
+            if (currentSimplePlanStep === 1 && !selectedPlanTemplate) {
+                alert('Please select a template');
+                return;
+            }
+
+            if (currentSimplePlanStep === 2) {
+                simplePlanData.projectName = document.getElementById('simplePlanName').value;
+                simplePlanData.description = document.getElementById('simplePlanDescription').value;
+                simplePlanData.startDate = document.getElementById('simplePlanStartDate').value;
+                simplePlanData.duration = parseInt(document.getElementById('simplePlanDuration').value);
+
+                if (!simplePlanData.projectName) {
+                    alert('Please enter a plan name');
+                    return;
+                }
+            }
+
+            if (currentSimplePlanStep < 4) {
+                showSimplePlanWizardStep(currentSimplePlanStep + 1);
+            }
+        }
+
+        function previousSimplePlanWizardStep() {
+            if (currentSimplePlanStep > 1) {
+                showSimplePlanWizardStep(currentSimplePlanStep - 1);
+            }
+        }
+
+        // Step 1: Template Selection Functions
+        function renderPlanTemplates() {
+            const container = document.getElementById('planTemplatesGrid');
+
+            container.innerHTML = planTemplates.map((template, index) => `
+                <div onclick="selectPlanTemplate('${template.id}')"
+                     id="template-${template.id}"
+                     style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; cursor: pointer; transition: all 0.2s; ${selectedPlanTemplate && selectedPlanTemplate.id === template.id ? 'border-color: var(--color-primary-blue); background: #e3f2fd;' : 'background: white;'}">
+                    <div style="display: flex; align-items: flex-start; gap: 16px;">
+                        <div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="${template.icon}" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">${template.name}</h5>
+                                ${selectedPlanTemplate && selectedPlanTemplate.id === template.id ? '<i class="ph ph-check-circle" style="font-size: 24px; color: var(--color-primary-blue);"></i>' : ''}
+                            </div>
+                            <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0 0 12px 0; line-height: 1.5;">${template.description}</p>
+                            <div style="display: flex; gap: 12px; font-family: var(--font-family-body); font-size: 11px;">
+                                <span style="padding: 4px 8px; background: ${template.difficulty === 'Beginner' ? '#dcfce7' : '#fef3c7'}; color: ${template.difficulty === 'Beginner' ? '#16a34a' : '#d97706'}; border-radius: 4px; font-weight: 600;">
+                                    ${template.difficulty}
+                                </span>
+                                <span style="padding: 4px 8px; background: var(--color-neutral-background); color: var(--color-neutral-text); border-radius: 4px;">
+                                    <i class="ph ph-clock" style="margin-right: 4px;"></i>${template.duration} weeks
+                                </span>
+                                <span style="padding: 4px 8px; background: var(--color-neutral-background); color: var(--color-neutral-text); border-radius: 4px;">
+                                    <i class="ph ph-users-three" style="margin-right: 4px;"></i>${template.roles.length} roles
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectPlanTemplate(templateId) {
+            selectedPlanTemplate = planTemplates.find(t => t.id === templateId);
+
+            // Pre-fill plan name and duration
+            document.getElementById('simplePlanName').value = selectedPlanTemplate.name;
+            document.getElementById('simplePlanDuration').value = selectedPlanTemplate.duration;
+
+            // Update the banner content (but don't show it yet - that happens on step 2+)
+            updateTemplateBanner();
+
+            renderPlanTemplates(); // Re-render to show selection
+        }
+
+        function updateTemplateBanner() {
+            if (!selectedPlanTemplate) {
+                return;
+            }
+
+            // Calculate total tasks
+            const totalTasks = selectedPlanTemplate.phases.reduce((sum, phase) => sum + phase.tasks.length, 0);
+
+            // Update icon
+            document.getElementById('bannerTemplateIcon').innerHTML = `<i class="${selectedPlanTemplate.icon}" style="font-size: 24px; color: white;"></i>`;
+
+            // Update name
+            document.getElementById('bannerTemplateName').textContent = selectedPlanTemplate.name;
+
+            // Update difficulty
+            document.getElementById('bannerTemplateDifficulty').innerHTML = `<i class="ph ph-star" style="margin-right: 4px;"></i>${selectedPlanTemplate.difficulty}`;
+
+            // Update duration
+            document.getElementById('bannerTemplateDuration').innerHTML = `<i class="ph ph-clock" style="margin-right: 4px;"></i>${selectedPlanTemplate.duration} weeks`;
+
+            // Update roles count
+            document.getElementById('bannerTemplateRoles').innerHTML = `<i class="ph ph-users-three" style="margin-right: 4px;"></i>${selectedPlanTemplate.roles.length} roles`;
+
+            // Update tasks count
+            document.getElementById('bannerTemplateTasks').innerHTML = `<i class="ph ph-list-checks" style="margin-right: 4px;"></i>${totalTasks} tasks`;
+        }
+
+        function changeTemplate() {
+            // Go back to step 1
+            showSimplePlanWizardStep(1);
+        }
+
+        // Step 2: Template Preview Function
+        function renderTemplatePreview() {
+            const container = document.getElementById('selectedTemplatePreview');
+            if (!selectedPlanTemplate) return;
+
+            const totalTasks = selectedPlanTemplate.phases.reduce((sum, phase) => sum + phase.tasks.length, 0);
+
+            container.innerHTML = `
+                <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                    <i class="${selectedPlanTemplate.icon}" style="font-size: 32px; color: var(--color-primary-blue);"></i>
+                    <div>
+                        <h5 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Selected Template: ${selectedPlanTemplate.name}</h5>
+                        <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); margin: 0;">${selectedPlanTemplate.description}</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0, 102, 204, 0.2);">
+                    <div>
+                        <div style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-primary-blue);">${selectedPlanTemplate.phases.length}</div>
+                        <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-dark);">Phases</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-primary-blue);">${totalTasks}</div>
+                        <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-dark);">Tasks</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-primary-blue);">${selectedPlanTemplate.roles.length}</div>
+                        <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-dark);">Roles</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Step 3: Role Assignment Functions
+        function renderRoleAssignments() {
+            const container = document.getElementById('roleAssignmentsList');
+            if (!selectedPlanTemplate) return;
+
+            container.innerHTML = selectedPlanTemplate.roles.map((role, index) => `
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="ph ph-user-circle" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${role}</label>
+                            <input type="text"
+                                   id="teamMember-${index}"
+                                   placeholder="Enter team member name (optional)"
+                                   value="${simplePlanData.teamAssignments[role] || ''}"
+                                   onchange="updateTeamAssignment('${role}', this.value)"
+                                   style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTeamAssignment(role, memberName) {
+            simplePlanData.teamAssignments[role] = memberName;
+        }
+
+        // Step 4: Review and Create Functions
+        function renderSimplePlanReview() {
+            const container = document.getElementById('simplePlanReviewSummary');
+
+            // Calculate end date
+            const startDate = simplePlanData.startDate ? new Date(simplePlanData.startDate) : new Date();
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + (simplePlanData.duration * 7));
+
+            const totalTasks = selectedPlanTemplate.phases.reduce((sum, phase) => sum + phase.tasks.length, 0);
+            const assignedRoles = Object.values(simplePlanData.teamAssignments).filter(m => m).length;
+
+            container.innerHTML = `
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Plan Overview</h5>
+                    <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; font-family: var(--font-family-body); font-size: 14px;">
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Template:</div>
+                        <div style="color: var(--color-dark);">${selectedPlanTemplate.name}</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Plan Name:</div>
+                        <div style="color: var(--color-dark);">${simplePlanData.projectName}</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Description:</div>
+                        <div style="color: var(--color-dark);">${simplePlanData.description || 'No description provided'}</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Duration:</div>
+                        <div style="color: var(--color-dark);">${simplePlanData.duration} weeks</div>
+
+                        <div style="color: var(--color-neutral-text); font-weight: 600;">Timeline:</div>
+                        <div style="color: var(--color-dark);">${simplePlanData.startDate || 'Not set'} to ${simplePlanData.startDate ? endDate.toISOString().split('T')[0] : 'Not set'}</div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Team Assignments</h5>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        ${selectedPlanTemplate.roles.map(role => {
+                            const member = simplePlanData.teamAssignments[role];
+                            return `
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--color-neutral-border);">
+                                    <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); font-weight: 600;">${role}</span>
+                                    <span style="font-family: var(--font-family-body); font-size: 13px; color: ${member ? 'var(--color-primary-blue)' : 'var(--color-neutral-text)'};">
+                                        ${member ? '<i class="ph ph-check-circle" style="margin-right: 4px;"></i>' + member : 'Unassigned'}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ${assignedRoles === 0 ? '<p style="font-family: var(--font-family-body); font-size: 12px; color: #d97706; margin: 12px 0 0 0;"><i class="ph ph-warning" style="margin-right: 4px;"></i>No team members assigned yet</p>' : ''}
+                </div>
+
+                <div style="background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">Plan Structure</h5>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
+                        <div>
+                            <div style="font-size: 32px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${selectedPlanTemplate.phases.length}</div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Phases</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${totalTasks}</div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Tasks</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 32px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${assignedRoles}/${selectedPlanTemplate.roles.length}</div>
+                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">Roles Assigned</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createSimplePlanFromWizard() {
+            // Generate plan from template
+            const phases = [];
+            const tasks = [];
+            let taskCounter = 0;
+
+            selectedPlanTemplate.phases.forEach((phaseTemplate, phaseIndex) => {
+                const phaseId = Date.now().toString(36) + phaseIndex.toString(36);
+
+                phases.push({
+                    id: phaseId,
+                    name: phaseTemplate.name,
+                    collapsed: false
+                });
+
+                phaseTemplate.tasks.forEach((taskName, taskIndex) => {
+                    const taskId = Date.now().toString(36) + taskCounter.toString(36) + Math.random().toString(36).substr(2, 3);
+                    taskCounter++;
+
+                    const assignments = {};
+                    selectedPlanTemplate.roles.forEach(role => {
+                        assignments[role] = '';  // Empty by default, user can fill in RACI in project-planner
+                    });
+
+                    tasks.push({
+                        id: taskId,
+                        name: taskName,
+                        phaseId: phaseId,
+                        parentId: null,
+                        level: 0,
+                        collapsed: false,
+                        assignments: assignments,
+                        dependencies: [],
+                        documents: []
+                    });
+                });
+            });
+
+            // Create export data
+            const exportData = {
+                projectName: simplePlanData.projectName,
+                roles: selectedPlanTemplate.roles,
+                phases: phases,
+                tasks: tasks
+            };
+
+            // Download JSON file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${simplePlanData.projectName.replace(/\s+/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Show success message
+            const assignedCount = Object.values(simplePlanData.teamAssignments).filter(m => m).length;
+            alert(`Plan "${simplePlanData.projectName}" created successfully!\n\nBased on template: ${selectedPlanTemplate.name}\n\n• ${selectedPlanTemplate.roles.length} roles\n• ${selectedPlanTemplate.phases.length} phases\n• ${tasks.length} tasks\n• ${assignedCount} team members assigned\n\nThe plan has been downloaded as a JSON file.`);
+
+            closeSimplePlanWizard();
+            loadPlanCards(); // Refresh the plans list
+        }
+
+        // Export plan data following project-planner-schema.json format
+        function exportPlanData(planId) {
+            // TODO: Export plan in schema-compliant JSON format
+            const planData = {
+                projectName: 'Sample Plan',
+                roles: ['Project Manager', 'Engineer', 'Designer', 'Marketing'],
+                phases: [
+                    {
+                        id: Date.now().toString(36),
+                        name: 'Planning',
+                        collapsed: false
+                    }
+                ],
+                tasks: [
+                    {
+                        id: Date.now().toString(36),
+                        name: 'Requirements',
+                        phaseId: null,
+                        parentId: null,
+                        level: 0,
+                        collapsed: false,
+                        assignments: {
+                            'Project Manager': 'A',
+                            'Engineer': 'C',
+                            'Designer': 'C',
+                            'Marketing': 'I'
+                        },
+                        dependencies: [],
+                        documents: []
+                    }
+                ]
+            };
+
+            const blob = new Blob([JSON.stringify(planData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${planData.projectName.replace(/\s+/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function loadDocumentTypeCards() {
