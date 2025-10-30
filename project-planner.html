@@ -5850,6 +5850,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 // Load the template data
                 raciData = {
+                    projectName: template.projectName || 'Untitled Project',
                     roles: [...template.roles],
                     phases: template.phases.map(p => ({ ...p, id: generateId() })),
                     tasks: []
@@ -5874,10 +5875,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Hide examples panel
                 document.getElementById('examplesPanel').style.display = 'none';
 
+                // Update project name input field
+                const projectNameInput = document.getElementById('projectNameInput');
+                if (projectNameInput) {
+                    projectNameInput.value = raciData.projectName;
+                }
+
                 // Save and render
                 saveToLocalStorage();
                 renderTable();
-                CleansheetCore.utils.showToast(`Loaded ${templateName.replace('-', ' ')} example`, 'success');
+                CleansheetCore.utils.showToast(`Loaded ${template.projectName || templateName.replace('-', ' ')} example`, 'success');
             } catch (error) {
                 CleansheetCore.utils.showToast('Error loading example: ' + error.message, 'error');
                 console.error('Load example error:', error);
