@@ -3126,6 +3126,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-folder-open"></i>
                         <span>Projects</span>
                     </button>
+                    <button class="main-menu-item" id="templatesMenuItem" onclick="setActiveMenu(this); showTemplatesView();">
+                        <i class="ph ph-files"></i>
+                        <span>Templates</span>
+                    </button>
                     <button class="main-menu-item" id="integrationsMenuItem" onclick="setActiveMenu(this); showIntegrationsView();">
                         <i class="ph ph-plugs-connected"></i>
                         <span>Integrations</span>
@@ -3309,6 +3313,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 </table>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Templates View -->
+                <div id="templates-view" style="display: none; overflow-y: auto; background: var(--color-neutral-background); grid-column: 1 / -1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; padding: 24px;">
+                    <!-- Templates Header -->
+                    <div style="max-width: 1200px; margin: 0 auto 24px;">
+                        <h2 style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">Templates</h2>
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">Save anything in your Canvas as a template to be shown in the Guided Setup</p>
+                    </div>
+
+                    <!-- Templates Grid -->
+                    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;" id="templatesContainer">
+                        <!-- Templates will be loaded here -->
                     </div>
                 </div>
 
@@ -8022,11 +8040,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             children: []
                         },
                         {
-                            name: 'Templates',
-                            count: 0,
-                            children: []
-                        },
-                        {
                             name: 'Pipelines',
                             count: 0,
                             children: []
@@ -8099,6 +8112,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Hide mindmap and other views, show projects view
             document.getElementById('canvas-mindmap').style.display = 'none';
             document.getElementById('projects-view').style.display = 'flex';
+            document.getElementById('templates-view').style.display = 'none';
             document.getElementById('integrations-view').style.display = 'none';
 
             // Load project structure
@@ -8111,7 +8125,195 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Hide mindmap and projects view, show integrations view
             document.getElementById('canvas-mindmap').style.display = 'none';
             document.getElementById('projects-view').style.display = 'none';
+            document.getElementById('templates-view').style.display = 'none';
             document.getElementById('integrations-view').style.display = 'block';
+        }
+
+        function showTemplatesView() {
+            // Hide mindmap and other views, show templates view
+            document.getElementById('canvas-mindmap').style.display = 'none';
+            document.getElementById('projects-view').style.display = 'none';
+            document.getElementById('integrations-view').style.display = 'none';
+            document.getElementById('templates-view').style.display = 'block';
+
+            // Load templates
+            loadTemplates();
+        }
+
+        function loadTemplates() {
+            const container = document.getElementById('templatesContainer');
+
+            // System Templates - simplified as requested
+            const systemTemplates = [
+                // Plans (6 templates from guided setup)
+                {
+                    type: 'Plan',
+                    icon: 'ph-rocket-launch',
+                    name: 'Product Launch',
+                    description: 'Launch a new product or feature with coordinated marketing, development, and sales efforts',
+                    metadata: '8 weeks • Beginner • 5 roles'
+                },
+                {
+                    type: 'Plan',
+                    icon: 'ph-megaphone',
+                    name: 'Marketing Campaign',
+                    description: 'Plan and execute a multi-channel marketing campaign with content, social media, and email',
+                    metadata: '6 weeks • Beginner • 5 roles'
+                },
+                {
+                    type: 'Plan',
+                    icon: 'ph-calendar-check',
+                    name: 'Event Planning',
+                    description: 'Organize a company event, conference, or webinar with venue, speakers, and attendee management',
+                    metadata: '12 weeks • Beginner • 5 roles'
+                },
+                {
+                    type: 'Plan',
+                    icon: 'ph-browser',
+                    name: 'Website Redesign',
+                    description: 'Redesign and relaunch a website with new branding, content, and user experience improvements',
+                    metadata: '10 weeks • Intermediate • 5 roles'
+                },
+                {
+                    type: 'Plan',
+                    icon: 'ph-article',
+                    name: 'Content Calendar',
+                    description: 'Plan and manage a quarterly content calendar for blog posts, videos, and social media',
+                    metadata: '4 weeks • Beginner • 5 roles'
+                },
+                {
+                    type: 'Plan',
+                    icon: 'ph-user-plus',
+                    name: 'Employee Onboarding',
+                    description: 'Create and implement a structured onboarding program for new hires across departments',
+                    metadata: '6 weeks • Beginner • 5 roles'
+                },
+                // Pipelines (3 templates from guided setup)
+                {
+                    type: 'Pipeline',
+                    icon: 'ph-flow-arrow',
+                    name: 'Content Transformation',
+                    description: 'Converting documents to multiple formats, generating summaries, or translating content',
+                    metadata: 'PDF → HTML • Summarization • Translation'
+                },
+                {
+                    type: 'Pipeline',
+                    icon: 'ph-chart-bar',
+                    name: 'Data Analysis',
+                    description: 'Analyzing spreadsheets, generating reports, or finding insights in your data',
+                    metadata: 'CSV Analysis • Reports • Insights'
+                },
+                {
+                    type: 'Pipeline',
+                    icon: 'ph-images',
+                    name: 'Image Processing',
+                    description: 'Organizing photos, detecting objects, or extracting text from images',
+                    metadata: 'Auto-tagging • OCR • Recognition'
+                },
+                // Tables (4 templates from guided setup)
+                {
+                    type: 'Table',
+                    icon: 'ph-kanban',
+                    name: 'Sprint Backlog',
+                    description: 'Manage user stories, tasks, and bugs with priorities, story points, and sprint assignments',
+                    metadata: 'Title • Priority • Story Points • Assignee'
+                },
+                {
+                    type: 'Table',
+                    icon: 'ph-briefcase',
+                    name: 'Asset Management',
+                    description: 'Track equipment, tools, vehicles, and property with ownership, maintenance, and depreciation',
+                    metadata: 'Asset Name • Type • Owner • Value'
+                },
+                {
+                    type: 'Table',
+                    icon: 'ph-spinner-gap',
+                    name: 'Work in Progress',
+                    description: 'Monitor active projects, deliverables, and milestones with status tracking and completion dates',
+                    metadata: 'Project Name • Status • Progress • Due Date'
+                },
+                {
+                    type: 'Table',
+                    icon: 'ph-address-book',
+                    name: 'Contacts & CRM',
+                    description: 'Organize customers, vendors, and partners with contact details, interactions, and notes',
+                    metadata: 'Name • Email • Company • Role'
+                }
+            ];
+
+            // Render templates
+            container.innerHTML = `
+                <!-- System Templates Section -->
+                <div style="margin-bottom: 48px;">
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">System Templates</h3>
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">Pre-built templates from guided setup wizards</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                        ${systemTemplates.map(template => {
+                            // Color coding by template type
+                            const typeColors = {
+                                'Plan': { bg: '#e3f2fd', color: '#0066CC', badgeBg: '#0066CC' },
+                                'Pipeline': { bg: '#f3e8ff', color: '#7c3aed', badgeBg: '#7c3aed' },
+                                'Table': { bg: '#d1fae5', color: '#059669', badgeBg: '#059669' }
+                            };
+                            const colors = typeColors[template.type] || typeColors['Plan'];
+
+                            return `
+                            <div onclick="useTemplate('${template.name}', '${template.type}')" style="padding: 20px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseenter="this.style.borderColor='${colors.color}'; this.style.boxShadow='0 2px 8px rgba(0, 102, 204, 0.15)'" onmouseleave="this.style.borderColor='var(--color-neutral-border)'; this.style.boxShadow='none'">
+                                <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 12px;">
+                                    <div style="width: 48px; height: 48px; background: ${colors.bg}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="${template.icon}" style="font-size: 24px; color: ${colors.color};"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                            <h5 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">${template.name}</h5>
+                                            <span style="font-family: var(--font-family-body); font-size: 10px; color: white; background: ${colors.badgeBg}; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; font-weight: 600;">${template.type}</span>
+                                        </div>
+                                        <span style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${template.metadata}</span>
+                                    </div>
+                                </div>
+                                <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0; line-height: 1.5;">${template.description}</p>
+                            </div>
+                        `}).join('')}
+                    </div>
+                </div>
+
+                <!-- Custom Templates Section -->
+                <div>
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">Custom Templates</h3>
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">Templates you've created and saved for reuse</p>
+                    </div>
+
+                    <div style="padding: 48px 24px; background: var(--color-neutral-background); border: 2px dashed var(--color-neutral-border); border-radius: 12px; text-align: center;">
+                        <i class="ph ph-plus-circle" style="font-size: 48px; color: var(--color-neutral-text); margin-bottom: 16px; display: block;"></i>
+                        <h4 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">No Custom Templates Yet</h4>
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0 0 16px 0;">Create any object, then save it as a template for future use</p>
+                        <button onclick="alert('Template creation coming soon! Create any object (document, plan, table, form, report, pipeline, or workflow) and click the \\'Save as Template\\' button to add it to your custom template library.')" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseenter="this.style.background='var(--color-accent-blue)'" onmouseleave="this.style.background='var(--color-primary-blue)'">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function useTemplate(templateName, templateType) {
+            // Route to appropriate wizard or creation flow based on template type
+            const actions = {
+                'Plan': 'Open simplified plan wizard with this template pre-selected',
+                'Table': 'Open table builder with this structure pre-configured',
+                'Pipeline': 'Open pipeline wizard with this template settings',
+                'Document': 'Create new document from this template',
+                'Form': 'Open form builder with this template fields',
+                'Report': 'Create new report with this template configuration',
+                'Workflow': 'Open workflow builder with this template steps'
+            };
+
+            const action = actions[templateType] || 'Create new object from this template';
+
+            alert(`Using ${templateType} template: ${templateName}\n\n${action}\n\nIn production:\n1. ${action}\n2. Pre-populate with template content/structure\n3. Open in the appropriate editor\n4. Allow you to customize and save`);
         }
 
         function toggleIntegrationCategory(category) {
@@ -8578,9 +8780,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 loadLibraryView();
             } else if (menuName === 'Home') {
                 homeView.style.display = 'contents';
-                // Hide projects view and integrations view if they were open
+                // Hide projects view, integrations view, and templates view if they were open
                 document.getElementById('projects-view').style.display = 'none';
                 document.getElementById('integrations-view').style.display = 'none';
+                document.getElementById('templates-view').style.display = 'none';
                 document.getElementById('canvas-mindmap').style.display = 'block';
                 // Redraw mindmap when returning to Home view
                 d3.select('#canvas-mindmap').selectAll('*').remove();
@@ -8595,6 +8798,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             } else if (menuName === 'Projects') {
                 homeView.style.display = 'contents';
                 // showProjectsView() is called by the onclick handler
+            } else if (menuName === 'Templates') {
+                homeView.style.display = 'contents';
+                // showTemplatesView() is called by the onclick handler
             } else if (menuName === 'Integrations') {
                 homeView.style.display = 'contents';
                 // showIntegrationsView() is called by the onclick handler
