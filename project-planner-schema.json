@@ -1,0 +1,351 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cleansheet.info/schemas/project-planner-schema.json",
+  "title": "Cleansheet Project Planner Schema",
+  "description": "JSON schema for the Cleansheet Project Planner RACI matrix and task management system",
+  "type": "object",
+  "required": ["projectName", "roles", "phases", "tasks"],
+  "properties": {
+    "projectName": {
+      "type": "string",
+      "description": "The name of the project",
+      "minLength": 1,
+      "maxLength": 200,
+      "examples": ["Untitled Project", "Q4 Product Launch", "Website Redesign"]
+    },
+    "roles": {
+      "type": "array",
+      "description": "List of organizational roles involved in the project",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "examples": [
+        ["Senior Analyst", "Project Manager", "Designer Head", "SVP Finance"]
+      ]
+    },
+    "phases": {
+      "type": "array",
+      "description": "Project phases that group related tasks",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the phase (timestamp-based)",
+            "pattern": "^[a-z0-9]+$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the project phase",
+            "minLength": 1,
+            "maxLength": 200,
+            "examples": ["Market Research", "Project Structuring", "Implementation"]
+          },
+          "collapsed": {
+            "type": "boolean",
+            "description": "Whether the phase is collapsed in the UI",
+            "default": false
+          }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "description": "List of tasks within the project",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "assignments"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the task (timestamp-based)",
+            "pattern": "^[a-z0-9]+$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the task",
+            "minLength": 1,
+            "maxLength": 200,
+            "examples": ["Market Research", "Econometric Model", "Design Wireframe"]
+          },
+          "phaseId": {
+            "type": ["string", "null"],
+            "description": "ID of the phase this task belongs to (null for unassigned)",
+            "pattern": "^[a-z0-9]+$"
+          },
+          "parentId": {
+            "type": ["string", "null"],
+            "description": "ID of parent task for hierarchical structure (null for top-level)",
+            "default": null,
+            "pattern": "^[a-z0-9]+$"
+          },
+          "level": {
+            "type": "integer",
+            "description": "Indentation level in task hierarchy (0 for top-level)",
+            "minimum": 0,
+            "maximum": 10,
+            "default": 0
+          },
+          "collapsed": {
+            "type": "boolean",
+            "description": "Whether subtasks are collapsed in the UI",
+            "default": false
+          },
+          "assignments": {
+            "type": "object",
+            "description": "RACI assignments for each role (R=Responsible, A=Accountable, C=Consulted, I=Informed)",
+            "patternProperties": {
+              "^.+$": {
+                "type": "string",
+                "enum": ["R", "A", "C", "I", ""],
+                "description": "RACI assignment: R (Responsible), A (Accountable), C (Consulted), I (Informed), or empty"
+              }
+            },
+            "minProperties": 1,
+            "examples": [
+              {
+                "Senior Analyst": "R",
+                "Project Manager": "I",
+                "Designer Head": "I",
+                "SVP Finance": "A"
+              }
+            ]
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "Task dependencies with relationship types",
+            "default": [],
+            "items": {
+              "type": "object",
+              "required": ["taskId", "type", "timing"],
+              "properties": {
+                "taskId": {
+                  "type": "string",
+                  "description": "ID of the task this task depends on",
+                  "pattern": "^[a-z0-9]+$"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["Logical", "Resource", "Preferential"],
+                  "description": "Type of dependency: Logical (must), Resource (resource constraint), Preferential (preference)",
+                  "default": "Logical"
+                },
+                "timing": {
+                  "type": "string",
+                  "enum": ["FS", "SS", "FF", "SF"],
+                  "description": "Timing relationship: FS (Finish to Start), SS (Start to Start), FF (Finish to Finish), SF (Start to Finish)",
+                  "default": "FS"
+                }
+              }
+            }
+          },
+          "documents": {
+            "type": "array",
+            "description": "Documents attached to this task",
+            "default": [],
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "type", "lastModified"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier for the document",
+                  "pattern": "^[a-z0-9]+$"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Title of the document",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["rich", "markdown", "mermaid", "link"],
+                  "description": "Type of document: rich (Quill editor), markdown, mermaid (diagram), link (external URL)"
+                },
+                "created": {
+                  "type": "integer",
+                  "description": "Creation timestamp (Unix epoch in milliseconds)",
+                  "minimum": 0
+                },
+                "lastModified": {
+                  "type": "integer",
+                  "description": "Last modified timestamp (Unix epoch in milliseconds)",
+                  "minimum": 0
+                },
+                "content": {
+                  "description": "Document content (Quill delta for rich, plain text for markdown/mermaid)",
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "Plain text content for markdown or mermaid documents"
+                    },
+                    {
+                      "type": "object",
+                      "description": "Quill Delta format for rich text documents",
+                      "properties": {
+                        "ops": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "url": {
+                  "type": "string",
+                  "description": "URL for link-type documents",
+                  "format": "uri"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description for link-type documents",
+                  "maxLength": 500
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "link"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": ["url"]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "enum": ["rich", "markdown", "mermaid"]
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": ["content"]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "raciValue": {
+      "type": "string",
+      "enum": ["R", "A", "C", "I", ""],
+      "description": "RACI matrix values: R (Responsible - does the work), A (Accountable - ultimately answerable), C (Consulted - provides input), I (Informed - kept up to date)"
+    },
+    "dependencyType": {
+      "type": "string",
+      "enum": ["Logical", "Resource", "Preferential"],
+      "description": "Logical: hard dependency that must be satisfied; Resource: dependency due to resource constraints; Preferential: soft preference dependency"
+    },
+    "dependencyTiming": {
+      "type": "string",
+      "enum": ["FS", "SS", "FF", "SF"],
+      "description": "FS: Finish to Start (predecessor must finish before successor starts); SS: Start to Start (both start together); FF: Finish to Finish (both finish together); SF: Start to Finish (successor finish depends on predecessor start)"
+    },
+    "documentType": {
+      "type": "string",
+      "enum": ["rich", "markdown", "mermaid", "link"],
+      "description": "rich: Rich text using Quill editor; markdown: Markdown formatted text; mermaid: Mermaid.js diagram; link: External URL reference"
+    }
+  },
+  "examples": [
+    {
+      "projectName": "Q4 Product Launch",
+      "roles": ["Product Manager", "Engineer", "Designer", "Marketing"],
+      "phases": [
+        {
+          "id": "abc123def",
+          "name": "Planning",
+          "collapsed": false
+        },
+        {
+          "id": "ghi456jkl",
+          "name": "Development",
+          "collapsed": false
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task001xyz",
+          "name": "Requirements Gathering",
+          "phaseId": "abc123def",
+          "parentId": null,
+          "level": 0,
+          "collapsed": false,
+          "assignments": {
+            "Product Manager": "R",
+            "Engineer": "C",
+            "Designer": "C",
+            "Marketing": "I"
+          },
+          "dependencies": [],
+          "documents": [
+            {
+              "id": "doc001abc",
+              "title": "Requirements Document",
+              "type": "markdown",
+              "created": 1699564800000,
+              "lastModified": 1699651200000,
+              "content": "# Requirements\n\n## Functional\n- Feature 1\n- Feature 2"
+            },
+            {
+              "id": "doc002def",
+              "title": "Design Mockups",
+              "type": "link",
+              "created": 1699651200000,
+              "lastModified": 1699651200000,
+              "url": "https://figma.com/project/mockups",
+              "description": "Figma mockups for the product interface"
+            }
+          ]
+        },
+        {
+          "id": "task002abc",
+          "name": "System Architecture",
+          "phaseId": "ghi456jkl",
+          "parentId": null,
+          "level": 0,
+          "collapsed": false,
+          "assignments": {
+            "Product Manager": "I",
+            "Engineer": "R",
+            "Designer": "I",
+            "Marketing": "I"
+          },
+          "dependencies": [
+            {
+              "taskId": "task001xyz",
+              "type": "Logical",
+              "timing": "FS"
+            }
+          ],
+          "documents": [
+            {
+              "id": "doc003ghi",
+              "title": "Architecture Diagram",
+              "type": "mermaid",
+              "created": 1699737600000,
+              "lastModified": 1699737600000,
+              "content": "graph TD\n    A[Client] --> B[API Gateway]\n    B --> C[Service Layer]\n    C --> D[Database]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

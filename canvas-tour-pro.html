@@ -5619,6 +5619,15 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
             </div>
 
+            <div class="slideout-body" id="plansContent" style="display: none;">
+                <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
+                    Organize and manage project plans, strategic initiatives, and operational workflows.
+                </p>
+                <div id="plansContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <!-- Plan cards will be dynamically inserted here -->
+                </div>
+            </div>
+
             <div class="slideout-body" id="reportsContent" style="display: none;">
                 <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin-bottom: 24px;">
                     Analytics and reporting dashboards for data visualization and insights.
@@ -7160,7 +7169,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 'applicationMaterialsContent', 'skillsCompetenciesContent',
                 'portfolioContent', 'projectsContent', 'myNotesContent',
                 'calendarContent', 'recipesContent', 'financeContent',
-                'tablesContent', 'formsContent', 'documentsContent',
+                'tablesContent', 'formsContent', 'documentsContent', 'plansContent',
                 'reportsContent', 'templatesContent', 'pipelinesContent', 'workflowsContent'
             ];
 
@@ -7650,6 +7659,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     children: [
                         {
                             name: 'Documents',
+                            count: 0,
+                            children: []
+                        },
+                        {
+                            name: 'Plans',
                             count: 0,
                             children: []
                         },
@@ -9868,6 +9882,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     'Interview Prep': 'ph-chats-circle',
                     // Professional mode icons
                     'Documents': 'ph-file-text',
+                    'Plans': 'ph-calendar-check',
                     'Tables': 'ph-table',
                     'Forms': 'ph-clipboard-text',
                     'Reports': 'ph-chart-bar',
@@ -9970,6 +9985,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             openFormsSlideout();
                         } else if (nodeName === 'Documents') {
                             openDocumentsSlideout();
+                        } else if (nodeName === 'Plans') {
+                            openPlansSlideout();
                         } else if (nodeName === 'Reports') {
                             openReportsSlideout();
                         } else if (nodeName === 'Templates') {
@@ -17468,6 +17485,180 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadDocumentTypeCards();
 
             slideout.classList.add('active');
+        }
+
+        function openPlansSlideout() {
+            const slideout = document.getElementById('interviewSlideout');
+            const titleEl = document.getElementById('slideoutTitle');
+
+            titleEl.textContent = 'Plans';
+
+            // Hide all content sections
+            hideAllContentSections();
+
+            // Show plans content
+            document.getElementById('plansContent').style.display = 'block';
+            loadPlanCards();
+
+            slideout.classList.add('active');
+        }
+
+        function loadPlanCards() {
+            const container = document.getElementById('plansContainer');
+            container.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 16px;';
+
+            const plans = [
+                {
+                    title: 'Q4 Product Launch',
+                    icon: 'ph-rocket-launch',
+                    description: 'New product launch timeline including development milestones, marketing campaigns, and go-to-market strategy across North America and Europe.',
+                    lastModified: new Date('2025-10-15').getTime(),
+                    sharedWith: ['AM', 'JS', 'TW'],
+                    tasks: 34,
+                    completed: 28,
+                    daysRemaining: 45
+                },
+                {
+                    title: '2026 Strategic Roadmap',
+                    icon: 'ph-map-trifold',
+                    description: 'Three-year strategic plan outlining organizational goals, market expansion initiatives, and digital transformation priorities.',
+                    lastModified: new Date('2025-10-20').getTime(),
+                    sharedWith: ['RK', 'DM'],
+                    tasks: 12,
+                    completed: 4,
+                    daysRemaining: 90
+                },
+                {
+                    title: 'Operations Optimization',
+                    icon: 'ph-gear-six',
+                    description: 'Process improvement plan for streamlining workflows, reducing operational costs, and increasing team efficiency by 25%.',
+                    lastModified: new Date('2025-10-25').getTime(),
+                    sharedWith: ['AM', 'LP', 'SC', 'JK'],
+                    tasks: 18,
+                    completed: 15,
+                    daysRemaining: 30
+                },
+                {
+                    title: 'Annual Budget 2026',
+                    icon: 'ph-currency-dollar',
+                    description: 'Comprehensive financial planning for fiscal year 2026 including departmental budgets, capital expenditures, and revenue projections.',
+                    lastModified: new Date('2025-10-18').getTime(),
+                    sharedWith: ['CF', 'AM'],
+                    tasks: 8,
+                    completed: 6,
+                    daysRemaining: 60
+                },
+                {
+                    title: 'Brand Refresh Campaign',
+                    icon: 'ph-palette',
+                    description: 'Multi-channel marketing initiative for brand repositioning including website redesign, social media strategy, and content calendar.',
+                    lastModified: new Date('2025-10-22').getTime(),
+                    sharedWith: ['TW', 'MK', 'JS'],
+                    tasks: 22,
+                    completed: 8,
+                    daysRemaining: 120
+                },
+                {
+                    title: 'Platform v3.0 Development',
+                    icon: 'ph-code',
+                    description: 'Technical roadmap for platform upgrade including microservices migration, API redesign, and performance optimization initiatives.',
+                    lastModified: new Date('2025-10-28').getTime(),
+                    sharedWith: ['DM', 'RK', 'LP'],
+                    tasks: 47,
+                    completed: 21,
+                    daysRemaining: 180
+                }
+            ];
+
+            container.innerHTML = '';
+            plans.forEach((plan, index) => {
+                const card = document.createElement('div');
+                card.style.cssText = 'padding: 20px; border: 1px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px;';
+
+                const lastModified = new Date(plan.lastModified).toLocaleDateString();
+                const completionPercent = Math.round((plan.completed / plan.tasks) * 100);
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="ph ${plan.icon}" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">${plan.title}</div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="event.stopPropagation(); editPlan(${index})" title="Edit" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-pencil-simple" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deletePlan(${index})" title="Delete" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#dc2626'; this.style.background='#fef2f2';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-trash" style="font-size: 16px; color: #dc2626;"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); sharePlan(${index})" title="Share" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-share-network" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">
+                        ${plan.description}
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); text-transform: uppercase; margin-bottom: 8px;">
+                            PROGRESS
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">${plan.completed}/${plan.tasks} Tasks</span>
+                            <span style="padding: 4px 8px; background: #e3f2fd; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-primary-blue); font-weight: 600;">${completionPercent}% Complete</span>
+                            <span style="padding: 4px 8px; background: #f5f5f7; border-radius: 4px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);"><i class="ph ph-calendar" style="margin-right: 2px;"></i>${plan.daysRemaining} days</span>
+                        </div>
+                    </div>
+                    ${plan.sharedWith && plan.sharedWith.length > 0 ? `
+                        <div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
+                            <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">SHARED WITH</div>
+                            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                ${plan.sharedWith.map(initials => `
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--color-primary-blue); font-family: var(--font-family-ui);">${initials}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--color-neutral-border);">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px;">LAST MODIFIED</div>
+                        <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">
+                            <i class="ph ph-calendar-blank" style="margin-right: 4px;"></i>
+                            ${lastModified}
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.borderColor = 'var(--color-primary-blue)';
+                    card.style.boxShadow = '0 2px 8px rgba(0, 102, 204, 0.15)';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.borderColor = 'var(--color-neutral-border)';
+                    card.style.boxShadow = 'none';
+                });
+
+                card.addEventListener('click', () => {
+                    CleansheetCore.utils.showToast(`Opening ${plan.title}...`, 'info');
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        // Plan action stubs
+        function editPlan(index) {
+            CleansheetCore.utils.showToast('Edit plan functionality - coming soon', 'info');
+        }
+
+        function deletePlan(index) {
+            CleansheetCore.utils.showToast('Delete plan functionality - coming soon', 'info');
+        }
+
+        function sharePlan(index) {
+            CleansheetCore.utils.showToast('Share plan functionality - coming soon', 'info');
         }
 
         function loadDocumentTypeCards() {
