@@ -3126,6 +3126,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-folder-open"></i>
                         <span>Projects</span>
                     </button>
+                    <button class="main-menu-item" id="integrationsMenuItem" onclick="setActiveMenu(this); showIntegrationsView();">
+                        <i class="ph ph-plugs-connected"></i>
+                        <span>Integrations</span>
+                    </button>
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
                         <!-- Profile Circle -->
                         <div class="profile-circle">
@@ -3155,8 +3159,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             <!-- Page Description -->
             <div style="padding: 24px 24px 0 24px; background: var(--color-neutral-background);">
-                <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
-                    <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0;">
+                <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); position: relative;">
+                    <button onclick="toggleDescriptionBox()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
+                        <i class="ph ph-caret-up" id="descriptionToggleIcon" style="font-size: 20px;"></i>
+                    </button>
+                    <p id="descriptionText" style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0; padding-right: 32px;">
                         The Professional Workspace provides a centralized environment for managing your work projects, documents, and professional resources. Select a persona to see role-specific content and tools tailored to your profession. The interactive mindmap visualizes your professional capabilities with expandable nodes for Documents, Tables, Forms, Reports, Templates, and Workflows. Use the calendar widget to track important events, chat with the AI assistant for guidance, and navigate between Home and Projects views to organize your professional work effectively.
                     </p>
                 </div>
@@ -3300,6 +3307,256 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <!-- File rows will be rendered here -->
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrations View -->
+                <div id="integrations-view" style="display: none; overflow-y: auto; background: var(--color-neutral-background); grid-column: 1 / -1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; padding: 24px;">
+                    <!-- Integrations Header -->
+                    <div style="max-width: 1200px; margin: 0 auto 24px;">
+                        <h2 style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">Integrations</h2>
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0;">Connect your professional tools and data sources to Cleansheet</p>
+                    </div>
+
+                    <!-- Integrations Grid -->
+                    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+                        <!-- Left Column -->
+                        <div>
+                            <!-- CRM & ERP Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('crm')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-buildings" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">CRM & ERP</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-crm-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-crm-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('CRM & ERP', 'Salesforce')" class="data-source-btn">
+                                            <i class="ph ph-cloud"></i> Salesforce
+                                        </button>
+                                        <button onclick="connectIntegration('CRM & ERP', 'Oracle ERP')" class="data-source-btn">
+                                            <i class="ph ph-database"></i> Oracle ERP
+                                        </button>
+                                        <button onclick="connectIntegration('CRM & ERP', 'Microsoft Dynamics')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-logo"></i> MS Dynamics
+                                        </button>
+                                        <button onclick="connectIntegration('CRM & ERP', 'SAP')" class="data-source-btn">
+                                            <i class="ph ph-factory"></i> SAP
+                                        </button>
+                                        <button onclick="connectIntegration('CRM & ERP', 'HubSpot')" class="data-source-btn">
+                                            <i class="ph ph-funnel"></i> HubSpot
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Services Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('data')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-database" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Data Services</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-data-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-data-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('Data Services', 'Snowflake')" class="data-source-btn">
+                                            <i class="ph ph-snowflake"></i> Snowflake
+                                        </button>
+                                        <button onclick="connectIntegration('Data Services', 'Microsoft Dataverse')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-logo"></i> Dataverse
+                                        </button>
+                                        <button onclick="connectIntegration('Data Services', 'AWS S3')" class="data-source-btn">
+                                            <i class="ph ph-amazon-logo"></i> AWS S3
+                                        </button>
+                                        <button onclick="connectIntegration('Data Services', 'Azure Data Lake')" class="data-source-btn">
+                                            <i class="ph ph-cloud"></i> Azure Data Lake
+                                        </button>
+                                        <button onclick="connectIntegration('Data Services', 'Google BigQuery')" class="data-source-btn">
+                                            <i class="ph ph-google-logo"></i> BigQuery
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Services Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('file')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-folder-open" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">File Services</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-file-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-file-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('File Services', 'OneDrive')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-onedrive-logo"></i> OneDrive
+                                        </button>
+                                        <button onclick="connectIntegration('File Services', 'Dropbox')" class="data-source-btn">
+                                            <i class="ph ph-dropbox-logo"></i> Dropbox
+                                        </button>
+                                        <button onclick="connectIntegration('File Services', 'Box')" class="data-source-btn">
+                                            <i class="ph ph-package"></i> Box
+                                        </button>
+                                        <button onclick="connectIntegration('File Services', 'Google Drive')" class="data-source-btn">
+                                            <i class="ph ph-google-drive-logo"></i> Google Drive
+                                        </button>
+                                        <button onclick="connectIntegration('File Services', 'SharePoint')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-sharepoint-logo"></i> SharePoint
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Finance Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('finance')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-chart-line" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Finance</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-finance-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-finance-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('Finance', 'Bloomberg')" class="data-source-btn">
+                                            <i class="ph ph-trend-up"></i> Bloomberg
+                                        </button>
+                                        <button onclick="connectIntegration('Finance', 'Morningstar')" class="data-source-btn">
+                                            <i class="ph ph-star"></i> Morningstar
+                                        </button>
+                                        <button onclick="connectIntegration('Finance', 'Refinitiv')" class="data-source-btn">
+                                            <i class="ph ph-globe"></i> Refinitiv
+                                        </button>
+                                        <button onclick="connectIntegration('Finance', 'FactSet')" class="data-source-btn">
+                                            <i class="ph ph-briefcase"></i> FactSet
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div>
+                            <!-- Payments Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('payments')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-credit-card" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Payments</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-payments-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-payments-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('Payments', 'Stripe')" class="data-source-btn">
+                                            <i class="ph ph-credit-card"></i> Stripe
+                                        </button>
+                                        <button onclick="connectIntegration('Payments', 'Square')" class="data-source-btn">
+                                            <i class="ph ph-square-logo"></i> Square
+                                        </button>
+                                        <button onclick="connectIntegration('Payments', 'PayPal')" class="data-source-btn">
+                                            <i class="ph ph-paypal-logo"></i> PayPal
+                                        </button>
+                                        <button onclick="connectIntegration('Payments', 'Authorize.net')" class="data-source-btn">
+                                            <i class="ph ph-shield-check"></i> Authorize.net
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Communication Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('communication')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-chats-circle" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Communication</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-communication-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-communication-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('Communication', 'Microsoft Teams')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-teams-logo"></i> MS Teams
+                                        </button>
+                                        <button onclick="connectIntegration('Communication', 'Slack')" class="data-source-btn">
+                                            <i class="ph ph-slack-logo"></i> Slack
+                                        </button>
+                                        <button onclick="connectIntegration('Communication', 'Zoom')" class="data-source-btn">
+                                            <i class="ph ph-video-camera"></i> Zoom
+                                        </button>
+                                        <button onclick="connectIntegration('Communication', 'Gmail')" class="data-source-btn">
+                                            <i class="ph ph-google-logo"></i> Gmail
+                                        </button>
+                                        <button onclick="connectIntegration('Communication', 'Outlook')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-outlook-logo"></i> Outlook
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Project Management Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('project')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-kanban" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Project Management</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-project-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-project-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('Project Management', 'Jira')" class="data-source-btn">
+                                            <i class="ph ph-trello-logo"></i> Jira
+                                        </button>
+                                        <button onclick="connectIntegration('Project Management', 'Asana')" class="data-source-btn">
+                                            <i class="ph ph-check-circle"></i> Asana
+                                        </button>
+                                        <button onclick="connectIntegration('Project Management', 'Monday.com')" class="data-source-btn">
+                                            <i class="ph ph-calendar-check"></i> Monday.com
+                                        </button>
+                                        <button onclick="connectIntegration('Project Management', 'Trello')" class="data-source-btn">
+                                            <i class="ph ph-trello-logo"></i> Trello
+                                        </button>
+                                        <button onclick="connectIntegration('Project Management', 'ClickUp')" class="data-source-btn">
+                                            <i class="ph ph-mouse-simple"></i> ClickUp
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Developer Tools Category -->
+                            <div style="margin-bottom: 16px; border: 2px solid var(--color-neutral-border); border-radius: 12px; overflow: hidden; background: white;">
+                                <div onclick="toggleIntegrationCategory('developer')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--color-neutral-background); cursor: pointer; transition: background 0.2s;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="ph ph-code" style="font-size: 24px; color: var(--color-primary-blue);"></i>
+                                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">Developer Tools</h3>
+                                    </div>
+                                    <i class="ph ph-caret-down" id="int-developer-caret" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
+                                </div>
+                                <div id="int-developer-content" style="display: none; padding: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <button onclick="connectIntegration('Developer Tools', 'GitHub')" class="data-source-btn">
+                                            <i class="ph ph-github-logo"></i> GitHub
+                                        </button>
+                                        <button onclick="connectIntegration('Developer Tools', 'GitLab')" class="data-source-btn">
+                                            <i class="ph ph-gitlab-logo"></i> GitLab
+                                        </button>
+                                        <button onclick="connectIntegration('Developer Tools', 'Bitbucket')" class="data-source-btn">
+                                            <i class="ph ph-git-branch"></i> Bitbucket
+                                        </button>
+                                        <button onclick="connectIntegration('Developer Tools', 'Azure DevOps')" class="data-source-btn">
+                                            <i class="ph ph-microsoft-logo"></i> Azure DevOps
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -7489,11 +7746,51 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Hide mindmap and other views, show projects view
             document.getElementById('canvas-mindmap').style.display = 'none';
             document.getElementById('projects-view').style.display = 'flex';
+            document.getElementById('integrations-view').style.display = 'none';
 
             // Load project structure
             loadProjectStructure();
             renderFolderTree();
             navigateToFolder(null); // Show root level
+        }
+
+        function showIntegrationsView() {
+            // Hide mindmap and projects view, show integrations view
+            document.getElementById('canvas-mindmap').style.display = 'none';
+            document.getElementById('projects-view').style.display = 'none';
+            document.getElementById('integrations-view').style.display = 'block';
+        }
+
+        function toggleIntegrationCategory(category) {
+            const content = document.getElementById(`int-${category}-content`);
+            const caret = document.getElementById(`int-${category}-caret`);
+
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                caret.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                caret.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function connectIntegration(category, service) {
+            alert(`Connecting to ${service} (${category})...\n\nThis demo shows the integration selection interface. In production, this would:\n\n1. Open OAuth flow or API key configuration\n2. Establish secure connection\n3. Configure data sync preferences\n4. Add integration to your workspace\n\nIntegration: ${service}\nCategory: ${category}`);
+        }
+
+        function toggleDescriptionBox() {
+            const descriptionText = document.getElementById('descriptionText');
+            const toggleIcon = document.getElementById('descriptionToggleIcon');
+
+            if (descriptionText.style.display === 'none') {
+                // Expand
+                descriptionText.style.display = 'block';
+                toggleIcon.className = 'ph ph-caret-up';
+            } else {
+                // Minimize
+                descriptionText.style.display = 'none';
+                toggleIcon.className = 'ph ph-caret-down';
+            }
         }
 
         function loadProjectStructure() {
@@ -7767,20 +8064,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
         }
 
-        function toggleIntegrationCategory(categoryId) {
-            const content = document.getElementById(`${categoryId}-category-content`);
-            const caret = document.getElementById(`${categoryId}-category-caret`);
-
-            if (content.style.display === 'none' || content.style.display === '') {
-                // Open category
-                content.style.display = 'block';
-                caret.style.transform = 'rotate(180deg)';
-            } else {
-                // Close category
-                content.style.display = 'none';
-                caret.style.transform = 'rotate(0deg)';
-            }
-        }
 
         function toggleCleansheetAI() {
             const toggle = document.getElementById('cleansheetAiToggle');
@@ -7942,8 +8225,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 loadLibraryView();
             } else if (menuName === 'Home') {
                 homeView.style.display = 'contents';
-                // Hide projects view if it was open
+                // Hide projects view and integrations view if they were open
                 document.getElementById('projects-view').style.display = 'none';
+                document.getElementById('integrations-view').style.display = 'none';
                 document.getElementById('canvas-mindmap').style.display = 'block';
                 // Redraw mindmap when returning to Home view
                 d3.select('#canvas-mindmap').selectAll('*').remove();
@@ -7958,6 +8242,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             } else if (menuName === 'Projects') {
                 homeView.style.display = 'contents';
                 // showProjectsView() is called by the onclick handler
+            } else if (menuName === 'Integrations') {
+                homeView.style.display = 'contents';
+                // showIntegrationsView() is called by the onclick handler
             } else {
                 // Reset to home if unimplemented section
                 homeView.style.display = 'contents';
