@@ -69,7 +69,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: var(--color-neutral-background);
             color: var(--color-neutral-text);
             line-height: 1.6;
-            padding-top: 70px;
+            padding-top: 100px;
         }
 
         /* Header */
@@ -141,7 +141,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         main {
             max-width: 1400px;
             margin: 0 auto;
-            padding: var(--spacing-xxxl) var(--spacing-xxl);
+            padding: var(--spacing-lg) var(--spacing-xxl);
         }
 
         /* Project Name Section */
@@ -197,6 +197,34 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             display: flex;
             align-items: flex-start;
             gap: 12px;
+            position: relative;
+        }
+
+        .data-notice.hidden {
+            display: none;
+        }
+
+        .data-notice-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--color-primary-blue);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+            width: 24px;
+            height: 24px;
+        }
+
+        .data-notice-close:hover {
+            background: rgba(0, 102, 204, 0.1);
         }
 
         .data-notice-icon {
@@ -404,9 +432,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             padding: var(--spacing-xl);
             margin-bottom: var(--spacing-xxl);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: grid;
+            display: none;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: var(--spacing-md);
+        }
+
+        .raci-legend.visible {
+            display: grid;
         }
 
         .legend-item {
@@ -2441,20 +2473,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         </div>
     </header>
 
+    <!-- Page Description -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 24px 24px 0 24px;">
+        <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+            <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0;">
+                The Project Planner helps you organize complex initiatives using industry-standard frameworks and visual tools. Build comprehensive RACI matrices to clarify roles and responsibilities across your team, create detailed work breakdown structures to decompose deliverables into manageable tasks, and develop Gantt chart timelines to track dependencies and milestones. Export your completed plans to JSON for documentation, share with stakeholders, or import existing project structures to iterate and refine your planning approach.
+            </p>
+        </div>
+    </div>
+
     <main>
         <div class="project-name-section">
             <label for="projectNameInput">Project Name:</label>
             <input type="text" id="projectNameInput" class="project-name-input" placeholder="Enter project name..." />
-        </div>
-
-        <!-- Data Storage Notice -->
-        <div class="data-notice">
-            <i class="ph ph-info data-notice-icon"></i>
-            <div class="data-notice-content">
-                <p><strong>Your data is stored locally in your browser.</strong> All information is processed on your device and never sent to our servers.</p>
-                <p>We recommend exporting your project to JSON frequently using the <strong>Data</strong> menu to backup your work. Browser data can be lost if you clear your cache or use incognito/private mode.</p>
-                <p>By using this tool, you agree to our <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</p>
-            </div>
         </div>
 
         <div class="toolbar">
@@ -2511,6 +2542,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importJSON(event)">
             </div>
+        </div>
+
+        <!-- Data Storage Notice -->
+        <div class="data-notice" id="dataNotice">
+            <i class="ph ph-info data-notice-icon"></i>
+            <div class="data-notice-content">
+                <p><strong>Your data is stored locally in your browser.</strong> All information is processed on your device and never sent to our servers.</p>
+                <p>We recommend exporting your project to JSON frequently using the <strong>Data</strong> menu to backup your work. Browser data can be lost if you clear your cache or use incognito/private mode.</p>
+                <p>By using this tool, you agree to our <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</p>
+            </div>
+            <button class="data-notice-close" onclick="closeDataNotice()" aria-label="Close notice">
+                <i class="ph ph-x"></i>
+            </button>
         </div>
 
         <div class="examples-panel" id="examplesPanel" style="display: none;">
@@ -2807,30 +2851,30 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
-        <div class="raci-legend">
-            <div class="legend-item">
-                <span class="raci-value R">R</span>
-                <span class="legend-text"><strong>Responsible:</strong> People who do the work to <br>complete the task</span>
-            </div>
-            <div class="legend-item">
-                <span class="raci-value A">A</span>
-                <span class="legend-text"><strong>Accountable:</strong> Person ultimately answerable <br>for completion (only one per task)</span>
-            </div>
-            <div class="legend-item">
-                <span class="raci-value C">C</span>
-                <span class="legend-text"><strong>Consulted:</strong> People whose input is needed  <br>(two-way communication)</span>
-            </div>
-            <div class="legend-item">
-                <span class="raci-value I">I</span>
-                <span class="legend-text"><strong>Informed:</strong> People kept updated on progress <br>(one-way communication)</span>
-            </div>
-        </div>
-
         <div class="table-container">
             <div id="emptyState" class="empty-state" style="display: none;">
                 <i class="ph ph-table"></i>
                 <h3>No Tasks Yet</h3>
                 <p>Click "Add Task" to create your first project task</p>
+            </div>
+
+            <div class="raci-legend">
+                <div class="legend-item">
+                    <span class="raci-value R">R</span>
+                    <span class="legend-text"><strong>Responsible:</strong> People who do the work to <br>complete the task</span>
+                </div>
+                <div class="legend-item">
+                    <span class="raci-value A">A</span>
+                    <span class="legend-text"><strong>Accountable:</strong> Person ultimately answerable <br>for completion (only one per task)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="raci-value C">C</span>
+                    <span class="legend-text"><strong>Consulted:</strong> People whose input is needed  <br>(two-way communication)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="raci-value I">I</span>
+                    <span class="legend-text"><strong>Informed:</strong> People kept updated on progress <br>(one-way communication)</span>
+                </div>
             </div>
 
             <table class="raci-table" id="raciTable">
@@ -3038,15 +3082,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Set initial RACI visibility state
             const table = document.getElementById('raciTable');
             const raciToggle = document.getElementById('raciToggle');
+            const legend = document.querySelector('.raci-legend');
 
             if (rolesVisible) {
                 table.classList.remove('hide-roles');
+                if (legend) legend.classList.add('visible');
                 if (raciToggle) {
                     raciToggle.classList.add('active');
                     raciToggle.innerHTML = '<i class="ph ph-eye"></i> Show RACI';
                 }
             } else {
                 table.classList.add('hide-roles');
+                if (legend) legend.classList.remove('visible');
                 if (raciToggle) {
                     raciToggle.classList.remove('active');
                     raciToggle.innerHTML = '<i class="ph ph-eye-slash"></i> Show RACI';
@@ -3060,6 +3107,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     raciData.projectName = e.target.value.trim() || 'Untitled Project';
                     saveToLocalStorage();
                 });
+            }
+
+            // Check if data notice was previously closed
+            const dataNoticeClosed = localStorage.getItem('dataNoticeClosed');
+            if (dataNoticeClosed === 'true') {
+                const dataNotice = document.getElementById('dataNotice');
+                if (dataNotice) {
+                    dataNotice.classList.add('hidden');
+                }
+            }
+        }
+
+        function closeDataNotice() {
+            const dataNotice = document.getElementById('dataNotice');
+            if (dataNotice) {
+                dataNotice.classList.add('hidden');
+                localStorage.setItem('dataNoticeClosed', 'true');
             }
         }
 
@@ -4880,15 +4944,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             rolesVisible = !rolesVisible;
             const table = document.getElementById('raciTable');
             const toggleBtn = document.getElementById('raciToggle');
+            const legend = document.querySelector('.raci-legend');
 
             if (rolesVisible) {
                 table.classList.remove('hide-roles');
+                if (legend) legend.classList.add('visible');
                 if (toggleBtn) {
                     toggleBtn.classList.add('active');
                     toggleBtn.innerHTML = '<i class="ph ph-eye"></i> Show RACI';
                 }
             } else {
                 table.classList.add('hide-roles');
+                if (legend) legend.classList.remove('visible');
                 if (toggleBtn) {
                     toggleBtn.classList.remove('active');
                     toggleBtn.innerHTML = '<i class="ph ph-eye-slash"></i> Show RACI';
