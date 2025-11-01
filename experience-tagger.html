@@ -22,6 +22,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&family=Questrial&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/wordcloud@1.2.2/src/wordcloud2.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -251,6 +252,72 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-weight: 600;
         }
 
+        /* Example Profiles Dropdown */
+        .example-profiles-dropdown {
+            position: relative;
+        }
+
+        .dropdown-button {
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: var(--color-primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-body);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: all 0.2s;
+        }
+
+        .dropdown-button:hover {
+            background: var(--color-accent-blue);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            min-width: 200px;
+            display: none;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: white;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: var(--font-family-body);
+            font-size: var(--font-size-body);
+            color: var(--color-neutral-text);
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--color-neutral-background);
+            color: var(--color-primary-blue);
+        }
+
         /* View Tabs */
         .view-tabs {
             background: var(--color-neutral-white);
@@ -259,6 +326,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             display: flex;
             gap: var(--spacing-sm);
+            margin-top: var(--spacing-xl);
             margin-bottom: var(--spacing-xl);
         }
 
@@ -292,6 +360,35 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             border-color: var(--color-primary-blue);
         }
 
+        .view-tab.premium {
+            opacity: 0.6;
+            position: relative;
+            cursor: not-allowed;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .view-tab.premium:hover {
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+            border-color: var(--color-neutral-border);
+            opacity: 0.8;
+        }
+
+        .premium-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: var(--color-dark);
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+
         .view-content {
             display: none;
         }
@@ -305,10 +402,104 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             padding: var(--spacing-xl);
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            display: flex;
-            gap: var(--spacing-lg);
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 300px 1fr auto;
+            grid-template-rows: auto auto;
+            gap: var(--spacing-md) var(--spacing-lg);
             align-items: center;
+        }
+
+        #userName {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .view-tab-menu {
+            position: relative;
+            flex: 1;
+        }
+
+        .data-tab {
+            cursor: pointer;
+        }
+
+        .data-tab:hover {
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+            border-color: var(--color-neutral-border);
+        }
+
+        .actions-bar .btn,
+        .actions-bar .example-profiles-dropdown {
+            grid-row: 1;
+        }
+
+        .actions-bar .btn,
+        .actions-bar .dropdown-button {
+            width: 140px;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        /* Data Menu Dropdown */
+        .data-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .data-menu-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 4px);
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .data-menu-dropdown.show {
+            display: block;
+        }
+
+        .data-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            color: var(--color-dark);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .data-menu-item i {
+            font-size: 18px;
+        }
+
+        .data-menu-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .data-menu-item.danger {
+            color: #dc2626;
+        }
+
+        .data-menu-item.danger:hover {
+            background: #fef2f2;
+        }
+
+        #userGoals {
+            grid-column: 1 / -1;
+            grid-row: 2;
         }
 
         .example-profiles {
@@ -344,13 +535,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         .actions-bar input[type="text"] {
-            flex: 1;
-            min-width: 250px;
+            width: 100%;
             padding: var(--spacing-md) var(--spacing-lg);
             border: 2px solid var(--color-neutral-border);
             border-radius: 8px;
             font-family: var(--font-family-body);
             font-size: var(--font-size-body);
+        }
+
+        #userName {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        #userGoals {
+            font-size: 14px;
         }
 
         .actions-bar input[type="text"]:focus {
@@ -602,6 +801,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             color: var(--color-neutral-text-muted);
             margin-bottom: var(--spacing-md);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .stories-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--color-primary-blue);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: var(--font-family-ui);
+        }
+
+        .stories-badge i {
+            font-size: 10px;
         }
 
         .experience-description {
@@ -1591,6 +1810,147 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: var(--color-accent-blue);
         }
 
+        /* Story Filter Controls */
+        .story-controls {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            align-items: center;
+        }
+
+        .experience-filter {
+            position: relative;
+            display: inline-block;
+        }
+
+        .experience-filter-btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: white;
+            color: var(--color-neutral-text);
+            border: 2px solid var(--color-neutral-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-body);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .experience-filter-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .experience-filter-btn.active {
+            border-color: var(--color-primary-blue);
+            color: var(--color-primary-blue);
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .experience-filter-dropdown {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: calc(100% + 4px);
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 320px;
+            max-width: 400px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .experience-filter-dropdown.show {
+            display: block;
+        }
+
+        .experience-filter-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--color-neutral-border);
+            transition: background 0.2s;
+        }
+
+        .experience-filter-item:last-child {
+            border-bottom: none;
+        }
+
+        .experience-filter-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .experience-filter-item.no-stories {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .experience-filter-item.no-stories:hover {
+            background: white;
+        }
+
+        .experience-filter-item.no-stories .experience-filter-label {
+            color: var(--color-neutral-text-muted);
+        }
+
+        .experience-filter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--color-primary-blue);
+        }
+
+        .experience-filter-label {
+            flex: 1;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            color: var(--color-neutral-text);
+        }
+
+        .experience-filter-header {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--color-neutral-border);
+            background: var(--color-neutral-background);
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-neutral-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .experience-filter-actions {
+            padding: 12px 16px;
+            border-top: 2px solid var(--color-neutral-border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .experience-filter-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            background: white;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .experience-filter-actions button:hover {
+            background: var(--color-neutral-background);
+        }
+
         .skill-bubble:hover {
             background: var(--color-primary-blue);
             color: white;
@@ -1673,8 +2033,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             .actions-bar {
-                flex-direction: column;
-                align-items: stretch;
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: var(--spacing-md);
+            }
+
+            #userName,
+            #userGoals,
+            .actions-bar .btn,
+            .actions-bar .example-profiles-dropdown {
+                grid-column: 1;
+                grid-row: auto;
             }
 
             .actions-bar input[type="text"] {
@@ -1748,39 +2117,65 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     </header>
 
     <div class="container">
-        <!-- Page Description -->
+        <!-- View Tabs -->
         <div class="full-width-section">
-            <div style="background: white; border-radius: 12px; padding: 20px; margin-top: 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
-                <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0;">
-                    The Experience Tagger helps you document and analyze your professional career journey comprehensively. Add each role you've held and categorize your experience across multiple dimensions: technologies used (Core vs Peripheral), key skills developed, competencies gained, project types delivered, stakeholders engaged, and major achievements. The reporting panel automatically calculates total years of experience for each category, giving you quantifiable insights for your resume, LinkedIn profile, or career planning conversations. Import and export JSON to backup your data locally.
-                </p>
-            </div>
-        </div>
-
-        <div class="full-width-section">
-            <div class="actions-bar">
-                <input type="text" id="userName" placeholder="Your Name">
-                <input type="text" id="userGoals" placeholder="Career Goals">
-                <button class="btn btn-primary" onclick="addExperience()">
-                    <i class="fas fa-plus"></i> Add Experience
+            <div class="view-tabs">
+                <button class="view-tab active" onclick="switchView('experiences')">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Experiences</span>
                 </button>
-                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-upload"></i> Import JSON
+                <button class="view-tab" onclick="switchView('stories')">
+                    <i class="fas fa-book-open"></i>
+                    <span>Stories</span>
                 </button>
-                <button class="btn btn-success" onclick="exportJSON()">
-                    <i class="fas fa-download"></i> Export JSON
+                <button class="view-tab premium" onclick="showPremiumMessage('Opportunities')">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Opportunities</span>
+                    <span class="premium-badge">Premium</span>
                 </button>
-                <button class="btn btn-danger" onclick="clearAll()">
-                    <i class="fas fa-trash"></i> Clear All
+                <button class="view-tab premium" onclick="showPremiumMessage('Resumes')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resumes</span>
+                    <span class="premium-badge">Premium</span>
                 </button>
-                <input type="file" id="fileInput" accept=".json" onchange="importJSON(event)">
-
-                <div class="example-profiles" style="width: 100%; border-top: 1px solid var(--color-neutral-border); padding-top: var(--spacing-lg); margin-top: var(--spacing-sm);">
-                    <span class="example-label">Example Profiles:</span>
-                    <button class="btn-example" onclick="loadExampleProfile('retail-manager')">Retail Manager</button>
-                    <button class="btn-example" onclick="loadExampleProfile('chemist')">Chemist</button>
-                    <button class="btn-example" onclick="loadExampleProfile('new-graduate')">New Graduate</button>
-                    <button class="btn-example" onclick="loadExampleProfile('data-analyst')">Data Analyst</button>
+                <button class="view-tab premium" onclick="showPremiumMessage('Goals')">
+                    <i class="fas fa-trophy"></i>
+                    <span>Goals</span>
+                    <span class="premium-badge">Premium</span>
+                </button>
+                <button class="view-tab premium" onclick="showPremiumMessage('Whiteboards')">
+                    <i class="fas fa-chalkboard"></i>
+                    <span>Whiteboards</span>
+                    <span class="premium-badge">Premium</span>
+                </button>
+                <button class="view-tab premium" onclick="showPremiumMessage('Portfolio')">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Portfolio</span>
+                    <span class="premium-badge">Premium</span>
+                </button>
+                <div class="data-menu view-tab-menu">
+                    <button class="view-tab data-tab" onclick="toggleDataMenu()">
+                        <i class="fas fa-ellipsis-vertical"></i>
+                        <span>Data</span>
+                    </button>
+                    <div class="data-menu-dropdown" id="dataMenu">
+                        <button class="data-menu-item" onclick="copyProfileToClipboard(event); toggleDataMenu();">
+                            <i class="fas fa-copy"></i>
+                            Copy to Clipboard
+                        </button>
+                        <button class="data-menu-item" onclick="exportJSON(); toggleDataMenu();">
+                            <i class="fas fa-download"></i>
+                            Export JSON
+                        </button>
+                        <button class="data-menu-item" onclick="document.getElementById('fileInput').click(); toggleDataMenu();">
+                            <i class="fas fa-upload"></i>
+                            Import JSON
+                        </button>
+                        <button class="data-menu-item danger" onclick="clearAll(); toggleDataMenu();">
+                            <i class="fas fa-trash"></i>
+                            Clear All
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1800,17 +2195,33 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
-        <!-- View Tabs -->
+        <!-- Page Description -->
         <div class="full-width-section">
-            <div class="view-tabs">
-                <button class="view-tab active" onclick="switchView('experiences')">
-                    <i class="fas fa-briefcase"></i>
-                    <span>Experiences</span>
-                </button>
-                <button class="view-tab" onclick="switchView('stories')">
-                    <i class="fas fa-book-open"></i>
-                    <span>Stories</span>
-                </button>
+            <div style="background: white; border-radius: 12px; padding: 20px; margin-top: 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0;">
+                    The Experience Tagger helps you document and analyze your professional career journey comprehensively. Add each role you've held and categorize your experience across multiple dimensions: technologies used (Core vs Peripheral), key skills developed, competencies gained, project types delivered, stakeholders engaged, and major achievements. The reporting panel automatically calculates total years of experience for each category, giving you quantifiable insights for your resume, LinkedIn profile, or career planning conversations. Import and export JSON to backup your data locally.
+                </p>
+            </div>
+        </div>
+
+        <div class="full-width-section">
+            <div class="actions-bar">
+                <input type="text" id="userName" placeholder="Your Name">
+                <div class="example-profiles-dropdown">
+                    <button class="dropdown-button" onclick="toggleExampleProfilesDropdown()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Examples</span>
+                        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                    </button>
+                    <div class="dropdown-menu" id="exampleProfilesMenu">
+                        <button class="dropdown-item" onclick="loadExampleProfile('retail-manager'); toggleExampleProfilesDropdown();">Retail Manager</button>
+                        <button class="dropdown-item" onclick="loadExampleProfile('chemist'); toggleExampleProfilesDropdown();">Chemist</button>
+                        <button class="dropdown-item" onclick="loadExampleProfile('new-graduate'); toggleExampleProfilesDropdown();">New Graduate</button>
+                        <button class="dropdown-item" onclick="loadExampleProfile('data-analyst'); toggleExampleProfilesDropdown();">Data Analyst</button>
+                    </div>
+                </div>
+                <input type="text" id="userGoals" placeholder="Career Goals">
+                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importJSON(event)">
             </div>
         </div>
 
@@ -1839,6 +2250,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <div class="timeline-tooltip" id="timelineTooltip"></div>
                 </div>
 
+                <button class="add-story-btn" onclick="addExperience()" style="margin-bottom: var(--spacing-xl);">
+                    <i class="fas fa-plus"></i>
+                </button>
+
                 <div id="experienceList" class="experience-list">
                     <!-- Experiences will be rendered here -->
                 </div>
@@ -1853,22 +2268,43 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 <!-- Stories View -->
                 <div id="storiesView" class="view-content">
-                    <button class="add-story-btn" onclick="addStory()">
-                        <i class="fas fa-plus"></i> Add Behavioral Story
-                    </button>
+                    <div class="story-controls">
+                        <button class="add-story-btn" onclick="addStory()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <div class="experience-filter">
+                            <button class="experience-filter-btn" id="experienceFilterBtn" onclick="toggleExperienceFilter()">
+                                <i class="fas fa-filter"></i>
+                                <span id="experienceFilterLabel">Filter by Experience</span>
+                            </button>
+                            <div class="experience-filter-dropdown" id="experienceFilterDropdown">
+                                <div class="experience-filter-header">Select Experiences</div>
+                                <div id="experienceFilterList"></div>
+                                <div class="experience-filter-actions">
+                                    <button onclick="selectAllExperiences()">Select All</button>
+                                    <button onclick="clearExperienceFilter()">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="storiesList" class="stories-grid">
                         <!-- Stories will be rendered here -->
                     </div>
                     <div id="storiesEmptyState" class="empty-state" style="display: none;">
                         <i class="fas fa-book-open"></i>
                         <h3>No behavioral stories yet</h3>
-                        <p>Click "Add Behavioral Story" above to create your first STAR-formatted interview story</p>
+                        <p>Click the "+" button above to create your first STAR-formatted interview story</p>
+                    </div>
+                    <div id="storiesFilteredEmptyState" class="empty-state" style="display: none;">
+                        <i class="fas fa-filter"></i>
+                        <h3>No stories match this filter</h3>
+                        <p>Click a competency in the word cloud to see all stories</p>
                     </div>
                 </div>
                 <!-- End Stories View -->
             </div>
 
-            <!-- Right Reporting Panel -->
+            <!-- Right Reporting Panel (Experiences View) -->
             <div class="reporting-panel" id="reportingPanel" style="display: none;">
                 <div class="panel-header" onclick="toggleReportingPanel()">
                     <div class="panel-header-text">
@@ -1903,6 +2339,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <div class="stat-section">
                         <div class="stat-section-title">Project Types</div>
                         <div id="projectTypeStats"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Competency Cloud Panel (Stories View) -->
+            <div class="reporting-panel" id="competencyCloudPanel" style="display: none;">
+                <div class="panel-header" onclick="toggleCompetencyCloudPanel()">
+                    <div class="panel-header-text">
+                        <h2>Competencies</h2>
+                        <p class="panel-subheader">Click a competency to filter stories</p>
+                    </div>
+                    <i class="fas fa-caret-down panel-toggle"></i>
+                </div>
+
+                <div class="panel-content">
+                    <div id="competencyWordCloud" style="width: 100%; height: 400px;">
+                        <!-- D3 word cloud will render here -->
                     </div>
                 </div>
             </div>
@@ -2072,6 +2525,188 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function toggleReportingPanel() {
             const panel = document.getElementById('reportingPanel');
             panel.classList.toggle('collapsed');
+        }
+
+        function toggleCompetencyCloudPanel() {
+            const panel = document.getElementById('competencyCloudPanel');
+            panel.classList.toggle('collapsed');
+        }
+
+        // Word Cloud for Story Competencies
+        let selectedCompetency = null;
+        let selectedExperienceIndices = [];
+
+        // Helper function to convert hex color to rgba with opacity
+        function adjustColorOpacity(hexColor, opacity) {
+            // Remove # if present
+            hexColor = hexColor.replace('#', '');
+
+            // Parse hex to RGB
+            const r = parseInt(hexColor.substring(0, 2), 16);
+            const g = parseInt(hexColor.substring(2, 4), 16);
+            const b = parseInt(hexColor.substring(4, 6), 16);
+
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        }
+
+        function renderCompetencyWordCloud() {
+            const container = document.getElementById('competencyWordCloud');
+            if (!container) return;
+
+            // Clear existing
+            container.innerHTML = '';
+
+            // Extract competency frequencies
+            const competencyCount = {};
+            stories.forEach(story => {
+                if (story.competencies && Array.isArray(story.competencies)) {
+                    story.competencies.forEach(comp => {
+                        competencyCount[comp] = (competencyCount[comp] || 0) + 1;
+                    });
+                }
+            });
+
+            // Convert to array format for wordcloud2.js: [['word', weight], ...]
+            const wordList = Object.entries(competencyCount);
+
+            if (wordList.length === 0) {
+                container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-neutral-text-light); font-family: var(--font-family-body);">No competencies yet. Add stories to see the word cloud.</div>';
+                return;
+            }
+
+            // Create canvas element with optimized dimensions
+            const canvas = document.createElement('canvas');
+            const containerWidth = container.clientWidth;
+            canvas.width = containerWidth;
+            canvas.height = 400; // Reduced from 600 to minimize vertical space
+            canvas.style.width = '100%';
+            canvas.style.height = '400px';
+            canvas.style.cursor = 'pointer';
+            container.appendChild(canvas);
+
+            // Calculate weight scale based on frequencies
+            const frequencies = wordList.map(w => w[1]);
+            const minFreq = Math.min(...frequencies);
+            const maxFreq = Math.max(...frequencies);
+
+            // Use D3 scale for consistent sizing
+            const weightScale = d3.scaleLinear()
+                .domain([minFreq, maxFreq])
+                .range([12, 60]);
+
+            // Scale weights for better visualization
+            const scaledList = wordList.map(([word, freq]) => [word, weightScale(freq)]);
+
+            // Color palette aligned with Corporate Professional design system
+            const colorPalette = [
+                '#0066CC', // Primary Blue - main brand
+                '#004C99', // Accent Blue - secondary actions
+                '#0052a3', // Primary hover state
+                '#3d8dd6', // Primary light
+                '#1a5799', // Primary dark
+                '#16a34a', // Personal Mode green
+                '#0d8540', // Personal Mode green dark
+                '#22c55e', // Personal Mode green light
+                '#333333', // Neutral dark text
+                '#666666', // Neutral medium text
+                '#1a1a1a', // Header dark
+                '#404040', // Neutral dark variant
+                '#4d4d4d', // Neutral medium dark
+                '#808080', // Neutral gray
+                '#0077e6', // Blue variant
+                '#0055b3', // Blue dark variant
+                '#1976d2', // Material blue
+                '#1565c0', // Material blue dark
+                '#148a3f', // Green variant
+                '#0f7a35'  // Green dark variant
+            ];
+
+            // Store color assignments for consistency
+            const wordColors = {};
+            scaledList.forEach(([word], index) => {
+                if (!wordColors[word]) {
+                    wordColors[word] = colorPalette[index % colorPalette.length];
+                }
+            });
+
+            // Determine which competencies appear in filtered stories
+            const visibleCompetencies = new Set();
+            if (selectedCompetency) {
+                // Get all stories that have the selected competency
+                const filteredStories = stories.filter(story =>
+                    story.competencies && story.competencies.includes(selectedCompetency)
+                );
+                // Collect all competencies from those filtered stories
+                filteredStories.forEach(story => {
+                    if (story.competencies) {
+                        story.competencies.forEach(comp => visibleCompetencies.add(comp));
+                    }
+                });
+            }
+
+            // Render word cloud
+            WordCloud(canvas, {
+                list: scaledList,
+                fontFamily: 'Questrial, sans-serif',
+                fontWeight: '600',
+                color: function(word, weight, fontSize, distance, theta) {
+                    // Three states:
+                    // 1. Selected word - bright primary blue (highlighted)
+                    if (word === selectedCompetency) {
+                        return '#0066CC';
+                    }
+
+                    // 2. No filter active - use assigned color
+                    if (!selectedCompetency) {
+                        return wordColors[word] || '#333333';
+                    }
+
+                    // 3. Filter active - show relationship to filtered stories
+                    if (visibleCompetencies.has(word)) {
+                        // Present in filtered stories - lighter version of assigned color
+                        const baseColor = wordColors[word] || '#333333';
+                        return adjustColorOpacity(baseColor, 0.6);
+                    } else {
+                        // Not in filtered stories - very light gray
+                        return 'rgba(200, 200, 200, 0.3)';
+                    }
+                },
+                rotateRatio: 0.3, // Only 30% of words rotated (reduce vertical text)
+                minRotation: -Math.PI / 6, // -30 degrees (much more horizontal)
+                maxRotation: Math.PI / 6, // 30 degrees
+                rotationSteps: 2, // Discrete steps: horizontal and slight angles
+                backgroundColor: 'transparent',
+                gridSize: 6, // Slightly larger grid for better horizontal flow
+                weightFactor: 1,
+                minSize: 10,
+                drawOutOfBound: false,
+                shrinkToFit: true,
+                shape: 'square', // Prefer square shape over circle for better horizontal use
+                ellipticity: 0.65, // Make it wider than tall (horizontal emphasis)
+                click: function(item) {
+                    if (!item) return;
+
+                    const word = item[0];
+
+                    // Toggle selection
+                    if (selectedCompetency === word) {
+                        selectedCompetency = null;
+                    } else {
+                        selectedCompetency = word;
+                    }
+
+                    // Re-render both word cloud and stories
+                    renderCompetencyWordCloud();
+                    renderStories();
+                },
+                hover: function(item, dimension, event) {
+                    if (item) {
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        canvas.style.cursor = 'default';
+                    }
+                }
+            });
         }
 
         // Populate Date Link Dropdowns
@@ -2510,6 +3145,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const startDate = exp.startDate ? new Date(exp.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '';
                 const endDate = exp.endDate ? new Date(exp.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
 
+                // Count stories associated with this experience
+                const storyCount = stories.filter(story => story.experienceIndex === originalIndex).length;
+
                 return `
                     <div class="experience-card" data-exp-index="${originalIndex}">
                         <div class="experience-header">
@@ -2526,7 +3164,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 </button>
                             </div>
                         </div>
-                        <div class="experience-dates">${startDate} - ${endDate}</div>
+                        <div class="experience-dates">
+                            <span>${startDate} - ${endDate}</span>
+                            ${storyCount > 0 ? `<span class="stories-badge"><i class="fas fa-book-open"></i> ${storyCount} ${storyCount === 1 ? 'Story' : 'Stories'}</span>` : ''}
+                        </div>
                         ${exp.description ? `<div class="experience-description">${exp.description}</div>` : ''}
 
                         <button class="btn-toggle" onclick="toggleExperience(${originalIndex})">
@@ -2612,36 +3253,114 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Example Profiles Data (embedded to avoid CORS issues)
         const exampleProfiles = {
-            'retail-manager': {"userName":"Marcus Thompson","userGoals":"Transition from retail management into business analytics or operations management roles in tech companies.","experiences":[{"organizationName":"Target Corporation","role":"Store Manager","location":"Minneapolis, MN","startDate":"2019-03-01","endDate":"","description":"Lead store operations for high-volume location with 85+ team members. Manage P&L, inventory, staffing, and customer experience initiatives. Increased sales by 18% and improved employee retention by 25%.","technologies":[{"name":"Excel","type":"Core"},{"name":"Power BI","type":"Peripheral"},{"name":"Workday","type":"Peripheral"},{"name":"Square POS","type":"Core"},{"name":"Kronos","type":"Peripheral"}],"keySkills":["P&L Management","Team Leadership","Inventory Management","Customer Service","Data-Driven Decision Making","Conflict Resolution","Performance Management"],"competencies":["Operations Management","Strategic Planning","Financial Analysis","Process Improvement","Change Management"],"projectTypes":["Operational Efficiency","Team Development","Sales Growth","Customer Experience Enhancement"],"internalStakeholders":["District Manager","HR Business Partner","Regional Operations Team","Loss Prevention"],"externalStakeholders":["Customers","Vendors","Local Community Organizations"],"achievements":["Increased store revenue by 18% year-over-year","Reduced employee turnover by 25%","Achieved top 10% ranking in district for customer satisfaction","Led successful holiday season with record-breaking sales"]},{"organizationName":"Target Corporation","role":"Assistant Store Manager","location":"St. Paul, MN","startDate":"2016-06-01","endDate":"2019-02-28","description":"Supported store manager in daily operations, focusing on merchandising, inventory control, and team development. Managed team of 30+ in-store fulfillment and sales associates.","technologies":[{"name":"Excel","type":"Core"},{"name":"Workday","type":"Peripheral"},{"name":"Square POS","type":"Core"}],"keySkills":["Team Leadership","Merchandising","Inventory Control","Training & Development","Problem Solving"],"competencies":["Operations Management","People Management","Process Optimization"],"projectTypes":["Operational Efficiency","Team Development","Inventory Management"],"internalStakeholders":["Store Manager","Department Supervisors","HR Team"],"externalStakeholders":["Customers","Delivery Partners"],"achievements":["Reduced inventory shrinkage by 15%","Implemented new onboarding program reducing training time by 20%","Promoted to Store Manager after 2.5 years"]},{"organizationName":"Best Buy","role":"Department Supervisor","location":"Bloomington, MN","startDate":"2014-01-15","endDate":"2016-05-31","description":"Supervised electronics department with team of 12 sales associates. Managed inventory, scheduling, and sales performance. Achieved top sales performance in region.","technologies":[{"name":"Excel","type":"Core"},{"name":"Retail Management Systems","type":"Core"}],"keySkills":["Sales Management","Team Leadership","Customer Service","Product Knowledge","Performance Coaching"],"competencies":["Team Leadership","Sales Strategy","Customer Experience Design"],"projectTypes":["Sales Growth","Team Development","Customer Experience Enhancement"],"internalStakeholders":["Assistant Store Manager","Other Department Supervisors","Sales Team"],"externalStakeholders":["Customers","Electronics Vendors"],"achievements":["Exceeded sales targets by average of 25% quarterly","Developed 3 team members who were promoted to leadership roles","Won 'Department of the Year' award 2015"]}]},
-            'chemist': {"userName":"Dr. Sarah Chen","userGoals":"Leverage analytical chemistry expertise to transition into data science and computational chemistry roles in pharmaceutical or biotech industries.","experiences":[{"organizationName":"Moderna Therapeutics","role":"Senior Research Scientist","location":"Cambridge, MA","startDate":"2020-09-01","endDate":"","description":"Lead analytical chemistry research for mRNA vaccine development. Design and execute complex analytical methods for quality control and process optimization. Collaborate with cross-functional teams on formulation development.","technologies":[{"name":"HPLC","type":"Core"},{"name":"Mass Spectrometry","type":"Core"},{"name":"Python","type":"Peripheral"},{"name":"R","type":"Peripheral"},{"name":"ChemDraw","type":"Core"},{"name":"LabVIEW","type":"Peripheral"},{"name":"JMP Statistical Software","type":"Core"},{"name":"Electronic Lab Notebook","type":"Core"},{"name":"MATLAB","type":"Peripheral"}],"keySkills":["Analytical Method Development","Data Analysis","Technical Writing","Problem Solving","Cross-Functional Collaboration","Quality Control","Statistical Analysis"],"competencies":["Scientific Research","Data Analytics","Technical Leadership","Regulatory Compliance","Project Management"],"projectTypes":["Research & Development","Method Validation","Process Optimization","Regulatory Submission"],"internalStakeholders":["Process Development Team","Quality Assurance","Regulatory Affairs","Manufacturing Operations","R&D Leadership"],"externalStakeholders":["FDA Reviewers","Equipment Vendors","Contract Research Organizations","Academic Collaborators"],"achievements":["Developed novel analytical method reducing testing time by 40%","Authored 6 peer-reviewed publications","Led successful FDA submission with zero deficiencies","Mentored 4 junior scientists","Received Moderna Innovation Award 2022"]},{"organizationName":"Pfizer Inc.","role":"Research Scientist","location":"Groton, CT","startDate":"2017-07-01","endDate":"2020-08-31","description":"Conducted analytical chemistry research supporting small molecule drug discovery. Developed and validated analytical methods for compound characterization. Collaborated with medicinal chemistry and biology teams.","technologies":[{"name":"HPLC","type":"Core"},{"name":"Mass Spectrometry","type":"Core"},{"name":"NMR Spectroscopy","type":"Core"},{"name":"ChemDraw","type":"Core"},{"name":"JMP Statistical Software","type":"Peripheral"},{"name":"Electronic Lab Notebook","type":"Core"}],"keySkills":["Analytical Chemistry","Method Development","Data Interpretation","Technical Documentation","Collaboration","Spectroscopy"],"competencies":["Scientific Research","Analytical Problem Solving","Technical Communication","Quality Systems"],"projectTypes":["Research & Development","Method Development","Compound Characterization"],"internalStakeholders":["Medicinal Chemistry Team","Biology Team","DMPK Group","Quality Control"],"externalStakeholders":["CROs","Equipment Vendors","Academic Partners"],"achievements":["Developed 15+ analytical methods for drug discovery compounds","Co-authored 4 scientific publications","Trained 8 new team members on analytical instrumentation","Contributed to 2 IND submissions"]},{"organizationName":"University of Connecticut","role":"Postdoctoral Research Associate","location":"Storrs, CT","startDate":"2015-08-01","endDate":"2017-06-30","description":"Conducted independent research in analytical chemistry. Developed novel mass spectrometry methods for metabolomics research. Mentored graduate and undergraduate students.","technologies":[{"name":"Mass Spectrometry","type":"Core"},{"name":"HPLC","type":"Core"},{"name":"R","type":"Peripheral"},{"name":"Python","type":"Peripheral"},{"name":"Origin","type":"Core"},{"name":"ChemDraw","type":"Core"}],"keySkills":["Research Design","Data Analysis","Scientific Writing","Grant Writing","Mentoring","Instrumentation"],"competencies":["Scientific Research","Independent Research","Technical Leadership","Academic Writing"],"projectTypes":["Research","Method Development","Publication"],"internalStakeholders":["Principal Investigator","Graduate Students","Department Faculty","Core Facility Staff"],"externalStakeholders":["Funding Agencies","Journal Editors","Scientific Community"],"achievements":["Published 5 first-author papers in high-impact journals","Secured $50K in independent research funding","Presented research at 3 international conferences","Mentored 6 students"]},{"organizationName":"University of California, Berkeley","role":"PhD Candidate","location":"Berkeley, CA","startDate":"2010-09-01","endDate":"2015-07-31","description":"Doctoral research in analytical chemistry focusing on mass spectrometry method development. Taught undergraduate chemistry labs and mentored undergraduates.","technologies":[{"name":"Mass Spectrometry","type":"Core"},{"name":"HPLC","type":"Core"},{"name":"MATLAB","type":"Peripheral"},{"name":"Origin","type":"Core"},{"name":"ChemDraw","type":"Core"}],"keySkills":["Research","Data Analysis","Scientific Writing","Teaching","Experimental Design"],"competencies":["Scientific Research","Critical Thinking","Technical Communication","Teaching"],"projectTypes":["Research","Teaching","Publication"],"internalStakeholders":["Thesis Advisor","Thesis Committee","Lab Members","Undergraduate Students"],"externalStakeholders":["Scientific Community","Funding Agencies"],"achievements":["Published 8 peer-reviewed papers","Received NSF Graduate Research Fellowship","Won best poster award at ACS National Meeting","Graduated with distinction"]}]},
-            'new-graduate': {"userName":"Jamie Rodriguez","userGoals":"Launch career in software development or cloud engineering, building practical skills while contributing to meaningful projects.","experiences":[{"organizationName":"TechStart Accelerator","role":"Software Engineering Intern","location":"Austin, TX","startDate":"2024-06-01","endDate":"2024-08-31","description":"Summer internship building full-stack web applications for startup clients. Worked on team of 4 interns developing React-based customer portal with Node.js backend. Participated in agile development process.","technologies":[{"name":"React","type":"Core"},{"name":"Node.js","type":"Core"},{"name":"JavaScript","type":"Core"},{"name":"Git","type":"Core"},{"name":"PostgreSQL","type":"Peripheral"},{"name":"Docker","type":"Peripheral"},{"name":"AWS","type":"Peripheral"},{"name":"Jira","type":"Peripheral"}],"keySkills":["Web Development","Problem Solving","Collaboration","Code Review","Debugging","API Development"],"competencies":["Software Development","Agile Methodology","Technical Communication","Learning Agility"],"projectTypes":["Agile","Web Application Development","API Development"],"internalStakeholders":["Engineering Manager","Senior Developers","Product Manager","Other Interns"],"externalStakeholders":["Startup Clients","End Users"],"achievements":["Delivered 3 major features ahead of schedule","Reduced page load time by 30% through optimization","Received offer for full-time position post-graduation","Presented final project to company leadership"]},{"organizationName":"University of Texas at Austin","role":"Computer Science Teaching Assistant","location":"Austin, TX","startDate":"2023-08-01","endDate":"2024-05-31","description":"Teaching assistant for Introduction to Programming (CS50). Held weekly office hours, graded assignments, and mentored 25 students. Created supplemental learning materials.","technologies":[{"name":"Python","type":"Core"},{"name":"Java","type":"Core"},{"name":"Git","type":"Core"},{"name":"Linux","type":"Peripheral"}],"keySkills":["Teaching","Communication","Mentoring","Problem Solving","Patience","Code Review"],"competencies":["Technical Communication","Mentoring","Knowledge Transfer","Empathy"],"projectTypes":["Teaching","Content Development","Student Support"],"internalStakeholders":["Course Professor","Other TAs","CS Department Staff"],"externalStakeholders":["Students"],"achievements":["Maintained 4.8/5.0 student satisfaction rating","Created 10+ tutorial videos with 500+ views","Helped 5 students improve from D to B grades","Nominated for Outstanding TA Award"]},{"organizationName":"UT Austin Robotics Club","role":"Software Team Lead","location":"Austin, TX","startDate":"2022-09-01","endDate":"2024-05-31","description":"Led team of 8 students developing autonomous robot for RoboCup competition. Designed computer vision and navigation systems. Coordinated with hardware and design teams.","technologies":[{"name":"Python","type":"Core"},{"name":"ROS","type":"Core"},{"name":"OpenCV","type":"Core"},{"name":"Git","type":"Core"},{"name":"Linux","type":"Core"},{"name":"C++","type":"Peripheral"},{"name":"MATLAB","type":"Peripheral"}],"keySkills":["Team Leadership","Project Management","Computer Vision","Robotics","Problem Solving","Collaboration"],"competencies":["Technical Leadership","Project Management","Systems Integration","Team Collaboration"],"projectTypes":["Robotics","Competition","Team Project"],"internalStakeholders":["Club President","Hardware Team","Mechanical Team","Faculty Advisor"],"externalStakeholders":["RoboCup Competition Organizers","Corporate Sponsors"],"achievements":["Led team to 3rd place finish at RoboCup 2024","Secured $5000 in corporate sponsorship","Grew software team from 3 to 8 members","Published technical writeup with 1000+ downloads"]},{"organizationName":"Local Coffee Shop","role":"Barista","location":"Austin, TX","startDate":"2021-06-01","endDate":"2023-08-31","description":"Part-time barista while attending university. Provided excellent customer service, managed cash register, opened and closed shop. Trained new employees.","technologies":[{"name":"Square POS","type":"Core"},{"name":"Excel","type":"Peripheral"}],"keySkills":["Customer Service","Communication","Time Management","Multitasking","Training","Reliability"],"competencies":["Customer Service","Work Ethic","Adaptability","Interpersonal Skills"],"projectTypes":["Customer Service","Operations"],"internalStakeholders":["Shop Manager","Co-workers"],"externalStakeholders":["Customers"],"achievements":["Employee of the Month 3 times","Trained 7 new baristas","Maintained 4.9/5 customer rating","Managed peak hours independently"]},{"organizationName":"University of Texas at Austin","role":"Bachelor of Science in Computer Science","location":"Austin, TX","startDate":"2020-08-01","endDate":"2024-05-31","description":"Graduated with honors, GPA 3.7/4.0. Relevant coursework: Data Structures, Algorithms, Software Engineering, Database Systems, Computer Networks, Machine Learning, Cloud Computing.","technologies":[{"name":"Python","type":"Core"},{"name":"Java","type":"Core"},{"name":"C++","type":"Peripheral"},{"name":"JavaScript","type":"Core"},{"name":"SQL","type":"Core"},{"name":"Git","type":"Core"},{"name":"Linux","type":"Core"}],"keySkills":["Programming","Algorithm Design","Data Structures","Problem Solving","Research","Academic Writing"],"competencies":["Computer Science Fundamentals","Critical Thinking","Learning Agility","Academic Excellence"],"projectTypes":["Academic Projects","Research","Coursework"],"internalStakeholders":["Professors","Classmates","Academic Advisors"],"externalStakeholders":[],"achievements":["Graduated with Honors (3.7 GPA)","Dean's List 6 semesters","Completed 5 major course projects","Member of Upsilon Pi Epsilon (CS Honor Society)"]}]},
-            'data-analyst': {"userName":"Priya Patel","userGoals":"Advance from data analyst to senior data scientist or machine learning engineer role, focusing on predictive analytics and AI applications.","experiences":[{"organizationName":"Salesforce","role":"Senior Data Analyst","location":"San Francisco, CA","startDate":"2021-04-01","endDate":"","description":"Lead data analyst for Customer Success organization. Build dashboards and reports for executive leadership. Develop predictive models for customer churn and expansion. Collaborate with product and engineering teams on data instrumentation.","technologies":[{"name":"SQL","type":"Core"},{"name":"Python","type":"Core"},{"name":"Tableau","type":"Core"},{"name":"Snowflake","type":"Core"},{"name":"dbt","type":"Core"},{"name":"Git","type":"Core"},{"name":"Jupyter","type":"Core"},{"name":"scikit-learn","type":"Peripheral"},{"name":"Airflow","type":"Peripheral"},{"name":"AWS","type":"Peripheral"}],"keySkills":["Data Analysis","SQL","Python Programming","Data Visualization","Statistical Analysis","Business Intelligence","Predictive Modeling","Stakeholder Communication"],"competencies":["Data Analytics","Business Intelligence","Statistical Analysis","Technical Communication","Strategic Thinking","Project Management"],"projectTypes":["Analytics","Dashboard Development","Predictive Modeling","Data Infrastructure"],"internalStakeholders":["VP of Customer Success","Product Management","Engineering Team","Finance Team","Sales Leadership"],"externalStakeholders":["Enterprise Customers","Technology Partners"],"achievements":["Developed churn prediction model with 85% accuracy, preventing $2M in potential churn","Built executive dashboard used by C-suite daily","Reduced report generation time by 70% through automation","Led data quality initiative improving accuracy by 40%","Mentored 3 junior analysts"]},{"organizationName":"Lyft","role":"Data Analyst","location":"San Francisco, CA","startDate":"2019-01-15","endDate":"2021-03-31","description":"Data analyst supporting Operations and Driver Experience teams. Analyzed driver retention, supply-demand dynamics, and operational efficiency. Built dashboards and ad-hoc analyses to inform business decisions.","technologies":[{"name":"SQL","type":"Core"},{"name":"Python","type":"Core"},{"name":"Tableau","type":"Core"},{"name":"Mode Analytics","type":"Core"},{"name":"Jupyter","type":"Core"},{"name":"Git","type":"Peripheral"},{"name":"AWS Redshift","type":"Peripheral"},{"name":"R","type":"Peripheral"}],"keySkills":["Data Analysis","SQL","Python","Data Visualization","A/B Testing","Statistical Analysis","Business Acumen"],"competencies":["Data Analytics","Business Intelligence","Analytical Problem Solving","Cross-Functional Collaboration","Data Storytelling"],"projectTypes":["Analytics","A/B Testing","Dashboard Development","Ad-Hoc Analysis"],"internalStakeholders":["Operations Team","Driver Experience Team","Product Managers","Data Science Team"],"externalStakeholders":["Drivers","Passengers"],"achievements":["Identified driver onboarding bottleneck saving $500K annually","Designed and analyzed 15+ A/B tests","Created driver retention dashboard tracking 20+ KPIs","Presented insights to VP-level leadership monthly"]},{"organizationName":"Deloitte Consulting","role":"Business Analytics Consultant","location":"Chicago, IL","startDate":"2017-07-01","endDate":"2018-12-31","description":"Management consulting focusing on data analytics and business intelligence for Fortune 500 clients. Conducted market research, financial analysis, and developed data-driven recommendations. Built financial models and client presentations.","technologies":[{"name":"Excel","type":"Core"},{"name":"PowerPoint","type":"Core"},{"name":"SQL","type":"Core"},{"name":"Tableau","type":"Peripheral"},{"name":"Python","type":"Peripheral"},{"name":"Alteryx","type":"Peripheral"}],"keySkills":["Business Analysis","Financial Modeling","Data Analysis","Client Management","Presentation Skills","Strategic Thinking","Excel Modeling"],"competencies":["Management Consulting","Business Analysis","Client Management","Strategic Communication","Problem Solving"],"projectTypes":["Consulting","Financial Analysis","Market Research","Strategy Development"],"internalStakeholders":["Engagement Manager","Senior Consultants","Practice Leadership"],"externalStakeholders":["Client C-Suite Executives","Client Business Units","Third-Party Data Providers"],"achievements":["Delivered 6 successful client engagements","Recommended strategy generating $10M in client savings","Received 'Above Expectations' rating both years","Built financial model used as template for practice"]},{"organizationName":"Northwestern University","role":"Graduate Research Assistant","location":"Evanston, IL","startDate":"2015-09-01","endDate":"2017-06-30","description":"Research assistant for Kellogg School of Management professor studying consumer behavior analytics. Collected and analyzed survey data, performed statistical analysis, and contributed to academic publications.","technologies":[{"name":"R","type":"Core"},{"name":"SPSS","type":"Core"},{"name":"Excel","type":"Core"},{"name":"Qualtrics","type":"Peripheral"},{"name":"Python","type":"Peripheral"}],"keySkills":["Statistical Analysis","Research Design","Data Collection","Academic Writing","R Programming","Survey Design"],"competencies":["Research Methodology","Statistical Analysis","Academic Writing","Critical Thinking"],"projectTypes":["Research","Statistical Analysis","Publication"],"internalStakeholders":["Faculty Advisor","PhD Students","Research Participants"],"externalStakeholders":["Academic Community","Journal Reviewers"],"achievements":["Co-authored 2 peer-reviewed journal articles","Analyzed data from 5000+ survey responses","Presented research at 2 academic conferences","Graduated with 3.9 GPA"]},{"organizationName":"Northwestern University - Kellogg School of Management","role":"Master of Science in Analytics","location":"Evanston, IL","startDate":"2015-09-01","endDate":"2017-06-30","description":"Intensive analytics program combining statistics, machine learning, and business strategy. Capstone project: Built predictive model for retail inventory optimization achieving 25% improvement over baseline.","technologies":[{"name":"R","type":"Core"},{"name":"Python","type":"Core"},{"name":"SQL","type":"Core"},{"name":"Tableau","type":"Core"},{"name":"SAS","type":"Peripheral"},{"name":"Excel","type":"Core"}],"keySkills":["Machine Learning","Statistical Modeling","Data Mining","Predictive Analytics","Data Visualization","Business Strategy"],"competencies":["Analytical Methods","Business Analytics","Machine Learning","Statistical Analysis"],"projectTypes":["Academic Projects","Capstone Project","Coursework"],"internalStakeholders":["Professors","Classmates","Capstone Sponsor"],"externalStakeholders":["Industry Partners"],"achievements":["Graduated with distinction (3.9 GPA)","Capstone project winner - 'Best Technical Implementation'","Teaching assistant for Predictive Analytics course","Member of Analytics Club leadership team"]},{"organizationName":"University of Illinois Urbana-Champaign","role":"Bachelor of Science in Statistics","location":"Urbana, IL","startDate":"2011-08-01","endDate":"2015-05-31","description":"Undergraduate degree in statistics with minor in computer science. Participated in data science competitions and undergraduate research program.","technologies":[{"name":"R","type":"Core"},{"name":"Python","type":"Peripheral"},{"name":"MATLAB","type":"Peripheral"},{"name":"Excel","type":"Core"},{"name":"SAS","type":"Peripheral"}],"keySkills":["Statistics","Probability","Data Analysis","Programming","Mathematics","Research"],"competencies":["Statistical Theory","Mathematical Reasoning","Analytical Thinking","Programming"],"projectTypes":["Academic Projects","Research","Competition"],"internalStakeholders":["Professors","Study Groups","Research Supervisor"],"externalStakeholders":[],"achievements":["Graduated summa cum laude (3.85 GPA)","Top 10% finish in Kaggle competition","Undergraduate Research Award","Statistics Department Scholarship recipient"]}]}
+            'retail-manager': {"userName":"Marcus Thompson","userGoals":"Transition from retail management into business analytics or operations management roles in tech companies.","experiences":[{"organizationName":"Target Corporation","role":"Store Manager","location":"Minneapolis, MN","startDate":"2019-03-01","endDate":"","description":"Lead store operations for high-volume location with 85+ team members. Manage P&L, inventory, staffing, and customer experience initiatives. Increased sales by 18% and improved employee retention by 25%.","technologies":[{"name":"Excel","type":"Core"},{"name":"Power BI","type":"Peripheral"},{"name":"Workday","type":"Peripheral"},{"name":"Square POS","type":"Core"},{"name":"Kronos","type":"Peripheral"}],"keySkills":["P&L Management","Team Leadership","Inventory Management","Customer Service","Data-Driven Decision Making","Conflict Resolution","Performance Management"],"competencies":["Operations Management","Strategic Planning","Financial Analysis","Process Improvement","Change Management"],"projectTypes":["Operational Efficiency","Team Development","Sales Growth","Customer Experience Enhancement"],"internalStakeholders":["District Manager","HR Business Partner","Regional Operations Team","Loss Prevention"],"externalStakeholders":["Customers","Vendors","Local Community Organizations"],"achievements":["Increased store revenue by 18% year-over-year","Reduced employee turnover by 25%","Achieved top 10% ranking in district for customer satisfaction","Led successful holiday season with record-breaking sales"],"stories":[{"title": "Crisis Management During System Outage", "experienceIndex": 0, "experienceName": "Store Manager - Target Corporation", "situation": "Our store's POS system crashed during Black Friday with over 300 customers in the store and lines at every register.", "task": "Maintain customer satisfaction, protect revenue, and keep my 85-person team calm during the crisis.", "action": "Activated backup manual processing, assigned team roles, personally communicated with customers, set up dedicated issue station, and empowered team leads to make decisions.", "result": "Processed $150K in manual transactions with zero errors, maintained 4.2/5 satisfaction score, received district commendation and three positive customer reviews.", "competencies": ["Crisis Management", "Leadership", "Customer Service", "Problem Solving"], "createdAt": "2025-01-15T10:00:00.000Z", "updatedAt": "2025-01-15T10:00:00.000Z"}]},{"organizationName":"Target Corporation","role":"Assistant Store Manager","location":"St. Paul, MN","startDate":"2016-06-01","endDate":"2019-02-28","description":"Supported store manager in daily operations, focusing on merchandising, inventory control, and team development. Managed team of 30+ in-store fulfillment and sales associates.","technologies":[{"name":"Excel","type":"Core"},{"name":"Workday","type":"Peripheral"},{"name":"Square POS","type":"Core"}],"keySkills":["Team Leadership","Merchandising","Inventory Control","Training & Development","Problem Solving"],"competencies":["Operations Management","People Management","Process Optimization"],"projectTypes":["Operational Efficiency","Team Development","Inventory Management"],"internalStakeholders":["Store Manager","Department Supervisors","HR Team"],"externalStakeholders":["Customers","Delivery Partners"],"achievements":["Reduced inventory shrinkage by 15%","Implemented new onboarding program reducing training time by 20%","Promoted to Store Manager after 2.5 years"],"stories":[{"title": "Leading Digital Transformation", "experienceIndex": 1, "experienceName": "Assistant Store Manager - Target Corporation", "situation": "Corporate mandated new in-store fulfillment technology but team had limited tech experience and high resistance to change.", "task": "Lead implementation, train 30+ associates, achieve 95% on-time pickup rate within 60 days.", "action": "Created phased training program, identified champions, gathered daily feedback, created visual aids, tracked metrics daily, celebrated wins publicly.", "result": "Achieved 97% rate in 45 days (beat target early), zero customer complaints, became model for 8 other stores, two champions promoted.", "competencies": ["Change Management", "Training & Development", "Project Management", "Technology Adoption"], "createdAt": "2025-01-15T10:10:00.000Z", "updatedAt": "2025-01-15T10:10:00.000Z"}]},{"organizationName":"Best Buy","role":"Department Supervisor","location":"Bloomington, MN","startDate":"2014-01-15","endDate":"2016-05-31","description":"Supervised electronics department with team of 12 sales associates. Managed inventory, scheduling, and sales performance. Achieved top sales performance in region.","technologies":[{"name":"Excel","type":"Core"},{"name":"Retail Management Systems","type":"Core"}],"keySkills":["Sales Management","Team Leadership","Customer Service","Product Knowledge","Performance Coaching"],"competencies":["Team Leadership","Sales Strategy","Customer Experience Design"],"projectTypes":["Sales Growth","Team Development","Customer Experience Enhancement"],"internalStakeholders":["Assistant Store Manager","Other Department Supervisors","Sales Team"],"externalStakeholders":["Customers","Electronics Vendors"],"achievements":["Exceeded sales targets by average of 25% quarterly","Developed 3 team members who were promoted to leadership roles","Won 'Department of the Year' award 2015"],"stories":[{"title": "Reducing Employee Turnover Through Data", "experienceIndex": 2, "experienceName": "Department Supervisor - Best Buy", "situation": "Electronics department had 45% annual turnover vs 32% store average, costing significant money in training and lost sales knowledge.", "task": "Reduce turnover by 10+ percentage points within one year while maintaining sales performance.", "action": "Analyzed exit interviews and team surveys, identified root causes (scheduling conflicts, lack of growth opportunities), implemented flexible scheduling system, created advancement paths with skills training, started monthly one-on-ones, launched peer mentorship program.", "result": "Reduced turnover to 29% in 10 months (16 point improvement), saved approximately $50K in training costs, improved team engagement scores from 65% to 82%, promoted 3 team members to leadership roles, approach became model for other departments.", "competencies": ["Data Analysis", "Process Improvement", "People Management", "Strategic Planning"], "createdAt": "2025-01-15T10:05:00.000Z", "updatedAt": "2025-01-15T10:05:00.000Z"}]}]},
+            'chemist': {"userName":"Dr. Sarah Chen","userGoals":"Leverage analytical chemistry expertise to transition into data science and computational chemistry roles in pharmaceutical or biotech industries.","experiences":[{"organizationName":"Moderna Therapeutics","role":"Senior Research Scientist","location":"Cambridge, MA","startDate":"2020-09-01","endDate":"","description":"Lead analytical chemistry research for mRNA vaccine development. Design and execute complex analytical methods for quality control and process optimization. Collaborate with cross-functional teams on formulation development.","technologies":[{"name":"HPLC","type":"Core"},{"name":"Mass Spectrometry","type":"Core"},{"name":"Python","type":"Peripheral"},{"name":"R","type":"Peripheral"},{"name":"ChemDraw","type":"Core"},{"name":"LabVIEW","type":"Peripheral"},{"name":"JMP Statistical Software","type":"Core"},{"name":"Electronic Lab Notebook","type":"Core"},{"name":"MATLAB","type":"Peripheral"}],"keySkills":["Analytical Method Development","Data Analysis","Technical Writing","Problem Solving","Cross-Functional Collaboration","Quality Control","Statistical Analysis"],"competencies":["Scientific Research","Data Analytics","Technical Leadership","Regulatory Compliance","Project Management"],"projectTypes":["Research & Development","Method Validation","Process Optimization","Regulatory Submission"],"internalStakeholders":["Process Development Team","Quality Assurance","Regulatory Affairs","Manufacturing Operations","R&D Leadership"],"externalStakeholders":["FDA Reviewers","Equipment Vendors","Contract Research Organizations","Academic Collaborators"],"achievements":["Developed novel analytical method reducing testing time by 40%","Authored 6 peer-reviewed publications","Led successful FDA submission with zero deficiencies","Mentored 4 junior scientists","Received Moderna Innovation Award 2022"],"stories":[{"title": "FDA Submission with Zero Deficiencies", "experienceIndex": 0, "experienceName": "Senior Research Scientist - Moderna Therapeutics", "situation": "Company needed to submit critical analytical data package for mRNA vaccine to FDA with extremely tight timeline during pandemic.", "task": "Lead analytical characterization and compile comprehensive data package meeting all regulatory requirements within 6 weeks.", "action": "Assembled cross-functional team, created detailed project plan, ran validation studies in parallel, implemented rigorous quality checks, coordinated with regulatory affairs, worked extended hours to meet deadline.", "result": "Submitted complete package on time with zero deficiencies noted by FDA, contributing to accelerated approval. Received Innovation Award and became go-to person for regulatory submissions.", "competencies": ["Project Management", "Regulatory Compliance", "Technical Leadership", "Attention to Detail"], "createdAt": "2025-01-15T10:00:00.000Z", "updatedAt": "2025-01-15T10:00:00.000Z"}]},{"organizationName":"Pfizer Inc.","role":"Research Scientist","location":"Groton, CT","startDate":"2017-07-01","endDate":"2020-08-31","description":"Conducted analytical chemistry research supporting small molecule drug discovery. Developed and validated analytical methods for compound characterization. Collaborated with medicinal chemistry and biology teams.","technologies":[{"name":"HPLC","type":"Core"},{"name":"Mass Spectrometry","type":"Core"},{"name":"NMR Spectroscopy","type":"Core"},{"name":"ChemDraw","type":"Core"},{"name":"JMP Statistical Software","type":"Peripheral"},{"name":"Electronic Lab Notebook","type":"Core"}],"keySkills":["Analytical Chemistry","Method Development","Data Interpretation","Technical Documentation","Collaboration","Spectroscopy"],"competencies":["Scientific Research","Analytical Problem Solving","Technical Communication","Quality Systems"],"projectTypes":["Research & Development","Method Development","Compound Characterization"],"internalStakeholders":["Medicinal Chemistry Team","Biology Team","DMPK Group","Quality Control"],"externalStakeholders":["CROs","Equipment Vendors","Academic Partners"],"achievements":["Developed 15+ analytical methods for drug discovery compounds","Co-authored 4 scientific publications","Trained 8 new team members on analytical instrumentation","Contributed to 2 IND submissions"],"stories":[{"title": "Novel Method Reducing Testing Time 40%", "experienceIndex": 1, "experienceName": "Research Scientist - Pfizer Inc.", "situation": "Standard HPLC method for small molecule purity testing took 45 minutes per sample, creating bottleneck in drug discovery workflow with 50+ daily samples.", "task": "Develop faster analytical method without compromising data quality or regulatory requirements.", "action": "Researched ultra-performance chromatography, designed new method using shorter column and optimized gradient, validated against existing method with 50+ test compounds, demonstrated equivalent performance with statistical analysis, trained discovery chemistry team.", "result": "Reduced testing time to 27 minutes (40% improvement), increased daily throughput by 67%, maintained method robustness, published method in peer-reviewed journal with 200+ citations, approach adopted across Pfizer research sites.", "competencies": ["Innovation", "Analytical Problem Solving", "Technical Expertise", "Process Optimization"], "createdAt": "2025-01-15T10:05:00.000Z", "updatedAt": "2025-01-15T10:05:00.000Z"}]},{"organizationName":"University of Connecticut","role":"Postdoctoral Research Associate","location":"Storrs, CT","startDate":"2015-08-01","endDate":"2017-06-30","description":"Conducted independent research in analytical chemistry. Developed novel mass spectrometry methods for metabolomics research. Mentored graduate and undergraduate students.","technologies":[{"name":"Mass Spectrometry","type":"Core"},{"name":"HPLC","type":"Core"},{"name":"R","type":"Peripheral"},{"name":"Python","type":"Peripheral"},{"name":"Origin","type":"Core"},{"name":"ChemDraw","type":"Core"}],"keySkills":["Research Design","Data Analysis","Scientific Writing","Grant Writing","Mentoring","Instrumentation"],"competencies":["Scientific Research","Independent Research","Technical Leadership","Academic Writing"],"projectTypes":["Research","Method Development","Publication"],"internalStakeholders":["Principal Investigator","Graduate Students","Department Faculty","Core Facility Staff"],"externalStakeholders":["Funding Agencies","Journal Editors","Scientific Community"],"achievements":["Published 5 first-author papers in high-impact journals","Secured $50K in independent research funding","Presented research at 3 international conferences","Mentored 6 students"],"stories":[{"title": "Mentoring Graduate Student to First Publication", "experienceIndex": 2, "experienceName": "Postdoctoral Research Associate - University of Connecticut", "situation": "First-year graduate student struggled with mass spectrometry techniques and data interpretation, lacking confidence and risking dropping out of the program.", "task": "Mentor student to proficiency and guide them to their first publication while managing my own research timeline.", "action": "Created structured learning plan with weekly goals, scheduled regular coaching sessions, provided hands-on training on instrumentation, taught data analysis in R and Python, encouraged questions and independent thinking, gave progressively challenging projects, provided detailed feedback on writing, advocated for their work at lab meetings.", "result": "Student became proficient in 5 months vs typical 10-12 months, contributed key results to collaborative study, gained confidence to present at departmental seminar, co-authored first-author publication in high-impact journal, continued to PhD with strong foundation. I was recognized with department mentorship award.", "competencies": ["Mentoring", "Patience", "Technical Communication", "Leadership"], "createdAt": "2025-01-15T10:10:00.000Z", "updatedAt": "2025-01-15T10:10:00.000Z"}]},{"organizationName":"University of California, Berkeley","role":"PhD Candidate","location":"Berkeley, CA","startDate":"2010-09-01","endDate":"2015-07-31","description":"Doctoral research in analytical chemistry focusing on mass spectrometry method development. Taught undergraduate chemistry labs and mentored undergraduates.","technologies":[{"name":"Mass Spectrometry","type":"Core"},{"name":"HPLC","type":"Core"},{"name":"MATLAB","type":"Peripheral"},{"name":"Origin","type":"Core"},{"name":"ChemDraw","type":"Core"}],"keySkills":["Research","Data Analysis","Scientific Writing","Teaching","Experimental Design"],"competencies":["Scientific Research","Critical Thinking","Technical Communication","Teaching"],"projectTypes":["Research","Teaching","Publication"],"internalStakeholders":["Thesis Advisor","Thesis Committee","Lab Members","Undergraduate Students"],"externalStakeholders":["Scientific Community","Funding Agencies"],"achievements":["Published 8 peer-reviewed papers","Received NSF Graduate Research Fellowship","Won best poster award at ACS National Meeting","Graduated with distinction"]}]},
+            'new-graduate': {"userName":"Jamie Rodriguez","userGoals":"Launch career in software development or cloud engineering, building practical skills while contributing to meaningful projects.","experiences":[{"organizationName":"TechStart Accelerator","role":"Software Engineering Intern","location":"Austin, TX","startDate":"2024-06-01","endDate":"2024-08-31","description":"Summer internship building full-stack web applications for startup clients. Worked on team of 4 interns developing React-based customer portal with Node.js backend. Participated in agile development process.","technologies":[{"name":"React","type":"Core"},{"name":"Node.js","type":"Core"},{"name":"JavaScript","type":"Core"},{"name":"Git","type":"Core"},{"name":"PostgreSQL","type":"Peripheral"},{"name":"Docker","type":"Peripheral"},{"name":"AWS","type":"Peripheral"},{"name":"Jira","type":"Peripheral"}],"keySkills":["Web Development","Problem Solving","Collaboration","Code Review","Debugging","API Development"],"competencies":["Software Development","Agile Methodology","Technical Communication","Learning Agility"],"projectTypes":["Agile","Web Application Development","API Development"],"internalStakeholders":["Engineering Manager","Senior Developers","Product Manager","Other Interns"],"externalStakeholders":["Startup Clients","End Users"],"achievements":["Delivered 3 major features ahead of schedule","Reduced page load time by 30% through optimization","Received offer for full-time position post-graduation","Presented final project to company leadership"],"stories":[{"title": "Optimizing Application Performance", "experienceIndex": 0, "experienceName": "Software Engineering Intern - TechStart Accelerator", "situation": "Customer portal had 8-second page load times causing user complaints and increased bounce rate.", "task": "Investigate performance issues and implement optimizations to improve user experience.", "action": "Used browser dev tools to profile performance, identified unnecessary API calls and unoptimized images, implemented lazy loading, added caching, optimized database queries, reduced bundle size with code splitting.", "result": "Reduced page load time to 2.8 seconds (65% improvement), decreased bounce rate by 40%, received praise from client, techniques adopted as team standards.", "competencies": ["Problem Solving", "Performance Optimization", "Technical Analysis", "Initiative"], "createdAt": "2025-01-15T10:00:00.000Z", "updatedAt": "2025-01-15T10:00:00.000Z"}, {"title": "Leading Team to RoboCup 3rd Place", "experienceIndex": 2, "experienceName": "Software Team Lead - UT Austin Robotics Club", "situation": "Team had never placed in top 5 at RoboCup and struggled with coordination between hardware and software.", "task": "Lead software development and coordinate with other teams to achieve competitive performance.", "action": "Implemented agile methodology with weekly sprints, created shared documentation system, established integration testing schedule, organized joint meetings with hardware team, mentored new members, managed project timeline.", "result": "Achieved 3rd place finish (team's best ever), all software modules delivered on time, grew team from 3 to 8 members, published technical writeup downloaded 1000+ times, secured $5K in sponsorship.", "competencies": ["Technical Leadership", "Project Management", "Team Collaboration", "Systems Integration"], "createdAt": "2025-01-15T10:05:00.000Z", "updatedAt": "2025-01-15T10:05:00.000Z"}, {"title": "Helping Struggling Students Succeed", "experienceIndex": 1, "experienceName": "Computer Science Teaching Assistant - UT Austin", "situation": "Five students in my section were failing mid-semester with D grades, risking dropping the course.", "task": "Help these students improve their understanding and grades while maintaining fairness to all students.", "action": "Scheduled individual meetings to understand their challenges, created personalized study plans, held extra office hours, connected them with peer study groups, provided additional practice problems, broke down complex concepts into simpler explanations.", "result": "All five students improved to B grades by end of semester, received thank-you emails from students and parents, nominated for Outstanding TA Award, created supplemental materials now used by other TAs.", "competencies": ["Mentoring", "Patience", "Communication", "Empathy", "Problem Solving"], "createdAt": "2025-01-15T10:10:00.000Z", "updatedAt": "2025-01-15T10:10:00.000Z"}]},{"organizationName":"University of Texas at Austin","role":"Computer Science Teaching Assistant","location":"Austin, TX","startDate":"2023-08-01","endDate":"2024-05-31","description":"Teaching assistant for Introduction to Programming (CS50). Held weekly office hours, graded assignments, and mentored 25 students. Created supplemental learning materials.","technologies":[{"name":"Python","type":"Core"},{"name":"Java","type":"Core"},{"name":"Git","type":"Core"},{"name":"Linux","type":"Peripheral"}],"keySkills":["Teaching","Communication","Mentoring","Problem Solving","Patience","Code Review"],"competencies":["Technical Communication","Mentoring","Knowledge Transfer","Empathy"],"projectTypes":["Teaching","Content Development","Student Support"],"internalStakeholders":["Course Professor","Other TAs","CS Department Staff"],"externalStakeholders":["Students"],"achievements":["Maintained 4.8/5.0 student satisfaction rating","Created 10+ tutorial videos with 500+ views","Helped 5 students improve from D to B grades","Nominated for Outstanding TA Award"]},{"organizationName":"UT Austin Robotics Club","role":"Software Team Lead","location":"Austin, TX","startDate":"2022-09-01","endDate":"2024-05-31","description":"Led team of 8 students developing autonomous robot for RoboCup competition. Designed computer vision and navigation systems. Coordinated with hardware and design teams.","technologies":[{"name":"Python","type":"Core"},{"name":"ROS","type":"Core"},{"name":"OpenCV","type":"Core"},{"name":"Git","type":"Core"},{"name":"Linux","type":"Core"},{"name":"C++","type":"Peripheral"},{"name":"MATLAB","type":"Peripheral"}],"keySkills":["Team Leadership","Project Management","Computer Vision","Robotics","Problem Solving","Collaboration"],"competencies":["Technical Leadership","Project Management","Systems Integration","Team Collaboration"],"projectTypes":["Robotics","Competition","Team Project"],"internalStakeholders":["Club President","Hardware Team","Mechanical Team","Faculty Advisor"],"externalStakeholders":["RoboCup Competition Organizers","Corporate Sponsors"],"achievements":["Led team to 3rd place finish at RoboCup 2024","Secured $5000 in corporate sponsorship","Grew software team from 3 to 8 members","Published technical writeup with 1000+ downloads"]},{"organizationName":"Local Coffee Shop","role":"Barista","location":"Austin, TX","startDate":"2021-06-01","endDate":"2023-08-31","description":"Part-time barista while attending university. Provided excellent customer service, managed cash register, opened and closed shop. Trained new employees.","technologies":[{"name":"Square POS","type":"Core"},{"name":"Excel","type":"Peripheral"}],"keySkills":["Customer Service","Communication","Time Management","Multitasking","Training","Reliability"],"competencies":["Customer Service","Work Ethic","Adaptability","Interpersonal Skills"],"projectTypes":["Customer Service","Operations"],"internalStakeholders":["Shop Manager","Co-workers"],"externalStakeholders":["Customers"],"achievements":["Employee of the Month 3 times","Trained 7 new baristas","Maintained 4.9/5 customer rating","Managed peak hours independently"]},{"organizationName":"University of Texas at Austin","role":"Bachelor of Science in Computer Science","location":"Austin, TX","startDate":"2020-08-01","endDate":"2024-05-31","description":"Graduated with honors, GPA 3.7/4.0. Relevant coursework: Data Structures, Algorithms, Software Engineering, Database Systems, Computer Networks, Machine Learning, Cloud Computing.","technologies":[{"name":"Python","type":"Core"},{"name":"Java","type":"Core"},{"name":"C++","type":"Peripheral"},{"name":"JavaScript","type":"Core"},{"name":"SQL","type":"Core"},{"name":"Git","type":"Core"},{"name":"Linux","type":"Core"}],"keySkills":["Programming","Algorithm Design","Data Structures","Problem Solving","Research","Academic Writing"],"competencies":["Computer Science Fundamentals","Critical Thinking","Learning Agility","Academic Excellence"],"projectTypes":["Academic Projects","Research","Coursework"],"internalStakeholders":["Professors","Classmates","Academic Advisors"],"externalStakeholders":[],"achievements":["Graduated with Honors (3.7 GPA)","Dean's List 6 semesters","Completed 5 major course projects","Member of Upsilon Pi Epsilon (CS Honor Society)"]}]},
+            'data-analyst': {"userName":"Priya Patel","userGoals":"Advance from data analyst to senior data scientist or machine learning engineer role, focusing on predictive analytics and AI applications.","experiences":[{"organizationName":"Salesforce","role":"Senior Data Analyst","location":"San Francisco, CA","startDate":"2021-04-01","endDate":"","description":"Lead data analyst for Customer Success organization. Build dashboards and reports for executive leadership. Develop predictive models for customer churn and expansion. Collaborate with product and engineering teams on data instrumentation.","technologies":[{"name":"SQL","type":"Core"},{"name":"Python","type":"Core"},{"name":"Tableau","type":"Core"},{"name":"Snowflake","type":"Core"},{"name":"dbt","type":"Core"},{"name":"Git","type":"Core"},{"name":"Jupyter","type":"Core"},{"name":"scikit-learn","type":"Peripheral"},{"name":"Airflow","type":"Peripheral"},{"name":"AWS","type":"Peripheral"}],"keySkills":["Data Analysis","SQL","Python Programming","Data Visualization","Statistical Analysis","Business Intelligence","Predictive Modeling","Stakeholder Communication"],"competencies":["Data Analytics","Business Intelligence","Statistical Analysis","Technical Communication","Strategic Thinking","Project Management"],"projectTypes":["Analytics","Dashboard Development","Predictive Modeling","Data Infrastructure"],"internalStakeholders":["VP of Customer Success","Product Management","Engineering Team","Finance Team","Sales Leadership"],"externalStakeholders":["Enterprise Customers","Technology Partners"],"achievements":["Developed churn prediction model with 85% accuracy, preventing $2M in potential churn","Built executive dashboard used by C-suite daily","Reduced report generation time by 70% through automation","Led data quality initiative improving accuracy by 40%","Mentored 3 junior analysts"],"stories":[{"title": "Churn Prediction Model Saving $2M", "experienceIndex": 0, "experienceName": "Senior Data Analyst - Salesforce", "situation": "Customer Success team lacked early warning system for at-risk accounts, losing high-value customers without intervention opportunity.", "task": "Develop predictive model to identify customers at risk of churning with 30+ days advance notice.", "action": "Analyzed 3 years of customer data, identified leading indicators (support tickets, product usage, contract value, renewal timing), built logistic regression model in Python, validated with historical data, created Tableau dashboard for CS team, established weekly review process.", "result": "Achieved 85% prediction accuracy, enabled proactive outreach preventing $2M in potential churn, CS team adoption rate 100%, model became standard tool, received CEO recognition.", "competencies": ["Predictive Analytics", "Machine Learning", "Business Impact", "Stakeholder Management"], "createdAt": "2025-01-15T10:00:00.000Z", "updatedAt": "2025-01-15T10:00:00.000Z"}]},{"organizationName":"Lyft","role":"Data Analyst","location":"San Francisco, CA","startDate":"2019-01-15","endDate":"2021-03-31","description":"Data analyst supporting Operations and Driver Experience teams. Analyzed driver retention, supply-demand dynamics, and operational efficiency. Built dashboards and ad-hoc analyses to inform business decisions.","technologies":[{"name":"SQL","type":"Core"},{"name":"Python","type":"Core"},{"name":"Tableau","type":"Core"},{"name":"Mode Analytics","type":"Core"},{"name":"Jupyter","type":"Core"},{"name":"Git","type":"Peripheral"},{"name":"AWS Redshift","type":"Peripheral"},{"name":"R","type":"Peripheral"}],"keySkills":["Data Analysis","SQL","Python","Data Visualization","A/B Testing","Statistical Analysis","Business Acumen"],"competencies":["Data Analytics","Business Intelligence","Analytical Problem Solving","Cross-Functional Collaboration","Data Storytelling"],"projectTypes":["Analytics","A/B Testing","Dashboard Development","Ad-Hoc Analysis"],"internalStakeholders":["Operations Team","Driver Experience Team","Product Managers","Data Science Team"],"externalStakeholders":["Drivers","Passengers"],"achievements":["Identified driver onboarding bottleneck saving $500K annually","Designed and analyzed 15+ A/B tests","Created driver retention dashboard tracking 20+ KPIs","Presented insights to VP-level leadership monthly"],"stories":[{"title": "Identifying $500K Cost Savings Opportunity", "experienceIndex": 1, "experienceName": "Data Analyst - Lyft", "situation": "Operations team noticed driver onboarding costs were high but lacked data to identify specific issues.", "task": "Analyze onboarding funnel to find bottlenecks and recommend improvements.", "action": "Built SQL queries to track onboarding journey, analyzed conversion rates at each step, identified background check delays as major bottleneck (40% dropout), interviewed operations team, researched vendor alternatives, created executive presentation with recommendations.", "result": "Identified switching to faster background check vendor would reduce dropout from 40% to 25% while saving $500K annually. Recommendation implemented, achieved projected results within 3 months, presented findings to VP-level leadership.", "competencies": ["Data Analysis", "Business Acumen", "Strategic Thinking", "Communication"], "createdAt": "2025-01-15T10:05:00.000Z", "updatedAt": "2025-01-15T10:05:00.000Z"}]},{"organizationName":"Deloitte Consulting","role":"Business Analytics Consultant","location":"Chicago, IL","startDate":"2017-07-01","endDate":"2018-12-31","description":"Management consulting focusing on data analytics and business intelligence for Fortune 500 clients. Conducted market research, financial analysis, and developed data-driven recommendations. Built financial models and client presentations.","technologies":[{"name":"Excel","type":"Core"},{"name":"PowerPoint","type":"Core"},{"name":"SQL","type":"Core"},{"name":"Tableau","type":"Peripheral"},{"name":"Python","type":"Peripheral"},{"name":"Alteryx","type":"Peripheral"}],"keySkills":["Business Analysis","Financial Modeling","Data Analysis","Client Management","Presentation Skills","Strategic Thinking","Excel Modeling"],"competencies":["Management Consulting","Business Analysis","Client Management","Strategic Communication","Problem Solving"],"projectTypes":["Consulting","Financial Analysis","Market Research","Strategy Development"],"internalStakeholders":["Engagement Manager","Senior Consultants","Practice Leadership"],"externalStakeholders":["Client C-Suite Executives","Client Business Units","Third-Party Data Providers"],"achievements":["Delivered 6 successful client engagements","Recommended strategy generating $10M in client savings","Received 'Above Expectations' rating both years","Built financial model used as template for practice"],"stories":[{"title": "Building Executive Dashboard for Fortune 500 Client", "experienceIndex": 2, "experienceName": "Business Analytics Consultant - Deloitte Consulting", "situation": "Fortune 500 retail client's executive team had fragmented sales and inventory metrics across multiple legacy systems, making strategic decisions difficult and time-consuming.", "task": "Create unified executive dashboard showing key performance metrics with weekly updates for C-suite decision-making.", "action": "Interviewed executives and business unit leaders to understand priorities, designed dashboard mock-ups iterating on feedback, built data integration layer pulling from 5 source systems, created Tableau dashboard with drill-down capability, automated weekly refreshes, provided training to executive assistants and department heads, created user documentation.", "result": "Dashboard adopted by entire C-suite for weekly strategy meetings, reduced executive report requests by 50%, cut reporting cycle time from 2 weeks to 2 days, became template for other client engagements, received 'Outstanding Performance' recognition from engagement partner, client extended contract for 6 additional months.", "competencies": ["Data Visualization", "Stakeholder Management", "Technical Communication", "Business Intelligence"], "createdAt": "2025-01-15T10:10:00.000Z", "updatedAt": "2025-01-15T10:10:00.000Z"}]},{"organizationName":"Northwestern University","role":"Graduate Research Assistant","location":"Evanston, IL","startDate":"2015-09-01","endDate":"2017-06-30","description":"Research assistant for Kellogg School of Management professor studying consumer behavior analytics. Collected and analyzed survey data, performed statistical analysis, and contributed to academic publications.","technologies":[{"name":"R","type":"Core"},{"name":"SPSS","type":"Core"},{"name":"Excel","type":"Core"},{"name":"Qualtrics","type":"Peripheral"},{"name":"Python","type":"Peripheral"}],"keySkills":["Statistical Analysis","Research Design","Data Collection","Academic Writing","R Programming","Survey Design"],"competencies":["Research Methodology","Statistical Analysis","Academic Writing","Critical Thinking"],"projectTypes":["Research","Statistical Analysis","Publication"],"internalStakeholders":["Faculty Advisor","PhD Students","Research Participants"],"externalStakeholders":["Academic Community","Journal Reviewers"],"achievements":["Co-authored 2 peer-reviewed journal articles","Analyzed data from 5000+ survey responses","Presented research at 2 academic conferences","Graduated with 3.9 GPA"]},{"organizationName":"Northwestern University - Kellogg School of Management","role":"Master of Science in Analytics","location":"Evanston, IL","startDate":"2015-09-01","endDate":"2017-06-30","description":"Intensive analytics program combining statistics, machine learning, and business strategy. Capstone project: Built predictive model for retail inventory optimization achieving 25% improvement over baseline.","technologies":[{"name":"R","type":"Core"},{"name":"Python","type":"Core"},{"name":"SQL","type":"Core"},{"name":"Tableau","type":"Core"},{"name":"SAS","type":"Peripheral"},{"name":"Excel","type":"Core"}],"keySkills":["Machine Learning","Statistical Modeling","Data Mining","Predictive Analytics","Data Visualization","Business Strategy"],"competencies":["Analytical Methods","Business Analytics","Machine Learning","Statistical Analysis"],"projectTypes":["Academic Projects","Capstone Project","Coursework"],"internalStakeholders":["Professors","Classmates","Capstone Sponsor"],"externalStakeholders":["Industry Partners"],"achievements":["Graduated with distinction (3.9 GPA)","Capstone project winner - 'Best Technical Implementation'","Teaching assistant for Predictive Analytics course","Member of Analytics Club leadership team"]},{"organizationName":"University of Illinois Urbana-Champaign","role":"Bachelor of Science in Statistics","location":"Urbana, IL","startDate":"2011-08-01","endDate":"2015-05-31","description":"Undergraduate degree in statistics with minor in computer science. Participated in data science competitions and undergraduate research program.","technologies":[{"name":"R","type":"Core"},{"name":"Python","type":"Peripheral"},{"name":"MATLAB","type":"Peripheral"},{"name":"Excel","type":"Core"},{"name":"SAS","type":"Peripheral"}],"keySkills":["Statistics","Probability","Data Analysis","Programming","Mathematics","Research"],"competencies":["Statistical Theory","Mathematical Reasoning","Analytical Thinking","Programming"],"projectTypes":["Academic Projects","Research","Competition"],"internalStakeholders":["Professors","Study Groups","Research Supervisor"],"externalStakeholders":[],"achievements":["Graduated summa cum laude (3.85 GPA)","Top 10% finish in Kaggle competition","Undergraduate Research Award","Statistics Department Scholarship recipient"]}]}
         };
+
+        // Toggle Example Profiles Dropdown
+        function toggleExampleProfilesDropdown() {
+            const menu = document.getElementById('exampleProfilesMenu');
+            menu.classList.toggle('active');
+        }
+
+        function toggleDataMenu() {
+            const menu = document.getElementById('dataMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.example-profiles-dropdown');
+            const menu = document.getElementById('exampleProfilesMenu');
+            if (dropdown && !dropdown.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+
+            const dataMenu = document.getElementById('dataMenu');
+            const dataMenuButton = event.target.closest('.data-menu');
+            if (!dataMenuButton && dataMenu && dataMenu.classList.contains('show')) {
+                dataMenu.classList.remove('show');
+            }
+
+            const experienceFilter = document.querySelector('.experience-filter');
+            const experienceDropdown = document.getElementById('experienceFilterDropdown');
+            if (experienceFilter && !experienceFilter.contains(event.target)) {
+                experienceDropdown.classList.remove('show');
+                document.getElementById('experienceFilterBtn').classList.remove('active');
+            }
+        });
 
         // Load Example Profile
         function loadExampleProfile(profileName) {
-            // Warn if there are existing experiences
-            if (experiences.length > 0) {
+            // Warn if there are existing experiences or stories
+            if (experiences.length > 0 || stories.length > 0) {
                 const confirmLoad = confirm(
-                    `Loading this example profile will replace all existing experiences (${experiences.length} entries).\n\nAre you sure you want to continue?`
+                    `Loading this example profile will replace all existing data (${experiences.length} experiences, ${stories.length} stories).\n\nAre you sure you want to continue?`
                 );
                 if (!confirmLoad) return;
             }
 
             try {
+                console.log('Loading profile:', profileName);
                 const data = exampleProfiles[profileName];
+                console.log('Profile data:', data);
+
                 if (!data) {
                     throw new Error('Example profile not found');
                 }
 
+                // Clear existing data first
+                experiences = [];
+                stories = [];
+                console.log('Cleared existing data');
+
                 // Load the profile data
                 if (data.userName) document.getElementById('userName').value = data.userName;
                 if (data.userGoals) document.getElementById('userGoals').value = data.userGoals;
-                if (data.experiences) experiences = data.experiences;
+
+                // Load experiences and extract any nested stories
+                if (data.experiences) {
+                    experiences = data.experiences;
+
+                    // Extract stories from within experiences (for backward compatibility with nested format)
+                    stories = [];
+                    experiences.forEach((exp, expIndex) => {
+                        if (exp.stories && Array.isArray(exp.stories)) {
+                            // Stories are nested within the experience
+                            exp.stories.forEach(story => {
+                                stories.push({
+                                    ...story,
+                                    experienceIndex: expIndex,
+                                    experienceName: `${exp.role} - ${exp.organizationName}`
+                                });
+                            });
+                            // Remove stories from experience object to avoid duplication
+                            delete exp.stories;
+                        }
+                    });
+                    console.log('Extracted stories from experiences:', stories.length);
+                }
+
+                // Also check for top-level stories array (for newer format)
+                if (data.stories && Array.isArray(data.stories)) {
+                    // Merge with any stories extracted from experiences
+                    stories = [...stories, ...data.stories];
+                    console.log('Added top-level stories. Total:', stories.length);
+                }
+
+                console.log('Final experiences count:', experiences.length);
+                console.log('Final stories count:', stories.length);
 
                 saveToLocalStorage();
+                saveStoriesToLocalStorage();
                 renderExperiences();
+                renderStories();
+
+                console.log('Profile loaded and rendered');
             } catch (error) {
+                console.error('Error loading profile:', error);
                 alert('Error loading example profile: ' + error.message);
             }
         }
@@ -2680,15 +3399,55 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 version: '2.0'
             };
 
+            // Create filename with profile name (sanitized)
+            const userName = document.getElementById('userName').value.trim();
+            const sanitizedName = userName
+                ? userName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+                : 'profile';
+            const dateStr = new Date().toISOString().split('T')[0];
+            const filename = `cleansheet-${sanitizedName}-${dateStr}.json`;
+
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `cleansheet-export-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        function copyProfileToClipboard(event) {
+            const data = {
+                userName: document.getElementById('userName').value,
+                userGoals: document.getElementById('userGoals').value,
+                experiences: experiences,
+                stories: stories,
+                exportDate: new Date().toISOString(),
+                version: '2.0'
+            };
+
+            const jsonString = JSON.stringify(data, null, 2);
+
+            navigator.clipboard.writeText(jsonString).then(() => {
+                // Visual feedback - change button text temporarily
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = 'var(--color-primary-blue)';
+                btn.style.color = 'white';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy to clipboard. Please try again.');
+                console.error('Copy failed:', err);
+            });
         }
 
         function clearAll() {
@@ -3332,6 +4091,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // STAR Stories Management
         let stories = [];
 
+        function showPremiumMessage(featureName) {
+            // Placeholder for premium features
+            console.log(`${featureName} is a premium feature`);
+        }
+
         function switchView(viewName) {
             // Update tabs
             document.querySelectorAll('.view-tab').forEach(tab => {
@@ -3344,11 +4108,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 view.classList.remove('active');
             });
 
+            // Show/hide appropriate panels
+            const reportingPanel = document.getElementById('reportingPanel');
+            const competencyCloudPanel = document.getElementById('competencyCloudPanel');
+
             if (viewName === 'experiences') {
                 document.getElementById('experiencesView').classList.add('active');
+                reportingPanel.style.display = 'block';
+                competencyCloudPanel.style.display = 'none';
+                updateSummaryPanel();
             } else if (viewName === 'stories') {
                 document.getElementById('storiesView').classList.add('active');
+                reportingPanel.style.display = 'none';
+                competencyCloudPanel.style.display = 'block';
                 renderStories();
+                renderCompetencyWordCloud();
             }
         }
 
@@ -3367,7 +4141,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 700px;">
                     <div class="modal-header">
-                        <h2>${isEdit ? 'Edit' : 'Add'} Behavioral Story</h2>
+                        <h2>${isEdit ? 'Edit' : 'Add'} Story</h2>
                         <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -3387,7 +4161,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <textarea id="storySituation" rows="2" placeholder="Describe the context and challenge...">${isEdit ? story.situation : ''}</textarea>
                         </div>
                         <div class="form-group">
-                            <label>Task</label>
+                            <label>Task / Challenge</label>
                             <textarea id="storyTask" rows="2" placeholder="What was your responsibility or goal?">${isEdit ? story.task : ''}</textarea>
                         </div>
                         <div class="form-group">
@@ -3406,6 +4180,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button class="btn btn-secondary" onclick="copyStoryToClipboard(event)">
+                            <i class="fas fa-copy"></i> Copy to Clipboard
+                        </button>
                         <button class="btn btn-primary" onclick="saveStory(${editIndex})">Save Story</button>
                     </div>
                 </div>
@@ -3457,6 +4234,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             saveStoriesToLocalStorage();
             renderStories();
+            renderCompetencyWordCloud();
             document.querySelector('.modal').remove();
         }
 
@@ -3469,31 +4247,231 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 stories.splice(index, 1);
                 saveStoriesToLocalStorage();
                 renderStories();
+                renderCompetencyWordCloud();
             }
+        }
+
+        function toggleExperienceFilter() {
+            const dropdown = document.getElementById('experienceFilterDropdown');
+            const btn = document.getElementById('experienceFilterBtn');
+
+            dropdown.classList.toggle('show');
+            btn.classList.toggle('active');
+
+            // Populate the filter list with experiences (reverse sequential order)
+            if (dropdown.classList.contains('show')) {
+                populateExperienceFilter();
+            }
+        }
+
+        function populateExperienceFilter() {
+            const filterList = document.getElementById('experienceFilterList');
+
+            // Count stories per experience
+            const storyCounts = {};
+            stories.forEach(story => {
+                if (story.experienceIndex !== null && story.experienceIndex !== undefined) {
+                    storyCounts[story.experienceIndex] = (storyCounts[story.experienceIndex] || 0) + 1;
+                }
+            });
+
+            // Create array with original indices and sort by start date (most recent first)
+            const sortedExperiences = experiences
+                .map((exp, index) => ({ exp, index }))
+                .sort((a, b) => {
+                    const dateA = a.exp.startDate ? new Date(a.exp.startDate) : new Date(0);
+                    const dateB = b.exp.startDate ? new Date(b.exp.startDate) : new Date(0);
+                    return dateB - dateA; // Descending order (newest first)
+                });
+
+            filterList.innerHTML = sortedExperiences.map(({ exp, index: originalIndex }) => {
+                const isChecked = selectedExperienceIndices.includes(originalIndex);
+                const storyCount = storyCounts[originalIndex] || 0;
+                const hasStories = storyCount > 0;
+                const displayText = `${exp.role || 'Untitled'} - ${exp.organizationName || 'Unknown'}`;
+
+                return `
+                    <div class="experience-filter-item ${!hasStories ? 'no-stories' : ''}"
+                         onclick="toggleExperienceCheckbox(${originalIndex})"
+                         title="${hasStories ? storyCount + ' story' + (storyCount > 1 ? 'ies' : '') : 'No stories'}">
+                        <input type="checkbox"
+                               id="exp-filter-${originalIndex}"
+                               ${isChecked ? 'checked' : ''}
+                               onclick="event.stopPropagation(); toggleExperienceCheckbox(${originalIndex})">
+                        <label class="experience-filter-label" for="exp-filter-${originalIndex}">
+                            ${displayText} <span style="color: var(--color-neutral-text-muted); font-size: 11px;">(${storyCount})</span>
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleExperienceCheckbox(index) {
+            // Check if this experience has stories
+            const hasStories = stories.some(story => story.experienceIndex === index);
+            if (!hasStories) {
+                return; // Don't allow toggling experiences with no stories
+            }
+
+            const checkbox = document.getElementById(`exp-filter-${index}`);
+            checkbox.checked = !checkbox.checked;
+
+            if (checkbox.checked) {
+                if (!selectedExperienceIndices.includes(index)) {
+                    selectedExperienceIndices.push(index);
+                }
+            } else {
+                selectedExperienceIndices = selectedExperienceIndices.filter(i => i !== index);
+            }
+
+            updateExperienceFilterLabel();
+            renderStories();
+        }
+
+        function selectAllExperiences() {
+            // Only select experiences that have stories
+            selectedExperienceIndices = experiences
+                .map((_, index) => index)
+                .filter(index => stories.some(story => story.experienceIndex === index));
+            populateExperienceFilter();
+            updateExperienceFilterLabel();
+            renderStories();
+        }
+
+        function clearExperienceFilter() {
+            selectedExperienceIndices = [];
+            populateExperienceFilter();
+            updateExperienceFilterLabel();
+            renderStories();
+        }
+
+        function updateExperienceFilterLabel() {
+            const label = document.getElementById('experienceFilterLabel');
+            const btn = document.getElementById('experienceFilterBtn');
+
+            if (selectedExperienceIndices.length === 0) {
+                label.textContent = 'Filter by Experience';
+                btn.classList.remove('active');
+            } else if (selectedExperienceIndices.length === experiences.length) {
+                label.textContent = 'All Experiences';
+                btn.classList.add('active');
+            } else {
+                label.textContent = `${selectedExperienceIndices.length} Experience${selectedExperienceIndices.length > 1 ? 's' : ''}`;
+                btn.classList.add('active');
+            }
+        }
+
+        function copyStoryToClipboard(event) {
+            const title = document.getElementById('storyTitle').value.trim();
+            const situation = document.getElementById('storySituation').value.trim();
+            const task = document.getElementById('storyTask').value.trim();
+            const action = document.getElementById('storyAction').value.trim();
+            const result = document.getElementById('storyResult').value.trim();
+            const competenciesInput = document.getElementById('storyCompetencies').value.trim();
+
+            // Format the STAR story
+            let storyText = `${title}\n\n`;
+
+            if (situation) {
+                storyText += `Situation:\n${situation}\n\n`;
+            }
+
+            if (task) {
+                storyText += `Task:\n${task}\n\n`;
+            }
+
+            if (action) {
+                storyText += `Action:\n${action}\n\n`;
+            }
+
+            if (result) {
+                storyText += `Result:\n${result}\n\n`;
+            }
+
+            if (competenciesInput) {
+                storyText += `Key Competencies: ${competenciesInput}`;
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(storyText).then(() => {
+                // Visual feedback - change button text temporarily
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                const originalBorder = btn.style.border;
+
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = 'var(--color-primary-blue)';
+                btn.style.color = 'white';
+                btn.style.border = '2px solid var(--color-primary-blue)';
+                btn.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.2)';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.border = originalBorder;
+                    btn.style.boxShadow = '';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy to clipboard. Please try again.');
+                console.error('Copy failed:', err);
+            });
         }
 
         function renderStories() {
             const list = document.getElementById('storiesList');
             const emptyState = document.getElementById('storiesEmptyState');
+            const filteredEmptyState = document.getElementById('storiesFilteredEmptyState');
 
+            // Filter stories by competency and/or experience
+            let filteredStories = stories;
+
+            // Filter by competency if selected
+            if (selectedCompetency) {
+                filteredStories = filteredStories.filter(story =>
+                    story.competencies && story.competencies.includes(selectedCompetency)
+                );
+            }
+
+            // Filter by experience if any are selected
+            if (selectedExperienceIndices.length > 0) {
+                filteredStories = filteredStories.filter(story =>
+                    story.experienceIndex !== null &&
+                    selectedExperienceIndices.includes(story.experienceIndex)
+                );
+            }
+
+            // Handle empty states
             if (stories.length === 0) {
                 list.style.display = 'none';
                 emptyState.style.display = 'flex';
+                filteredEmptyState.style.display = 'none';
+                return;
+            }
+
+            if (filteredStories.length === 0 && (selectedCompetency || selectedExperienceIndices.length > 0)) {
+                list.style.display = 'none';
+                emptyState.style.display = 'none';
+                filteredEmptyState.style.display = 'flex';
                 return;
             }
 
             list.style.display = 'grid';
             emptyState.style.display = 'none';
+            filteredEmptyState.style.display = 'none';
 
-            list.innerHTML = stories.map((story, index) => `
+            list.innerHTML = filteredStories.map((story, index) => {
+                // Find original index for edit/delete operations
+                const originalIndex = stories.indexOf(story);
+                return `
                 <div class="story-card">
                     <div class="story-header">
                         <h3 class="story-title">${story.title}</h3>
                         <div class="story-actions">
-                            <button class="story-action-btn" onclick="editStory(${index})" title="Edit">
+                            <button class="story-action-btn" onclick="editStory(${originalIndex})" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="story-action-btn" onclick="deleteStory(${index})" title="Delete">
+                            <button class="story-action-btn" onclick="deleteStory(${originalIndex})" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -3525,8 +4503,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     ` : ''}
                 </div>
-            `).join('');
+            `}).join('');
         }
+
 
         function saveStoriesToLocalStorage() {
             localStorage.setItem('cleansheet-star-stories', JSON.stringify(stories));

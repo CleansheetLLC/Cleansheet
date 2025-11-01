@@ -24,6 +24,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
     <style>
         /* Cleansheet Design System - Corporate Professional */
         :root {
@@ -369,59 +370,85 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-weight: 600;
         }
 
-        /* Sector Cards */
-        .sector-card {
+        /* Sector Multi-Select Dropdown */
+        .sector-dropdown {
             background: white;
             border: 2px solid var(--color-neutral-border);
             border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .sector-option {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-neutral-border);
             cursor: pointer;
             transition: all 0.2s;
-            touch-action: manipulation;
+            user-select: none;
         }
 
-        .sector-card:active {
-            transform: scale(0.98);
+        .sector-option:last-child {
+            border-bottom: none;
         }
 
-        .sector-card.selected {
-            border-color: var(--color-primary-blue);
-            border-width: 3px;
+        .sector-option:hover {
             background: rgba(0, 102, 204, 0.05);
         }
 
-        .sector-card-header {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
+        .sector-option.selected {
+            background: rgba(0, 102, 204, 0.1);
+            border-left: 4px solid var(--color-primary-blue);
         }
 
-        .sector-abbr {
-            font-family: var(--font-family-ui);
-            font-weight: 700;
-            color: var(--color-primary-blue);
-            font-size: 13px;
-        }
-
-        .sector-name {
+        .sector-option-name {
             font-family: var(--font-family-ui);
             font-weight: 600;
+            font-size: 13px;
             color: var(--color-dark);
-            font-size: 12px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .sector-desc {
+        .sector-option-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--color-neutral-border);
+            border-radius: 3px;
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .sector-option.selected .sector-option-checkbox {
+            background: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+        }
+
+        .sector-option.selected .sector-option-checkbox::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .sector-option-desc {
+            font-family: var(--font-family-body);
             font-size: 11px;
-            color: var(--color-neutral-text-light);
-            margin-bottom: 4px;
+            color: var(--color-neutral-text);
+            margin-bottom: 3px;
             line-height: 1.3;
         }
 
-        .sector-examples {
+        .sector-option-examples {
+            font-family: var(--font-family-body);
             font-size: 10px;
-            color: var(--color-neutral-text);
+            color: var(--color-neutral-text-light);
             font-style: italic;
         }
 
@@ -678,13 +705,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 min-height: auto;
             }
 
-            /* Grid layout: Sectors left, Word cloud right */
+            /* Horizontal layout: Sectors left 20%, Word cloud right 80% */
             .content-grid {
                 display: grid;
-                grid-template-columns: 350px 1fr;
+                grid-template-columns: 20% 80%;
                 gap: 24px;
-                align-items: stretch;
-                height: calc(100vh - 380px);
+                align-items: start;
             }
 
             .sections-column {
@@ -693,10 +719,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 flex-direction: column;
             }
 
-            /* Sectors on the left */
+            /* Sectors on left - multi-select dropdown */
             #sectorsSection {
                 order: 1;
-                flex: 1;
                 display: flex;
                 flex-direction: column;
                 margin-bottom: 0;
@@ -707,19 +732,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             #sectorsSection .section-content {
-                flex: 1;
                 overflow-y: auto;
+                overflow-x: hidden;
+                max-height: 500px;
             }
 
             #sectorsSection .section-inner {
-                padding: 12px;
+                padding: 0;
             }
 
-            /* Word cloud on the right */
+            /* Sector dropdown takes full width of left column */
+            #sectorList {
+                width: 100%;
+            }
+
+            /* Word cloud on right - full width */
             .word-cloud-section {
                 order: 2;
                 display: flex;
                 flex-direction: column;
+                width: 100%;
             }
 
             /* Desktop font sizes - smaller and more angled */
@@ -744,11 +776,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     </style>
 </head>
 <body>
-    <a href="index.html" class="floating-home-btn">
-        <i class="ph ph-arrow-left"></i>
-        <span class="home-text">Home</span>
-    </a>
-    <img src="assets/high-resolution-logo-files/white-on-transparent.png" alt="Cleansheet Logo" class="header-logo">
     <!-- Role Network Map -->
     <div class="role-network">
         <div id="d3-nav-container">
@@ -791,9 +818,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <button class="action-btn-mini" id="selectAllSectors">All</button>
                             <button class="action-btn-mini clear" id="clearSectors">Clear</button>
                         </div>
-                    </div>
-                    <div class="section-help-text">
-                        Select industry sectors to see job titles for the functional roles in your chosen industries
                     </div>
                     <div class="section-content">
                         <div class="section-inner" id="sectorList"></div>
@@ -1224,22 +1248,28 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function initializeSectors() {
             const sectorList = document.getElementById('sectorList');
 
+            // Create dropdown container
+            const dropdown = document.createElement('div');
+            dropdown.className = 'sector-dropdown';
+
             Object.keys(sectorNames).forEach(sector => {
                 const sectorInfo = sectorDescriptions[sector];
-                const card = document.createElement('div');
-                card.className = 'sector-card';
-                card.dataset.sector = sector;
-                card.innerHTML = `
-                    <div class="sector-card-header">
-                        <span class="sector-abbr">${sector}</span>
-                        <span class="sector-name">${sectorNames[sector]}</span>
+                const option = document.createElement('div');
+                option.className = 'sector-option';
+                option.dataset.sector = sector;
+                option.innerHTML = `
+                    <div class="sector-option-name">
+                        <span class="sector-option-checkbox"></span>
+                        <span>${sectorNames[sector]}</span>
                     </div>
-                    <div class="sector-desc">${sectorInfo.description}</div>
-                    <div class="sector-examples">Ex: ${sectorInfo.examples.join(', ')}</div>
+                    <div class="sector-option-desc">${sectorInfo.description}</div>
+                    <div class="sector-option-examples">Ex: ${sectorInfo.examples.join(', ')}</div>
                 `;
-                card.addEventListener('click', () => toggleSector(sector));
-                sectorList.appendChild(card);
+                option.addEventListener('click', () => toggleSector(sector));
+                dropdown.appendChild(option);
             });
+
+            sectorList.appendChild(dropdown);
         }
 
         function selectRole(role) {
@@ -1260,14 +1290,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function toggleSector(sector) {
-            const cards = document.querySelectorAll(`.sector-card[data-sector="${sector}"]`);
+            const options = document.querySelectorAll(`.sector-option[data-sector="${sector}"]`);
 
             if (selectedSectors.includes(sector)) {
                 selectedSectors = selectedSectors.filter(s => s !== sector);
-                cards.forEach(card => card.classList.remove('selected'));
+                options.forEach(option => option.classList.remove('selected'));
             } else {
                 selectedSectors.push(sector);
-                cards.forEach(card => card.classList.add('selected'));
+                options.forEach(option => option.classList.add('selected'));
             }
 
             updateBadge('sectorCountBadge', selectedSectors.length);
@@ -1282,16 +1312,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function selectAllSectors() {
             selectedSectors = Object.keys(sectorNames);
-            document.querySelectorAll('.sector-card').forEach(card => {
-                card.classList.add('selected');
+            document.querySelectorAll('.sector-option').forEach(option => {
+                option.classList.add('selected');
             });
             updateBadge('sectorCountBadge', selectedSectors.length);
             updateWordCloud();
         }
 
         function clearSectors() {
-            document.querySelectorAll('.sector-card').forEach(card => {
-                card.classList.remove('selected');
+            document.querySelectorAll('.sector-option').forEach(option => {
+                option.classList.remove('selected');
             });
             selectedSectors = [];
             updateBadge('sectorCountBadge', 0);
@@ -1373,6 +1403,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 });
             });
 
+            // Create header HTML
             let html = `
                 <div class="word-cloud-header">
                     <h3>${selectedRole}</h3>
@@ -1400,27 +1431,105 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     </div>
                 </div>
-                <div class="word-cloud">
+                <canvas id="wordCloudCanvas" style="width: 100%; height: 500px; background: white; border-radius: 8px;"></canvas>
             `;
 
-            // Create word cloud entries
-            const titles = Object.keys(titleFrequency);
-            const maxFreq = Math.max(...Object.values(titleFrequency));
-
-            titles.forEach(title => {
-                const freq = titleFrequency[title];
-                const size = Math.ceil((freq / maxFreq) * 6);
-                const seniority = getSeniorityLevel(title);
-                html += `<span class="cloud-word size-${size} seniority-${seniority}" title="${title} - ${getSeniorityLabel(seniority)}">${title}</span>`;
-            });
-
-            html += '</div>';
             contentEl.innerHTML = html;
+
+            // Render word cloud with wordcloud2.js
+            renderWordCloud(titleFrequency);
 
             // Scroll to word cloud (mobile only)
             if (window.innerWidth < 768) {
                 document.getElementById('wordCloudSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+        }
+
+        function renderWordCloud(titleFrequency) {
+            const canvas = document.getElementById('wordCloudCanvas');
+            if (!canvas) return;
+
+            const titles = Object.keys(titleFrequency);
+            if (titles.length === 0) return;
+
+            // Calculate frequency scale for gradual size distribution
+            const frequencies = Object.values(titleFrequency);
+            const minFreq = Math.min(...frequencies);
+            const maxFreq = Math.max(...frequencies);
+
+            // Use D3 linear scale like experience-tagger
+            const weightScale = d3.scaleLinear()
+                .domain([minFreq, maxFreq])
+                .range([12, 60]);
+
+            // Seniority color mapping - matching the legend colors
+            const seniorityColors = {
+                'entry': '#2E7D32',
+                'mid': '#1565C0',
+                'senior': '#E65100',
+                'lead': '#6A1B9A',
+                'executive': '#B71C1C'
+            };
+
+            // Store color assignments for each word
+            const wordColors = {};
+            titles.forEach(title => {
+                const seniority = getSeniorityLevel(title);
+                wordColors[title] = seniorityColors[seniority] || '#333333';
+            });
+
+            // Prepare word list with scaled weights (same format as experience-tagger)
+            const scaledList = titles.map(title => {
+                const freq = titleFrequency[title];
+                const scaledWeight = weightScale(freq);
+                return [title, scaledWeight];
+            });
+
+            // Get canvas dimensions
+            const containerWidth = canvas.parentElement.clientWidth;
+            canvas.width = containerWidth;
+            canvas.height = 500;
+            canvas.style.width = '100%';
+            canvas.style.height = '500px';
+            canvas.style.cursor = 'pointer';
+
+            // Configure and render word cloud (matching experience-tagger settings)
+            WordCloud(canvas, {
+                list: scaledList,
+                fontFamily: 'Questrial, sans-serif',
+                fontWeight: '600',
+                color: function(word, weight, fontSize, distance, theta) {
+                    // Return the assigned seniority color
+                    return wordColors[word] || '#333333';
+                },
+                minRotation: -Math.PI / 6, // -30 degrees
+                maxRotation: Math.PI / 6, // 30 degrees
+                rotationSteps: 2,
+                backgroundColor: 'white',
+                gridSize: 6,
+                weightFactor: 1,
+                minSize: 10,
+                drawOutOfBound: false,
+                shrinkToFit: true,
+                shape: 'square',
+                ellipticity: 0.65, // Wider than tall for horizontal emphasis
+                hover: function(item, dimension, event) {
+                    if (item) {
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        canvas.style.cursor = 'default';
+                    }
+                },
+                click: function(item, dimension, event) {
+                    if (item) {
+                        // Find title info
+                        const title = item[0];
+                        const freq = titleFrequency[title];
+                        const seniority = getSeniorityLevel(title);
+                        alert(`${title}\nSeniority: ${getSeniorityLabel(seniority)}\nAppears in ${freq} sector${freq > 1 ? 's' : ''}`);
+                    }
+                }
+            });
         }
 
         // Set default selections

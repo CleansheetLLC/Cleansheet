@@ -328,6 +328,7 @@ Cleansheet is developed by a solo technical founder actively working in cloud ar
 
 ### Open Source Dependencies
 - **D3.js** - Data visualization library (ISC License)
+- **wordcloud2.js** - HTML5 canvas word cloud library by @timdream (MIT License)
 - **Phosphor Icons** - Icon library (MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces (Open Font License)
 
