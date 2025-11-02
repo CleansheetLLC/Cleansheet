@@ -3067,6 +3067,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-user-circle"></i>
                                         <span>Profile</span>
                                     </button>
+                                    <button class="profile-dropdown-item" onclick="openPromptBuilder()">
+                                        <i class="ph ph-chat-text"></i>
+                                        <span>Prompt</span>
+                                    </button>
                                     <button class="profile-dropdown-item" onclick="importCanvasData()">
                                         <i class="ph ph-upload"></i>
                                         <span>Import JSON</span>
@@ -3920,6 +3924,96 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         <!-- Hidden File Input for JSON Import -->
         <input type="file" id="jsonFileInput" accept="application/json,.json" style="display: none;">
+
+        <!-- Prompt Builder Modal -->
+        <div class="modal" id="promptBuilderModal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Generate LLM Prompt</h2>
+                    <button class="modal-close" onclick="closePromptBuilder()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Asset Type -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Asset Type
+                            </label>
+                            <select id="promptAssetType" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer;">
+                                <option value="cover-letter">Cover Letter</option>
+                                <option value="resume">Resume</option>
+                                <option value="linkedin-summary">LinkedIn Summary</option>
+                                <option value="interview-prep">Interview Preparation</option>
+                                <option value="networking-email">Networking Email</option>
+                                <option value="personal-statement">Personal Statement</option>
+                            </select>
+                        </div>
+
+                        <!-- Length -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Length
+                            </label>
+                            <select id="promptLength" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer;">
+                                <option value="short">Short (1 paragraph / 100-150 words)</option>
+                                <option value="medium" selected>Medium (2-3 paragraphs / 250-400 words)</option>
+                                <option value="long">Long (4-5 paragraphs / 500-750 words)</option>
+                                <option value="comprehensive">Comprehensive (Full detail / 1000+ words)</option>
+                            </select>
+                        </div>
+
+                        <!-- Additional Context -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Additional Context <span style="font-weight: 400; color: var(--color-neutral-text);">(Optional)</span>
+                            </label>
+                            <textarea id="promptContext" placeholder="e.g., Target company: Google, Role: Senior Software Engineer, Emphasize cloud infrastructure experience..." rows="4" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                            <small style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">
+                                Add specific details about the target role, company, skills to emphasize, or any other relevant context.
+                            </small>
+                        </div>
+
+                        <!-- Include Profile Data Options -->
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Include in Prompt
+                            </label>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="includeExperiences" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">Work Experiences</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="includeStories" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">STAR Stories</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="includeGoals" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">Career Goals</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div id="promptCopiedMessage" style="display: none; padding: 12px; background: #dcfce7; border: 1px solid #86efac; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; color: #166534;">
+                            <i class="ph ph-check-circle" style="margin-right: 6px;"></i>
+                            Prompt copied to clipboard!
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closePromptBuilder()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="generateAndCopyPrompt()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-copy"></i>
+                        Copy Prompt
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Add/Edit Experience Modal -->
         <div class="modal" id="experienceModal" style="display: none;">
@@ -7852,9 +7946,129 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Close modal
             closeProfileModal();
+        }
 
-            // Show success message
-            alert('Profile updated successfully!');
+        // Prompt Builder Functions
+        function openPromptBuilder() {
+            // Close profile dropdown if open
+            document.getElementById('profileDropdown').style.display = 'none';
+
+            // Reset form
+            document.getElementById('promptAssetType').value = 'cover-letter';
+            document.getElementById('promptLength').value = 'medium';
+            document.getElementById('promptContext').value = '';
+            document.getElementById('includeExperiences').checked = true;
+            document.getElementById('includeStories').checked = true;
+            document.getElementById('includeGoals').checked = true;
+            document.getElementById('promptCopiedMessage').style.display = 'none';
+
+            // Show modal
+            document.getElementById('promptBuilderModal').style.display = 'flex';
+        }
+
+        function closePromptBuilder() {
+            document.getElementById('promptBuilderModal').style.display = 'none';
+        }
+
+        function generateAndCopyPrompt() {
+            const assetType = document.getElementById('promptAssetType').value;
+            const length = document.getElementById('promptLength').value;
+            const additionalContext = document.getElementById('promptContext').value.trim();
+            const includeExperiences = document.getElementById('includeExperiences').checked;
+            const includeStories = document.getElementById('includeStories').checked;
+            const includeGoals = document.getElementById('includeGoals').checked;
+
+            // Get profile data
+            const profile = loadProfile();
+
+            // Get asset type name
+            const assetTypeNames = {
+                'cover-letter': 'Cover Letter',
+                'resume': 'Resume',
+                'linkedin-summary': 'LinkedIn Summary',
+                'interview-prep': 'Interview Preparation',
+                'networking-email': 'Networking Email',
+                'personal-statement': 'Personal Statement'
+            };
+
+            // Get length description
+            const lengthDescriptions = {
+                'short': 'short (1 paragraph, 100-150 words)',
+                'medium': 'medium length (2-3 paragraphs, 250-400 words)',
+                'long': 'long (4-5 paragraphs, 500-750 words)',
+                'comprehensive': 'comprehensive and detailed (1000+ words)'
+            };
+
+            // Build the prompt
+            let prompt = `Please generate a ${lengthDescriptions[length]} ${assetTypeNames[assetType]} based on the following career profile data.\n\n`;
+
+            // Add additional context if provided
+            if (additionalContext) {
+                prompt += `ADDITIONAL CONTEXT:\n${additionalContext}\n\n`;
+            }
+
+            // Add profile summary
+            prompt += `PROFILE SUMMARY:\n`;
+            prompt += `Name: ${profile.firstName} ${profile.lastName}\n`;
+            if (profile.profession) {
+                prompt += `Current Role: ${profile.profession}\n`;
+            }
+
+            // Add career goals if requested
+            if (includeGoals && profile.goal) {
+                prompt += `\nCAREER GOALS:\n${profile.goal}\n`;
+            }
+
+            // Build profile data object to include
+            const profileData = {
+                userFirstName: profile.firstName,
+                userLastName: profile.lastName,
+                userOccupation: profile.profession || '',
+                userGoals: profile.goal
+                    ? (Array.isArray(profile.goal)
+                        ? profile.goal
+                        : profile.goal.split(',').map(g => g.trim()).filter(g => g))
+                    : []
+            };
+
+            // Add experiences if requested
+            if (includeExperiences && userExperiences.length > 0) {
+                profileData.experiences = userExperiences;
+                prompt += `\nWORK EXPERIENCES: See JSON data below\n`;
+            }
+
+            // Add stories if requested
+            const behavioralStories = JSON.parse(localStorage.getItem('behavioralStories') || '[]');
+            if (includeStories && behavioralStories.length > 0) {
+                profileData.stories = behavioralStories;
+                prompt += `\nSTAR STORIES: See JSON data below\n`;
+            }
+
+            // Add JSON data
+            prompt += `\n${'='.repeat(80)}\nCOMPLETE PROFILE DATA (JSON):\n${'='.repeat(80)}\n\n`;
+            prompt += JSON.stringify(profileData, null, 2);
+
+            prompt += `\n\n${'='.repeat(80)}\n`;
+            prompt += `Please use this career profile data to generate a compelling ${assetTypeNames[assetType]}.`;
+            if (additionalContext) {
+                prompt += ` Pay special attention to the additional context provided above.`;
+            }
+            prompt += `\n${'='.repeat(80)}`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(prompt).then(() => {
+                // Show success message
+                const successMsg = document.getElementById('promptCopiedMessage');
+                successMsg.style.display = 'block';
+
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                console.error('Failed to copy prompt:', err);
+                alert('Failed to copy prompt to clipboard. Please try again.');
+            });
         }
 
         function updateProfileDisplay(profile) {
@@ -12557,11 +12771,25 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Display all experiences
             sortedExperiences.forEach((exp, sortedIndex) => {
                 // Find the original index in userExperiences array
-                const originalIndex = userExperiences.findIndex(e =>
-                    e.role === exp.role &&
-                    e.organizationName === exp.organizationName &&
-                    e.startDate === exp.startDate
-                );
+                // Use a more robust matching approach
+                const originalIndex = userExperiences.findIndex(e => {
+                    // First try exact object reference match
+                    if (e === exp) return true;
+
+                    // Fall back to field matching (handle both field name formats)
+                    const roleMatch = (e.role === exp.role || e.title === exp.title);
+                    const companyMatch = (e.organizationName === exp.organizationName ||
+                                         e.organizationName === exp.company ||
+                                         e.company === exp.organizationName ||
+                                         e.company === exp.company);
+                    return roleMatch && companyMatch && e.startDate === exp.startDate;
+                });
+
+                // Safety check - if not found, skip this experience
+                if (originalIndex === -1) {
+                    console.warn('Could not find original index for experience:', exp);
+                    return;
+                }
 
                 const startDate = exp.startDate ? new Date(exp.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '';
                 const endDate = exp.endDate ? new Date(exp.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
@@ -12572,8 +12800,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 card.innerHTML = `
                     <div class="experience-card-header">
                         <div style="flex: 1;">
-                            <div class="exp-title">${escapeHtml(exp.role)}</div>
-                            <div class="exp-company">${escapeHtml(exp.organizationName)}${exp.location ? ' • ' + escapeHtml(exp.location) : ''}</div>
+                            <div class="exp-title">${escapeHtml(exp.title || exp.role || 'Untitled Position')}</div>
+                            <div class="exp-company">${escapeHtml(exp.company || exp.organizationName || '')}${exp.location ? ' • ' + escapeHtml(exp.location) : ''}</div>
                             <div class="exp-dates">${startDate} - ${endDate}</div>
                         </div>
                         <div class="story-actions">
@@ -12594,11 +12822,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </div>
                         </div>
                     ` : ''}
-                    ${exp.keySkills && exp.keySkills.length > 0 ? `
+                    ${(exp.keySkills || exp.skills) && (exp.keySkills || exp.skills).length > 0 ? `
                         <div class="exp-section">
                             <div class="exp-section-label">Key Skills</div>
                             <div class="exp-tags">
-                                ${exp.keySkills.map(skill => `<span class="exp-tag">${escapeHtml(skill)}</span>`).join('')}
+                                ${(exp.keySkills || exp.skills).map(skill => `<span class="exp-tag">${escapeHtml(skill)}</span>`).join('')}
                             </div>
                         </div>
                     ` : ''}
@@ -12648,14 +12876,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function editExperienceRecord(index) {
+            // Validate index
+            if (index < 0 || index >= userExperiences.length) {
+                console.error('Invalid experience index:', index, 'userExperiences.length:', userExperiences.length);
+                alert('Error: Could not find experience to edit. Please try refreshing the page.');
+                return;
+            }
+
             editingExperienceIndex = index;
             const exp = userExperiences[index];
 
             document.getElementById('experienceModalTitle').textContent = 'Edit Experience';
 
-            // Populate basic fields
-            document.getElementById('expRole').value = exp.role || '';
-            document.getElementById('expOrganization').value = exp.organizationName || '';
+            // Populate basic fields (handle both field name formats)
+            document.getElementById('expRole').value = exp.title || exp.role || '';
+            document.getElementById('expOrganization').value = exp.company || exp.organizationName || '';
             document.getElementById('expLocation').value = exp.location || '';
             document.getElementById('expDescription').value = exp.description || '';
 
@@ -12684,12 +12919,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.getElementById('expEndYear').disabled = true;
             }
 
-            // Populate technologies
-            currentExperienceTechnologies = exp.technologies || [];
+            // Populate technologies (normalize to object format)
+            currentExperienceTechnologies = (exp.technologies || []).map(tech => {
+                if (typeof tech === 'string') {
+                    return { name: tech, type: 'Core' };
+                }
+                return tech;
+            });
             renderTechnologies();
 
-            // Populate skills
-            currentExperienceSkills = exp.keySkills || [];
+            // Populate skills (handle both field names)
+            currentExperienceSkills = exp.keySkills || exp.skills || [];
             renderSkills();
 
             // Populate competencies
@@ -12700,6 +12940,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             currentExperienceAchievements = exp.achievements || [];
             renderAchievements();
 
+            // Open the modal
             document.getElementById('experienceModal').style.display = 'flex';
         }
 
@@ -12745,12 +12986,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function renderTechnologies() {
             const container = document.getElementById('expTechList');
-            container.innerHTML = currentExperienceTechnologies.map((tech, index) => `
-                <span class="exp-tag ${tech.type.toLowerCase()}" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: ${tech.type === 'Core' ? '#e3f2fd' : '#f5f5f7'}; border-radius: 4px; font-size: 12px; font-family: var(--font-family-body);">
-                    ${tech.name}
-                    <i class="ph ph-x" onclick="removeTechnology(${index})" style="cursor: pointer; font-size: 14px; opacity: 0.6;"></i>
-                </span>
-            `).join('');
+            container.innerHTML = currentExperienceTechnologies.map((tech, index) => {
+                // Handle both string and object formats
+                const techName = typeof tech === 'string' ? tech : (tech.name || tech);
+                const techType = typeof tech === 'object' && tech.type ? tech.type : 'Core';
+                const bgColor = techType === 'Core' ? '#e3f2fd' : '#f5f5f7';
+                const typeClass = techType.toLowerCase();
+
+                return `
+                    <span class="exp-tag ${typeClass}" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: ${bgColor}; border-radius: 4px; font-size: 12px; font-family: var(--font-family-body);">
+                        ${techName}
+                        <i class="ph ph-x" onclick="removeTechnology(${index})" style="cursor: pointer; font-size: 14px; opacity: 0.6;"></i>
+                    </span>
+                `;
+            }).join('');
         }
 
         // Skill Management
