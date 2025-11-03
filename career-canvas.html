@@ -132,17 +132,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: var(--color-dark);
         }
 
-        .canvas-modal-header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            margin-bottom: 0;
-            gap: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .canvas-modal-header h2 {
+.canvas-modal-header h2 {
             font-family: var(--font-family-ui);
             font-size: 20px;
             color: white;
@@ -334,6 +324,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             right: 0;
         }
 
+        .interview-slideout.sliding-out {
+            right: -60%;
+        }
+
         /* Canvas modal needs to be position relative for slideout */
         .canvas-modal-content {
             position: relative;
@@ -405,6 +399,69 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .add-story-btn:hover {
             background: var(--color-accent-blue);
             box-shadow: 0 2px 8px rgba(0,102,204,0.3);
+        }
+
+        .experience-filter-btn {
+            padding: 8px 16px;
+            background: white;
+            color: var(--color-dark);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .experience-filter-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: #f8f9fa;
+        }
+
+        .experience-filter-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            min-width: 320px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .experience-filter-option {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            color: var(--color-dark);
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+
+        .experience-filter-option:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .experience-filter-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .experience-filter-option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
         }
 
         .calendar-view-btn {
@@ -2226,8 +2283,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-size: 14px;
             font-weight: 600;
             color: var(--color-dark);
-            margin: 0 0 4px 0;
+            margin: 0;
             line-height: 1.3;
+            display: inline-block;
         }
 
         .exp-company {
@@ -2445,18 +2503,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             border-color: #FF6B35;
         }
 
-        .mobile-paid-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 4px 8px;
-            background: #FF6B35;
-            color: white;
-            font-size: 9px;
-            font-weight: 700;
-            border-radius: 3px;
-            letter-spacing: 0.5px;
-        }
+        /* Removed mobile-paid-badge styling - no longer needed */
 
         @media (max-width: 768px) {
             .canvas-modal-content {
@@ -2508,12 +2555,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 right: 0;
             }
 
-            /* Adjust floating home button for mobile */
-            .floating-home-btn {
-                top: 12px;
-                right: 12px;
-                padding: 6px 12px;
-                font-size: 11px;
+            /* Single column layout for stories, experiences, and tech items on mobile */
+            .stories-container,
+            .tech-items-container {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -2934,32 +2979,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             box-shadow: 0 4px 8px rgba(0, 102, 204, 0.1);
         }
 
-        /* Floating Home Button */
-        .floating-home-btn {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            padding: 8px 16px;
-            background: rgba(26, 26, 26, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            color: white;
-            text-decoration: none;
-            font-family: var(--font-family-ui);
-            font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .floating-home-btn:hover {
-            background: rgba(0, 102, 204, 0.95);
-        }
-
         /* Example Profiles Button Hover */
         .example-profiles-btn:hover {
             background: rgba(255, 255, 255, 0.2) !important;
@@ -2975,24 +2994,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     </style>
 </head>
 <body>
-    <a href="index.html" class="floating-home-btn">
-        <i class="ph ph-arrow-left"></i>
-        <span class="home-text">Home</span>
-    </a>
-
     <!-- Canvas Modal -->
     <div class="canvas-modal" id="canvasModal">
         <div class="canvas-modal-content">
             <div class="canvas-modal-header">
-                <div class="canvas-modal-header-top">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <img src="assets/high-resolution-logo-files/white-on-transparent.png" alt="Cleansheet Logo" style="height: 48px; width: auto;">
-                        <h2>Career Canvas</h2>
-                    </div>
-                </div>
-
                 <!-- Main Menu -->
                 <div class="main-menu">
+                    <!-- Logo -->
+                    <a href="index.html" style="display: flex; align-items: center; margin-right: 16px;">
+                        <img src="assets/high-resolution-logo-files/white-on-transparent.png" alt="Cleansheet Logo" style="height: 32px; width: auto;">
+                    </a>
+
                     <!-- Navigation Tabs -->
                     <button class="main-menu-item active" onclick="switchCanvasTab('canvas')">
                         <i class="ph ph-tree-structure"></i>
@@ -3005,6 +3017,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <button class="main-menu-item" onclick="switchCanvasTab('roles')">
                         <i class="ph ph-buildings"></i>
                         <span>Industry</span>
+                    </button>
+                    <button class="main-menu-item" onclick="switchCanvasTab('library')">
+                        <i class="ph ph-books"></i>
+                        <span>Library</span>
                     </button>
 
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
@@ -3071,6 +3087,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-chat-text"></i>
                                         <span>Prompt</span>
                                     </button>
+                                    <button class="profile-dropdown-item" onclick="openSubscriptionModal()">
+                                        <i class="ph ph-crown"></i>
+                                        <span>Subscription</span>
+                                    </button>
                                     <button class="profile-dropdown-item" onclick="importCanvasData()">
                                         <i class="ph ph-upload"></i>
                                         <span>Import JSON</span>
@@ -3091,10 +3111,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
                     <!-- Welcome Header (Collapsible) -->
                     <div onclick="toggleWelcomePanel()" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
-                        <div style="flex: 1;">
+                        <div style="flex: 1; display: flex; align-items: center; gap: 12px;">
                             <h3 id="welcomeMessage" style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">
                                 Welcome!
                             </h3>
+                            <span id="subscriptionTierBadge" style="padding: 4px 12px; background: var(--color-primary-blue); color: white; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
+                                Member
+                            </span>
                         </div>
                         <i id="welcomeToggleIcon" class="ph ph-caret-up" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
                     </div>
@@ -3156,22 +3179,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <button class="mobile-menu-item mobile-menu-item-premium" onclick="showPremiumAlert('Job Opportunities', 'Track and manage your job applications across multiple companies. Get AI-powered recommendations, set up custom alerts, and visualize your job search pipeline with interactive dashboards.')">
                             <i class="ph ph-briefcase"></i>
                             <span>Job Opportunities</span>
-                            <span class="mobile-paid-badge">PAID</span>
                         </button>
                         <button class="mobile-menu-item mobile-menu-item-premium" onclick="showPremiumAlert('Application Materials', 'Generate and manage resumes, cover letters, and LinkedIn profiles tailored to specific roles. Get ATS optimization scores and AI-powered writing assistance.')">
                             <i class="ph ph-file-text"></i>
                             <span>Application Materials</span>
-                            <span class="mobile-paid-badge">PAID</span>
                         </button>
-                        <button class="mobile-menu-item mobile-menu-item-premium" onclick="showPremiumAlert('Goals', 'Set and track career goals with skill development plans. Get personalized learning recommendations and track your progress toward technical and professional competencies.')">
+                        <button class="mobile-menu-item mobile-menu-item-premium" onclick="openGoalsSlideout()">
                             <i class="ph ph-target"></i>
                             <span>Goals</span>
-                            <span class="mobile-paid-badge">PAID</span>
                         </button>
                         <button class="mobile-menu-item mobile-menu-item-premium" onclick="showPremiumAlert('Portfolio', 'Showcase your projects, publications, and accomplishments. Create a professional portfolio website and generate case studies to demonstrate your expertise.')">
                             <i class="ph ph-folder-open"></i>
                             <span>Portfolio</span>
-                            <span class="mobile-paid-badge">PAID</span>
                         </button>
                     </div>
                 </div>
@@ -3909,6 +3928,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </label>
                             <textarea id="profileGoal" placeholder="e.g., Transition to senior engineering role at a tech company" rows="3" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
                         </div>
+
+                        <!-- Hide Unsubscribed Features Toggle -->
+                        <div style="padding: 16px; background: #f8f9fa; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                                <input type="checkbox" id="hideUnsubscribedFeatures" style="width: 20px; height: 20px; cursor: pointer; margin-top: 2px; flex-shrink: 0;">
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                        Hide Unsubscribed Features
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.4;">
+                                        When enabled, features that require a paid subscription will be hidden from your view. You can change this at any time.
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
@@ -4011,6 +4045,200 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-copy"></i>
                         Copy Prompt
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Modal -->
+        <div class="modal" id="subscriptionModal" style="display: none;">
+            <div class="modal-content" style="max-width: 1200px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Choose Your Cleansheet Plan</h2>
+                    <button class="modal-close" onclick="closeSubscriptionModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <!-- Subscription Tiers Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <!-- Member Tier (Free) -->
+                        <div id="memberPlanCard" onclick="selectPlan('member')" style="border: 2px solid var(--color-neutral-border); border-radius: 10px; padding: 16px; background: white; display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s;">
+                            <div style="text-align: center; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-border);">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Member</h3>
+                                <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">Free</div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">Always free, no credit card required</div>
+                            </div>
+                            <div style="flex: 1; padding: 14px 0;">
+                                <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">Includes:</div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Career Experience Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Behavioral Story Journal (STAR)</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">LLM Prompt Generation</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Local Storage (Browser-based)</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">JSON Export/Import</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Library Access</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Career Path Navigator</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #16a34a; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Job Role to Industry Decoder</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="memberPlanButton" style="padding: 12px 24px; background: white; border: 2px solid var(--color-primary-blue); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-primary-blue); cursor: pointer; width: 100%;">
+                                Current Plan
+                            </button>
+                        </div>
+
+                        <!-- Learner Tier -->
+                        <div id="learnerPlanCard" onclick="selectPlan('learner')" style="border: 2px solid var(--color-neutral-border); border-radius: 10px; padding: 16px; background: white; display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s;">
+                            <div style="text-align: center; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-border);">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Learner</h3>
+                                <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">
+                                    <span style="text-decoration: line-through; opacity: 0.5;">$9<span style="font-size: 14px; font-weight: 500;">/mo</span></span>
+                                    <span style="margin-left: 8px;">FREE</span>
+                                </div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #16a34a; font-weight: 600;">Free for limited time</div>
+                            </div>
+                            <div style="flex: 1; padding: 14px 0;">
+                                <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">Everything in Member, plus:</div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">LinkedIn & Resume Import for Rapid Profile Population</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Goal Management & Tracking</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Centralized Portfolio Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cloud-Based Storage</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Desktop & Mobile Sync</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Advanced Learning Resources</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Coach Access</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="learnerPlanButton" style="padding: 12px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s;">
+                                Subscribe
+                            </button>
+                        </div>
+
+                        <!-- Seeker Tier -->
+                        <div id="seekerPlanCard" onclick="selectPlan('seeker')" style="border: 2px solid var(--color-neutral-border); border-radius: 10px; padding: 16px; background: white; display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s;">
+                            <div style="text-align: center; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-border);">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Seeker</h3>
+                                <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">
+                                    <span style="text-decoration: line-through; opacity: 0.5;">$19<span style="font-size: 14px; font-weight: 500;">/mo</span></span>
+                                    <span style="margin-left: 8px;">FREE</span>
+                                </div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #16a34a; font-weight: 600;">Free for limited time</div>
+                            </div>
+                            <div style="flex: 1; padding: 14px 0;">
+                                <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">Everything in Learner, plus:</div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Job Opportunity Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Application Materials Generator</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Direct AI Integration</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Company Research Tools</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Interview Whiteboards</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Recruiter Profile Sharing</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Mock Interviews & Portfolio Development</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="seekerPlanButton" style="padding: 12px 24px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s;">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cleansheet Quarter Add-On -->
+                    <div style="margin-top: 16px; padding: 14px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div style="flex-shrink: 0;">
+                                <div style="width: 40px; height: 40px; background: var(--color-primary-blue); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="ph ph-chalkboard-teacher" style="font-size: 24px; color: white;"></i>
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Cleansheet Quarter Engagement</h4>
+                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
+                                    Available to Seeker subscribers: 12-week coaching engagement with a Cleansheet Success Manager. Includes goal setting, capstone project planning, 4 synchronous virtual meetings (30-45 min), asynchronous collaboration, and personalized career development support.
+                                </p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: var(--color-primary-blue);">$499<span style="font-size: 12px; font-weight: 500; color: var(--color-neutral-text);">/quarter</span></div>
+                                    <button disabled style="padding: 10px 20px; background: var(--color-neutral-border); color: var(--color-neutral-text); border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: not-allowed;">
+                                        Coming Soon
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Comparison Note -->
+                    <div style="margin-top: 14px; padding: 10px; background: #e3f2fd; border-radius: 6px; border-left: 3px solid var(--color-primary-blue);">
+                        <div style="display: flex; align-items: flex-start; gap: 8px;">
+                            <i class="ph ph-info" style="font-size: 16px; color: var(--color-primary-blue); flex-shrink: 0; margin-top: 1px;"></i>
+                            <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-dark); line-height: 1.4;">
+                                <strong>All plans include:</strong> Privacy-first architecture with no third-party tracking, comprehensive STAR story framework, career experience timeline visualization, and access to the Cleansheet learning library. Upgrade or downgrade anytime.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4166,6 +4394,205 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </button>
                     <button onclick="saveExperience()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
                         Save Experience
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Goal Modal -->
+        <div class="modal" id="goalModal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="goalModalTitle">Add SMART Goal</h2>
+                    <button class="modal-close" onclick="closeGoalModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- SMART Goals Explanation -->
+                    <div style="margin-bottom: 20px; padding: 12px; background: #e3f2fd; border-left: 4px solid var(--color-primary-blue); border-radius: 6px;">
+                        <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">SMART Goals Framework</div>
+                        <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); line-height: 1.4;">
+                            <strong>S</strong>pecific • <strong>M</strong>easurable • <strong>A</strong>chievable • <strong>R</strong>elevant • <strong>T</strong>ime-bound
+                        </div>
+                    </div>
+
+                    <form id="goalForm" style="display: flex; flex-direction: column; gap: 18px;">
+                        <!-- Goal Title -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Goal Title *</label>
+                            <input type="text" id="goalTitle" required placeholder="e.g., Complete AWS Solutions Architect Certification" style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+
+                        <!-- Category -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Category</label>
+                            <select id="goalCategory" style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer;">
+                                <option value="Career Development">Career Development</option>
+                                <option value="Technical Skills">Technical Skills</option>
+                                <option value="Professional Skills">Professional Skills</option>
+                                <option value="Education">Education</option>
+                                <option value="Networking">Networking</option>
+                                <option value="Personal Growth">Personal Growth</option>
+                            </select>
+                        </div>
+
+                        <!-- Specific -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                <i class="ph ph-target" style="color: var(--color-primary-blue);"></i> Specific: What exactly will you accomplish?
+                            </label>
+                            <textarea id="goalSpecific" rows="2" placeholder="Clearly define what you want to achieve..." style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Measurable -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                <i class="ph ph-chart-line" style="color: var(--color-primary-blue);"></i> Measurable: How will you track progress?
+                            </label>
+                            <textarea id="goalMeasurable" rows="2" placeholder="Define specific metrics or milestones..." style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Achievable -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                <i class="ph ph-check-circle" style="color: var(--color-primary-blue);"></i> Achievable: What resources do you need?
+                            </label>
+                            <textarea id="goalAchievable" rows="2" placeholder="Identify resources, skills, and support needed..." style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Relevant -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                <i class="ph ph-lightbulb" style="color: var(--color-primary-blue);"></i> Relevant: Why does this goal matter?
+                            </label>
+                            <textarea id="goalRelevant" rows="2" placeholder="Explain how this aligns with your career objectives..." style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Time-bound -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                    <i class="ph ph-calendar" style="color: var(--color-primary-blue);"></i> Target Date
+                                </label>
+                                <input type="date" id="goalTargetDate" style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Status</label>
+                                <select id="goalStatus" style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer;">
+                                    <option value="Not Started">Not Started</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="On Hold">On Hold</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Progress -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Progress: <span id="goalProgressValue">0</span>%
+                            </label>
+                            <input type="range" id="goalProgress" min="0" max="100" value="0" oninput="document.getElementById('goalProgressValue').textContent = this.value" style="width: 100%; cursor: pointer;">
+                        </div>
+
+                        <!-- Notes -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Additional Notes</label>
+                            <textarea id="goalNotes" rows="2" placeholder="Any additional context or notes..." style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeGoalModal()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="saveGoal()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        Save Goal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Portfolio Project Modal -->
+        <div class="modal" id="portfolioModal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="portfolioModalTitle">Add Portfolio Project</h2>
+                    <button class="modal-close" onclick="closePortfolioModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <form id="portfolioForm" style="display: flex; flex-direction: column; gap: 18px;">
+                        <!-- Project Name -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Project Name *</label>
+                            <input type="text" id="portfolioName" required placeholder="e.g., E-commerce Platform Redesign" style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+
+                        <!-- Link -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Link</label>
+                            <input type="url" id="portfolioLink" placeholder="https://github.com/username/project or https://example.com" style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+
+                        <!-- Description -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Description</label>
+                            <textarea id="portfolioDescription" rows="4" placeholder="Describe the project, your role, and key outcomes..." style="padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Technologies -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Technologies</label>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="portfolioTechName" placeholder="Technology name" onkeypress="if(event.key==='Enter'){event.preventDefault();addPortfolioTechnology();}" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                                <button type="button" onclick="addPortfolioTechnology()" style="flex: 0 0 auto; padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="portfolioTechList" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px;">
+                                <!-- Technology tags will appear here -->
+                            </div>
+                        </div>
+
+                        <!-- Key Skills -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Key Skills</label>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="portfolioSkillName" placeholder="Skill name" onkeypress="if(event.key==='Enter'){event.preventDefault();addPortfolioSkill();}" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                                <button type="button" onclick="addPortfolioSkill()" style="flex: 0 0 auto; padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="portfolioSkillList" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px;">
+                                <!-- Skill tags will appear here -->
+                            </div>
+                        </div>
+
+                        <!-- Competencies -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Competencies</label>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="portfolioCompetencyName" placeholder="Competency name" onkeypress="if(event.key==='Enter'){event.preventDefault();addPortfolioCompetency();}" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                                <button type="button" onclick="addPortfolioCompetency()" style="flex: 0 0 auto; padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="portfolioCompetencyList" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px;">
+                                <!-- Competency tags will appear here -->
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closePortfolioModal()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="savePortfolioProject()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        Save Project
                     </button>
                 </div>
             </div>
@@ -4903,15 +5330,32 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <div id="interviewPrepContent" style="display: none; flex: 1; flex-direction: column; overflow: hidden;">
                 <div class="tech-tabs" style="border-bottom: 2px solid #e5e5e7; padding: 16px 24px 0 24px; background: var(--color-neutral-background); flex-shrink: 0;">
                     <button class="tech-tab active" onclick="switchInterviewTab('behavioral')">Stories</button>
-                    <button class="tech-tab" onclick="switchInterviewTab('technical')">Technical</button>
+                    <button id="technicalTab" class="tech-tab" onclick="switchInterviewTab('technical')">
+                        Technical
+                    </button>
                 </div>
 
                 <!-- Stories Content -->
                 <div class="slideout-body" id="behavioralContent" style="display: flex; flex: 1; flex-direction: column; overflow-y: auto;">
-                    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                         <button class="add-story-btn" onclick="openStoryForm()" style="flex: 0 0 auto; margin-bottom: 0;">
                             <i class="ph ph-plus-circle"></i> Add New Story
                         </button>
+                        <div class="experience-filter-container" style="position: relative; flex: 0 0 auto;">
+                            <button class="experience-filter-btn" onclick="toggleExperienceFilter()" id="experienceFilterBtn">
+                                <i class="ph ph-funnel"></i> Filter by Experience
+                                <span id="filterCount" style="display: none; margin-left: 4px; padding: 2px 6px; background: var(--color-primary-blue); color: white; border-radius: 10px; font-size: 10px; font-weight: 600;"></span>
+                            </button>
+                            <div class="experience-filter-dropdown" id="experienceFilterDropdown" style="display: none;">
+                                <div style="padding: 8px; border-bottom: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Select Experiences</span>
+                                    <button onclick="clearExperienceFilter()" style="background: none; border: none; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 4px;">Clear</button>
+                                </div>
+                                <div id="experienceFilterOptions" style="max-height: 300px; overflow-y: auto; padding: 4px;">
+                                    <!-- Experience checkboxes will be populated here -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div id="storiesContainer" class="stories-container">
                         <!-- Story cards will be dynamically inserted here -->
@@ -4924,6 +5368,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <button class="tech-tab active" onclick="switchTechTab('questions')">Questions</button>
                         <button class="tech-tab" onclick="switchTechTab('research')">Company Research</button>
                         <button class="tech-tab" onclick="switchTechTab('mock')">Mock Interviews</button>
+                        <button class="tech-tab" onclick="switchTechTab('whiteboards')">Whiteboards</button>
                     </div>
 
                     <!-- Questions Tab -->
@@ -4953,6 +5398,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </button>
                         <div id="mockContainer" class="tech-items-container">
                             <!-- Mock interview sessions will be dynamically inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Whiteboards Tab -->
+                    <div id="whiteboardsTab" class="tech-tab-content" style="display: none;">
+                        <button class="add-story-btn" onclick="addWhiteboard()">
+                            <i class="ph ph-plus-circle"></i> Add Whiteboard
+                        </button>
+                        <div id="whiteboardsContainer" class="tech-items-container">
+                            <!-- Whiteboard sessions will be dynamically inserted here -->
                         </div>
                     </div>
                 </div>
@@ -5027,17 +5482,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
             </div>
 
+            <!-- Goals Slideout Content -->
+            <div class="slideout-body" id="goalsContent" style="display: none;">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <button class="add-story-btn" onclick="addGoal()" style="flex: 0 0 auto; margin-bottom: 0;">
+                        <i class="ph ph-plus-circle"></i> Add Goal
+                    </button>
+                </div>
+                <div id="goalsContainer" class="stories-container">
+                    <!-- Goal cards will be dynamically inserted here -->
+                </div>
+            </div>
+
             <!-- Portfolio Slideout Content -->
             <div class="slideout-body" id="portfolioContent" style="display: none;">
                 <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
                     <button class="add-story-btn" onclick="addPortfolioProject()" style="flex: 0 0 auto; margin-bottom: 0;">
                         <i class="ph ph-plus-circle"></i> Add Project
-                    </button>
-                    <button class="upload-resume-btn" onclick="importFromGitHub()" style="flex: 0 0 auto;">
-                        <i class="ph ph-github-logo"></i> Import from GitHub
-                    </button>
-                    <button class="upload-resume-btn" onclick="connectToCodePen()" style="flex: 0 0 auto;">
-                        <i class="ph ph-code"></i> Connect to CodePen
                     </button>
                 </div>
                 <div id="portfolioContainer" class="stories-container">
@@ -7154,7 +7615,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 'interviewPrepContent', 'behavioralContent', 'technicalContent',
                 'jobOpportunitiesContent', 'careerExperienceContent',
                 'applicationMaterialsContent', 'skillsCompetenciesContent',
-                'portfolioContent', 'projectsContent', 'myNotesContent',
+                'goalsContent', 'portfolioContent', 'projectsContent', 'myNotesContent',
                 'calendarContent', 'recipesContent', 'financeContent',
                 'tablesContent', 'formsContent', 'documentsContent',
                 'reportsContent', 'templatesContent', 'pipelinesContent', 'workflowsContent'
@@ -7166,7 +7627,112 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             });
         }
 
+        // Helper function to animate slideout transitions
+        function animateSlideoutTransition(callback) {
+            const slideout = document.getElementById('interviewSlideout');
+
+            // If slideout is already open, slide it out first
+            if (slideout.classList.contains('active')) {
+                slideout.classList.add('sliding-out');
+                slideout.classList.remove('active');
+
+                // Wait for slide-out animation, then update content and slide in
+                setTimeout(() => {
+                    slideout.classList.remove('sliding-out');
+                    callback();
+                    // Small delay before sliding in with new content
+                    setTimeout(() => {
+                        slideout.classList.add('active');
+                    }, 50);
+                }, 400); // Match the transition duration
+            } else {
+                // Not currently open, just show it directly
+                callback();
+                slideout.classList.add('active');
+            }
+        }
+
         // Default career canvas structure (no example persona data)
+        // Feature flag configuration: defines which nodes are available for each subscription tier
+        const subscriptionTiers = {
+            'member': {
+                level: 0,
+                availableNodes: ['Career Experience', 'Interview Prep'],
+                availableFeatures: ['Technical']  // Technical tab available for all tiers
+            },
+            'learner': {
+                level: 1,
+                availableNodes: ['Career Experience', 'Interview Prep', 'Goals', 'Portfolio'],
+                availableFeatures: ['Technical']  // Technical tab available for all tiers
+            },
+            'seeker': {
+                level: 2,
+                availableNodes: ['Career Experience', 'Interview Prep', 'Goals', 'Portfolio', 'Job Opportunities', 'Application Materials'],
+                availableFeatures: ['Technical']  // Technical tab available for all tiers
+            }
+        };
+
+        // Get current subscription tier (defaults to 'member' for free users)
+        function getCurrentSubscriptionTier() {
+            // In production, this would check actual subscription status
+            // For now, defaults to 'member' (free tier)
+            const tier = localStorage.getItem('subscription_tier') || 'member';
+            return tier;
+        }
+
+        // Check if a node should be visible based on subscription tier
+        function shouldShowNode(nodeName) {
+            // Always filter based on subscription tier
+            const currentTier = getCurrentSubscriptionTier();
+            const tierConfig = subscriptionTiers[currentTier];
+
+            if (!tierConfig) {
+                return true; // If tier not found, show everything
+            }
+
+            return tierConfig.availableNodes.includes(nodeName);
+        }
+
+        // Check if a feature (like Technical tab) should be visible based on subscription tier
+        function shouldShowFeature(featureName) {
+            // Always filter based on subscription tier
+            const currentTier = getCurrentSubscriptionTier();
+            const tierConfig = subscriptionTiers[currentTier];
+
+            if (!tierConfig) {
+                return true; // If tier not found, show everything
+            }
+
+            return tierConfig.availableFeatures && tierConfig.availableFeatures.includes(featureName);
+        }
+
+        // Update UI visibility for subscription-gated features
+        function updateFeatureVisibility() {
+            // Technical tab is now available to all tiers, so always show it
+            const technicalTab = document.getElementById('technicalTab');
+            if (technicalTab) {
+                technicalTab.style.display = '';  // Always show
+            }
+        }
+
+        // Developer helper: Set subscription tier for testing
+        // Usage in browser console: setSubscriptionTier('learner') or setSubscriptionTier('seeker')
+        window.setSubscriptionTier = function(tier) {
+            if (!['member', 'learner', 'seeker'].includes(tier)) {
+                console.error('Invalid tier. Use: "member", "learner", or "seeker"');
+                return;
+            }
+            localStorage.setItem('subscription_tier', tier);
+            console.log(`Subscription tier set to: ${tier}`);
+            console.log('Canvas nodes will update automatically based on the new tier.');
+            // Refresh the mindmap if it's visible
+            if (currentViewMode) {
+                refreshMindmap();
+            }
+            // Update feature visibility (Technical tab, etc.)
+            updateFeatureVisibility();
+        };
+
         const personaData = {
             'default': {
                 name: 'User',
@@ -7175,34 +7741,38 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     {
                         name: 'Job Opportunities',
                         premium: true,
+                        tier: 'seeker',  // Required tier for this node
                         count: 0,
                         children: []
                     },
                     {
                         name: 'Application Materials',
                         premium: true,
+                        tier: 'seeker',  // Required tier for this node
                         count: 0,
                         children: []
                     },
                     {
                         name: 'Career Experience',
+                        tier: 'member',  // Available to all tiers
                         count: 0,
                         children: []
                     },
                     {
                         name: 'Goals',
-                        premium: true,
+                        tier: 'learner',  // Required tier for this node
                         count: 0,
                         children: []
                     },
                     {
                         name: 'Portfolio',
-                        premium: true,
+                        tier: 'learner',  // Required tier for this node
                         count: 0,
                         children: []
                     },
                     {
                         name: 'Interview Prep',
+                        tier: 'member',  // Available to all tiers
                         count: 0,
                         children: []
                     }
@@ -7284,7 +7854,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const data = personaData[persona];
             if (!data) return null;
 
+            // Apply feature flag filtering based on subscription tier and user preference
             const filteredChildren = data.children.filter(child => {
+                // First check if node should be shown based on subscription tier
+                if (!shouldShowNode(child.name)) {
+                    return false;
+                }
+
+                // Then apply view-mode specific filtering (exclude certain nodes from learner/personal views)
                 const excludedNodes = ['Job Opportunities', 'Application Materials', 'Interview Prep'];
                 return !excludedNodes.includes(child.name);
             });
@@ -7296,41 +7873,50 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const storedNotes = localStorage.getItem(`notes_${persona}`);
             const notesCount = storedNotes ? JSON.parse(storedNotes).length : 0;
 
-            // Professional nodes
-            const professionalNodes = [
+            // Professional nodes (with feature flag filtering applied)
+            // Note: Learner mode shows these nodes; Code Snippets, Projects, My Library have no subscription restriction
+            const allProfessionalNodes = [
                 {
                     name: 'Career Experience',
+                    tier: 'member',  // Available to all tiers
                     count: filteredChildren.find(c => c.name === 'Career Experience')?.count || 0,
                     children: []
                 },
                 {
                     name: 'Goals',
-                        premium: true,
+                    premium: true,
+                    tier: 'learner',  // Requires Learner tier
                     count: filteredChildren.find(c => c.name === 'Goals')?.count || 0,
                     children: []
                 },
                 {
                     name: 'Portfolio',
-                        premium: true,
+                    tier: 'learner',  // Requires Learner tier
                     count: filteredChildren.find(c => c.name === 'Portfolio')?.count || 0,
                     children: []
                 },
                 {
                     name: 'Code Snippets',
+                    tier: 'member',  // Available to all tiers (for now)
                     count: 0,
                     children: []
                 },
                 {
                     name: 'Projects',
+                    tier: 'member',  // Available to all tiers (for now)
                     count: projectsCount,
                     children: []
                 },
                 {
                     name: 'My Library',
+                    tier: 'member',  // Available to all tiers
                     count: 0,
                     children: []
                 }
             ];
+
+            // Apply feature flag filtering to professional nodes
+            const professionalNodes = allProfessionalNodes.filter(node => shouldShowNode(node.name));
 
             // Personal nodes
             const personalNodes = [
@@ -7428,7 +8014,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 };
             }
 
-            return data;
+            // Seeker mode (default): return all nodes with feature flag filtering applied
+            return {
+                ...data,
+                children: data.children.filter(child => shouldShowNode(child.name))
+            };
         }
 
         // Canvas Modal Functions
@@ -7444,9 +8034,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadUserJobs();
             loadStories();
             loadUserExperiences();
+            loadUserGoals();
+            updateGoalsCount(userGoals.length);
+            loadUserPortfolio();
+            updatePortfolioCount(userPortfolioProjects.length);
             initializeDemoDocuments();
             initializeDemoForms();
             initializeDemoTableRelationships();
+
+            // Update feature visibility on modal open
+            updateFeatureVisibility();
 
             // Add click-outside-to-close handler for slideout
             const slideout = document.getElementById('interviewSlideout');
@@ -7828,6 +8425,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadUserJobs();
             loadStories();
             loadUserExperiences();
+            loadUserGoals();
+            loadUserPortfolio();
 
             // Reload documents for new persona (if documents slideout is visible)
             if (document.getElementById('documentsContent') &&
@@ -7900,6 +8499,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('profileLastName').value = profile.lastName;
             document.getElementById('profileProfession').value = profile.profession;
             document.getElementById('profileGoal').value = profile.goal;
+            document.getElementById('hideUnsubscribedFeatures').checked = profile.hideUnsubscribedFeatures || false;
 
             // Show modal
             document.getElementById('profileModal').style.display = 'flex';
@@ -7914,7 +8514,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 firstName: 'Alex',
                 lastName: 'Martinez',
                 profession: 'Retail Manager',
-                goal: 'Transition from retail management into business analytics or operations management roles in tech companies'
+                goal: 'Transition from retail management into business analytics or operations management roles in tech companies',
+                hideUnsubscribedFeatures: false  // Default is OFF (unchecked)
             };
 
             const saved = localStorage.getItem('cleansheet_profile');
@@ -7926,7 +8527,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 firstName: document.getElementById('profileFirstName').value.trim(),
                 lastName: document.getElementById('profileLastName').value.trim(),
                 profession: document.getElementById('profileProfession').value.trim(),
-                goal: document.getElementById('profileGoal').value.trim()
+                goal: document.getElementById('profileGoal').value.trim(),
+                hideUnsubscribedFeatures: document.getElementById('hideUnsubscribedFeatures').checked
             };
 
             // Validate required fields
@@ -7944,6 +8546,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Refresh D3 mindmap with new profile data
             refreshMindmap();
 
+            // Update feature visibility (Technical tab, etc.) based on new settings
+            updateFeatureVisibility();
+
             // Close modal
             closeProfileModal();
         }
@@ -7951,7 +8556,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // Prompt Builder Functions
         function openPromptBuilder() {
             // Close profile dropdown if open
-            document.getElementById('profileDropdown').style.display = 'none';
+            document.getElementById('profileDropdown').classList.remove('active');
 
             // Reset form
             document.getElementById('promptAssetType').value = 'cover-letter';
@@ -7968,6 +8573,155 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function closePromptBuilder() {
             document.getElementById('promptBuilderModal').style.display = 'none';
+        }
+
+        function openSubscriptionModal() {
+            document.getElementById('subscriptionModal').style.display = 'flex';
+            // Close profile dropdown
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.remove('active');
+
+            // Initialize selected plan based on localStorage
+            const currentPlan = localStorage.getItem('subscription_tier') || 'member';
+            selectPlan(currentPlan);
+        }
+
+        function closeSubscriptionModal() {
+            document.getElementById('subscriptionModal').style.display = 'none';
+        }
+
+        function selectPlan(plan) {
+            // Update plan card styles
+            const memberCard = document.getElementById('memberPlanCard');
+            const learnerCard = document.getElementById('learnerPlanCard');
+            const seekerCard = document.getElementById('seekerPlanCard');
+
+            // Reset all cards to inactive state
+            memberCard.style.border = '2px solid var(--color-neutral-border)';
+            memberCard.style.boxShadow = 'none';
+            learnerCard.style.border = '2px solid var(--color-neutral-border)';
+            learnerCard.style.boxShadow = 'none';
+            seekerCard.style.border = '2px solid var(--color-neutral-border)';
+            seekerCard.style.boxShadow = 'none';
+
+            // Highlight selected card
+            if (plan === 'member') {
+                memberCard.style.border = '2px solid var(--color-primary-blue)';
+                memberCard.style.boxShadow = '0 4px 12px rgba(0, 102, 204, 0.3)';
+            } else if (plan === 'learner') {
+                learnerCard.style.border = '2px solid var(--color-primary-blue)';
+                learnerCard.style.boxShadow = '0 4px 12px rgba(0, 102, 204, 0.3)';
+            } else if (plan === 'seeker') {
+                seekerCard.style.border = '2px solid var(--color-primary-blue)';
+                seekerCard.style.boxShadow = '0 4px 12px rgba(0, 102, 204, 0.3)';
+            }
+
+            // Update button states
+            updatePlanButtons(plan);
+
+            // Store selected plan in localStorage
+            localStorage.setItem('subscription_tier', plan);
+
+            // Update the subscription tier badge in the welcome header
+            updateSubscriptionTierDisplay();
+
+            // Refresh the mindmap to show/hide nodes based on new tier
+            if (typeof currentViewMode !== 'undefined' && currentViewMode) {
+                refreshMindmap();
+            }
+
+            // Update feature visibility (Technical tab, etc.)
+            updateFeatureVisibility();
+
+            // Show success toast
+            const planNames = { member: 'Member', learner: 'Learner', seeker: 'Seeker' };
+            console.log(`Selected plan: ${planNames[plan]}`);
+        }
+
+        function updatePlanButtons(currentPlan) {
+            const memberBtn = document.getElementById('memberPlanButton');
+            const learnerBtn = document.getElementById('learnerPlanButton');
+            const seekerBtn = document.getElementById('seekerPlanButton');
+
+            // Define button styles
+            const currentPlanStyle = {
+                background: 'white',
+                border: '2px solid var(--color-primary-blue)',
+                color: 'var(--color-primary-blue)',
+                text: 'Current Plan',
+                cursor: 'default'
+            };
+
+            const subscribeStyle = {
+                background: 'var(--color-primary-blue)',
+                border: 'none',
+                color: 'white',
+                text: 'Subscribe',
+                cursor: 'pointer'
+            };
+
+            // Reset all buttons to Subscribe state with hover effects
+            [memberBtn, learnerBtn, seekerBtn].forEach(btn => {
+                btn.style.background = subscribeStyle.background;
+                btn.style.border = subscribeStyle.border;
+                btn.style.color = subscribeStyle.color;
+                btn.textContent = subscribeStyle.text;
+                btn.style.cursor = subscribeStyle.cursor;
+
+                // Re-enable hover effects
+                btn.onmouseover = function() {
+                    if (this.style.cursor === 'pointer') {
+                        this.style.background = 'var(--color-accent-blue)';
+                    }
+                };
+                btn.onmouseout = function() {
+                    if (this.style.cursor === 'pointer') {
+                        this.style.background = 'var(--color-primary-blue)';
+                    }
+                };
+            });
+
+            // Set current plan button
+            let currentBtn;
+            if (currentPlan === 'member') currentBtn = memberBtn;
+            else if (currentPlan === 'learner') currentBtn = learnerBtn;
+            else if (currentPlan === 'seeker') currentBtn = seekerBtn;
+
+            if (currentBtn) {
+                currentBtn.style.background = currentPlanStyle.background;
+                currentBtn.style.border = currentPlanStyle.border;
+                currentBtn.style.color = currentPlanStyle.color;
+                currentBtn.textContent = currentPlanStyle.text;
+                currentBtn.style.cursor = currentPlanStyle.cursor;
+
+                // Disable hover effects for current plan
+                currentBtn.onmouseover = null;
+                currentBtn.onmouseout = null;
+            }
+        }
+
+        function updateSubscriptionTierDisplay() {
+            const tierBadge = document.getElementById('subscriptionTierBadge');
+            if (!tierBadge) return;
+
+            const currentTier = localStorage.getItem('subscription_tier') || 'member';
+            const tierNames = {
+                member: 'Member',
+                learner: 'Learner',
+                seeker: 'Seeker'
+            };
+
+            // Update badge text
+            tierBadge.textContent = tierNames[currentTier] || 'Member';
+
+            // Update badge color based on tier
+            const tierColors = {
+                member: '#16a34a',     // Green for free tier
+                learner: '#0066CC',    // Primary blue for learner
+                seeker: '#9333ea'      // Purple for seeker
+            };
+
+            tierBadge.style.background = tierColors[currentTier] || '#16a34a';
         }
 
         function generateAndCopyPrompt() {
@@ -8061,10 +8815,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const successMsg = document.getElementById('promptCopiedMessage');
                 successMsg.style.display = 'block';
 
-                // Hide after 3 seconds
+                // Close modal after 1.5 seconds
                 setTimeout(() => {
-                    successMsg.style.display = 'none';
-                }, 3000);
+                    closePromptBuilder();
+                }, 1500);
             }).catch(err => {
                 console.error('Failed to copy prompt:', err);
                 alert('Failed to copy prompt to clipboard. Please try again.');
@@ -8195,6 +8949,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         document.addEventListener('DOMContentLoaded', function() {
             restoreAdvisoryState();
             restoreWelcomePanelState();
+            updateSubscriptionTierDisplay();
         });
 
         // Canvas Tab Navigation
@@ -8276,6 +9031,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function loadLibraryView() {
             const container = document.getElementById('libraryView');
+            container.innerHTML = '<iframe src="corpus/index.html" style="width: 100%; height: 100%; border: none; background: white;" onload="handleLibraryLoad(this)" onerror="handleLibraryError()"></iframe>';
+        }
+
+        function handleLibraryLoad(iframe) {
+            // Successfully loaded corpus/index.html
+            console.log('Library loaded successfully');
+        }
+
+        function handleLibraryError() {
+            // Fallback if corpus/index.html doesn't exist
+            const container = document.getElementById('libraryView');
             container.innerHTML = `
                 <div style="padding: 40px; text-align: center; background: white; border-radius: 12px; margin: 24px;">
                     <i class="ph ph-books" style="font-size: 64px; color: var(--color-primary-blue); margin-bottom: 24px; display: block;"></i>
@@ -8284,7 +9050,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         Access curated learning resources, courses, and content aligned with your career goals. Browse by skill, role, or career path to build your professional knowledge.
                     </p>
                     <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text-light); margin-top: 24px;">
-                        Coming Soon
+                        Run <code style="background: #f5f5f5; padding: 4px 8px; border-radius: 4px; font-family: monospace;">python generate_corpus_index.py</code> to generate the library content.
                     </p>
                 </div>
             `;
@@ -8309,6 +9075,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 return;
             }
 
+            // Clear existing data before loading example profile
+            localStorage.removeItem(`userGoals_${currentPersona}`);
+            localStorage.removeItem(`userPortfolio_${currentPersona}`);
+            localStorage.removeItem('jobOpportunities');
+            localStorage.removeItem('applicationMaterials');
+
             // Load profile data
             const profile = {
                 firstName: profileData.userFirstName,
@@ -8330,6 +9102,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             updateProfileDisplay(profile);
             loadUserExperiences();
             updateExperienceCount(profileData.experiences.length);
+            updateStoryCount(profileData.stories ? profileData.stories.length : 0);
+            updateGoalsCount(0);
+            updatePortfolioCount(0);
             refreshMindmap();
 
             // Show success message
@@ -8368,6 +9143,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             return;
                         }
 
+                        // CLEAR ALL EXISTING DATA FIRST - complete profile replacement
+                        localStorage.removeItem('cleansheet_profile');
+                        localStorage.removeItem('cleansheet_experiences');
+                        localStorage.removeItem('behavioralStories');
+                        localStorage.removeItem('cleansheet_stories'); // Legacy stories field
+                        localStorage.removeItem('jobOpportunities');
+                        localStorage.removeItem('applicationMaterials');
+                        localStorage.removeItem(`userGoals_${currentPersona}`);
+                        localStorage.removeItem(`userPortfolio_${currentPersona}`);
+
                         // Import profile data
                         const profile = {
                             firstName: data.userFirstName,
@@ -8379,29 +9164,49 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                         // Import experiences to Career Experience
                         const experiences = data.experiences.map(exp => ({
-                            name: exp.role,
-                            organization: exp.organizationName,
+                            role: exp.role || exp.title || '',
+                            organizationName: exp.organizationName || exp.company || '',
                             location: exp.location || '',
                             startDate: exp.startDate || '',
                             endDate: exp.endDate || '',
                             description: exp.description || '',
                             technologies: exp.technologies || [],
-                            keySkills: exp.keySkills || [],
+                            keySkills: exp.keySkills || exp.skills || [],
+                            competencies: exp.competencies || [],
+                            projectTypes: exp.projectTypes || [],
+                            internalStakeholders: exp.internalStakeholders || [],
+                            externalStakeholders: exp.externalStakeholders || [],
                             achievements: exp.achievements || []
                         }));
                         localStorage.setItem('cleansheet_experiences', JSON.stringify(experiences));
 
-                        // Import stories if present
-                        if (data.stories && data.stories.length > 0) {
-                            localStorage.setItem('cleansheet_stories', JSON.stringify(data.stories));
+                        // Import stories if present (handle both 'stories' and 'behavioralStories' field names)
+                        // Always clear existing stories first, then import new ones
+                        const stories = data.behavioralStories || data.stories || [];
+                        localStorage.setItem('cleansheet_stories', JSON.stringify(stories));
+                        localStorage.setItem('behavioralStories', JSON.stringify(stories));
+
+                        // Import goals if present
+                        const goals = data.goals || [];
+                        if (goals.length > 0) {
+                            localStorage.setItem(`userGoals_${currentPersona}`, JSON.stringify(goals));
+                        }
+
+                        // Import portfolio if present
+                        const portfolio = data.portfolio || [];
+                        if (portfolio.length > 0) {
+                            localStorage.setItem(`userPortfolio_${currentPersona}`, JSON.stringify(portfolio));
                         }
 
                         // Update UI
                         updateProfileDisplay(profile);
                         refreshMindmap();
                         updateExperienceCount(experiences.length);
+                        updateStoryCount(stories.length);
+                        updateGoalsCount(goals.length);
+                        updatePortfolioCount(portfolio.length);
 
-                        alert(`Successfully imported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${experiences.length} experiences\n- ${data.stories ? data.stories.length : 0} stories`);
+                        alert(`Successfully imported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${experiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects`);
 
                     } catch (error) {
                         alert('Error parsing JSON file: ' + error.message);
@@ -8425,20 +9230,31 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const experiencesJson = localStorage.getItem('cleansheet_experiences');
                 const experiences = experiencesJson ? JSON.parse(experiencesJson) : [];
 
-                // Get stories from localStorage
-                const storiesJson = localStorage.getItem('cleansheet_stories');
+                // Get stories from localStorage (check both keys for backwards compatibility)
+                let storiesJson = localStorage.getItem('cleansheet_stories');
+                if (!storiesJson) {
+                    storiesJson = localStorage.getItem('behavioralStories');
+                }
                 const stories = storiesJson ? JSON.parse(storiesJson) : [];
+
+                // Get goals from localStorage
+                const goalsJson = localStorage.getItem(`userGoals_${currentPersona}`);
+                const goals = goalsJson ? JSON.parse(goalsJson) : [];
+
+                // Get portfolio from localStorage
+                const portfolioJson = localStorage.getItem(`userPortfolio_${currentPersona}`);
+                const portfolio = portfolioJson ? JSON.parse(portfolioJson) : [];
 
                 // Format experiences to match the expected structure
                 const formattedExperiences = experiences.map((exp, index) => ({
-                    organizationName: exp.organization || '',
-                    role: exp.name || '',
+                    organizationName: exp.organizationName || exp.organization || exp.company || '',
+                    role: exp.role || exp.title || exp.name || '',
                     location: exp.location || '',
                     startDate: exp.startDate || '',
                     endDate: exp.endDate || '',
                     description: exp.description || '',
                     technologies: exp.technologies || [],
-                    keySkills: exp.keySkills || [],
+                    keySkills: exp.keySkills || exp.skills || [],
                     competencies: exp.competencies || [],
                     projectTypes: exp.projectTypes || [],
                     internalStakeholders: exp.internalStakeholders || [],
@@ -8454,8 +9270,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     userGoals: profile.goal,
                     experiences: formattedExperiences,
                     stories: stories,
+                    goals: goals,
+                    portfolio: portfolio,
                     exportDate: new Date().toISOString(),
-                    version: '2.0'
+                    version: '2.1'
                 };
 
                 // Create download
@@ -8471,7 +9289,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories`);
+                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects`);
 
             } catch (error) {
                 alert('Error exporting data: ' + error.message);
@@ -8485,6 +9303,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const careerExpNode = personaData['default'].children.find(c => c.name === 'Career Experience');
                 if (careerExpNode) {
                     careerExpNode.count = count;
+                }
+            }
+        }
+
+        function updateStoryCount(count) {
+            // Update the personaData structure for Interview Prep
+            if (personaData['default'] && personaData['default'].children) {
+                const interviewPrepNode = personaData['default'].children.find(c => c.name === 'Interview Prep');
+                if (interviewPrepNode) {
+                    interviewPrepNode.count = count;
+                }
+            }
+        }
+
+        function updateGoalsCount(count) {
+            // Update the personaData structure for Goals
+            if (personaData['default'] && personaData['default'].children) {
+                const goalsNode = personaData['default'].children.find(c => c.name === 'Goals');
+                if (goalsNode) {
+                    goalsNode.count = count;
                 }
             }
         }
@@ -8884,194 +9722,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     const conversions = [6.1, 53.3, 31.3, 12.0];
                     return `${conversions[i].toFixed(1)}% conv.`;
                 });
-        }
-
-        // Library View Functions
-        let showRecommendedOnly = false;
-
-        function loadLibraryView() {
-            const container = document.getElementById('libraryView');
-
-            const sampleArticles = [
-                {
-                    title: 'Understanding CI/CD Pipelines',
-                    summary: 'Comprehensive guide to continuous integration and deployment workflows, covering best practices and tooling.',
-                    tags: ['DevOps', 'Automation', 'Testing'],
-                    level: 'Intermediate',
-                    readTime: '12 min',
-                    recommended: true
-                },
-                {
-                    title: 'Introduction to Docker Containers',
-                    summary: 'Learn the fundamentals of containerization with Docker, including images, volumes, and networking.',
-                    tags: ['Docker', 'Cloud', 'DevOps'],
-                    level: 'Beginner',
-                    readTime: '15 min',
-                    recommended: true
-                },
-                {
-                    title: 'Advanced SQL Query Optimization',
-                    summary: 'Deep dive into query performance tuning, indexing strategies, and execution plan analysis.',
-                    tags: ['Data Analysis', 'SQL', 'Performance'],
-                    level: 'Advanced',
-                    readTime: '20 min',
-                    recommended: false
-                },
-                {
-                    title: 'Project Management Fundamentals',
-                    summary: 'Essential project management concepts including scope, timeline, resource allocation, and stakeholder communication.',
-                    tags: ['Project Management', 'Professional Skills', 'Leadership'],
-                    level: 'Beginner',
-                    readTime: '10 min',
-                    recommended: true
-                },
-                {
-                    title: 'Kubernetes Deployment Strategies',
-                    summary: 'Explore rolling updates, blue-green deployments, and canary releases in Kubernetes environments.',
-                    tags: ['Kubernetes', 'Cloud', 'DevOps'],
-                    level: 'Advanced',
-                    readTime: '18 min',
-                    recommended: false
-                },
-                {
-                    title: 'Data Visualization Best Practices',
-                    summary: 'Learn to create effective charts and dashboards that communicate insights clearly to stakeholders.',
-                    tags: ['Data Analysis', 'Visualization', 'Career Development'],
-                    level: 'Intermediate',
-                    readTime: '14 min',
-                    recommended: true
-                }
-            ];
-
-            const filteredArticles = showRecommendedOnly ? sampleArticles.filter(a => a.recommended) : sampleArticles;
-
-            container.innerHTML = `
-                <div style="display: flex; height: 100%;">
-                    <!-- Left Sidebar -->
-                    <div style="width: 320px; background: var(--color-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0;">
-                        <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <h2 style="font-family: var(--font-family-ui); font-size: 20px; margin-bottom: 8px;">Cleansheet Library</h2>
-                            <p style="font-size: 12px; color: rgba(255,255,255,0.7);">Curated technical content</p>
-                        </div>
-
-                        <div style="padding: 20px; flex: 1; overflow-y: auto;">
-                            <!-- Search -->
-                            <input type="text" placeholder="Search articles..." style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px; margin-bottom: 16px;">
-
-                            <!-- Recommended Toggle -->
-                            <label style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(0, 102, 204, 0.2); border-radius: 6px; cursor: pointer; margin-bottom: 16px;">
-                                <input type="checkbox" ${showRecommendedOnly ? 'checked' : ''} onchange="toggleRecommended(this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
-                                <span style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600;">Recommended for You</span>
-                            </label>
-
-                            <!-- Stats -->
-                            <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; margin-bottom: 16px;">
-                                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 4px;">Showing</div>
-                                <div style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600;">${filteredArticles.length} articles</div>
-                            </div>
-
-                            <!-- Filter Tags -->
-                            <div style="margin-top: 20px;">
-                                <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.7);">Topics</div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                                    ${['DevOps', 'Cloud', 'Data Analysis', 'Project Management'].map(tag =>
-                                        `<div style="padding: 6px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 11px; cursor: pointer;">${tag}</div>`
-                                    ).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Main Content Area -->
-                    <div style="flex: 1; padding: 24px; overflow-y: auto;">
-                        <div style="max-width: 1200px; margin: 0 auto;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
-                                ${filteredArticles.map(article => renderLibraryArticleCard(article)).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderLibraryArticleCard(article) {
-            return `
-                <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column;">
-                    <!-- Header -->
-                    <div style="padding: 16px; border-bottom: 1px solid var(--color-neutral-border);">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                            <span style="background: ${article.level === 'Beginner' ? '#4caf50' : article.level === 'Intermediate' ? '#ff9800' : '#f44336'}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${article.level}</span>
-                            ${article.recommended ? '<i class="ph ph-star-fill" style="color: #ff9800; font-size: 18px;"></i>' : ''}
-                        </div>
-                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; color: var(--color-dark); margin-bottom: 8px; line-height: 1.4;">${article.title}</h3>
-                        <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text-light); line-height: 1.5; margin-bottom: 12px;">${article.summary}</p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
-                            ${article.tags.map(tag => `<span style="background: #e3f2fd; color: var(--color-primary-blue); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${tag}</span>`).join('')}
-                        </div>
-                        <div style="font-size: 11px; color: var(--color-neutral-text-muted); display: flex; align-items: center; gap: 4px;">
-                            <i class="ph ph-clock"></i> ${article.readTime}
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div style="padding: 12px; background: var(--color-neutral-background); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-                        <button onclick="listenToArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
-                            <i class="ph ph-play-circle" style="font-size: 18px;"></i>
-                            <span style="font-size: 10px; font-weight: 600;">Listen</span>
-                        </button>
-                        <button onclick="chatAboutArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
-                            <i class="ph ph-chat-circle-dots" style="font-size: 18px;"></i>
-                            <span style="font-size: 10px; font-weight: 600;">Chat</span>
-                        </button>
-                        <button onclick="translateArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
-                            <i class="ph ph-translate" style="font-size: 18px;"></i>
-                            <span style="font-size: 10px; font-weight: 600;">Translate</span>
-                        </button>
-                        <button onclick="addToMyLibrary('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
-                            <i class="ph ph-bookmark" style="font-size: 18px;"></i>
-                            <span style="font-size: 10px; font-weight: 600;">Add</span>
-                        </button>
-                        <button onclick="summarizeArticle('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
-                            <i class="ph ph-note-pencil" style="font-size: 18px;"></i>
-                            <span style="font-size: 10px; font-weight: 600;">Summarize</span>
-                        </button>
-                        <button onclick="sendToMobile('${article.title}')" style="padding: 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white'; this.style.borderColor='var(--color-primary-blue)';" onmouseout="this.style.background='white'; this.style.color='var(--color-neutral-text)'; this.style.borderColor='var(--color-neutral-border)';">
-                            <i class="ph ph-device-mobile" style="font-size: 18px;"></i>
-                            <span style="font-size: 10px; font-weight: 600;">Mobile</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function toggleRecommended(checked) {
-            showRecommendedOnly = checked;
-            loadLibraryView();
-        }
-
-        // Library action functions
-        function listenToArticle(title) {
-            alert(`Listen to: "${title}"\n\nThis will convert the article to audio using text-to-speech and play it for you. You can adjust speed, voice, and download the audio file.`);
-        }
-
-        function chatAboutArticle(title) {
-            alert(`Chat about: "${title}"\n\nOpen an AI-powered chat interface to discuss the article content, ask questions, and explore related concepts.`);
-        }
-
-        function translateArticle(title) {
-            alert(`Translate: "${title}"\n\nChoose from 50+ languages including Spanish, Mandarin, French, German, Japanese, and more. Translation is powered by advanced ML models.`);
-        }
-
-        function addToMyLibrary(title) {
-            alert(`Added to My Library: "${title}"\n\nThis article is now saved to your personal library for offline access and future reference.`);
-        }
-
-        function summarizeArticle(title) {
-            alert(`Summarize: "${title}"\n\nGenerate a concise summary highlighting key points, main concepts, and actionable takeaways in bullet-point format.`);
-        }
-
-        function sendToMobile(title) {
-            alert(`Send to Mobile: "${title}"\n\nThis article will be sent to your mobile device via the Cleansheet mobile app or email. You'll receive a notification when it's ready.`);
         }
 
         // Close modal on background click
@@ -9582,7 +10232,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 if (nodeName === 'Career Experience') {
                     openCareerExperienceSlideout();
                 } else if (nodeName === 'Goals') {
-                    openSkillsCompetenciesSlideout();
+                    openGoalsSlideout();
                 } else if (nodeName === 'Portfolio') {
                     openPortfolioSlideout();
                 } else if (nodeName === 'Projects') {
@@ -9639,6 +10289,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         tooltipText = 'Your resumes, cover letters, and LinkedIn profile';
                     } else if (d.label === 'Career Experience') {
                         tooltipText = 'Your work history and professional background';
+                    } else if (d.label === 'Goals') {
+                        tooltipText = 'Set and track SMART career goals';
                     } else if (d.label === 'Skills & Competencies') {
                         tooltipText = 'Technical and professional skills you possess';
                     } else if (d.label === 'Portfolio') {
@@ -10033,33 +10685,38 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 .html(`<i class="ph ${iconClass}" style="font-size: 20px; color: #0066CC;"></i>`);
                         }
 
-                        // Add premium badge if node is premium - v2
-                        if (d.data.premium) {
-                            const badgeWidth = 28;
-                            const badgeHeight = 11;
-                            const badge = d3.select(this).append('g')
-                                .attr('class', 'premium-badge-v2')
-                                .attr('transform', `translate(${childWidth/2 - badgeWidth - 10}, ${-childHeight/2 + 5})`);
+                        // Add count badge for Career Experience, Interview Prep, Goals, and Portfolio nodes
+                        if ((d.data.name === 'Career Experience' || d.data.name === 'Interview Prep' || d.data.name === 'Goals' || d.data.name === 'Portfolio') && d.data.count > 0) {
+                            const countText = d.data.count.toString();
+                            const badgeWidth = countText.length === 1 ? 18 : (countText.length === 2 ? 22 : 26);
+                            const badgeHeight = 18;
 
-                            // Background rectangle - solid coral color
-                            badge.append('rect')
+                            // Position badge in top-right corner, adjusted if premium badge exists
+                            const xOffset = d.data.premium ? -42 : -10;
+
+                            const countBadge = d3.select(this).append('g')
+                                .attr('class', 'count-badge')
+                                .attr('transform', `translate(${childWidth/2 - badgeWidth + xOffset}, ${-childHeight/2 + 5})`);
+
+                            // Background circle/rounded rect
+                            countBadge.append('rect')
                                 .attr('width', badgeWidth)
                                 .attr('height', badgeHeight)
-                                .attr('rx', 2)
-                                .style('fill', '#FF6B35')
-                                .style('stroke', 'none');
+                                .attr('rx', 9)
+                                .style('fill', '#0066CC')
+                                .style('stroke', 'white')
+                                .style('stroke-width', '1.5px');
 
-                            // White text
-                            badge.append('text')
+                            // White count text
+                            countBadge.append('text')
                                 .attr('x', badgeWidth / 2)
-                                .attr('y', badgeHeight / 2 + 3)
+                                .attr('y', badgeHeight / 2 + 4)
                                 .attr('text-anchor', 'middle')
                                 .style('font-family', 'var(--font-family-ui)')
-                                .style('font-size', '7px')
+                                .style('font-size', '11px')
                                 .style('font-weight', '700')
                                 .style('fill', 'white')
-                                .style('letter-spacing', '0.3px')
-                                .text('PAID');
+                                .text(countText);
                         }
                     }
                 });
@@ -10122,6 +10779,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             openCareerExperienceSlideout();
                         } else if (nodeName === 'Interview Prep') {
                             openInterviewPrepSlideout();
+                        } else if (nodeName === 'Goals') {
+                            openGoalsSlideout();
+                        } else if (nodeName === 'Portfolio') {
+                            openPortfolioSlideout();
                         } else if (nodeName === 'Tables') {
                             // Tables opens slideout with table type cards
                             openTablesSlideout();
@@ -10469,35 +11130,53 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // New function: Open Interview Prep with tabbed view
         function openInterviewPrepSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
-            const interviewPrepContent = document.getElementById('interviewPrepContent');
-            const behavioralContent = document.getElementById('behavioralContent');
-            const technicalContent = document.getElementById('technicalContent');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
+                const interviewPrepContent = document.getElementById('interviewPrepContent');
+                const behavioralContent = document.getElementById('behavioralContent');
+                const technicalContent = document.getElementById('technicalContent');
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show interview prep content with tabs
-            interviewPrepContent.style.display = 'flex';
+                // Show interview prep content with tabs
+                interviewPrepContent.style.display = 'flex';
 
-            // Default to Stories tab
-            behavioralContent.style.display = 'flex';
-            technicalContent.style.display = 'none';
+                // Default to Stories tab
+                behavioralContent.style.display = 'flex';
+                technicalContent.style.display = 'none';
 
-            // Reset tab active states
-            const tabs = interviewPrepContent.querySelectorAll('.tech-tab');
-            tabs[0].classList.add('active');
-            tabs[1].classList.remove('active');
+                // Reset tab active states
+                const tabs = interviewPrepContent.querySelectorAll('.tech-tab');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
 
-            titleEl.textContent = 'Interview Preparation';
+                titleEl.textContent = 'Interview Preparation';
 
-            // Load content
-            loadStories();
-            loadTechnicalContent();
+                // Update feature visibility (hide Technical tab if needed)
+                updateFeatureVisibility();
 
-            // Show slideout
-            slideout.classList.add('active');
+                // Load content
+                loadStories();
+                loadTechnicalContent();
+            });
+        }
+
+        // Open Interview Prep filtered to a specific experience
+        function openInterviewPrepFiltered(experienceIndex) {
+            // Clear any existing filters first
+            selectedExperienceFilters.clear();
+
+            // Add the selected experience to the filter
+            selectedExperienceFilters.add(experienceIndex);
+
+            // Open the interview prep slideout
+            openInterviewPrepSlideout();
+
+            // Update the filter UI to reflect the selection
+            updateFilterCount();
+
+            // The stories will be automatically filtered by loadStories()
         }
 
         // Function to switch between Behavioral and Technical tabs
@@ -10557,6 +11236,98 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             slideout.classList.remove('active');
         }
 
+        // Track selected experience filters
+        let selectedExperienceFilters = new Set();
+
+        function toggleExperienceFilter() {
+            const dropdown = document.getElementById('experienceFilterDropdown');
+            const isVisible = dropdown.style.display === 'block';
+
+            if (!isVisible) {
+                // Populate the dropdown when opening
+                populateExperienceFilter();
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function populateExperienceFilter() {
+            const container = document.getElementById('experienceFilterOptions');
+            container.innerHTML = '';
+
+            // Load user experiences
+            loadUserExperiences();
+
+            if (userExperiences.length === 0) {
+                container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--color-neutral-text); font-size: 12px;">No experiences found</div>';
+                return;
+            }
+
+            // Sort by most recent
+            const sortedExperiences = [...userExperiences].sort((a, b) => {
+                const dateA = a.startDate || '0000-00-00';
+                const dateB = b.startDate || '0000-00-00';
+                return dateB.localeCompare(dateA);
+            });
+
+            sortedExperiences.forEach((exp, index) => {
+                const displayText = `${exp.role || exp.title || 'Unknown Role'} - ${exp.organizationName || exp.company || 'Unknown Company'}`;
+                const originalIndex = userExperiences.indexOf(exp);
+                const isChecked = selectedExperienceFilters.has(originalIndex);
+
+                const option = document.createElement('div');
+                option.className = 'experience-filter-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="expFilter_${originalIndex}" ${isChecked ? 'checked' : ''} onchange="updateExperienceFilter(${originalIndex})">
+                    <label for="expFilter_${originalIndex}">${escapeHtml(displayText)}</label>
+                `;
+                container.appendChild(option);
+            });
+        }
+
+        function updateExperienceFilter(experienceIndex) {
+            const checkbox = document.getElementById(`expFilter_${experienceIndex}`);
+
+            if (checkbox.checked) {
+                selectedExperienceFilters.add(experienceIndex);
+            } else {
+                selectedExperienceFilters.delete(experienceIndex);
+            }
+
+            updateFilterCount();
+            loadStories();
+        }
+
+        function clearExperienceFilter() {
+            selectedExperienceFilters.clear();
+            updateFilterCount();
+            populateExperienceFilter();
+            loadStories();
+        }
+
+        function updateFilterCount() {
+            const countBadge = document.getElementById('filterCount');
+            const count = selectedExperienceFilters.size;
+
+            if (count > 0) {
+                countBadge.textContent = count;
+                countBadge.style.display = 'inline-block';
+            } else {
+                countBadge.style.display = 'none';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const filterContainer = document.querySelector('.experience-filter-container');
+            const dropdown = document.getElementById('experienceFilterDropdown');
+
+            if (filterContainer && !filterContainer.contains(event.target) && dropdown) {
+                dropdown.style.display = 'none';
+            }
+        });
+
         function loadStories() {
             const container = document.getElementById('storiesContainer');
             container.innerHTML = '';
@@ -10567,13 +11338,24 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 storiesData = localStorage.getItem('behavioralStories');
             }
 
-            const allStories = storiesData ? JSON.parse(storiesData) : [];
+            let allStories = storiesData ? JSON.parse(storiesData) : [];
+
+            // Apply experience filter if any selected
+            if (selectedExperienceFilters.size > 0) {
+                allStories = allStories.filter(story => {
+                    const expIndex = story.experienceIndex;
+                    return expIndex !== undefined && selectedExperienceFilters.has(expIndex);
+                });
+            }
 
             if (allStories.length === 0) {
+                const message = selectedExperienceFilters.size > 0
+                    ? 'No stories match the selected experiences. Try adjusting your filter.'
+                    : 'No stories yet. Import your JSON data or click "Add New Story" to create your first STAR story.';
                 container.innerHTML = `
                     <div style="text-align: center; padding: 40px 20px; color: var(--color-neutral-text-light);">
                         <i class="ph ph-file-text" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
-                        <p style="font-family: var(--font-family-ui); font-size: 15px;">No stories yet. Import your JSON data or click "Add New Story" to create your first STAR story.</p>
+                        <p style="font-family: var(--font-family-ui); font-size: 15px;">${message}</p>
                     </div>
                 `;
                 return;
@@ -10631,6 +11413,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 `;
                 container.appendChild(card);
             });
+
+            // Update the story count in the D3 mindmap (get total count from localStorage, not filtered)
+            let totalStoriesData = localStorage.getItem('cleansheet_stories');
+            if (!totalStoriesData) {
+                totalStoriesData = localStorage.getItem('behavioralStories');
+            }
+            const totalStories = totalStoriesData ? JSON.parse(totalStoriesData) : [];
+            updateStoryCount(totalStories.length);
         }
 
         function openStoryForm(editIndex = null) {
@@ -10676,6 +11466,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const modal = document.getElementById('storyFormModal');
             modal.classList.remove('active');
             currentEditingStoryId = null;
+        }
+
+        function openStoryFormForExperience(experienceIndex) {
+            // Open the story form
+            openStoryForm();
+
+            // Pre-select the experience in the dropdown
+            loadUserExperiences();
+            if (experienceIndex >= 0 && experienceIndex < userExperiences.length) {
+                const exp = userExperiences[experienceIndex];
+                const displayText = `${exp.role || exp.title} - ${exp.organizationName || exp.company}`;
+
+                // Set the dropdown value after a short delay to ensure dropdown is populated
+                setTimeout(() => {
+                    const select = document.getElementById('storyExperience');
+                    select.value = displayText;
+
+                    // Also store the experienceIndex for when the story is saved
+                    select.setAttribute('data-experience-index', experienceIndex);
+                }, 50);
+            }
         }
 
         function populateExperienceDropdown() {
@@ -10837,6 +11648,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.getElementById('researchTab').style.display = 'block';
             } else if (tab === 'mock') {
                 document.getElementById('mockTab').style.display = 'block';
+            } else if (tab === 'whiteboards') {
+                document.getElementById('whiteboardsTab').style.display = 'block';
             }
         }
 
@@ -10845,6 +11658,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             loadTechnicalQuestions();
             loadCompanyResearch();
             loadMockSessions();
+            loadWhiteboards();
         }
 
         function loadTechnicalQuestions() {
@@ -10880,6 +11694,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             `;
         }
 
+        function loadWhiteboards() {
+            const container = document.getElementById('whiteboardsContainer');
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: var(--color-neutral-text-light);">
+                    <i class="ph ph-chalkboard" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                    <p style="font-family: var(--font-family-ui); font-size: 15px;">Practice whiteboard coding and system design problems.</p>
+                    <p style="font-size: 13px; margin-top: 8px;">Coming soon: Virtual whiteboard with code execution, diagram tools, and solution walkthroughs.</p>
+                </div>
+            `;
+        }
+
         function addTechnicalQuestion() {
             alert('Technical Questions feature coming soon!');
         }
@@ -10890,6 +11715,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function addMockSession() {
             alert('Mock Interview Sessions feature coming soon!');
+        }
+
+        function addWhiteboard() {
+            alert('Whiteboards feature coming soon!');
         }
 
         // ========================================
@@ -12725,24 +13554,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function openCareerExperienceSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
-            const careerExperienceContent = document.getElementById('careerExperienceContent');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
+                const careerExperienceContent = document.getElementById('careerExperienceContent');
 
-            titleEl.textContent = 'Career Experience';
+                titleEl.textContent = 'Career Experience';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show career experience content
-            careerExperienceContent.style.display = 'flex';
+                // Show career experience content
+                careerExperienceContent.style.display = 'flex';
 
-            loadCareerExperiences();
+                loadCareerExperiences();
 
-            // Update the count in personaData for D3 display
-            updateExperienceCount(userExperiences.length);
-
-            slideout.classList.add('active');
+                // Update the count in personaData for D3 display
+                updateExperienceCount(userExperiences.length);
+            });
         }
 
         function loadCareerExperiences() {
@@ -12750,6 +13578,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             container.innerHTML = '';
 
             loadUserExperiences();
+
+            // Load behavioral stories to count them per experience
+            const behavioralStories = JSON.parse(localStorage.getItem('behavioralStories') || '[]');
 
             // Sort experiences by start date (most recent first)
             const sortedExperiences = [...userExperiences].sort((a, b) => {
@@ -12794,13 +13625,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const startDate = exp.startDate ? new Date(exp.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '';
                 const endDate = exp.endDate ? new Date(exp.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
 
+                // Count stories associated with this experience
+                const storyCount = behavioralStories.filter(story => story.experienceIndex === originalIndex).length;
+
                 const card = document.createElement('div');
                 card.className = 'experience-card';
 
                 card.innerHTML = `
                     <div class="experience-card-header">
                         <div style="flex: 1;">
-                            <div class="exp-title">${escapeHtml(exp.title || exp.role || 'Untitled Position')}</div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <div class="exp-title">${escapeHtml(exp.title || exp.role || 'Untitled Position')}</div>
+                                ${storyCount > 0 ? `<span onclick="openInterviewPrepFiltered(${originalIndex})" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #e3f2fd; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-primary-blue); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.background='#e3f2fd'; this.style.color='var(--color-primary-blue)';" title="Click to view ${storyCount} STAR ${storyCount === 1 ? 'story' : 'stories'} for this experience"><i class="ph ph-star" style="font-size: 12px;"></i>${storyCount}</span>` : ''}
+                                <button onclick="openStoryFormForExperience(${originalIndex})" style="display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; padding: 0; background: white; border: 1px solid var(--color-primary-blue); border-radius: 50%; color: var(--color-primary-blue); font-size: 10px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--color-primary-blue)';" title="Add STAR story for this experience"><i class="ph ph-plus" style="font-size: 10px;"></i></button>
+                            </div>
                             <div class="exp-company">${escapeHtml(exp.company || exp.organizationName || '')}${exp.location ? ' • ' + escapeHtml(exp.location) : ''}</div>
                             <div class="exp-dates">${startDate} - ${endDate}</div>
                         </div>
@@ -13490,246 +14328,523 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
         }
 
-        // Portfolio Management
-        let userPortfolioProjects = [];
+        // ========================================
+        // Goals Functions
+        // ========================================
 
-        // Example portfolio projects for each persona
-        const examplePortfolioProjects = {
-            'retail-manager': [
-                {
-                    title: 'Power BI Sales Dashboard',
-                    description: 'Interactive sales analytics dashboard tracking KPIs across 15 retail locations. Includes YoY comparisons, inventory turnover analysis, and predictive sales forecasting.',
-                    technologies: ['Power BI', 'Excel', 'SQL'],
-                    url: null,
-                    imageUrl: null,
-                    completedDate: '2023-11',
-                    highlights: [
-                        'Reduced reporting time from 4 hours to 15 minutes',
-                        'Identified $45K in inventory optimization opportunities',
-                        'Adopted by 12 stores in district'
-                    ],
-                    isExample: true
-                },
-                {
-                    title: 'Staff Scheduling Model (Excel VBA)',
-                    description: 'Automated employee scheduling system using Excel VBA and optimization algorithms. Considers availability, labor laws, peak traffic patterns, and employee preferences.',
-                    technologies: ['Excel VBA', 'Optimization Algorithms'],
-                    url: null,
-                    imageUrl: null,
-                    completedDate: '2023-06',
-                    highlights: [
-                        'Reduced scheduling time from 3 hours to 30 minutes weekly',
-                        'Improved schedule fairness scores by 40%',
-                        'Decreased overtime costs by 15%'
-                    ],
-                    isExample: true
-                }
-            ],
-            'chemist': [
-                {
-                    title: 'Molecular Simulation Pipeline (Python)',
-                    description: 'Automated computational chemistry workflow for high-throughput molecular dynamics simulations. Processes 100+ compounds in parallel using AWS batch computing.',
-                    technologies: ['Python', 'AWS', 'Docker', 'RDKit', 'PyMOL'],
-                    url: 'https://github.com/username/molecular-sim-pipeline',
-                    imageUrl: null,
-                    completedDate: '2024-01',
-                    highlights: [
-                        'Reduced simulation time from 3 weeks to 4 days',
-                        'Processed 2TB+ of molecular data',
-                        'Published methodology in Journal of Computational Chemistry'
-                    ],
-                    isExample: true
-                },
-                {
-                    title: 'HPLC Data Analysis Dashboard',
-                    description: 'R Shiny web application for analyzing HPLC chromatography data with automated peak detection, integration, and statistical analysis.',
-                    technologies: ['R', 'Shiny', 'ggplot2', 'Machine Learning'],
-                    url: 'https://github.com/username/hplc-analysis',
-                    imageUrl: null,
-                    completedDate: '2023-09',
-                    highlights: [
-                        'Automated analysis of 500+ chromatograms monthly',
-                        '95% accuracy in automated peak detection',
-                        'Used by 8 chemists in R&D department'
-                    ],
-                    isExample: true
-                }
-            ],
-            'new-graduate': [
-                {
-                    title: 'E-Commerce Platform (MERN Stack)',
-                    description: 'Full-stack e-commerce application with product catalog, shopping cart, user authentication, payment processing (Stripe), and admin dashboard.',
-                    technologies: ['React', 'Node.js', 'Express', 'MongoDB', 'Stripe API'],
-                    url: 'https://github.com/username/ecommerce-platform',
-                    imageUrl: null,
-                    completedDate: '2024-03',
-                    highlights: [
-                        'Built responsive UI with React and Tailwind CSS',
-                        'Implemented JWT authentication and role-based access',
-                        'Integrated Stripe payment processing',
-                        '95% test coverage with Jest'
-                    ],
-                    isExample: true
-                },
-                {
-                    title: 'Real-Time Chat Application',
-                    description: 'WebSocket-based chat app with real-time messaging, user presence detection, typing indicators, and message history stored in Redis.',
-                    technologies: ['React', 'Socket.io', 'Node.js', 'Redis', 'Docker'],
-                    url: 'https://github.com/username/realtime-chat',
-                    imageUrl: null,
-                    completedDate: '2024-01',
-                    highlights: [
-                        'Handles 100+ concurrent connections',
-                        'Sub-100ms message latency',
-                        'Deployed on AWS with Docker and CI/CD pipeline'
-                    ],
-                    isExample: true
-                }
-            ],
-            'data-analyst': [
-                {
-                    title: 'Customer Churn Prediction Model',
-                    description: 'Machine learning model predicting customer churn 30 days in advance with 78% accuracy. Built using Python scikit-learn with feature engineering from behavioral data.',
-                    technologies: ['Python', 'scikit-learn', 'pandas', 'Power BI'],
-                    url: 'https://github.com/username/churn-prediction',
-                    imageUrl: null,
-                    completedDate: '2023-12',
-                    highlights: [
-                        '78% prediction accuracy (vs 65% baseline)',
-                        'Reduced churn from 8% to 5.5%',
-                        'Saved $200K in annual recurring revenue',
-                        'Deployed as automated daily scoring pipeline'
-                    ],
-                    isExample: true
-                },
-                {
-                    title: 'Automated Reporting Pipeline',
-                    description: 'Python-based ETL pipeline that extracts data from warehouse, performs calculations, generates charts, and exports formatted Excel reports on schedule.',
-                    technologies: ['Python', 'pandas', 'SQL', 'matplotlib', 'Apache Airflow'],
-                    url: 'https://github.com/username/reporting-automation',
-                    imageUrl: null,
-                    completedDate: '2023-08',
-                    highlights: [
-                        'Reduced manual reporting time from 20 hours to 30 minutes monthly',
-                        'Eliminated ~95% of human errors',
-                        'Automated 3 additional reports after initial success',
-                        'Saved 230+ hours annually'
-                    ],
-                    isExample: true
-                }
-            ]
-        };
+        let userGoals = [];
+        let currentGoalIndex = null;
 
-        function loadUserPortfolioProjects() {
-            const stored = localStorage.getItem(`portfolioProjects_${currentPersona}`);
-            userPortfolioProjects = stored ? JSON.parse(stored) : [];
+        function loadUserGoals() {
+            const stored = localStorage.getItem(`userGoals_${currentPersona}`);
+            userGoals = stored ? JSON.parse(stored) : [];
         }
 
-        function saveUserPortfolioProjects() {
-            localStorage.setItem(`portfolioProjects_${currentPersona}`, JSON.stringify(userPortfolioProjects));
+        function saveUserGoals() {
+            localStorage.setItem(`userGoals_${currentPersona}`, JSON.stringify(userGoals));
+            updateGoalsCount(userGoals.length);
+            updateNodeCounts();
         }
 
-        function openPortfolioSlideout() {
-            loadUserPortfolioProjects();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
-            const portfolioContent = document.getElementById('portfolioContent');
+        function openGoalsSlideout() {
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
+                const goalsContent = document.getElementById('goalsContent');
 
-            titleEl.textContent = 'Portfolio Projects';
+                titleEl.textContent = 'Career Goals';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show portfolio content
-            portfolioContent.style.display = 'flex';
-            loadPortfolioProjects();
+                // Show goals content
+                goalsContent.style.display = 'flex';
 
-            slideout.classList.add('active');
+                loadGoals();
+            });
         }
 
-        function loadPortfolioProjects() {
-            const container = document.getElementById('portfolioContainer');
-            const exampleProjects = examplePortfolioProjects[currentPersona] || [];
-            const allProjects = [...userPortfolioProjects, ...exampleProjects];
+        function loadGoals() {
+            const container = document.getElementById('goalsContainer');
+            container.innerHTML = '';
 
-            if (allProjects.length === 0) {
-                container.innerHTML = '<p style="color: #666; text-align: center; padding: 40px 20px;">No portfolio projects yet. Click Add Project or Import from GitHub to showcase your work.</p>';
+            loadUserGoals();
+            updateGoalsCount(userGoals.length);
+
+            if (userGoals.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: var(--color-neutral-text-light);">
+                        <i class="ph ph-target" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                        <p style="font-family: var(--font-family-ui); font-size: 15px;">No career goals yet. Click "Add Goal" to create a SMART goal for your career development.</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = allProjects.map((project, index) => {
-                const isUserProject = index < userPortfolioProjects.length;
+            // Sort goals by target date (soonest first)
+            const sortedGoals = [...userGoals].sort((a, b) => {
+                const dateA = a.targetDate || '9999-12-31';
+                const dateB = b.targetDate || '9999-12-31';
+                return dateA.localeCompare(dateB);
+            });
 
-                return `
-                    <div class="story-card" style="opacity: ${project.isExample ? '0.7' : '1'};">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                                    ${project.isExample ? '<span style="background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap;">Example</span>' : ''}
-                                    <span style="background: #f5f5f7; color: #666; padding: 4px 10px; border-radius: 4px; font-size: 11px;">
-                                        ${project.completedDate}
-                                    </span>
-                                </div>
-                                <h4 style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">${project.title}</h4>
-                                <p style="margin: 0 0 12px 0; color: #666; font-size: 13px; line-height: 1.5;">
-                                    ${project.description}
-                                </p>
-                                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
-                                    ${project.technologies.map(tech => `
-                                        <span style="background: #e3f2fd; color: #0066CC; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                            ${tech}
-                                        </span>
-                                    `).join('')}
-                                </div>
-                                ${project.highlights && project.highlights.length > 0 ? `
-                                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e5e7;">
-                                        <strong style="font-size: 12px; color: #333; display: block; margin-bottom: 6px;">Key Achievements:</strong>
-                                        <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #666; line-height: 1.6;">
-                                            ${project.highlights.map(highlight => `<li>${highlight}</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                ` : ''}
+            sortedGoals.forEach((goal, index) => {
+                // Find original index
+                const originalIndex = userGoals.findIndex(g => g === goal);
+
+                const targetDate = goal.targetDate ? new Date(goal.targetDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'No deadline';
+
+                // Calculate days until target
+                const daysUntil = goal.targetDate ? Math.ceil((new Date(goal.targetDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
+                const isOverdue = daysUntil !== null && daysUntil < 0;
+                const isUpcoming = daysUntil !== null && daysUntil >= 0 && daysUntil <= 30;
+
+                // Status color coding
+                const statusColors = {
+                    'Not Started': '#666666',
+                    'In Progress': '#0066CC',
+                    'On Hold': '#ff9800',
+                    'Completed': '#16a34a'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'experience-card';
+                card.style.borderLeft = `4px solid ${statusColors[goal.status] || '#666666'}`;
+
+                card.innerHTML = `
+                    <div class="experience-card-header">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <div class="exp-title">${escapeHtml(goal.title)}</div>
+                                <span style="padding: 2px 8px; background: ${statusColors[goal.status] || '#666666'}; color: white; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600;">${escapeHtml(goal.status)}</span>
+                                ${goal.category ? `<span style="padding: 2px 8px; background: #e3f2fd; color: var(--color-primary-blue); border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600;">${escapeHtml(goal.category)}</span>` : ''}
                             </div>
-                            ${isUserProject ? `
-                                <div style="display: flex; gap: 8px; margin-left: 12px;">
-                                    ${project.url ? `
-                                        <a href="${project.url}" target="_blank" rel="noopener noreferrer" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600; text-decoration: none;">
-                                            <i class="ph ph-link"></i> View
-                                        </a>
-                                    ` : ''}
-                                    <button onclick="deletePortfolioProject(${index})" style="padding: 6px 10px; background: #fee; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #c33; font-weight: 600;">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </div>
-                            ` : project.url ? `
-                                <a href="${project.url}" target="_blank" rel="noopener noreferrer" style="padding: 6px 10px; background: #f5f5f7; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666; font-weight: 600; text-decoration: none; margin-left: 12px;">
-                                    <i class="ph ph-link"></i> View
-                                </a>
-                            ` : ''}
+                            <div class="exp-dates">
+                                <i class="ph ph-calendar"></i> Target: ${targetDate}
+                                ${isOverdue ? `<span style="color: #dc2626; font-weight: 600; margin-left: 8px;">⚠ Overdue by ${Math.abs(daysUntil)} days</span>` : ''}
+                                ${isUpcoming ? `<span style="color: #ff9800; font-weight: 600; margin-left: 8px;">⏰ Due in ${daysUntil} days</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="story-actions">
+                            <button class="story-action-btn" onclick="editGoal(${originalIndex})" title="Edit">
+                                <i class="ph ph-pencil-simple"></i>
+                            </button>
+                            <button class="story-action-btn delete" onclick="deleteGoal(${originalIndex})" title="Delete">
+                                <i class="ph ph-trash"></i>
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Progress Bar -->
+                    ${goal.progress !== undefined ? `
+                        <div style="margin: 12px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Progress</span>
+                                <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-primary-blue);">${goal.progress}%</span>
+                            </div>
+                            <div style="height: 8px; background: #e5e5e7; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; width: ${goal.progress}%; background: ${statusColors[goal.status] || '#0066CC'}; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- SMART Components -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        ${goal.specific ? `
+                            <div class="exp-section">
+                                <div class="exp-section-label"><i class="ph ph-target" style="color: var(--color-primary-blue);"></i> Specific</div>
+                                <div class="exp-description">${escapeHtml(goal.specific)}</div>
+                            </div>
+                        ` : ''}
+                        ${goal.measurable ? `
+                            <div class="exp-section">
+                                <div class="exp-section-label"><i class="ph ph-chart-line" style="color: var(--color-primary-blue);"></i> Measurable</div>
+                                <div class="exp-description">${escapeHtml(goal.measurable)}</div>
+                            </div>
+                        ` : ''}
+                        ${goal.achievable ? `
+                            <div class="exp-section">
+                                <div class="exp-section-label"><i class="ph ph-check-circle" style="color: var(--color-primary-blue);"></i> Achievable</div>
+                                <div class="exp-description">${escapeHtml(goal.achievable)}</div>
+                            </div>
+                        ` : ''}
+                        ${goal.relevant ? `
+                            <div class="exp-section">
+                                <div class="exp-section-label"><i class="ph ph-lightbulb" style="color: var(--color-primary-blue);"></i> Relevant</div>
+                                <div class="exp-description">${escapeHtml(goal.relevant)}</div>
+                            </div>
+                        ` : ''}
+                        ${goal.notes ? `
+                            <div class="exp-section">
+                                <div class="exp-section-label">Notes</div>
+                                <div class="exp-description">${escapeHtml(goal.notes)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
                 `;
-            }).join('');
+
+                container.appendChild(card);
+            });
+        }
+
+        function addGoal() {
+            currentGoalIndex = null;
+            document.getElementById('goalModalTitle').textContent = 'Add SMART Goal';
+            document.getElementById('goalForm').reset();
+            document.getElementById('goalProgressValue').textContent = '0';
+            document.getElementById('goalModal').style.display = 'flex';
+        }
+
+        function editGoal(index) {
+            currentGoalIndex = index;
+            const goal = userGoals[index];
+
+            document.getElementById('goalModalTitle').textContent = 'Edit SMART Goal';
+            document.getElementById('goalTitle').value = goal.title || '';
+            document.getElementById('goalCategory').value = goal.category || 'Career Development';
+            document.getElementById('goalSpecific').value = goal.specific || '';
+            document.getElementById('goalMeasurable').value = goal.measurable || '';
+            document.getElementById('goalAchievable').value = goal.achievable || '';
+            document.getElementById('goalRelevant').value = goal.relevant || '';
+            document.getElementById('goalTargetDate').value = goal.targetDate || '';
+            document.getElementById('goalStatus').value = goal.status || 'Not Started';
+            document.getElementById('goalProgress').value = goal.progress || 0;
+            document.getElementById('goalProgressValue').textContent = goal.progress || 0;
+            document.getElementById('goalNotes').value = goal.notes || '';
+
+            document.getElementById('goalModal').style.display = 'flex';
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goalModal').style.display = 'none';
+            currentGoalIndex = null;
+        }
+
+        function saveGoal() {
+            const title = document.getElementById('goalTitle').value.trim();
+
+            if (!title) {
+                alert('Please enter a goal title.');
+                return;
+            }
+
+            const goalData = {
+                title,
+                category: document.getElementById('goalCategory').value,
+                specific: document.getElementById('goalSpecific').value.trim(),
+                measurable: document.getElementById('goalMeasurable').value.trim(),
+                achievable: document.getElementById('goalAchievable').value.trim(),
+                relevant: document.getElementById('goalRelevant').value.trim(),
+                targetDate: document.getElementById('goalTargetDate').value,
+                status: document.getElementById('goalStatus').value,
+                progress: parseInt(document.getElementById('goalProgress').value),
+                notes: document.getElementById('goalNotes').value.trim(),
+                createdDate: currentGoalIndex === null ? new Date().toISOString() : (userGoals[currentGoalIndex].createdDate || new Date().toISOString()),
+                modifiedDate: new Date().toISOString()
+            };
+
+            if (currentGoalIndex === null) {
+                userGoals.push(goalData);
+            } else {
+                userGoals[currentGoalIndex] = goalData;
+            }
+
+            saveUserGoals();
+            loadGoals();
+            closeGoalModal();
+        }
+
+        function deleteGoal(index) {
+            if (!confirm('Are you sure you want to delete this goal?')) return;
+
+            userGoals.splice(index, 1);
+            saveUserGoals();
+            loadGoals();
+        }
+
+        // ========================================
+        // Portfolio Functions
+        // ========================================
+
+        let userPortfolioProjects = [];
+        let currentPortfolioIndex = null;
+        let currentPortfolioTechnologies = [];
+        let currentPortfolioSkills = [];
+        let currentPortfolioCompetencies = [];
+
+        function loadUserPortfolio() {
+            const stored = localStorage.getItem(`userPortfolio_${currentPersona}`);
+            userPortfolioProjects = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveUserPortfolio() {
+            localStorage.setItem(`userPortfolio_${currentPersona}`, JSON.stringify(userPortfolioProjects));
+            updatePortfolioCount(userPortfolioProjects.length);
+            updateNodeCounts();
+        }
+
+        function openPortfolioSlideout() {
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
+                const portfolioContent = document.getElementById('portfolioContent');
+
+                titleEl.textContent = 'Portfolio';
+
+                // Hide all content sections
+                hideAllContentSections();
+
+                // Show portfolio content
+                portfolioContent.style.display = 'flex';
+
+                loadPortfolio();
+            });
+        }
+
+        function loadPortfolio() {
+            const container = document.getElementById('portfolioContainer');
+            container.innerHTML = '';
+
+            loadUserPortfolio();
+            updatePortfolioCount(userPortfolioProjects.length);
+
+            if (userPortfolioProjects.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: var(--color-neutral-text-light);">
+                        <i class="ph ph-folder-open" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                        <p style="font-family: var(--font-family-ui); font-size: 15px;">No portfolio projects yet. Click "Add Project" to showcase your work.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort projects by creation date (newest first)
+            const sortedProjects = [...userPortfolioProjects].sort((a, b) => {
+                const dateA = a.createdDate || '0';
+                const dateB = b.createdDate || '0';
+                return dateB.localeCompare(dateA);
+            });
+
+            sortedProjects.forEach((project, index) => {
+                // Find original index
+                const originalIndex = userPortfolioProjects.findIndex(p => p === project);
+
+                const card = document.createElement('div');
+                card.className = 'experience-card';
+
+                card.innerHTML = `
+                    <div class="experience-card-header">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <div class="exp-title">${escapeHtml(project.name)}</div>
+                                ${project.link ? `<a href="${escapeHtml(project.link)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 2px 8px; background: #e3f2fd; color: var(--color-primary-blue); border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.background='#e3f2fd'; this.style.color='var(--color-primary-blue)';"><i class="ph ph-arrow-square-out" style="font-size: 12px; margin-right: 4px;"></i>View</a>` : ''}
+                            </div>
+                        </div>
+                        <div class="story-actions">
+                            <button class="story-action-btn" onclick="editPortfolioProject(${originalIndex})" title="Edit">
+                                <i class="ph ph-pencil-simple"></i>
+                            </button>
+                            <button class="story-action-btn delete" onclick="deletePortfolioProject(${originalIndex})" title="Delete">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    ${project.description ? `<div class="exp-description">${escapeHtml(project.description)}</div>` : ''}
+
+                    ${project.technologies && project.technologies.length > 0 ? `
+                        <div class="exp-section">
+                            <div class="exp-section-label">Technologies</div>
+                            <div class="exp-tags">
+                                ${project.technologies.map(tech => `<span class="exp-tag">${escapeHtml(tech)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${project.skills && project.skills.length > 0 ? `
+                        <div class="exp-section">
+                            <div class="exp-section-label">Key Skills</div>
+                            <div class="exp-tags">
+                                ${project.skills.map(skill => `<span class="exp-tag">${escapeHtml(skill)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${project.competencies && project.competencies.length > 0 ? `
+                        <div class="exp-section">
+                            <div class="exp-section-label">Competencies</div>
+                            <div class="exp-tags">
+                                ${project.competencies.map(comp => `<span class="exp-tag">${escapeHtml(comp)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+
+                container.appendChild(card);
+            });
         }
 
         function addPortfolioProject() {
-            alert('Add Portfolio Project functionality coming soon! This will allow you to manually add projects with title, description, technologies, URL, and achievements.');
+            currentPortfolioIndex = null;
+            currentPortfolioTechnologies = [];
+            currentPortfolioSkills = [];
+            currentPortfolioCompetencies = [];
+
+            document.getElementById('portfolioModalTitle').textContent = 'Add Portfolio Project';
+            document.getElementById('portfolioForm').reset();
+            renderPortfolioTechnologies();
+            renderPortfolioSkills();
+            renderPortfolioCompetencies();
+            document.getElementById('portfolioModal').style.display = 'flex';
         }
 
-        function importFromGitHub() {
-            alert('GitHub import coming soon! This will allow you to automatically import projects from your GitHub profile including README content, technologies used, and statistics.');
+        function editPortfolioProject(index) {
+            currentPortfolioIndex = index;
+            const project = userPortfolioProjects[index];
+
+            document.getElementById('portfolioModalTitle').textContent = 'Edit Portfolio Project';
+            document.getElementById('portfolioName').value = project.name || '';
+            document.getElementById('portfolioLink').value = project.link || '';
+            document.getElementById('portfolioDescription').value = project.description || '';
+
+            currentPortfolioTechnologies = project.technologies || [];
+            currentPortfolioSkills = project.skills || [];
+            currentPortfolioCompetencies = project.competencies || [];
+
+            renderPortfolioTechnologies();
+            renderPortfolioSkills();
+            renderPortfolioCompetencies();
+
+            document.getElementById('portfolioModal').style.display = 'flex';
         }
 
-        function connectToCodePen() {
-            alert('CodePen integration coming soon! This will allow you to import your CodePen projects including HTML/CSS/JS demos, descriptions, and view counts.');
+        function closePortfolioModal() {
+            document.getElementById('portfolioModal').style.display = 'none';
+            currentPortfolioIndex = null;
+        }
+
+        function savePortfolioProject() {
+            const name = document.getElementById('portfolioName').value.trim();
+
+            if (!name) {
+                alert('Please enter a project name.');
+                return;
+            }
+
+            const projectData = {
+                name,
+                link: document.getElementById('portfolioLink').value.trim(),
+                description: document.getElementById('portfolioDescription').value.trim(),
+                technologies: currentPortfolioTechnologies,
+                skills: currentPortfolioSkills,
+                competencies: currentPortfolioCompetencies,
+                createdDate: currentPortfolioIndex === null ? new Date().toISOString() : (userPortfolioProjects[currentPortfolioIndex].createdDate || new Date().toISOString()),
+                modifiedDate: new Date().toISOString()
+            };
+
+            if (currentPortfolioIndex === null) {
+                userPortfolioProjects.push(projectData);
+            } else {
+                userPortfolioProjects[currentPortfolioIndex] = projectData;
+            }
+
+            saveUserPortfolio();
+            loadPortfolio();
+            closePortfolioModal();
         }
 
         function deletePortfolioProject(index) {
-            if (confirm('Are you sure you want to delete this portfolio project?')) {
-                userPortfolioProjects.splice(index, 1);
-                saveUserPortfolioProjects();
-                loadPortfolioProjects();
-                updateNodeCounts();
+            if (!confirm('Are you sure you want to delete this portfolio project?')) return;
+
+            userPortfolioProjects.splice(index, 1);
+            saveUserPortfolio();
+            loadPortfolio();
+        }
+
+        // Portfolio Tag Management
+        function addPortfolioTechnology() {
+            const input = document.getElementById('portfolioTechName');
+            const name = input.value.trim();
+
+            if (!name) return;
+
+            currentPortfolioTechnologies.push(name);
+            input.value = '';
+            renderPortfolioTechnologies();
+        }
+
+        function removePortfolioTechnology(index) {
+            currentPortfolioTechnologies.splice(index, 1);
+            renderPortfolioTechnologies();
+        }
+
+        function renderPortfolioTechnologies() {
+            const container = document.getElementById('portfolioTechList');
+            container.innerHTML = currentPortfolioTechnologies.map((tech, index) => `
+                <span class="exp-tag" style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    ${escapeHtml(tech)}
+                    <i class="ph ph-x" onclick="removePortfolioTechnology(${index})" style="font-size: 12px; opacity: 0.7;"></i>
+                </span>
+            `).join('');
+        }
+
+        function addPortfolioSkill() {
+            const input = document.getElementById('portfolioSkillName');
+            const name = input.value.trim();
+
+            if (!name) return;
+
+            currentPortfolioSkills.push(name);
+            input.value = '';
+            renderPortfolioSkills();
+        }
+
+        function removePortfolioSkill(index) {
+            currentPortfolioSkills.splice(index, 1);
+            renderPortfolioSkills();
+        }
+
+        function renderPortfolioSkills() {
+            const container = document.getElementById('portfolioSkillList');
+            container.innerHTML = currentPortfolioSkills.map((skill, index) => `
+                <span class="exp-tag" style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    ${escapeHtml(skill)}
+                    <i class="ph ph-x" onclick="removePortfolioSkill(${index})" style="font-size: 12px; opacity: 0.7;"></i>
+                </span>
+            `).join('');
+        }
+
+        function addPortfolioCompetency() {
+            const input = document.getElementById('portfolioCompetencyName');
+            const name = input.value.trim();
+
+            if (!name) return;
+
+            currentPortfolioCompetencies.push(name);
+            input.value = '';
+            renderPortfolioCompetencies();
+        }
+
+        function removePortfolioCompetency(index) {
+            currentPortfolioCompetencies.splice(index, 1);
+            renderPortfolioCompetencies();
+        }
+
+        function renderPortfolioCompetencies() {
+            const container = document.getElementById('portfolioCompetencyList');
+            container.innerHTML = currentPortfolioCompetencies.map((comp, index) => `
+                <span class="exp-tag" style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    ${escapeHtml(comp)}
+                    <i class="ph ph-x" onclick="removePortfolioCompetency(${index})" style="font-size: 12px; opacity: 0.7;"></i>
+                </span>
+            `).join('');
+        }
+
+        function updatePortfolioCount(count) {
+            // Update the personaData structure for Portfolio
+            if (personaData['default'] && personaData['default'].children) {
+                const portfolioNode = personaData['default'].children.find(c => c.name === 'Portfolio');
+                if (portfolioNode) {
+                    portfolioNode.count = count;
+                }
             }
         }
 
@@ -13764,19 +14879,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openProjectsSlideout() {
             loadUserProjects();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Project Repositories';
+                titleEl.textContent = 'Project Repositories';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show projects content
-            document.getElementById('projectsContent').style.display = 'flex';
-            loadProjectsCards();
-
-            slideout.classList.add('active');
+                // Show projects content
+                document.getElementById('projectsContent').style.display = 'flex';
+                loadProjectsCards();
+            });
         }
 
         function loadProjectsCards() {
@@ -13953,20 +15067,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openMyNotesSlideout() {
             loadUserNotes();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'My Notes';
+                titleEl.textContent = 'My Notes';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show notes content
-            document.getElementById('myNotesContent').style.display = 'flex';
-            document.getElementById('notesSearchInput').value = '';
-            loadNotesCards();
-
-            slideout.classList.add('active');
+                // Show notes content
+                document.getElementById('myNotesContent').style.display = 'flex';
+                document.getElementById('notesSearchInput').value = '';
+                loadNotesCards();
+            });
         }
 
         // Calendar Management
@@ -14311,19 +15424,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openCalendarSlideout() {
             loadCalendarEvents();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Calendar';
+                titleEl.textContent = 'Calendar';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show calendar content
-            document.getElementById('calendarContent').style.display = 'block';
-            renderCalendar();
-
-            slideout.classList.add('active');
+                // Show calendar content
+                document.getElementById('calendarContent').style.display = 'block';
+                renderCalendar();
+            });
         }
 
         function switchCalendarView(view) {
@@ -14885,40 +15997,28 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openShoppingSlideout(section = null) {
             loadShoppingItems();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Shopping';
+                titleEl.textContent = 'Shopping';
 
-            // Hide all other content sections (safe access)
-            const contentSections = [
-                'interviewPrepContent', 'behavioralContent', 'technicalContent',
-                'jobOpportunitiesContent', 'careerExperienceContent', 'applicationMaterialsContent',
-                'skillsCompetenciesContent', 'portfolioContent', 'projectsContent',
-                'myNotesContent', 'calendarContent', 'recipesContent', 'financeContent', 'shoppingContent', 'tablesContent', 'formsContent',
-                'documentsContent', 'reportsContent', 'templatesContent', 'workflowsContent'
-            ];
+                // Hide all content sections
+                hideAllContentSections();
 
-            contentSections.forEach(sectionId => {
-                const sectionEl = document.getElementById(sectionId);
-                if (sectionEl) sectionEl.style.display = 'none';
-            });
+                // Show shopping content
+                document.getElementById('shoppingContent').style.display = 'block';
 
-            // Show shopping content
-            document.getElementById('shoppingContent').style.display = 'block';
-
-            // If section is provided, update filter to show that category
-            if (section) {
-                const filterSelect = document.getElementById('shoppingFilterSelect');
-                if (filterSelect) {
-                    filterSelect.value = section;
+                // If section is provided, update filter to show that category
+                if (section) {
+                    const filterSelect = document.getElementById('shoppingFilterSelect');
+                    if (filterSelect) {
+                        filterSelect.value = section;
+                    }
                 }
-            }
 
-            renderShoppingItems();
-            updateShoppingSummary();
-
-            slideout.classList.add('active');
+                renderShoppingItems();
+                updateShoppingSummary();
+            });
         }
 
         function renderShoppingItems() {
@@ -15025,32 +16125,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openRecipesSlideout() {
             loadRecipes();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Recipes';
+                titleEl.textContent = 'Recipes';
 
-            // Hide all other content sections (safe access)
-            const contentSections = [
-                'interviewPrepContent', 'behavioralContent', 'technicalContent',
-                'jobOpportunitiesContent', 'careerExperienceContent', 'applicationMaterialsContent',
-                'skillsCompetenciesContent', 'portfolioContent', 'projectsContent',
-                'myNotesContent', 'calendarContent', 'recipesContent', 'financeContent', 'shoppingContent', 'tablesContent', 'formsContent',
-                'documentsContent', 'reportsContent', 'templatesContent', 'workflowsContent'
-            ];
+                // Hide all content sections
+                hideAllContentSections();
 
-            contentSections.forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section) section.style.display = 'none';
+                // Show recipes content
+                document.getElementById('recipesContent').style.display = 'block';
+
+                populateRecipeFilters();
+                renderRecipes();
             });
-
-            // Show recipes content
-            document.getElementById('recipesContent').style.display = 'block';
-
-            populateRecipeFilters();
-            renderRecipes();
-
-            slideout.classList.add('active');
         }
 
         function populateRecipeFilters() {
@@ -15406,52 +16494,40 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openFinanceSlideout(section = null) {
             loadFinanceAccounts();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Finance';
+                titleEl.textContent = 'Finance';
 
-            // Hide all other content sections (safe access)
-            const contentSections = [
-                'interviewPrepContent', 'behavioralContent', 'technicalContent',
-                'jobOpportunitiesContent', 'careerExperienceContent', 'applicationMaterialsContent',
-                'skillsCompetenciesContent', 'portfolioContent', 'projectsContent',
-                'myNotesContent', 'calendarContent', 'recipesContent', 'financeContent', 'shoppingContent', 'tablesContent', 'formsContent',
-                'documentsContent', 'reportsContent', 'templatesContent', 'workflowsContent'
-            ];
+                // Hide all content sections
+                hideAllContentSections();
 
-            contentSections.forEach(sectionId => {
-                const sectionEl = document.getElementById(sectionId);
-                if (sectionEl) sectionEl.style.display = 'none';
-            });
+                // Show finance content
+                document.getElementById('financeContent').style.display = 'block';
 
-            // Show finance content
-            document.getElementById('financeContent').style.display = 'block';
+                // If section is provided, update filter to show that section
+                if (section) {
+                    const filterSelect = document.getElementById('financeFilterSelect');
+                    if (filterSelect) {
+                        // Map child node names to filter values
+                        const sectionMap = {
+                            'Insurance': 'Insurance',
+                            'Cash Flow': 'Cash Flow',
+                            'Assets': 'Asset',
+                            'Liabilities': 'Liability',
+                            'Investments': 'Investment'
+                        };
 
-            // If section is provided, update filter to show that section
-            if (section) {
-                const filterSelect = document.getElementById('financeFilterSelect');
-                if (filterSelect) {
-                    // Map child node names to filter values
-                    const sectionMap = {
-                        'Insurance': 'Insurance',
-                        'Cash Flow': 'Cash Flow',
-                        'Assets': 'Asset',
-                        'Liabilities': 'Liability',
-                        'Investments': 'Investment'
-                    };
-
-                    const filterValue = sectionMap[section];
-                    if (filterValue) {
-                        filterSelect.value = filterValue;
+                        const filterValue = sectionMap[section];
+                        if (filterValue) {
+                            filterSelect.value = filterValue;
+                        }
                     }
                 }
-            }
 
-            renderFinanceAccounts();
-            updateFinanceSummary();
-
-            slideout.classList.add('active');
+                renderFinanceAccounts();
+                updateFinanceSummary();
+            });
         }
 
         function renderFinanceAccounts() {
@@ -15716,19 +16792,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Tables Management
         function openTablesSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Tables';
+                titleEl.textContent = 'Tables';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show tables content
-            document.getElementById('tablesContent').style.display = 'block';
-            loadTableTypeCards();
-
-            slideout.classList.add('active');
+                // Show tables content
+                document.getElementById('tablesContent').style.display = 'block';
+                loadTableTypeCards();
+            });
         }
 
         function loadTableTypeCards() {
@@ -17923,19 +18998,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Forms Management
         function openFormsSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Forms';
+                titleEl.textContent = 'Forms';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show forms content
-            document.getElementById('formsContent').style.display = 'block';
-            loadFormTypeCards();
-
-            slideout.classList.add('active');
+                // Show forms content
+                document.getElementById('formsContent').style.display = 'block';
+                loadFormTypeCards();
+            });
         }
 
         function loadFormTypeCards() {
@@ -17985,19 +19059,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Documents Management
         function openDocumentsSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Documents';
+                titleEl.textContent = 'Documents';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show documents content
-            document.getElementById('documentsContent').style.display = 'block';
-            loadDocumentTypeCards();
-
-            slideout.classList.add('active');
+                // Show documents content
+                document.getElementById('documentsContent').style.display = 'block';
+                loadDocumentTypeCards();
+            });
         }
 
         function loadDocumentTypeCards() {
@@ -18047,19 +19120,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Reports Management
         function openReportsSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Reports';
+                titleEl.textContent = 'Reports';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show reports content
-            document.getElementById('reportsContent').style.display = 'block';
-            loadReportTypeCards();
-
-            slideout.classList.add('active');
+                // Show reports content
+                document.getElementById('reportsContent').style.display = 'block';
+                loadReportTypeCards();
+            });
         }
 
         function loadReportTypeCards() {
@@ -18109,19 +19181,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Templates Management
         function openTemplatesSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Templates';
+                titleEl.textContent = 'Templates';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show templates content
-            document.getElementById('templatesContent').style.display = 'block';
-            loadTemplateTypeCards();
-
-            slideout.classList.add('active');
+                // Show templates content
+                document.getElementById('templatesContent').style.display = 'block';
+                loadTemplateTypeCards();
+            });
         }
 
         function loadTemplateTypeCards() {
@@ -18171,19 +19242,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Pipelines Management
         function openPipelinesSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'ML Pipelines';
+                titleEl.textContent = 'ML Pipelines';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show pipelines content
-            document.getElementById('pipelinesContent').style.display = 'block';
-            loadPipelineCards();
-
-            slideout.classList.add('active');
+                // Show pipelines content
+                document.getElementById('pipelinesContent').style.display = 'block';
+                loadPipelineCards();
+            });
         }
 
         function loadPipelineCards() {
@@ -18738,19 +19808,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Workflows Management
         function openWorkflowsSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
 
-            titleEl.textContent = 'Workflows';
+                titleEl.textContent = 'Workflows';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show workflows content
-            document.getElementById('workflowsContent').style.display = 'block';
-            loadWorkflowTypeCards();
-
-            slideout.classList.add('active');
+                // Show workflows content
+                document.getElementById('workflowsContent').style.display = 'block';
+                loadWorkflowTypeCards();
+            });
         }
 
         function loadWorkflowTypeCards() {
@@ -22292,20 +23361,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function openSkillsCompetenciesSlideout() {
             loadUserSkillsCompetencies();
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
-            const skillsCompetenciesContent = document.getElementById('skillsCompetenciesContent');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
+                const skillsCompetenciesContent = document.getElementById('skillsCompetenciesContent');
 
-            titleEl.textContent = 'Goals';
+                titleEl.textContent = 'Goals';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show skills content
-            skillsCompetenciesContent.style.display = 'flex';
-            loadSkillsCompetencies();
-
-            slideout.classList.add('active');
+                // Show skills content
+                skillsCompetenciesContent.style.display = 'flex';
+                loadSkillsCompetencies();
+            });
         }
 
         // Example goals data with realistic current levels and improvement areas per persona
@@ -25419,7 +26487,7 @@ F &= ma \\\\
             console.log('Attempting to add tour button...');
 
             // Try multiple selectors to find the header
-            const selectors = ['.canvas-modal-header-top', '.canvas-modal-header', '.canvas-header'];
+            const selectors = ['.canvas-modal-header', '.canvas-header'];
             let canvasHeader = null;
 
             for (const selector of selectors) {
@@ -25483,6 +26551,22 @@ F &= ma \\\\
             // Load experiences and update count on mindmap
             loadUserExperiences();
             updateExperienceCount(userExperiences.length);
+
+            // Load stories and update count on mindmap
+            let storiesData = localStorage.getItem('cleansheet_stories');
+            if (!storiesData) {
+                storiesData = localStorage.getItem('behavioralStories');
+            }
+            const allStories = storiesData ? JSON.parse(storiesData) : [];
+            updateStoryCount(allStories.length);
+
+            // Load goals and update count on mindmap
+            loadUserGoals();
+            updateGoalsCount(userGoals.length);
+
+            // Load portfolio and update count on mindmap
+            loadUserPortfolio();
+            updatePortfolioCount(userPortfolioProjects.length);
 
             // Initialize UI guidance tooltips after modal is open
             setTimeout(() => {
