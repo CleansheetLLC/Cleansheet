@@ -4261,11 +4261,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Application Materials Generator</span>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Calendar Synchronization</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Direct AI Integration</span>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet AI</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
@@ -12779,23 +12779,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // ========================================
 
         function openJobOpportunitiesSlideout() {
-            const slideout = document.getElementById('interviewSlideout');
-            const titleEl = document.getElementById('slideoutTitle');
-            const jobOpportunitiesContent = document.getElementById('jobOpportunitiesContent');
+            animateSlideoutTransition(() => {
+                const titleEl = document.getElementById('slideoutTitle');
+                const jobOpportunitiesContent = document.getElementById('jobOpportunitiesContent');
 
-            titleEl.textContent = 'Job Opportunities';
+                titleEl.textContent = 'Job Opportunities';
 
-            // Hide all content sections
-            hideAllContentSections();
+                // Hide all content sections
+                hideAllContentSections();
 
-            // Show job opportunities content
-            jobOpportunitiesContent.style.display = 'flex';
+                // Show job opportunities content
+                jobOpportunitiesContent.style.display = 'flex';
 
-            // Load job opportunities for current persona
-            loadJobOpportunities();
-
-            // Show slideout
-            slideout.classList.add('active');
+                // Load job opportunities for current persona
+                loadJobOpportunities();
+            });
         }
 
         // Enhanced job opportunities with skills and competencies
@@ -12844,11 +12842,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 job.status !== 'rejected' && job.status !== 'not-interested'
             ).length;
 
-            // Update the count in the mindmap
+            // Update the count in the mindmap data structure
             updateJobOpportunitiesCount(activeJobsCount);
-
-            // Refresh the mindmap to show updated count
-            updateNodeCounts();
 
             // Load table view
             loadJobTableView(allJobs);
