@@ -4060,7 +4060,24 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <input type="checkbox" id="includeGoals" checked style="width: 18px; height: 18px; cursor: pointer;">
                                     <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">Career Goals</span>
                                 </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="includePortfolio" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">Portfolio Projects</span>
+                                </label>
                             </div>
+                        </div>
+
+                        <!-- Job Opportunity Selector (Seekers only) -->
+                        <div id="jobOpportunitySection" style="display: none; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Target Job Opportunity (Optional)
+                            </label>
+                            <select id="promptJobOpportunity" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer; background: white;">
+                                <option value="">None - General prompt</option>
+                            </select>
+                            <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0; line-height: 1.5;">
+                                Select a job opportunity to tailor the prompt for that specific role and company.
+                            </p>
                         </div>
 
                         <!-- Success Message -->
@@ -4070,14 +4087,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; gap: 12px;">
                     <button onclick="closePromptBuilder()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
                         Cancel
                     </button>
-                    <button onclick="generateAndCopyPrompt()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i class="ph ph-copy"></i>
-                        Copy Prompt
-                    </button>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="downloadPrompt()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-primary-blue); color: var(--color-primary-blue); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-download"></i>
+                            Download
+                        </button>
+                        <button onclick="generateAndCopyPrompt()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph ph-copy"></i>
+                            Copy Prompt
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -8792,7 +8815,37 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('includeExperiences').checked = true;
             document.getElementById('includeStories').checked = true;
             document.getElementById('includeGoals').checked = true;
+            document.getElementById('includePortfolio').checked = true;
             document.getElementById('promptCopiedMessage').style.display = 'none';
+
+            // Show/hide job opportunity section based on subscription tier
+            const subscriptionTier = localStorage.getItem('subscription_tier') || 'member';
+            const jobOpportunitySection = document.getElementById('jobOpportunitySection');
+            if (subscriptionTier === 'seeker') {
+                jobOpportunitySection.style.display = 'flex';
+
+                // Populate job opportunities dropdown
+                const jobSelect = document.getElementById('promptJobOpportunity');
+                jobSelect.innerHTML = '<option value="">None - General prompt</option>';
+
+                // Add active job opportunities (not rejected or not-interested)
+                const activeJobs = userJobs.filter(job =>
+                    job.status !== 'rejected' && job.status !== 'not-interested'
+                );
+
+                activeJobs.forEach((job, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${job.title} at ${job.company}`;
+                    jobSelect.appendChild(option);
+                });
+
+                // Reset selection
+                jobSelect.value = '';
+            } else {
+                // Hide for member and learner tiers
+                jobOpportunitySection.style.display = 'none';
+            }
 
             // Show modal
             document.getElementById('promptBuilderModal').style.display = 'flex';
@@ -8965,13 +9018,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             tierBadge.style.background = tierColors[currentTier] || '#16a34a';
         }
 
-        function generateAndCopyPrompt() {
+        // Helper function to build prompt text
+        function buildPromptText() {
             const assetType = document.getElementById('promptAssetType').value;
             const length = document.getElementById('promptLength').value;
             const additionalContext = document.getElementById('promptContext').value.trim();
             const includeExperiences = document.getElementById('includeExperiences').checked;
             const includeStories = document.getElementById('includeStories').checked;
             const includeGoals = document.getElementById('includeGoals').checked;
+            const includePortfolio = document.getElementById('includePortfolio').checked;
+
+            // Get selected job opportunity (Seekers only)
+            const subscriptionTier = localStorage.getItem('subscription_tier') || 'member';
+            const jobOpportunitySelect = document.getElementById('promptJobOpportunity');
+            const selectedJobIndex = jobOpportunitySelect.value;
+            let selectedJob = null;
+            if (selectedJobIndex !== '' && subscriptionTier === 'seeker') {
+                const activeJobs = userJobs.filter(job =>
+                    job.status !== 'rejected' && job.status !== 'not-interested'
+                );
+                selectedJob = activeJobs[parseInt(selectedJobIndex)];
+            }
 
             // Get profile data
             const profile = loadProfile();
@@ -8996,6 +9063,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Build the prompt
             let prompt = `Please generate a ${lengthDescriptions[length]} ${assetTypeNames[assetType]} based on the following career profile data.\n\n`;
+
+            // Add target job opportunity if selected
+            if (selectedJob) {
+                prompt += `TARGET JOB OPPORTUNITY:\n`;
+                prompt += `Position: ${selectedJob.title}\n`;
+                prompt += `Company: ${selectedJob.company}\n`;
+                if (selectedJob.location) {
+                    prompt += `Location: ${selectedJob.location}\n`;
+                }
+                if (selectedJob.salary) {
+                    prompt += `Salary: ${selectedJob.salary}\n`;
+                }
+                prompt += `\nPlease tailor this ${assetTypeNames[assetType]} specifically for this role and company.\n\n`;
+            }
 
             // Add additional context if provided
             if (additionalContext) {
@@ -9039,16 +9120,37 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 prompt += `\nSTAR STORIES: See JSON data below\n`;
             }
 
+            // Add portfolio if requested
+            if (includePortfolio && userPortfolioProjects.length > 0) {
+                profileData.portfolio = userPortfolioProjects;
+                prompt += `\nPORTFOLIO PROJECTS: See JSON data below\n`;
+            }
+
+            // Add selected job opportunity if provided
+            if (selectedJob) {
+                profileData.targetJobOpportunity = selectedJob;
+                prompt += `\nTARGET JOB OPPORTUNITY: See JSON data below\n`;
+            }
+
             // Add JSON data
             prompt += `\n${'='.repeat(80)}\nCOMPLETE PROFILE DATA (JSON):\n${'='.repeat(80)}\n\n`;
             prompt += JSON.stringify(profileData, null, 2);
 
             prompt += `\n\n${'='.repeat(80)}\n`;
             prompt += `Please use this career profile data to generate a compelling ${assetTypeNames[assetType]}.`;
+            if (selectedJob) {
+                prompt += ` Make sure to tailor the content specifically for the ${selectedJob.title} position at ${selectedJob.company}.`;
+            }
             if (additionalContext) {
                 prompt += ` Pay special attention to the additional context provided above.`;
             }
             prompt += `\n${'='.repeat(80)}`;
+
+            return prompt;
+        }
+
+        function generateAndCopyPrompt() {
+            const prompt = buildPromptText();
 
             // Copy to clipboard
             navigator.clipboard.writeText(prompt).then(() => {
@@ -9064,6 +9166,51 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 console.error('Failed to copy prompt:', err);
                 alert('Failed to copy prompt to clipboard. Please try again.');
             });
+        }
+
+        function downloadPrompt() {
+            const prompt = buildPromptText();
+
+            // Get profile and asset type for filename
+            const profile = loadProfile();
+            const assetType = document.getElementById('promptAssetType').value;
+
+            // Create timestamp (YYYY-MM-DD-HHMMSS format)
+            const now = new Date();
+            const timestamp = now.getFullYear() +
+                '-' + String(now.getMonth() + 1).padStart(2, '0') +
+                '-' + String(now.getDate()).padStart(2, '0') +
+                '-' + String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0') +
+                String(now.getSeconds()).padStart(2, '0');
+
+            // Create filename: cleansheet-prompt-[asset-type]-[name]-[timestamp].txt
+            const assetTypeSlug = assetType.replace(/-/g, '_');
+            const nameSlug = `${profile.firstName}_${profile.lastName}`.toLowerCase().replace(/\s+/g, '_');
+            const filename = `cleansheet-prompt-${assetTypeSlug}-${nameSlug}-${timestamp}.txt`;
+
+            // Create download
+            const promptBlob = new Blob([prompt], { type: 'text/plain' });
+            const url = URL.createObjectURL(promptBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            // Show success message
+            const successMsg = document.getElementById('promptCopiedMessage');
+            successMsg.innerHTML = '<i class="ph ph-check-circle" style="margin-right: 6px;"></i>Prompt downloaded successfully!';
+            successMsg.style.display = 'block';
+
+            // Hide message after 2 seconds
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+                successMsg.innerHTML = '<i class="ph ph-check-circle" style="margin-right: 6px;"></i>Prompt copied to clipboard!';
+            }, 2000);
         }
 
         function updateProfileDisplay(profile) {
