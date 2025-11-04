@@ -458,14 +458,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             border-radius: 12px;
             padding: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            min-height: 400px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
         }
 
         .word-cloud-header {
             text-align: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 2px solid var(--color-primary-blue);
+            flex-shrink: 0;
         }
 
         .word-cloud-header h3 {
@@ -485,10 +488,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .word-cloud-legend {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 8px;
-            padding-top: 8px;
+            margin-top: 6px;
+            padding-top: 6px;
             border-top: 1px solid #e5e5e7;
         }
 
@@ -511,15 +514,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            min-height: 300px;
-            line-height: 1.4;
+            gap: 16px;
+            padding: 20px;
+            min-height: 400px;
+            line-height: 1.2;
+            flex: 1;
         }
 
         .cloud-word {
             display: inline-block;
-            padding: 6px 10px;
+            padding: 8px 16px;
             font-family: var(--font-family-ui);
             font-weight: 600;
             color: var(--color-dark);
@@ -710,13 +714,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 display: grid;
                 grid-template-columns: 20% 80%;
                 gap: 24px;
-                align-items: start;
+                align-items: stretch;
             }
 
             .sections-column {
                 order: 1;
                 display: flex;
                 flex-direction: column;
+                height: 100%;
             }
 
             /* Sectors on left - multi-select dropdown */
@@ -725,25 +730,41 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 display: flex;
                 flex-direction: column;
                 margin-bottom: 0;
+                height: 100%;
             }
 
             #sectorsSection .section-header {
                 padding: 12px 16px;
+                flex-shrink: 0;
             }
 
             #sectorsSection .section-content {
                 overflow-y: auto;
                 overflow-x: hidden;
-                max-height: 500px;
+                flex: 1;
             }
 
             #sectorsSection .section-inner {
                 padding: 0;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
             }
 
             /* Sector dropdown takes full width of left column */
             #sectorList {
                 width: 100%;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Sector dropdown should fill container height */
+            .sector-dropdown {
+                max-height: none;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
             }
 
             /* Word cloud on right - full width */
@@ -754,13 +775,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 width: 100%;
             }
 
-            /* Desktop font sizes - smaller and more angled */
-            .cloud-word.size-1 { font-size: 11px; transform: rotate(-15deg); }
-            .cloud-word.size-2 { font-size: 14px; transform: rotate(12deg); }
-            .cloud-word.size-3 { font-size: 18px; transform: rotate(-9deg); }
-            .cloud-word.size-4 { font-size: 22px; transform: rotate(14deg); }
-            .cloud-word.size-5 { font-size: 26px; transform: rotate(-11deg); }
-            .cloud-word.size-6 { font-size: 32px; transform: rotate(8deg); }
+            /* Desktop font sizes - larger to fill space */
+            .cloud-word.size-1 { font-size: 24px; transform: rotate(-15deg); }
+            .cloud-word.size-2 { font-size: 32px; transform: rotate(12deg); }
+            .cloud-word.size-3 { font-size: 42px; transform: rotate(-9deg); }
+            .cloud-word.size-4 { font-size: 54px; transform: rotate(14deg); }
+            .cloud-word.size-5 { font-size: 68px; transform: rotate(-11deg); }
+            .cloud-word.size-6 { font-size: 84px; transform: rotate(8deg); }
 
             .cloud-word:hover {
                 transform-origin: center;
@@ -1431,7 +1452,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     </div>
                 </div>
-                <canvas id="wordCloudCanvas" style="width: 100%; height: 500px; background: white; border-radius: 8px;"></canvas>
+                <canvas id="wordCloudCanvas" style="width: 100%; height: 600px; background: white; border-radius: 8px;"></canvas>
             `;
 
             contentEl.innerHTML = html;
@@ -1460,7 +1481,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Use D3 linear scale like experience-tagger
             const weightScale = d3.scaleLinear()
                 .domain([minFreq, maxFreq])
-                .range([12, 60]);
+                .range([20, 90]);
 
             // Seniority color mapping - matching the legend colors
             const seniorityColors = {
@@ -1488,9 +1509,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Get canvas dimensions
             const containerWidth = canvas.parentElement.clientWidth;
             canvas.width = containerWidth;
-            canvas.height = 500;
+            canvas.height = 600;
             canvas.style.width = '100%';
-            canvas.style.height = '500px';
+            canvas.style.height = '600px';
             canvas.style.cursor = 'pointer';
 
             // Configure and render word cloud (matching experience-tagger settings)
@@ -1506,9 +1527,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 maxRotation: Math.PI / 6, // 30 degrees
                 rotationSteps: 2,
                 backgroundColor: 'white',
-                gridSize: 6,
-                weightFactor: 1,
-                minSize: 10,
+                gridSize: 8,
+                weightFactor: 1.2,
+                minSize: 12,
                 drawOutOfBound: false,
                 shrinkToFit: true,
                 shape: 'square',
