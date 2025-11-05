@@ -3027,6 +3027,104 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: #f8f9fa !important;
         }
 
+        /* ==================== */
+        /* Tour System Styles   */
+        /* ==================== */
+
+        /* Tour overlay animations */
+        #tourOverlay {
+            animation: fadeIn 0.3s ease;
+        }
+
+        #tourCard {
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tour button hover effects */
+        #tourNextBtn:hover,
+        #tourPrevBtn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        #tourNextBtn:active,
+        #tourPrevBtn:active {
+            transform: translateY(0);
+        }
+
+        #tourSkipBtn:hover {
+            background: #f8f9fa;
+            border-color: var(--color-neutral-text);
+        }
+
+        /* Tour header close button hover */
+        #tourCardHeader button:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+            transform: scale(1.05);
+        }
+
+        #tourCardHeader button:active {
+            transform: scale(0.95);
+        }
+
+        /* Tour spotlight pulse effect */
+        #tourSpotlight {
+            animation: spotlightPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes spotlightPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 30px 5px rgba(0, 102, 204, 0.8), inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 40px 8px rgba(0, 102, 204, 1), inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        /* Start Tour Button in Description Bar */
+        #startTourBtn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #startTourBtn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        #startTourBtn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        #startTourBtn:active {
+            transform: scale(0.95) !important;
+        }
+
     </style>
 </head>
 <body>
@@ -3058,52 +3156,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-books"></i>
                         <span>Library</span>
                     </button>
+                    <button class="main-menu-item" onclick="openAboutModal()">
+                        <i class="ph ph-info"></i>
+                        <span>About</span>
+                    </button>
 
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
-                        <!-- Example Profiles Dropdown -->
-                        <div class="example-profiles-container" style="position: relative;">
-                            <button class="example-profiles-btn" onclick="toggleExampleProfiles()" style="padding: 8px 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; color: white; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-                                <i class="ph ph-user-list" style="font-size: 16px;"></i>
-                                <span>Example Profiles</span>
-                                <i class="ph ph-caret-down" style="font-size: 12px;"></i>
-                            </button>
-                            <div class="example-profiles-dropdown" id="exampleProfilesDropdown" style="display: none; position: absolute; top: calc(100% + 8px); right: 0; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 280px; z-index: 1000;">
-                                <div style="padding: 12px 16px; border-bottom: 1px solid var(--color-neutral-border); background: var(--color-neutral-background);">
-                                    <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">Try an Example Profile</div>
-                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); margin-top: 4px;">Explore the platform with pre-loaded career data</div>
-                                </div>
-                                <div style="padding: 8px;">
-                                    <button class="example-profile-item" onclick="loadExampleProfile('career-changer')" style="width: 100%; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; margin-bottom: 8px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: flex-start; gap: 10px;">
-                                        <div style="width: 40px; height: 40px; background: #f3e8ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                            <i class="ph ph-arrows-clockwise" style="font-size: 20px; color: #9333ea;"></i>
-                                        </div>
-                                        <div style="flex: 1;">
-                                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">Marcus Thompson</div>
-                                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.4;">Store Manager transitioning from retail to business analytics</div>
-                                        </div>
-                                    </button>
-                                    <button class="example-profile-item" onclick="loadExampleProfile('product-manager')" style="width: 100%; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; margin-bottom: 8px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: flex-start; gap: 10px;">
-                                        <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                            <i class="ph ph-flask" style="font-size: 20px; color: var(--color-primary-blue);"></i>
-                                        </div>
-                                        <div style="flex: 1;">
-                                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">Dr. Sarah Chen</div>
-                                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.4;">Senior Research Scientist in pharmaceutical/biotech analytics</div>
-                                        </div>
-                                    </button>
-                                    <button class="example-profile-item" onclick="loadExampleProfile('new-graduate')" style="width: 100%; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: flex-start; gap: 10px;">
-                                        <div style="width: 40px; height: 40px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                            <i class="ph ph-graduation-cap" style="font-size: 20px; color: #16a34a;"></i>
-                                        </div>
-                                        <div style="flex: 1;">
-                                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">Jamie Rodriguez</div>
-                                            <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.4;">Computer science graduate seeking first full-time role</div>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Profile Circle -->
                         <div class="profile-circle">
                             <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileDropdown()">
@@ -3139,6 +3197,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-download-simple"></i>
                                         <span>Install App</span>
                                     </button>
+                                    <button class="profile-dropdown-item" onclick="restartTour()">
+                                        <i class="ph ph-info"></i>
+                                        <span>Restart Tour</span>
+                                    </button>
+                                    <button class="profile-dropdown-item" onclick="openErasureRequestModal()">
+                                        <i class="ph ph-trash"></i>
+                                        <span>Erasure Request</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -3158,6 +3224,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <span id="subscriptionTierBadge" onclick="event.stopPropagation(); openSubscriptionModal();" style="padding: 4px 12px; background: var(--color-primary-blue); color: white; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 2px 8px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
                                 Member
                             </span>
+                            <button id="rapidOnboardingBtn" onclick="event.stopPropagation(); openRapidOnboardingModal();" style="padding: 6px 14px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.2);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.2)';">
+                                <i class="ph ph-lightning" style="font-size: 16px;"></i>
+                                <span>Quick Start</span>
+                            </button>
                         </div>
                         <i id="welcomeToggleIcon" class="ph ph-caret-up" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
                     </div>
@@ -3968,21 +4038,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </label>
                             <textarea id="profileGoal" placeholder="e.g., Transition to senior engineering role at a tech company" rows="3" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
                         </div>
-
-                        <!-- Hide Unsubscribed Features Toggle -->
-                        <div style="padding: 16px; background: #f8f9fa; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
-                            <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
-                                <input type="checkbox" id="hideUnsubscribedFeatures" style="width: 20px; height: 20px; cursor: pointer; margin-top: 2px; flex-shrink: 0;">
-                                <div style="flex: 1;">
-                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
-                                        Hide Unsubscribed Features
-                                    </div>
-                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.4;">
-                                        When enabled, features that require a paid subscription will be hidden from your view. You can change this at any time.
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
@@ -4113,6 +4168,287 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             Copy Prompt
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Start Modal -->
+        <div class="modal" id="rapidOnboardingModal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header" style="position: relative;">
+                    <h2 class="modal-title">
+                        <i class="ph ph-lightning" style="margin-right: 8px; color: #f97316;"></i>
+                        Quick Start
+                    </h2>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="closeRapidOnboardingModal(); restartTour();" style="padding: 8px 16px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(22, 163, 74, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(22, 163, 74, 0.3)';">
+                            <i class="ph ph-play-circle" style="font-size: 16px;"></i>
+                            <span>Start Tour</span>
+                        </button>
+                        <button class="modal-close" onclick="closeRapidOnboardingModal()">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 24px 0;">
+                        Set up your profile to get started with Career Canvas.
+                    </p>
+
+                    <!-- Profile Setup Form -->
+                    <div style="background: #f8f9fa; border: 2px solid var(--color-neutral-border); border-radius: 12px; padding: 20px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-user-circle" style="font-size: 20px;"></i>
+                            Your Profile Information
+                        </h3>
+
+                        <!-- Example Profile Selector -->
+                        <div style="margin-bottom: 16px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 8px;">
+                                <i class="ph ph-users-three" style="margin-right: 4px;"></i>Try an Example Profile
+                            </label>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                                <button type="button" onclick="loadQuickStartExample('career-changer')" style="width: 100%; padding: 12px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#f0f7ff';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                    <div style="width: 36px; height: 36px; background: #f3e8ff; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-arrows-clockwise" style="font-size: 20px; color: #9333ea;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">Marcus Thompson</div>
+                                        <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); line-height: 1.3;">Store Manager → Analytics</div>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="loadQuickStartExample('product-manager')" style="width: 100%; padding: 12px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#f0f7ff';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                    <div style="width: 36px; height: 36px; background: #e3f2fd; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-flask" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">Dr. Sarah Chen</div>
+                                        <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); line-height: 1.3;">Research Scientist</div>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="loadQuickStartExample('new-graduate')" style="width: 100%; padding: 12px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#f0f7ff';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                    <div style="width: 36px; height: 36px; background: #dcfce7; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-graduation-cap" style="font-size: 20px; color: #16a34a;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">Jamie Rodriguez</div>
+                                        <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); line-height: 1.3;">CS Graduate</div>
+                                    </div>
+                                </button>
+                            </div>
+                            <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); margin-top: 8px; line-height: 1.4;">
+                                <i class="ph ph-info" style="margin-right: 2px;"></i>Select an example to explore with pre-loaded career data, or fill in your own information below
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <!-- First Name -->
+                            <div>
+                                <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">First Name</label>
+                                <input type="text" id="rapidOnboardingFirstName" placeholder="Enter your first name" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+
+                            <!-- Last Name -->
+                            <div>
+                                <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Last Name</label>
+                                <input type="text" id="rapidOnboardingLastName" placeholder="Enter your last name" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+
+                            <!-- Profession -->
+                            <div>
+                                <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Profession / Current Role</label>
+                                <input type="text" id="rapidOnboardingProfession" placeholder="e.g., Software Engineer, Marketing Manager" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+
+                            <!-- Career Goal -->
+                            <div>
+                                <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Career Goal</label>
+                                <textarea id="rapidOnboardingGoal" placeholder="What's your primary career goal?" style="width: 100%; min-height: 60px; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                            </div>
+
+                            <!-- Divider -->
+                            <div style="height: 1px; background: var(--color-neutral-border); margin: 8px 0;"></div>
+
+                            <!-- Request a Profile Checkbox -->
+                            <div>
+                                <label style="display: flex; align-items: start; gap: 10px; cursor: pointer; font-size: 13px; line-height: 1.5;">
+                                    <input type="checkbox" id="requestProfileCheckbox" onchange="toggleProfileRequestFields()" style="margin-top: 3px; width: 18px; height: 18px; cursor: pointer;">
+                                    <div>
+                                        <strong style="font-family: var(--font-family-ui); font-weight: 600; color: var(--color-dark);">Request a Profile (Experimental)</strong>
+                                        <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 4px; line-height: 1.5;">
+                                            During the preview period, request a Cleansheet profile built from publicly available information.
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Conditional Profile Request Fields -->
+                            <div id="profileRequestFields" style="display: none; padding: 16px; background: #fff7ed; border: 2px solid #f97316; border-radius: 8px; margin-top: 8px;">
+                                <div style="display: flex; flex-direction: column; gap: 14px;">
+                                    <!-- Email -->
+                                    <div>
+                                        <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Email Address *</label>
+                                        <input type="email" id="rapidOnboardingEmail" placeholder="your.email@example.com" style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                        <div style="font-family: var(--font-family-body); font-size: 11px; color: #92400e; margin-top: 4px;">
+                                            <i class="ph ph-warning" style="margin-right: 4px;"></i>You must control this email address. 2FA will be leveraged for verification.
+                                        </div>
+                                    </div>
+
+                                    <!-- LinkedIn URL -->
+                                    <div>
+                                        <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">LinkedIn Profile URL</label>
+                                        <input type="url" id="rapidOnboardingLinkedIn" placeholder="https://linkedin.com/in/yourprofile" style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                    </div>
+
+                                    <!-- Consent Notice -->
+                                    <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #f97316;">
+                                        <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: #ea580c; margin-bottom: 8px;">
+                                            <i class="ph ph-info" style="margin-right: 4px;"></i>What You're Consenting To:
+                                        </div>
+                                        <ul style="font-family: var(--font-family-body); font-size: 11px; line-height: 1.6; color: #92400e; margin: 0; padding-left: 20px;">
+                                            <li>Cleansheet will conduct an <strong>open source search</strong> to minimally populate your professional and educational profile</li>
+                                            <li>Cleansheet will <strong>retain this data</strong> to provide the requested service</li>
+                                            <li>You can submit <strong>erasure requests</strong> by submitting an <strong>Erasure Request</strong> from the user menu</li>
+                                            <li>This is an <strong>experimental preview service</strong> and data accuracy is not guaranteed</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="saveRapidOnboardingProfile()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)';">
+                                <i class="ph ph-check-circle" style="font-size: 18px;"></i>
+                                Start Building My Career Canvas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Notice -->
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; margin-top: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
+                            <i class="ph ph-lock-simple" style="margin-right: 4px;"></i>
+                            <strong>Privacy First:</strong> All data is stored locally in your browser. Cleansheet does not have access to your information. Remember to export your data regularly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Erasure Request Modal -->
+        <div class="modal" id="erasureRequestModal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i class="ph ph-trash" style="margin-right: 8px; color: #dc2626;"></i>
+                        Data Erasure Request
+                    </h2>
+                    <button class="modal-close" onclick="closeErasureRequestModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 24px 0;">
+                        Submit a request to erase all your data from Cleansheet systems. We take your privacy seriously and will process your request in accordance with applicable data protection laws.
+                    </p>
+
+                    <!-- Erasure Request Form -->
+                    <div style="background: #f8f9fa; border: 2px solid var(--color-neutral-border); border-radius: 12px; padding: 20px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-warning" style="font-size: 20px; color: #dc2626;"></i>
+                            Erasure Request Details
+                        </h3>
+
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <!-- Name -->
+                            <div>
+                                <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Full Name *</label>
+                                <input type="text" id="erasureRequestName" placeholder="Enter your full name" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Email Address *</label>
+                                <input type="email" id="erasureRequestEmail" placeholder="your.email@example.com" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #dc2626; margin-top: 4px;">
+                                    <i class="ph ph-warning" style="margin-right: 4px;"></i>You must control this email address to submit an erasure request.
+                                </div>
+                            </div>
+
+                            <!-- Important Notice -->
+                            <div style="background: #fef2f2; padding: 12px; border-radius: 6px; border: 1px solid #dc2626;">
+                                <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: #dc2626; margin-bottom: 8px;">
+                                    <i class="ph ph-info" style="margin-right: 4px;"></i>Important Information:
+                                </div>
+                                <ul style="font-family: var(--font-family-body); font-size: 11px; line-height: 1.6; color: #991b1b; margin: 0; padding-left: 20px;">
+                                    <li>Upon receipt of your erasure request, Cleansheet will send a confirmation email to verify your identity</li>
+                                    <li>You must respond to the confirmation email from the address you provide above</li>
+                                    <li>Cleansheet will <strong>erase all records within 30 days</strong> of receipt of confirmation</li>
+                                    <li>This action is <strong>irreversible</strong> and will permanently delete all your data from our systems</li>
+                                    <li>Local browser data must be cleared manually by you</li>
+                                </ul>
+                            </div>
+
+                            <button onclick="submitErasureRequest()" style="width: 100%; padding: 12px; background: #dc2626; color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(220, 38, 38, 0.4)'; this.style.background='#b91c1c';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(220, 38, 38, 0.3)'; this.style.background='#dc2626';">
+                                <i class="ph ph-paper-plane-tilt" style="font-size: 18px;"></i>
+                                Submit Erasure Request
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Notice -->
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; margin-top: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
+                            <i class="ph ph-lock-simple" style="margin-right: 4px;"></i>
+                            <strong>Your Rights:</strong> You have the right to request access to, correction of, or deletion of your personal data. For questions about our data practices, see our <a href="privacy-policy.html" target="_blank" style="color: #92400e; text-decoration: underline;">Privacy Policy</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Request Confirmation Modal -->
+        <div class="modal" id="profileRequestConfirmationModal" style="display: none;">
+            <div class="modal-content" style="max-width: 550px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i class="ph ph-check-circle" style="margin-right: 8px; color: #16a34a;"></i>
+                        Profile Request Submitted
+                    </h2>
+                    <button class="modal-close" onclick="closeProfileRequestConfirmationModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 16px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: #15803d; margin: 0;">
+                            <i class="ph ph-check-circle" style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>
+                            <strong>Thank you!</strong> Your profile request has been successfully submitted.
+                        </p>
+                    </div>
+
+                    <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-envelope" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                        What Happens Next
+                    </h3>
+
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <ol style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.7; color: var(--color-dark); margin: 0; padding-left: 20px;">
+                            <li style="margin-bottom: 10px;">You will receive an email from <strong style="color: var(--color-primary-blue);">profiles@cleansheet.dev</strong> in the coming days</li>
+                            <li style="margin-bottom: 10px;">Our team will review your LinkedIn profile and publicly available information</li>
+                            <li style="margin-bottom: 10px;">We'll create your Cleansheet profile using open source data</li>
+                            <li>You'll receive a follow-up email with next steps and access instructions</li>
+                        </ol>
+                    </div>
+
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 4px;"></i>
+                            <strong>In the meantime:</strong> You can start building your career canvas manually using the tools available on this page. All your data is stored locally in your browser.
+                        </p>
+                    </div>
+
+                    <button onclick="closeProfileRequestConfirmationModal()" style="width: 100%; padding: 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-accent-blue)';" onmouseout="this.style.background='var(--color-primary-blue)';">
+                        Got It, Thanks!
+                    </button>
                 </div>
             </div>
         </div>
@@ -4492,6 +4828,59 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
+        <!-- Onboarding Tour Overlay -->
+        <div id="tourOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 9998; transition: opacity 0.3s ease;"></div>
+
+        <!-- Tour Spotlight (highlights specific elements) -->
+        <div id="tourSpotlight" style="display: none; position: fixed; z-index: 9999; pointer-events: none; border: 4px solid var(--color-primary-blue); border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 30px 5px rgba(0, 102, 204, 0.8), inset 0 0 0 2px rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.02); transition: all 0.3s ease;"></div>
+
+        <!-- Tour Card -->
+        <div id="tourCard" style="display: none; position: fixed; z-index: 10000; max-width: 480px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); padding: 0; transition: all 0.3s ease;">
+            <!-- Tour Card Header -->
+            <div id="tourCardHeader" style="padding: 24px 24px 20px 24px; background: linear-gradient(135deg, var(--color-primary-blue) 0%, var(--color-accent-blue) 100%); border-radius: 12px 12px 0 0; color: white;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <i id="tourIcon" class="ph ph-hand-waving" style="font-size: 28px; color: white;"></i>
+                        </div>
+                        <div>
+                            <div id="tourStepIndicator" style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Step 1 of 4
+                            </div>
+                            <h3 id="tourTitle" style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; margin: 4px 0 0 0; line-height: 1.2;">
+                                Welcome to Cleansheet
+                            </h3>
+                        </div>
+                    </div>
+                    <button onclick="skipTour()" style="background: rgba(255, 255, 255, 0.2); border: none; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                        <i class="ph ph-x" style="font-size: 20px; color: white;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tour Card Body -->
+            <div id="tourCardBody" style="padding: 24px;">
+                <p id="tourContent" style="font-family: var(--font-family-body); font-size: 15px; color: var(--color-neutral-text); line-height: 1.6; margin: 0;">
+                    Let's take a quick tour to help you get started with your career management workspace.
+                </p>
+            </div>
+
+            <!-- Tour Card Footer -->
+            <div id="tourCardFooter" style="padding: 20px 24px; background: var(--color-neutral-background); border-radius: 0 0 12px 12px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--color-neutral-border);">
+                <button id="tourSkipBtn" onclick="skipTour()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer; transition: all 0.2s;">
+                    Skip Tour
+                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="tourPrevBtn" onclick="previousTourStep()" style="display: none; padding: 10px 20px; background: white; border: 2px solid var(--color-primary-blue); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-primary-blue); cursor: pointer; transition: all 0.2s;">
+                        Previous
+                    </button>
+                    <button id="tourNextBtn" onclick="nextTourStep()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+                        Next <i class="ph ph-arrow-right" style="font-size: 16px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Coach Preview Modal -->
         <div class="modal" id="coachPreviewModal" style="display: none;">
             <div class="modal-content" style="max-width: 900px; max-height: 95vh; overflow: hidden; padding: 0;">
@@ -4503,6 +4892,139 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </div>
                 <div class="modal-body" style="padding: 0; height: calc(95vh - 80px); overflow-y: auto;">
                     <iframe id="coachPreviewFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Modal -->
+        <div class="modal" id="aboutModal" style="display: none;">
+            <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2 class="modal-title">About Career Canvas</h2>
+                    <button class="modal-close" onclick="closeAboutModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0;">
+                            Your Interactive Career Management Workspace
+                        </h3>
+                        <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 16px 0;">
+                            Career Canvas is your personal workspace for managing every aspect of your professional development. Track experiences, prepare for interviews, set goals, showcase projects, and manage job opportunities—all in one integrated platform.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--color-neutral-background); border-left: 4px solid var(--color-primary-blue); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">
+                            The Cleansheet Philosophy
+                        </h4>
+                        <p style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.6; color: var(--color-neutral-text); margin: 0;">
+                            Career security in the modern economy comes from intentional diversity of experience: <strong>upskilling</strong> (building deeper expertise in adjacent areas) and <strong>sideskilling</strong> (building breadth across parallel domains). Together, they create professionals who can adapt, pivot, and thrive through change.
+                        </p>
+                    </div>
+
+                    <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">
+                        Canvas Features
+                    </h3>
+
+                    <div style="display: grid; gap: 12px; margin-bottom: 24px;">
+                        <div style="display: flex; gap: 12px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-briefcase" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Career Experience</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Document your work history and generate STAR stories for behavioral interviews</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-chats-circle" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Interview Prep</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Practice behavioral questions using your real experiences and STAR methodology</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-target" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Goals</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Set and track career objectives with deadlines and progress milestones</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-folder" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Portfolio</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Showcase your projects, achievements, and technical capabilities</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-briefcase" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Job Opportunities</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Track applications and generate tailored resumes, cover letters, and prompts</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 16px 0;">
+                        Additional Resources
+                    </h3>
+
+                    <div style="display: grid; gap: 12px; margin-bottom: 24px;">
+                        <div style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                <i class="ph ph-path" style="color: var(--color-primary-blue); margin-right: 6px;"></i>Career Paths
+                            </div>
+                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Explore guided career paths across 9 technical domains with realistic progression routes</div>
+                        </div>
+
+                        <div style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                <i class="ph ph-buildings" style="color: var(--color-primary-blue); margin-right: 6px;"></i>Industry Insights
+                            </div>
+                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Discover industry-specific information, trends, and role requirements across sectors</div>
+                        </div>
+
+                        <div style="padding: 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 8px;">
+                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                <i class="ph ph-books" style="color: var(--color-primary-blue); margin-right: 6px;"></i>Curated Library
+                            </div>
+                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">Access 189+ curated articles on technical skills, career development, and professional growth</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; margin-bottom: 24px; border-radius: 4px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #92400e; margin: 0 0 8px 0;">
+                            <i class="ph ph-shield-check" style="margin-right: 6px;"></i>Your Privacy Matters
+                        </h4>
+                        <p style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.6; color: #92400e; margin: 0;">
+                            During the preview, all your data is stored locally in your browser. Nothing is shared with Cleansheet servers. We don't track your behavior, sell your data, or use your information to train AI models. Your professional development belongs to you.
+                        </p>
+                    </div>
+
+                    <div style="text-align: center; padding-top: 16px; border-top: 1px solid var(--color-neutral-border);">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0 0 12px 0;">
+                            Learn more about Cleansheet's mission and values
+                        </p>
+                        <a href="about-cleansheet.html" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--color-primary-blue); color: white; text-decoration: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; transition: all 0.2s;">
+                            <i class="ph ph-arrow-square-out"></i>
+                            <span>Read Full About Page</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -5713,7 +6235,62 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <button class="add-story-btn" onclick="addExperienceRecord()" style="flex: 0 0 auto; margin-bottom: 0;">
                         <i class="ph ph-plus-circle"></i> Add Experience
                     </button>
+                    <button class="add-story-btn" onclick="toggleProfileRequestForm()" style="flex: 0 0 auto; margin-bottom: 0; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
+                        <i class="ph ph-user-focus"></i> Request Profile
+                    </button>
                 </div>
+
+                <!-- Profile Request Form (Collapsible) -->
+                <div id="profileRequestFormContainer" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff7ed; border: 2px solid #f97316; border-radius: 8px;">
+                    <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #ea580c; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-info" style="font-size: 18px;"></i>
+                        Request a Cleansheet Profile (Experimental)
+                    </h4>
+                    <p style="font-family: var(--font-family-body); font-size: 12px; color: #92400e; line-height: 1.5; margin: 0 0 14px 0;">
+                        During the preview period, request a Cleansheet profile built from publicly available information.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Email -->
+                        <div>
+                            <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Email Address *</label>
+                            <input type="email" id="slideoutProfileEmail" placeholder="your.email@example.com" style="width: 100%; padding: 8px 10px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                            <div style="font-family: var(--font-family-body); font-size: 11px; color: #92400e; margin-top: 4px;">
+                                <i class="ph ph-warning" style="margin-right: 4px;"></i>You must control this email address. 2FA will be leveraged for verification.
+                            </div>
+                        </div>
+
+                        <!-- LinkedIn URL -->
+                        <div>
+                            <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">LinkedIn Profile URL *</label>
+                            <input type="url" id="slideoutProfileLinkedIn" placeholder="https://linkedin.com/in/yourprofile" style="width: 100%; padding: 8px 10px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+
+                        <!-- Consent Notice -->
+                        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #f97316;">
+                            <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #ea580c; margin-bottom: 6px;">
+                                <i class="ph ph-info" style="margin-right: 4px;"></i>What You're Consenting To:
+                            </div>
+                            <ul style="font-family: var(--font-family-body); font-size: 10px; line-height: 1.5; color: #92400e; margin: 0; padding-left: 18px;">
+                                <li>Cleansheet will conduct an <strong>open source search</strong> to minimally populate your professional and educational profile</li>
+                                <li>Cleansheet will <strong>retain this data</strong> to provide the requested service</li>
+                                <li>You can submit <strong>erasure requests</strong> from the user menu</li>
+                                <li>This is an <strong>experimental preview service</strong> and data accuracy is not guaranteed</li>
+                            </ul>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="submitSlideoutProfileRequest()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);">
+                                <i class="ph ph-paper-plane-tilt" style="font-size: 16px;"></i>
+                                Submit Request
+                            </button>
+                            <button onclick="toggleProfileRequestForm()" style="padding: 10px 16px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="experiencesContainer" class="stories-container">
                     <!-- Experience cards will be dynamically inserted here -->
                 </div>
@@ -7695,6 +8272,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         let currentPersona = 'default';
         let currentViewMode = 'seeker'; // 'seeker' or 'learner'
 
+        // Azure Table Storage endpoint for profile requests (write-only SAS token)
+        // Direct write to Table Storage - no Azure Function needed
+        // SAS token has 'add' permission only (cannot read existing data)
+        // Token expires: 2026-11-05
+        const PROFILE_REQUEST_TABLE_URL = 'https://storageb681.table.core.windows.net/ProfileRequests?se=2026-11-05T01%3A04Z&sp=a&sv=2019-02-02&tn=ProfileRequests&sig=Cx6YwQaoga8xPSzKJWCPenEoLZUbN/U85k6gPmqtOa8%3D';
+
         // AudioTourManager - Web Audio API integration for Driver.js tour narrations
         class AudioTourManager {
             constructor() {
@@ -8730,7 +9313,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('profileLastName').value = profile.lastName;
             document.getElementById('profileProfession').value = profile.profession;
             document.getElementById('profileGoal').value = profile.goal;
-            document.getElementById('hideUnsubscribedFeatures').checked = profile.hideUnsubscribedFeatures || false;
 
             // Show modal
             document.getElementById('profileModal').style.display = 'flex';
@@ -8745,8 +9327,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 firstName: 'Alex',
                 lastName: 'Martinez',
                 profession: 'Retail Manager',
-                goal: 'Transition from retail management into business analytics or operations management roles in tech companies',
-                hideUnsubscribedFeatures: false  // Default is OFF (unchecked)
+                goal: 'Transition from retail management into business analytics or operations management roles in tech companies'
             };
 
             const saved = localStorage.getItem('cleansheet_profile');
@@ -8758,8 +9339,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 firstName: document.getElementById('profileFirstName').value.trim(),
                 lastName: document.getElementById('profileLastName').value.trim(),
                 profession: document.getElementById('profileProfession').value.trim(),
-                goal: document.getElementById('profileGoal').value.trim(),
-                hideUnsubscribedFeatures: document.getElementById('hideUnsubscribedFeatures').checked
+                goal: document.getElementById('profileGoal').value.trim()
             };
 
             // Validate required fields
@@ -8920,6 +9500,393 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('subscriptionModal').style.display = 'none';
         }
 
+        // Quick Start Modal Functions
+        window.openRapidOnboardingModal = function() {
+            document.getElementById('rapidOnboardingModal').style.display = 'flex';
+
+            // Clear form fields
+            document.getElementById('rapidOnboardingFirstName').value = '';
+            document.getElementById('rapidOnboardingLastName').value = '';
+            document.getElementById('rapidOnboardingProfession').value = '';
+            document.getElementById('rapidOnboardingGoal').value = '';
+            document.getElementById('requestProfileCheckbox').checked = false;
+            document.getElementById('rapidOnboardingEmail').value = '';
+            document.getElementById('rapidOnboardingLinkedIn').value = '';
+            document.getElementById('profileRequestFields').style.display = 'none';
+        };
+
+        window.closeRapidOnboardingModal = function() {
+            document.getElementById('rapidOnboardingModal').style.display = 'none';
+        };
+
+        window.toggleProfileRequestFields = function() {
+            const checkbox = document.getElementById('requestProfileCheckbox');
+            const fields = document.getElementById('profileRequestFields');
+
+            if (checkbox.checked) {
+                fields.style.display = 'block';
+            } else {
+                fields.style.display = 'none';
+            }
+        };
+
+        window.saveRapidOnboardingProfile = async function() {
+            // Get form values
+            const firstName = document.getElementById('rapidOnboardingFirstName').value.trim();
+            const lastName = document.getElementById('rapidOnboardingLastName').value.trim();
+            const profession = document.getElementById('rapidOnboardingProfession').value.trim();
+            const goal = document.getElementById('rapidOnboardingGoal').value.trim();
+            const requestProfile = document.getElementById('requestProfileCheckbox').checked;
+            const email = document.getElementById('rapidOnboardingEmail').value.trim();
+            const linkedIn = document.getElementById('rapidOnboardingLinkedIn').value.trim();
+
+            // Validate required fields
+            if (!firstName || !lastName) {
+                alert('Please enter your first and last name.');
+                return;
+            }
+
+            // Validate profile request fields if checkbox is checked
+            if (requestProfile) {
+                if (!email) {
+                    alert('Please enter your email address to request a profile.');
+                    return;
+                }
+
+                // Basic email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                // LinkedIn URL is mandatory for profile requests
+                if (!linkedIn) {
+                    alert('Please enter your LinkedIn profile URL to request a profile.');
+                    return;
+                }
+            }
+
+            // Clear any existing example profile data before creating new profile
+            localStorage.removeItem(`userGoals_${currentPersona}`);
+            localStorage.removeItem(`userPortfolio_${currentPersona}`);
+            localStorage.removeItem(`jobOpportunities_${currentPersona}`);
+            localStorage.removeItem('applicationMaterials');
+            localStorage.removeItem('cleansheet_experiences');
+            localStorage.removeItem(`careerExperiences_${currentPersona}`); // Legacy key
+            localStorage.removeItem('cleansheet_stories');
+            localStorage.removeItem('behavioralStories');
+
+            // Save profile
+            const profile = {
+                firstName: firstName,
+                lastName: lastName,
+                profession: profession,
+                goal: goal
+            };
+
+            localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+
+            // If profile request is checked, send to Azure Table Storage
+            if (requestProfile) {
+                try {
+                    // Generate unique RowKey: timestamp + random suffix
+                    const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
+                    const randomSuffix = Math.random().toString(36).substring(2, 8);
+                    const rowKey = `${timestamp}_${randomSuffix}`;
+
+                    // Create Table Storage entity (flat JSON object)
+                    const entity = {
+                        PartitionKey: 'ProfileRequest',
+                        RowKey: rowKey,
+                        requestType: 'ProfileRequest',
+                        firstName: firstName,
+                        lastName: lastName,
+                        profession: profession || '',
+                        email: email,
+                        linkedInURL: linkedIn || '',
+                        requestDate: new Date().toISOString()
+                    };
+
+                    // POST to Azure Table Storage
+                    const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json;odata=nometadata'
+                        },
+                        body: JSON.stringify(entity)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Table Storage error: ${response.status} - ${errorText}`);
+                    }
+
+                    // Store request locally for reference
+                    const profileRequest = {
+                        email: email,
+                        linkedIn: linkedIn,
+                        firstName: firstName,
+                        lastName: lastName,
+                        profession: profession,
+                        requestDate: entity.requestDate,
+                        status: 'submitted',
+                        rowKey: rowKey
+                    };
+                    localStorage.setItem('cleansheet_profile_request', JSON.stringify(profileRequest));
+
+                    console.log('Profile request sent successfully to Table Storage');
+
+                    // Show confirmation modal
+                    openProfileRequestConfirmationModal();
+
+                    // Also show welcome message
+                    setTimeout(() => {
+                        alert(`Welcome, ${firstName}! Your profile has been created.`);
+                    }, 500);
+
+                } catch (error) {
+                    console.error('Failed to send profile request:', error);
+
+                    // Still save locally even if API fails
+                    const profileRequest = {
+                        email: email,
+                        linkedIn: linkedIn,
+                        firstName: firstName,
+                        lastName: lastName,
+                        profession: profession,
+                        requestDate: new Date().toISOString(),
+                        status: 'failed',
+                        error: error.message
+                    };
+                    localStorage.setItem('cleansheet_profile_request', JSON.stringify(profileRequest));
+
+                    // Show error but don't block profile creation
+                    alert(`Welcome, ${firstName}! Your profile has been created.\n\nNote: We encountered an issue submitting your profile request. Please try again later or contact support at privacy@cleansheet.dev.\n\nYou can still use Career Canvas normally.`);
+                }
+            } else {
+                // Show standard welcome message
+                alert(`Welcome, ${firstName}! Your profile has been created. Start building your career canvas by clicking on any of the sections in the mindmap.`);
+            }
+
+            // Update UI
+            updateProfileDisplay(profile);
+
+            // Reload data from localStorage (will be empty after clearing)
+            loadUserExperiences();
+            loadCareerExperiences(); // Re-render experiences UI
+            loadStories();
+            loadUserGoals();
+            loadUserPortfolio();
+            loadUserJobs();
+
+            // Reset all counts to zero after clearing data
+            updateExperienceCount(0);
+            updateStoryCount(0);
+            updateGoalsCount(0);
+            updatePortfolioCount(0);
+            updateJobOpportunitiesCount(0);
+
+            refreshMindmap();
+
+            // Close modal
+            closeRapidOnboardingModal();
+        };
+
+        // Erasure Request Modal Functions
+        window.openErasureRequestModal = function() {
+            // Close profile dropdown menu
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileDropdown) {
+                profileDropdown.classList.remove('active');
+            }
+
+            document.getElementById('erasureRequestModal').style.display = 'flex';
+
+            // Clear form fields
+            document.getElementById('erasureRequestName').value = '';
+            document.getElementById('erasureRequestEmail').value = '';
+        };
+
+        window.closeErasureRequestModal = function() {
+            document.getElementById('erasureRequestModal').style.display = 'none';
+        };
+
+        window.submitErasureRequest = async function() {
+            // Get form values
+            const name = document.getElementById('erasureRequestName').value.trim();
+            const email = document.getElementById('erasureRequestEmail').value.trim();
+
+            // Validate required fields
+            if (!name) {
+                alert('Please enter your full name.');
+                return;
+            }
+
+            if (!email) {
+                alert('Please enter your email address.');
+                return;
+            }
+
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            try {
+                // Generate unique RowKey: timestamp + random suffix
+                const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
+                const randomSuffix = Math.random().toString(36).substring(2, 8);
+                const rowKey = `${timestamp}_${randomSuffix}`;
+
+                // Create Table Storage entity (flat JSON object)
+                const entity = {
+                    PartitionKey: 'ErasureRequest',
+                    RowKey: rowKey,
+                    requestType: 'ErasureRequest',
+                    name: name,
+                    email: email,
+                    requestDate: new Date().toISOString(),
+                    status: 'pending'
+                };
+
+                // POST to Azure Table Storage
+                const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json;odata=nometadata'
+                    },
+                    body: JSON.stringify(entity)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Table Storage error: ${response.status} - ${errorText}`);
+                }
+
+                console.log('Erasure request submitted successfully to Table Storage');
+
+                // Show confirmation message
+                alert(`Erasure Request Submitted\n\nYour request has been received. You will receive a confirmation email at ${email} shortly.\n\nYou must respond to the confirmation email to verify your identity. Upon confirmation, Cleansheet will erase all records within 30 days.\n\nThis action is irreversible.`);
+
+                // Close modal
+                closeErasureRequestModal();
+
+            } catch (error) {
+                console.error('Error submitting erasure request:', error);
+                alert(`Failed to submit erasure request. Please try again or contact privacy@cleansheet.dev directly.\n\nError: ${error.message}`);
+            }
+        };
+
+        // Quick Start Example Profile Loader
+        window.loadQuickStartExample = function(profileType) {
+            // Close the Quick Start modal
+            closeRapidOnboardingModal();
+
+            // Load the example profile using the existing function
+            loadExampleProfile(profileType);
+        };
+
+        // Slideout Profile Request Functions
+        window.toggleProfileRequestForm = function() {
+            const form = document.getElementById('profileRequestFormContainer');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                // Clear fields when opening
+                document.getElementById('slideoutProfileEmail').value = '';
+                document.getElementById('slideoutProfileLinkedIn').value = '';
+            } else {
+                form.style.display = 'none';
+            }
+        };
+
+        window.submitSlideoutProfileRequest = async function() {
+            const email = document.getElementById('slideoutProfileEmail').value.trim();
+            const linkedIn = document.getElementById('slideoutProfileLinkedIn').value.trim();
+
+            // Validate required fields
+            if (!email) {
+                alert('Please enter your email address.');
+                return;
+            }
+
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // LinkedIn URL is mandatory
+            if (!linkedIn) {
+                alert('Please enter your LinkedIn profile URL.');
+                return;
+            }
+
+            try {
+                // Get current profile info for context
+                const profile = loadProfile();
+
+                // Generate unique RowKey: timestamp + random suffix
+                const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
+                const randomSuffix = Math.random().toString(36).substring(2, 8);
+                const rowKey = `${timestamp}_${randomSuffix}`;
+
+                // Create Table Storage entity (flat JSON object)
+                const entity = {
+                    PartitionKey: 'ProfileRequest',
+                    RowKey: rowKey,
+                    requestType: 'ProfileRequest',
+                    firstName: profile.firstName || '',
+                    lastName: profile.lastName || '',
+                    profession: profile.profession || '',
+                    email: email,
+                    linkedInURL: linkedIn,
+                    requestDate: new Date().toISOString()
+                };
+
+                // POST to Azure Table Storage
+                const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json;odata=nometadata'
+                    },
+                    body: JSON.stringify(entity)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Table Storage error: ${response.status} - ${errorText}`);
+                }
+
+                console.log('Profile request submitted successfully from slideout');
+
+                // Close the form
+                toggleProfileRequestForm();
+
+                // Show confirmation modal
+                openProfileRequestConfirmationModal();
+
+            } catch (error) {
+                console.error('Error submitting profile request:', error);
+                alert(`Failed to submit profile request. Please try again or contact support at privacy@cleansheet.dev.\n\nError: ${error.message}`);
+            }
+        };
+
+        // Profile Request Confirmation Modal Functions
+        window.openProfileRequestConfirmationModal = function() {
+            document.getElementById('profileRequestConfirmationModal').style.display = 'flex';
+        };
+
+        window.closeProfileRequestConfirmationModal = function() {
+            document.getElementById('profileRequestConfirmationModal').style.display = 'none';
+        };
+
         function openCoachPreviewModal() {
             const modal = document.getElementById('coachPreviewModal');
             const iframe = document.getElementById('coachPreviewFrame');
@@ -8932,6 +9899,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const iframe = document.getElementById('coachPreviewFrame');
             modal.style.display = 'none';
             iframe.src = ''; // Clear iframe to stop any running scripts
+        }
+
+        function openAboutModal() {
+            document.getElementById('aboutModal').style.display = 'flex';
+        }
+
+        function closeAboutModal() {
+            document.getElementById('aboutModal').style.display = 'none';
         }
 
         function selectPlan(plan) {
@@ -9415,25 +10390,75 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 "userGoals":"Transition from retail management into business analytics or operations management roles in tech companies.",
                 "goals": [
                     {
-                        "goal": "Complete Google Data Analytics Professional Certificate",
+                        "title": "Complete Google Data Analytics Professional Certificate",
                         "targetDate": "2025-06-30",
                         "category": "Education & Certifications",
                         "milestones": ["Finish Coursera enrollment", "Complete 3 courses by March", "Build capstone project", "Earn certificate"],
-                        "status": "in-progress"
+                        "status": "In Progress",
+                        "progress": 45,
+                        "currentMilestone": "Complete 3 courses by March",
+                        "completedMilestones": ["Finish Coursera enrollment"],
+                        "smart": {
+                            "specific": "Complete all 8 courses in the Google Data Analytics Professional Certificate program on Coursera, including hands-on projects and the capstone",
+                            "measurable": "Track completion of 8 courses, pass all graded assignments with 80%+ scores, complete capstone project, earn certificate",
+                            "achievable": "Allocate 8-10 hours per week, leverage existing Excel skills, use retail data from current role for practice exercises",
+                            "relevant": "Essential credential for transitioning from retail management to business analytics roles, demonstrates commitment to data-driven decision making",
+                            "timebound": "Complete by June 30, 2025 (6 months, ~1.3 courses per month)"
+                        },
+                        "metrics": {
+                            "coursesCompleted": 3,
+                            "coursesTotal": 8,
+                            "hoursInvested": 67,
+                            "averageGrade": 87
+                        }
                     },
                     {
-                        "goal": "Build 3 business analytics portfolio projects using real retail data",
+                        "title": "Build 3 business analytics portfolio projects using real retail data",
                         "targetDate": "2025-08-31",
                         "category": "Portfolio Development",
                         "milestones": ["Sales forecasting model", "Customer segmentation analysis", "Inventory optimization dashboard"],
-                        "status": "in-progress"
+                        "status": "In Progress",
+                        "progress": 33,
+                        "currentMilestone": "Sales forecasting model",
+                        "completedMilestones": [],
+                        "smart": {
+                            "specific": "Create three distinct analytics projects using anonymized retail data: (1) Sales forecasting using time-series analysis, (2) Customer segmentation with clustering algorithms, (3) Interactive Power BI inventory optimization dashboard",
+                            "measurable": "Each project must include documentation, code/formulas, visualizations, insights, and measurable business impact. Host code on GitHub, publish dashboards online",
+                            "achievable": "Use data from current Store Manager role (with proper anonymization), leverage Google certificate skills, dedicate weekends to development",
+                            "relevant": "Portfolio projects demonstrate practical application of analytics skills and domain expertise in retail, addressing common interview case studies",
+                            "timebound": "Complete by August 31, 2025 (one project every 2 months)"
+                        },
+                        "metrics": {
+                            "projectsCompleted": 1,
+                            "projectsTotal": 3,
+                            "githubCommits": 47,
+                            "portfolioViews": 0
+                        }
                     },
                     {
-                        "goal": "Land Business Analyst or Operations Analyst role at tech company",
+                        "title": "Land Business Analyst or Operations Analyst role at tech company",
                         "targetDate": "2025-12-31",
                         "category": "Career Transition",
                         "milestones": ["Apply to 50+ positions", "Get 5+ interviews", "Receive offer", "Negotiate compensation"],
-                        "status": "not-started"
+                        "status": "Not Started",
+                        "progress": 0,
+                        "currentMilestone": "Apply to 50+ positions",
+                        "completedMilestones": [],
+                        "smart": {
+                            "specific": "Secure full-time Business Analyst or Operations Analyst position at a technology company (software, cloud, e-commerce) with minimum $85K salary and growth opportunities",
+                            "measurable": "Apply to 50+ relevant positions, maintain 10%+ interview conversion rate, receive at least 2 offers, negotiate compensation package including base salary, benefits, and equity",
+                            "achievable": "Leverage completed Google certificate, portfolio projects, 6+ years management experience, and transferable skills in operations and data analysis",
+                            "relevant": "This is the primary career transition goal that all education and portfolio development activities support, enabling long-term career growth in analytics/tech",
+                            "timebound": "Secure offer by December 31, 2025 (begin active job search after portfolio completion in September 2025)"
+                        },
+                        "metrics": {
+                            "applicationsSubmitted": 0,
+                            "applicationsTarget": 50,
+                            "interviewsScheduled": 0,
+                            "interviewsTarget": 5,
+                            "offersReceived": 0,
+                            "networkingConnections": 0
+                        }
                     }
                 ],
                 "portfolio": [
@@ -9531,25 +10556,81 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 "userGoals":"Leverage analytical chemistry expertise to transition into data science and computational chemistry roles in pharmaceutical or biotech industries.",
                 "goals": [
                     {
-                        "goal": "Complete Machine Learning Specialization and apply to pharmaceutical R&D",
+                        "title": "Complete Machine Learning Specialization and apply to pharmaceutical R&D",
                         "targetDate": "2025-07-31",
                         "category": "Skills Development",
                         "milestones": ["Finish Coursera ML courses", "Build 2 pharma-focused ML projects", "Present at company tech talk"],
-                        "status": "in-progress"
+                        "status": "In Progress",
+                        "progress": 60,
+                        "currentMilestone": "Build 2 pharma-focused ML projects",
+                        "completedMilestones": ["Finish Coursera ML courses"],
+                        "smart": {
+                            "specific": "Complete Andrew Ng's Machine Learning Specialization (3 courses), build two pharmaceutical-focused ML projects (drug response prediction and molecular property prediction), present findings at Moderna's internal tech talk",
+                            "measurable": "Complete all 3 courses with passing grades, build and document 2 ML models with >85% accuracy, deliver 30-minute presentation to 20+ attendees",
+                            "achievable": "Leverage existing Python skills and chemistry domain knowledge, dedicate 6-8 hours weekly, use publicly available pharma datasets from ChEMBL and PubChem",
+                            "relevant": "ML skills are increasingly essential for computational chemistry and data science roles in pharma, demonstrates initiative to expand beyond traditional analytical chemistry",
+                            "timebound": "Complete by July 31, 2025 (7 months total: 3 months for courses, 3 months for projects, 1 month for presentation prep)"
+                        },
+                        "metrics": {
+                            "coursesCompleted": 3,
+                            "coursesTotal": 3,
+                            "projectsCompleted": 1,
+                            "projectsTotal": 2,
+                            "presentationDate": "2025-07-15",
+                            "modelAccuracy": 87
+                        }
                     },
                     {
-                        "goal": "Publish computational chemistry paper in peer-reviewed journal",
+                        "title": "Publish computational chemistry paper in peer-reviewed journal",
                         "targetDate": "2025-09-30",
                         "category": "Research & Publications",
                         "milestones": ["Complete data analysis", "Write manuscript", "Submit to journal", "Address reviewer comments"],
-                        "status": "in-progress"
+                        "status": "In Progress",
+                        "progress": 55,
+                        "currentMilestone": "Write manuscript",
+                        "completedMilestones": ["Complete data analysis"],
+                        "smart": {
+                            "specific": "Author and publish peer-reviewed paper on 'Machine Learning Approaches for HPLC Method Development in mRNA Analysis' in Journal of Pharmaceutical Sciences or similar Q1 journal",
+                            "measurable": "Complete manuscript (5,000-7,000 words), submit to target journal, respond to peer review within 2 weeks, achieve acceptance for publication",
+                            "achievable": "Leverage existing HPLC automation work and ML projects, collaborate with Moderna colleagues for co-authorship, allocate 10 hours weekly to writing",
+                            "relevant": "Publications demonstrate thought leadership in computational chemistry, strengthen PhD credentials, significantly enhance competitiveness for data science roles in pharma",
+                            "timebound": "Submit by June 30, achieve publication by September 30, 2025 (accounting for 8-12 week peer review cycle)"
+                        },
+                        "metrics": {
+                            "manuscriptProgress": 65,
+                            "wordsWritten": 3850,
+                            "targetWords": 6000,
+                            "coAuthors": 3,
+                            "figuresCompleted": 4,
+                            "figuresTotal": 6
+                        }
                     },
                     {
-                        "goal": "Transition to Data Scientist or Computational Chemist role",
+                        "title": "Transition to Data Scientist or Computational Chemist role",
                         "targetDate": "2026-03-31",
                         "category": "Career Transition",
                         "milestones": ["Network with 10 data scientists in pharma", "Apply to 30+ positions", "Get 3+ interviews", "Receive offer"],
-                        "status": "not-started"
+                        "status": "Not Started",
+                        "progress": 0,
+                        "currentMilestone": "Network with 10 data scientists in pharma",
+                        "completedMilestones": [],
+                        "smart": {
+                            "specific": "Secure Senior Data Scientist or Computational Chemist position at pharmaceutical or biotech company (Pfizer, Moderna, BioNTech, Merck, Genentech) with minimum $140K salary, focusing on ML applications in drug discovery",
+                            "measurable": "Network with 10+ data scientists through informational interviews, apply to 30+ relevant positions, achieve 10%+ interview rate, receive at least 2 competitive offers",
+                            "achievable": "Leverage PhD, 8+ years pharma experience, ML specialization, published paper, strong Python portfolio, and internal Moderna network for referrals",
+                            "relevant": "This is the culminating career goal that leverages all skill development and publication efforts, enabling transition from wet-lab analytical chemistry to computational roles with higher impact and compensation",
+                            "timebound": "Begin networking September 2025, active job search January 2026, accept offer by March 31, 2026 (allows for 3-month search after publication)"
+                        },
+                        "metrics": {
+                            "networkingMeetings": 0,
+                            "networkingTarget": 10,
+                            "applicationsSubmitted": 0,
+                            "applicationsTarget": 30,
+                            "interviewsScheduled": 0,
+                            "interviewsTarget": 3,
+                            "offersReceived": 0,
+                            "linkedInConnections": 847
+                        }
                     }
                 ],
                 "portfolio": [
@@ -9647,25 +10728,82 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 "userGoals":"Launch career in software development or cloud engineering, building practical skills while contributing to meaningful projects.",
                 "goals": [
                     {
-                        "goal": "Land first full-time Software Engineer role at tech company",
+                        "title": "Land first full-time Software Engineer role at tech company",
                         "targetDate": "2025-05-31",
                         "category": "Career Launch",
                         "milestones": ["Apply to 100+ positions", "Get 10+ interviews", "Receive 2+ offers", "Accept position"],
-                        "status": "in-progress"
+                        "status": "In Progress",
+                        "progress": 35,
+                        "currentMilestone": "Get 10+ interviews",
+                        "completedMilestones": ["Apply to 100+ positions"],
+                        "smart": {
+                            "specific": "Secure full-time Software Engineer or Cloud Engineer position at technology company (Google, Microsoft, AWS, Shopify, or similar) with minimum $100K salary, offering mentorship, growth opportunities, and modern tech stack",
+                            "measurable": "Apply to 100+ relevant positions, achieve 10%+ interview conversion rate, receive at least 2 competitive offers with written compensation details, compare total compensation packages",
+                            "achievable": "Leverage CS degree (3.7 GPA), internship experience, portfolio projects, open-source contributions, campus recruiting connections, and active job search during graduation semester",
+                            "relevant": "First full-time role establishes career foundation and trajectory, provides income stability, offers structured learning environment for new graduate transitioning from academic to professional software development",
+                            "timebound": "Accept offer by May 31, 2025 (before graduation), ideally start June/July 2025, application period January-April 2025"
+                        },
+                        "metrics": {
+                            "applicationsSubmitted": 112,
+                            "applicationsTarget": 100,
+                            "phoneScreens": 14,
+                            "technicalInterviews": 6,
+                            "onsiteInterviews": 2,
+                            "offersReceived": 0,
+                            "targetOffers": 2
+                        }
                     },
                     {
-                        "goal": "Contribute to open-source project and build network",
+                        "title": "Contribute to open-source project and build network",
                         "targetDate": "2025-04-30",
                         "category": "Professional Development",
                         "milestones": ["Identify project", "Make 10+ contributions", "Connect with 5 maintainers", "Present at meetup"],
-                        "status": "in-progress"
+                        "status": "In Progress",
+                        "progress": 70,
+                        "currentMilestone": "Present at meetup",
+                        "completedMilestones": ["Identify project", "Make 10+ contributions", "Connect with 5 maintainers"],
+                        "smart": {
+                            "specific": "Contribute 10+ meaningful code commits to React or ROS open-source project, build relationships with 5 project maintainers, present 'Getting Started with Open Source' talk at Austin Python/JavaScript meetup",
+                            "measurable": "Track GitHub contributions (issues, PRs, code reviews), document merged pull requests, schedule 5 virtual coffee chats with maintainers, deliver 20-minute presentation to 30+ attendees",
+                            "achievable": "Leverage existing React and ROS experience from portfolio projects, dedicate 5-8 hours weekly to OSS, attend local meetups monthly, join project Slack/Discord communities",
+                            "relevant": "OSS contributions demonstrate real-world collaboration skills, build public technical profile, provide talking points for interviews, expand professional network beyond campus, establish online presence",
+                            "timebound": "Complete by April 30, 2025 (before graduation): contributions by March 31, networking ongoing, presentation in April"
+                        },
+                        "metrics": {
+                            "contributionsCompleted": 13,
+                            "contributionsTarget": 10,
+                            "pullRequestsMerged": 8,
+                            "issuesClosed": 5,
+                            "maintainerConnections": 5,
+                            "meetupPresentation": null,
+                            "githubStars": 47
+                        }
                     },
                     {
-                        "goal": "Learn cloud architecture and earn AWS Solutions Architect certification",
+                        "title": "Learn cloud architecture and earn AWS Solutions Architect certification",
                         "targetDate": "2025-08-31",
                         "category": "Skills Development",
                         "milestones": ["Complete AWS training", "Build 3 cloud projects", "Pass certification exam"],
-                        "status": "not-started"
+                        "status": "Not Started",
+                        "progress": 0,
+                        "currentMilestone": "Complete AWS training",
+                        "completedMilestones": [],
+                        "smart": {
+                            "specific": "Earn AWS Certified Solutions Architect - Associate certification (SAA-C03), complete AWS training through A Cloud Guru or AWS SkillBuilder, build three production-grade cloud projects (serverless API, containerized app, infrastructure-as-code deployment)",
+                            "measurable": "Complete 40+ hours AWS training courses, pass practice exams with 80%+ scores, build and document 3 cloud projects with CI/CD pipelines, pass certification exam with 720+ score",
+                            "achievable": "Leverage software engineering fundamentals and Docker experience, use AWS free tier for practice, dedicate 10 hours weekly post-graduation with full-time job income for certification costs ($150)",
+                            "relevant": "Cloud skills are essential for modern software engineering roles, AWS certification significantly increases marketability and salary potential, aligns with interest in Cloud Engineer career path",
+                            "timebound": "Complete by August 31, 2025 (3 months post-graduation): training by June 30, projects by July 31, certification by August 31"
+                        },
+                        "metrics": {
+                            "trainingHoursCompleted": 0,
+                            "trainingHoursTarget": 40,
+                            "practiceExamScore": 0,
+                            "projectsCompleted": 0,
+                            "projectsTarget": 3,
+                            "certificationScheduled": false,
+                            "awsServicesUsed": 0
+                        }
                     }
                 ],
                 "portfolio": [
@@ -9946,16 +11084,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             `;
         }
 
-        // Example Profiles Dropdown
-        function toggleExampleProfiles() {
-            const dropdown = document.getElementById('exampleProfilesDropdown');
-            const isVisible = dropdown.style.display === 'block';
-            dropdown.style.display = isVisible ? 'none' : 'block';
-        }
-
+        // Example Profiles Functions (kept for backward compatibility with Quick Start)
         function loadExampleProfile(profileType) {
-            // Close dropdown
-            document.getElementById('exampleProfilesDropdown').style.display = 'none';
 
             // Get the example profile data
             const profileData = exampleProfiles[profileType];
@@ -10026,16 +11156,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             alert(`Loaded example profile: ${profile.firstName} ${profile.lastName}\n\n${profileData.experiences.length} experiences, ${profileData.stories ? profileData.stories.length : 0} stories, ${goalsCount} goals, ${portfolioCount} portfolio projects, and ${jobsCount} job opportunities imported.`);
         }
-
-        // Close example profiles dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const container = document.querySelector('.example-profiles-container');
-            const dropdown = document.getElementById('exampleProfilesDropdown');
-
-            if (container && dropdown && !container.contains(event.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
 
         // Import Canvas Data from JSON
         function importCanvasData() {
@@ -12287,6 +13407,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function closeInterviewSlideout() {
             const slideout = document.getElementById('interviewSlideout');
             slideout.classList.remove('active');
+
+            // Reset profile request form to collapsed state
+            const profileRequestForm = document.getElementById('profileRequestFormContainer');
+            if (profileRequestForm) {
+                profileRequestForm.style.display = 'none';
+            }
         }
 
         // Track selected experience filters
@@ -14987,6 +16113,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 // Show career experience content
                 careerExperienceContent.style.display = 'flex';
+
+                // Ensure profile request form is collapsed
+                const profileRequestForm = document.getElementById('profileRequestFormContainer');
+                if (profileRequestForm) {
+                    profileRequestForm.style.display = 'none';
+                }
 
                 loadCareerExperiences();
 
@@ -27962,6 +29094,513 @@ F &= ma \\\\
             console.log('Tour button added successfully!');
         }
 
+        // ============================
+        // ONBOARDING TOUR SYSTEM
+        // ============================
+
+        let tourState = {
+            currentStep: 0,
+            totalSteps: 10,
+            isActive: false,
+            completedOnce: localStorage.getItem('cleansheet_tour_completed') === 'true'
+        };
+
+        const tourSteps = [
+            // Step 1: Welcome
+            {
+                title: 'Welcome to Cleansheet',
+                icon: 'ph-hand-waving',
+                content: 'Your interactive career management workspace. Let\'s take a quick tour to get you started. You can explore example profiles later from the Quick Start button.',
+                highlightElement: null,
+                position: 'center',
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 2: Profile Customization
+            {
+                title: 'Set Up Your Profile',
+                icon: 'ph-user-circle',
+                content: 'Click on "Profile" to customize your name, profession, and career goal. This helps personalize your workspace.',
+                highlightElement: '.profile-dropdown-item:first-child',
+                highlightMenuContext: '.profile-circle',
+                position: 'bottom-right',
+                onEnter: () => {
+                    // Auto-open profile dropdown
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('active');
+
+                        // Re-highlight the Profile menu item specifically
+                        setTimeout(() => {
+                            highlightElement('.profile-dropdown-item:first-child', 'bottom-right');
+                        }, 50);
+                    }
+                },
+                onNext: () => {
+                    // Close profile dropdown
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.classList.remove('active');
+                    }
+
+                    // Don't open modal - just move to next step
+                    // User can open it themselves later
+                    return true;
+                }
+            },
+            // Step 3: Career Experience Node
+            {
+                title: 'Explore Your Canvas',
+                icon: 'ph-tree-structure',
+                content: 'This is your career mindmap with five main sections. Click on Career Experience to add your work history, Interview Prep to practice questions, Goals to set objectives, Portfolio to showcase projects, and Job Opportunities to manage applications.',
+                highlightElement: null, // Will be set dynamically to highlight all child nodes
+                position: 'center',
+                mindmapNode: 'AllChildNodes',
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 4: Paths Tab
+            {
+                title: 'Career Paths',
+                icon: 'ph-path',
+                content: 'Explore guided career paths tailored to different roles and industries. Each path shows the skills, experiences, and milestones you need to reach your career goals.',
+                highlightElement: '.main-menu-item:nth-of-type(2)',
+                position: 'bottom-left',
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 5: Industry Tab
+            {
+                title: 'Industry Insights',
+                icon: 'ph-buildings',
+                content: 'Discover industry-specific information, trends, and role requirements. Learn about different sectors and understand what employers are looking for in each field.',
+                highlightElement: '.main-menu-item:nth-of-type(3)',
+                position: 'bottom-left',
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 6: Library Tab
+            {
+                title: 'Curated Library',
+                icon: 'ph-books',
+                content: 'Access our curated collection of articles, guides, and resources. Search by topic, career path, or skill level to find content that helps you grow professionally.',
+                highlightElement: '.main-menu-item:nth-of-type(4)',
+                position: 'bottom-left',
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 7: Subscription Preview
+            {
+                title: 'Free Preview Access',
+                icon: 'ph-gift',
+                content: 'All features are available for free during the preview period. No credit card or email required! Explore everything Cleansheet has to offer and decide which subscription tier fits your needs later.',
+                highlightElement: '#subscriptionTierBadge',
+                position: 'bottom-right',
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 8: Export JSON for Backup
+            {
+                title: 'Backup Your Data',
+                icon: 'ph-download',
+                content: 'During the preview, all your data is stored locally in your browser. Nothing is shared with Cleansheet servers. Use "Export JSON" regularly to backup your work and avoid losing data if you clear your browser cache.',
+                highlightElement: '.profile-dropdown-item:nth-child(5)',
+                position: 'bottom-right',
+                onEnter: () => {
+                    // Auto-open profile dropdown
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('active');
+
+                        // Re-highlight the Export JSON menu item specifically
+                        setTimeout(() => {
+                            highlightElement('.profile-dropdown-item:nth-child(5)', 'bottom-right');
+                        }, 50);
+                    }
+                },
+                onNext: () => {
+                    // Close profile dropdown
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.classList.remove('active');
+                    }
+                    return true;
+                }
+            },
+            // Step 9: Install App
+            {
+                title: 'Install as Desktop App',
+                icon: 'ph-download-simple',
+                content: 'Career Canvas can be installed as an app on Windows and MacOS. Get quick access from your desktop, work offline, and enjoy a native app experience without the browser toolbar.',
+                highlightElement: '.profile-dropdown-item:nth-child(6)',
+                position: 'bottom-right',
+                onEnter: () => {
+                    // Auto-open profile dropdown
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('active');
+
+                        // Re-highlight the Install App menu item specifically
+                        setTimeout(() => {
+                            highlightElement('.profile-dropdown-item:nth-child(6)', 'bottom-right');
+                        }, 50);
+                    }
+                },
+                onNext: () => {
+                    // Close profile dropdown
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown) {
+                        dropdown.classList.remove('active');
+                    }
+                    return true;
+                }
+            },
+            // Step 10: Finish
+            {
+                title: 'Finish',
+                icon: 'ph-check-circle',
+                content: '<strong>You\'re ready to start building your career canvas!</strong>\n\n<div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; margin: 16px 0; border-radius: 4px;">\n<strong style="color: #92400e;">Important: Your Data, Your Responsibility</strong>\n<p style="margin: 8px 0 0 0; font-size: 13px; line-height: 1.5; color: #92400e;">All data is stored locally in your browser. <strong>Cleansheet does not have access to your data.</strong> You are the sole steward of your information. Export your data regularly to prevent loss.</p>\n</div>\n\n<p style="margin: 16px 0 0 0; font-size: 14px; line-height: 1.6;">Click "Finish" to start exploring the Career Canvas.</p>',
+                highlightElement: null,
+                position: 'center',
+                isLastStep: true,
+                onNext: () => {
+                    completeTour();
+                    return true;
+                }
+            }
+        ];
+
+        function startTour() {
+            // Check if user already completed tour
+            if (tourState.completedOnce) {
+                return; // Don't show tour again
+            }
+
+            tourState.currentStep = 0;
+            tourState.isActive = true;
+            showTourStep(0);
+        }
+
+        function showTourStep(stepIndex) {
+            const step = tourSteps[stepIndex];
+            if (!step) return;
+
+            // Update tour state
+            tourState.currentStep = stepIndex;
+
+            // Update tour card content
+            document.getElementById('tourStepIndicator').textContent = `Step ${stepIndex + 1} of ${tourState.totalSteps}`;
+            document.getElementById('tourTitle').textContent = step.title;
+            document.getElementById('tourIcon').className = `ph ${step.icon}`;
+
+            // Format content with HTML support
+            const content = step.content.replace(/\n/g, '<br>');
+            document.getElementById('tourContent').innerHTML = content;
+
+            // Update buttons
+            const prevBtn = document.getElementById('tourPrevBtn');
+            const nextBtn = document.getElementById('tourNextBtn');
+            const skipBtn = document.getElementById('tourSkipBtn');
+
+            // Show/hide previous button
+            if (stepIndex === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+
+            // Update next button text for last step
+            if (step.isLastStep) {
+                nextBtn.innerHTML = 'Finish <i class="ph ph-check" style="font-size: 16px;"></i>';
+                skipBtn.style.display = 'none'; // Hide skip on last step
+            } else {
+                nextBtn.innerHTML = 'Next <i class="ph ph-arrow-right" style="font-size: 16px;"></i>';
+                skipBtn.style.display = 'block';
+            }
+
+            // Show overlay and tour card
+            document.getElementById('tourOverlay').style.display = 'block';
+            document.getElementById('tourCard').style.display = 'block';
+
+            // Hide spotlight initially to reset state
+            document.getElementById('tourSpotlight').style.display = 'none';
+
+            // Highlight element if specified
+            if (step.highlightElement) {
+                highlightElement(step.highlightElement, step.position);
+            } else if (step.mindmapNode) {
+                // Highlight mindmap nodes with a delay to ensure rendering is complete
+                setTimeout(() => {
+                    highlightMindmapNode(step.mindmapNode, step.position);
+                }, 200);
+            } else {
+                // No highlight, center the tour card
+                positionTourCard('center');
+            }
+
+            // Execute onEnter callback
+            if (step.onEnter) {
+                setTimeout(() => step.onEnter(), 300);
+            }
+        }
+
+        function highlightElement(selector, position) {
+            const element = document.querySelector(selector);
+            if (!element) {
+                console.warn('Tour: Element not found:', selector);
+                positionTourCard('center');
+                return;
+            }
+
+            let rect = element.getBoundingClientRect();
+            const spotlight = document.getElementById('tourSpotlight');
+
+            // Special handling for profile circle - include dropdown if open
+            // (but not if we're highlighting a specific menu item)
+            if (selector === '.profile-circle') {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown && dropdown.classList.contains('active')) {
+                    const dropdownRect = dropdown.getBoundingClientRect();
+                    const avatarRect = element.getBoundingClientRect();
+
+                    // Calculate combined bounding box
+                    const top = Math.min(avatarRect.top, dropdownRect.top);
+                    const left = Math.min(avatarRect.left, dropdownRect.left);
+                    const right = Math.max(avatarRect.right, dropdownRect.right);
+                    const bottom = Math.max(avatarRect.bottom, dropdownRect.bottom);
+
+                    rect = {
+                        top: top,
+                        left: left,
+                        right: right,
+                        bottom: bottom,
+                        width: right - left,
+                        height: bottom - top
+                    };
+                }
+            }
+
+            // Special handling for profile dropdown menu items - add extra emphasis
+            let spotlightPadding = 8;
+            if (selector.includes('.profile-dropdown-item')) {
+                // Add extra padding for menu items to make them stand out
+                spotlightPadding = 12;
+            }
+
+            // Position spotlight around element
+            spotlight.style.top = (rect.top - spotlightPadding) + 'px';
+            spotlight.style.left = (rect.left - spotlightPadding) + 'px';
+            spotlight.style.width = (rect.width + (spotlightPadding * 2)) + 'px';
+            spotlight.style.height = (rect.height + (spotlightPadding * 2)) + 'px';
+            spotlight.style.display = 'block';
+
+            // Position tour card relative to highlighted element
+            positionTourCard(position, rect);
+        }
+
+        function highlightMindmapNode(nodeName, position) {
+            // Find all child nodes in the mindmap (second-level nodes)
+            // These are the main feature nodes: Career Experience, Interview Prep, Goals, Portfolio, Job Opportunities
+            const allNodes = document.querySelectorAll('#canvas-mindmap g');
+            const childNodeGroups = new Map(); // Use a Map to deduplicate
+
+            console.log('Tour: Searching for mindmap nodes, found', allNodes.length, 'total nodes');
+
+            // Find all second-level nodes (children of root)
+            allNodes.forEach(node => {
+                const textElements = node.querySelectorAll('text');
+                textElements.forEach(textElement => {
+                    const text = textElement.textContent.trim();
+                    // Check if this is a child node (not root, has meaningful text)
+                    if (text && !text.includes("Canvas") && !text.includes("(") && text.length > 3) {
+                        // Look for main menu items - these contain "Career", "Interview", "Goals", "Portfolio", "Job"
+                        if (text.includes("Career") || text.includes("Interview") || text.includes("Goals") ||
+                            text.includes("Portfolio") || text.includes("Job")) {
+                            // Find the parent group that contains the entire node (rect + text + badge)
+                            const parentGroup = node.closest('g.node') || node;
+                            if (!childNodeGroups.has(text)) {
+                                childNodeGroups.set(text, parentGroup);
+                                console.log('Tour: Found child node:', text);
+                            }
+                        }
+                    }
+                });
+            });
+
+            const childNodes = Array.from(childNodeGroups.values());
+
+            if (childNodes.length === 0) {
+                console.warn('Tour: Child nodes not found in mindmap');
+                positionTourCard('center');
+                return;
+            }
+
+            console.log('Tour: Highlighting', childNodes.length, 'unique child nodes');
+
+            // Calculate combined bounding box for all child nodes and their links
+            let minTop = Infinity, minLeft = Infinity;
+            let maxBottom = -Infinity, maxRight = -Infinity;
+
+            childNodes.forEach(node => {
+                const rect = node.getBoundingClientRect();
+                console.log('Tour: Node bounds:', rect);
+                minTop = Math.min(minTop, rect.top);
+                minLeft = Math.min(minLeft, rect.left);
+                maxBottom = Math.max(maxBottom, rect.bottom);
+                maxRight = Math.max(maxRight, rect.right);
+            });
+
+            // Also include the links/paths that connect to these nodes
+            const links = document.querySelectorAll('#canvas-mindmap path.link');
+            links.forEach(link => {
+                const rect = link.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    minTop = Math.min(minTop, rect.top);
+                    minLeft = Math.min(minLeft, rect.left);
+                    maxBottom = Math.max(maxBottom, rect.bottom);
+                    maxRight = Math.max(maxRight, rect.right);
+                }
+            });
+
+            console.log('Tour: Combined bounds - Top:', minTop, 'Left:', minLeft, 'Bottom:', maxBottom, 'Right:', maxRight);
+
+            const combinedRect = {
+                top: minTop,
+                left: minLeft,
+                bottom: maxBottom,
+                right: maxRight,
+                width: maxRight - minLeft,
+                height: maxBottom - minTop
+            };
+
+            console.log('Tour: Combined rect dimensions - Width:', combinedRect.width, 'Height:', combinedRect.height);
+
+            const spotlight = document.getElementById('tourSpotlight');
+
+            // Position spotlight around all child nodes with generous padding
+            const padding = 40; // Increased from 20 to 40 for better visibility
+            spotlight.style.top = (combinedRect.top - padding) + 'px';
+            spotlight.style.left = (combinedRect.left - padding) + 'px';
+            spotlight.style.width = (combinedRect.width + (padding * 2)) + 'px';
+            spotlight.style.height = (combinedRect.height + (padding * 2)) + 'px';
+            spotlight.style.display = 'block';
+
+            console.log('Tour: Spotlight positioned at:', spotlight.style.top, spotlight.style.left,
+                        'Size:', spotlight.style.width, spotlight.style.height);
+
+            // Position tour card
+            positionTourCard(position, combinedRect);
+        }
+
+        function positionTourCard(position, targetRect = null) {
+            const tourCard = document.getElementById('tourCard');
+            const cardRect = tourCard.getBoundingClientRect();
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            let top, left;
+
+            if (position === 'center' || !targetRect) {
+                // Center the card
+                top = (windowHeight - cardRect.height) / 2;
+                left = (windowWidth - cardRect.width) / 2;
+            } else if (position === 'bottom-right') {
+                // Position below and to the left of target
+                top = targetRect.bottom + 20;
+                left = targetRect.right - cardRect.width;
+
+                // Adjust if off-screen
+                if (top + cardRect.height > windowHeight - 20) {
+                    top = targetRect.top - cardRect.height - 20;
+                }
+                if (left < 20) {
+                    left = 20;
+                }
+            } else if (position === 'bottom-left') {
+                top = targetRect.bottom + 20;
+                left = targetRect.left;
+
+                if (top + cardRect.height > windowHeight - 20) {
+                    top = targetRect.top - cardRect.height - 20;
+                }
+                if (left + cardRect.width > windowWidth - 20) {
+                    left = windowWidth - cardRect.width - 20;
+                }
+            }
+
+            tourCard.style.top = top + 'px';
+            tourCard.style.left = left + 'px';
+        }
+
+        function nextTourStep() {
+            const currentStep = tourSteps[tourState.currentStep];
+
+            // Execute onNext callback
+            if (currentStep.onNext) {
+                const canProceed = currentStep.onNext();
+                if (canProceed === false) {
+                    return; // Stay on current step
+                }
+            }
+
+            // Move to next step
+            if (tourState.currentStep < tourState.totalSteps - 1) {
+                showTourStep(tourState.currentStep + 1);
+            } else {
+                completeTour();
+            }
+        }
+
+        function previousTourStep() {
+            if (tourState.currentStep > 0) {
+                showTourStep(tourState.currentStep - 1);
+            }
+        }
+
+        function skipTour() {
+            closeTour();
+        }
+
+        function completeTour() {
+            // Mark tour as completed
+            localStorage.setItem('cleansheet_tour_completed', 'true');
+            tourState.completedOnce = true;
+            closeTour();
+        }
+
+        function closeTour() {
+            tourState.isActive = false;
+            document.getElementById('tourOverlay').style.display = 'none';
+            document.getElementById('tourCard').style.display = 'none';
+            document.getElementById('tourSpotlight').style.display = 'none';
+
+            // Close any modals/dropdowns that were opened by the tour
+            closeProfileModal();
+
+            // Close profile dropdown if open
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileDropdown) {
+                profileDropdown.classList.remove('active');
+            }
+        }
+
+        function restartTour() {
+            // Close the profile dropdown menu
+            document.getElementById('profileDropdown').classList.remove('active');
+
+            // Reset tour state and start from beginning
+            tourState.completedOnce = false;
+            tourState.currentStep = 0;
+            tourState.isActive = true;
+            showTourStep(0);
+        }
+
         // Auto-open Canvas Tour on page load - simple version
         window.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded');
@@ -28001,6 +29640,11 @@ F &= ma \\\\
             setTimeout(() => {
                 initializeUIGuidance();
             }, 500);
+
+            // Start onboarding tour for new users
+            setTimeout(() => {
+                startTour();
+            }, 1000);
         });
 
         // Service Worker Registration for PWA
