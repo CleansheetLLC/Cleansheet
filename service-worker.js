@@ -10,17 +10,32 @@ const urlsToCache = [
   '/assets/high-resolution-logo-files/original-on-transparent.png'
 ];
 
-// Install event - cache resources
+// Install event - cache resources individually for resilience
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Caching app shell');
-        return cache.addAll(urlsToCache);
+        // Cache files individually so one failure doesn't break everything
+        const cachePromises = urlsToCache.map((url) => {
+          return cache.add(url)
+            .then(() => {
+              console.log('[Service Worker] Successfully cached:', url);
+            })
+            .catch((error) => {
+              console.warn('[Service Worker] Failed to cache:', url, error.message);
+              // Continue even if this file fails
+            });
+        });
+        return Promise.all(cachePromises);
+      })
+      .then(() => {
+        console.log('[Service Worker] Installation complete (some files may have failed)');
       })
       .catch((error) => {
-        console.error('[Service Worker] Cache installation failed:', error);
+        console.error('[Service Worker] Cache installation error:', error);
+        // Still allow installation to complete
       })
   );
   // Force the waiting service worker to become the active service worker
@@ -48,8 +63,8 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fall back to network
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  // Skip cross-origin requests and non-GET requests
+  if (!event.request.url.startsWith(self.location.origin) || event.request.method !== 'GET') {
     return;
   }
 
@@ -58,7 +73,6 @@ self.addEventListener('fetch', (event) => {
       .then((response) => {
         // Cache hit - return response
         if (response) {
-          console.log('[Service Worker] Serving from cache:', event.request.url);
           return response;
         }
 
@@ -74,17 +88,20 @@ self.addEventListener('fetch', (event) => {
           // Clone the response
           const responseToCache = response.clone();
 
+          // Cache the new response (don't await, let it happen in background)
           caches.open(CACHE_NAME)
             .then((cache) => {
-              // Only cache GET requests
-              if (event.request.method === 'GET') {
-                cache.put(event.request, responseToCache);
-              }
+              cache.put(event.request, responseToCache).catch((err) => {
+                console.warn('[Service Worker] Failed to cache:', event.request.url, err.message);
+              });
+            })
+            .catch((err) => {
+              console.warn('[Service Worker] Failed to open cache:', err.message);
             });
 
           return response;
         }).catch((error) => {
-          console.error('[Service Worker] Fetch failed:', error);
+          console.warn('[Service Worker] Fetch failed for:', event.request.url, error.message);
 
           // Return a custom offline page if available
           return caches.match('/offline.html').then((offlineResponse) => {

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Cleansheet User Profile",
-  "description": "Schema for Cleansheet career canvas user profiles including experiences, skills, and STAR stories",
+  "description": "Schema for Cleansheet career canvas user profiles including experiences, portfolio, STAR stories, diagrams (draw.io), documents (Lexical), and whiteboards (Excalidraw)",
   "type": "object",
   "properties": {
     "userFirstName": {
@@ -29,6 +29,10 @@
       "items": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the experience"
+          },
           "role": {
             "type": "string",
             "description": "Job title or role"
@@ -62,9 +66,30 @@
               "type": "string"
             }
           },
+          "careerPaths": {
+            "type": "array",
+            "description": "Career paths this experience relates to (e.g., 'Full Stack Developer', 'Cloud Computing', 'Data Analytics')",
+            "items": {
+              "type": "string"
+            }
+          },
+          "functionalRoles": {
+            "type": "array",
+            "description": "Functional roles performed (e.g., 'Developer', 'Architect', 'Team Lead')",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skills": {
+            "type": "array",
+            "description": "Skills demonstrated in this role",
+            "items": {
+              "type": "string"
+            }
+          },
           "keySkills": {
             "type": "array",
-            "description": "Key skills demonstrated in this role",
+            "description": "Key skills demonstrated in this role (legacy field, use 'skills' instead)",
             "items": {
               "type": "string"
             }
@@ -87,12 +112,73 @@
         "required": []
       }
     },
+    "portfolio": {
+      "type": "array",
+      "description": "Portfolio projects and significant work items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the portfolio item"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the project or portfolio item"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the project"
+          },
+          "startDate": {
+            "type": ["string", "null"],
+            "description": "Start date in ISO 8601 format (YYYY-MM-DD)",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "endDate": {
+            "type": ["string", "null"],
+            "description": "End date in ISO 8601 format (YYYY-MM-DD), null if ongoing",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "technologies": {
+            "type": "array",
+            "description": "Technologies, tools, and platforms used",
+            "items": {
+              "type": "string"
+            }
+          },
+          "role": {
+            "type": "string",
+            "description": "Your role in the project"
+          },
+          "responsibilities": {
+            "type": "array",
+            "description": "Key responsibilities in this project",
+            "items": {
+              "type": "string"
+            }
+          },
+          "outcomes": {
+            "type": "array",
+            "description": "Outcomes and results of the project",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name"]
+      }
+    },
     "stories": {
       "type": "array",
       "description": "STAR-format behavioral stories demonstrating impact",
       "items": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the story"
+          },
           "title": {
             "type": "string",
             "description": "Title of the story"
@@ -113,12 +199,222 @@
             "type": "string",
             "description": "Outcomes and impact of the actions taken"
           },
+          "competencies": {
+            "type": "array",
+            "description": "Competencies demonstrated in this story",
+            "items": {
+              "type": "string"
+            }
+          },
           "experienceIndex": {
-            "type": "number",
+            "type": ["number", "null"],
             "description": "Index reference to the related experience in the experiences array"
+          },
+          "experienceName": {
+            "type": "string",
+            "description": "Display name of the related experience"
+          },
+          "portfolioIndex": {
+            "type": ["number", "null"],
+            "description": "Index reference to the related portfolio item in the portfolio array"
           }
         },
-        "required": []
+        "required": ["title", "situation", "task", "action", "result"]
+      }
+    },
+    "diagrams": {
+      "type": "array",
+      "description": "System and architectural diagrams created with draw.io",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the diagram"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the diagram"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of what the diagram represents"
+          },
+          "linkedType": {
+            "type": "string",
+            "description": "Type of linked item: 'experience', 'portfolio', or 'none'",
+            "enum": ["experience", "portfolio", "none"]
+          },
+          "linkedId": {
+            "type": ["string", "null"],
+            "description": "ID or name of the linked experience or portfolio item"
+          },
+          "linkedName": {
+            "type": ["string", "null"],
+            "description": "Display name of the linked item"
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "description": "Last modification timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "diagramData": {
+            "type": ["string", "null"],
+            "description": "Draw.io diagram data in XML format (mxGraph XML)"
+          }
+        },
+        "required": ["id", "name", "linkedType", "created"]
+      }
+    },
+    "documents": {
+      "type": "array",
+      "description": "Interview preparation documents created with Lexical editor",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the document"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the document"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the document content"
+          },
+          "linkedType": {
+            "type": "string",
+            "description": "Type of linked item: 'experience', 'portfolio', or 'none'",
+            "enum": ["experience", "portfolio", "none"]
+          },
+          "linkedId": {
+            "type": ["string", "null"],
+            "description": "ID or name of the linked experience or portfolio item"
+          },
+          "linkedName": {
+            "type": ["string", "null"],
+            "description": "Display name of the linked item"
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "description": "Last modification timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "documentType": {
+            "type": "string",
+            "description": "Type of document structure",
+            "enum": ["structured", "unstructured"]
+          },
+          "blocks": {
+            "type": "array",
+            "description": "Lexical editor content blocks",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier for the block"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Type of content block",
+                  "enum": ["header", "text", "list", "table", "code", "quote"]
+                },
+                "level": {
+                  "type": "number",
+                  "description": "Heading level (1-6) for header blocks",
+                  "minimum": 1,
+                  "maximum": 6
+                },
+                "content": {
+                  "type": "string",
+                  "description": "Text content of the block"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "Programming language for code blocks"
+                },
+                "items": {
+                  "type": "array",
+                  "description": "List items for list blocks",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": ["id", "type"]
+            }
+          },
+          "sharedWith": {
+            "type": "array",
+            "description": "User initials of people this document is shared with",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["id", "name", "linkedType", "created", "documentType"]
+      }
+    },
+    "whiteboards": {
+      "type": "array",
+      "description": "Whiteboard sessions created with Excalidraw",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the whiteboard"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the whiteboard session"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the whiteboard content"
+          },
+          "linkedType": {
+            "type": "string",
+            "description": "Type of linked item: 'experience', 'portfolio', or 'none'",
+            "enum": ["experience", "portfolio", "none"]
+          },
+          "linkedId": {
+            "type": ["string", "null"],
+            "description": "ID or name of the linked experience or portfolio item"
+          },
+          "linkedName": {
+            "type": ["string", "null"],
+            "description": "Display name of the linked item"
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "description": "Last modification timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "canvasData": {
+            "type": ["string", "null"],
+            "description": "Excalidraw canvas data in JSON format (stringified ExcalidrawElement array)"
+          }
+        },
+        "required": ["id", "name", "linkedType", "created"]
       }
     }
   },
