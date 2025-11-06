@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Example Documents - Cleansheet</title>
+    <style>
+        :root {
+            --color-primary-blue: #0066CC;
+            --color-dark: #1a1a1a;
+            --color-neutral-text: #333333;
+            --color-neutral-border: #e5e5e7;
+            --font-family-ui: 'Questrial', -apple-system, sans-serif;
+            --font-family-body: 'Barlow', -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            margin: 0;
+            padding: 40px 20px;
+            background: #f5f5f7;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-family: var(--font-family-ui);
+            font-size: 28px;
+            color: var(--color-dark);
+            margin: 0 0 8px 0;
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: var(--color-primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #output {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid var(--color-neutral-border);
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        #output.show {
+            display: block;
+        }
+
+        .success {
+            color: #16a34a;
+        }
+
+        .info {
+            color: var(--color-primary-blue);
+        }
+
+        .warning {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seed Example Documents</h1>
+        <p>
+            This utility creates 3 context-relevant documents for each of the three example personas (Retail Manager, Research Chemist, Data Analyst).
+            Documents will be randomly linked to existing experiences or portfolio items.
+        </p>
+        <p>
+            <strong>Note:</strong> This will create new documents in your browser's localStorage. It will not delete existing documents.
+        </p>
+
+        <button id="seedButton" onclick="runSeeding()">Seed Documents</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const personaDocuments = {
+            'retail-manager': [
+                {
+                    name: 'Store Operations Playbook',
+                    description: 'Comprehensive guide for daily store operations, opening/closing procedures, and staff scheduling protocols.',
+                    content: ''
+                },
+                {
+                    name: 'Customer Service Training Manual',
+                    description: 'Training materials for new hires covering customer engagement, conflict resolution, and company policies.',
+                    content: ''
+                },
+                {
+                    name: 'Inventory Management Best Practices',
+                    description: 'Documentation of inventory tracking systems, reordering procedures, and loss prevention strategies.',
+                    content: ''
+                }
+            ],
+            'chemist': [
+                {
+                    name: 'Lab Safety & Compliance Protocol',
+                    description: 'Safety procedures, chemical handling guidelines, and regulatory compliance documentation for laboratory operations.',
+                    content: ''
+                },
+                {
+                    name: 'Experimental Procedures - Polymer Synthesis',
+                    description: 'Detailed methodology for polymer synthesis experiments including materials, equipment setup, and analysis techniques.',
+                    content: ''
+                },
+                {
+                    name: 'Quality Control Standards & Testing',
+                    description: 'Quality assurance protocols, testing procedures, and acceptance criteria for research outputs.',
+                    content: ''
+                }
+            ],
+            'data-analyst': [
+                {
+                    name: 'SQL Query Library & Documentation',
+                    description: 'Collection of reusable SQL queries for common reporting needs, with explanations and optimization notes.',
+                    content: ''
+                },
+                {
+                    name: 'Dashboard Design Standards',
+                    description: 'Guidelines for creating effective data visualizations, color schemes, and user interface best practices.',
+                    content: ''
+                },
+                {
+                    name: 'Data Cleaning & Validation Procedures',
+                    description: 'Step-by-step processes for data quality checks, handling missing values, and ensuring data integrity.',
+                    content: ''
+                }
+            ]
+        };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            output.classList.add('show');
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = message + '\n';
+            output.appendChild(span);
+        }
+
+        function seedDocumentsForPersona(persona) {
+            log(`\n=== Seeding documents for ${persona} ===`, 'info');
+
+            // Get existing experiences and portfolio items
+            const experiencesKey = `userExperiences_${persona}`;
+            const portfolioKey = `userPortfolio_${persona}`;
+            const documentsKey = `interview_documents_${persona}`;
+
+            const experiences = JSON.parse(localStorage.getItem(experiencesKey) || '[]');
+            const portfolio = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
+            const existingDocuments = JSON.parse(localStorage.getItem(documentsKey) || '[]');
+
+            log(`Found ${experiences.length} experiences and ${portfolio.length} portfolio items`);
+
+            if (experiences.length === 0 && portfolio.length === 0) {
+                log(`⚠ No experiences or portfolio items found for ${persona}. Creating unlinked documents.`, 'warning');
+            }
+
+            const allLinkableItems = [
+                ...experiences.map(exp => ({
+                    type: 'experience',
+                    id: exp.id,
+                    name: `${exp.title || exp.role} at ${exp.company}`
+                })),
+                ...portfolio.map(item => ({
+                    type: 'portfolio',
+                    id: item.id,
+                    name: item.name || item.title
+                }))
+            ];
+
+            const documents = personaDocuments[persona];
+            const newDocuments = [];
+
+            documents.forEach((doc, index) => {
+                // Pick a random linkable item or create unlinked
+                let linkedType = 'none';
+                let linkedId = '';
+                let linkedName = '';
+
+                if (allLinkableItems.length > 0) {
+                    const randomItem = allLinkableItems[Math.floor(Math.random() * allLinkableItems.length)];
+                    linkedType = randomItem.type;
+                    linkedId = randomItem.id;
+                    linkedName = randomItem.name;
+                }
+
+                const now = new Date().toISOString();
+                const newDoc = {
+                    id: (Date.now() + index * 100).toString(),
+                    name: doc.name,
+                    description: doc.description,
+                    linkedType: linkedType,
+                    linkedId: linkedId,
+                    linkedName: linkedName,
+                    content: doc.content,
+                    created: now,
+                    lastModified: now
+                };
+
+                newDocuments.push(newDoc);
+                log(`✓ Created: ${doc.name} ${linkedType !== 'none' ? `(linked to ${linkedType}: ${linkedName})` : '(unlinked)'}`, 'success');
+            });
+
+            // Add to existing documents
+            const allDocuments = [...existingDocuments, ...newDocuments];
+            localStorage.setItem(documentsKey, JSON.stringify(allDocuments));
+
+            log(`✓ Saved ${newDocuments.length} new documents for ${persona}`, 'success');
+            return newDocuments.length;
+        }
+
+        function runSeeding() {
+            const button = document.getElementById('seedButton');
+            const output = document.getElementById('output');
+
+            button.disabled = true;
+            output.innerHTML = '';
+            output.classList.add('show');
+
+            log('🌱 Seeding example documents for all personas...\n', 'info');
+
+            let totalCreated = 0;
+            const personas = ['retail-manager', 'chemist', 'data-analyst'];
+
+            personas.forEach(persona => {
+                totalCreated += seedDocumentsForPersona(persona);
+            });
+
+            log(`\n✅ Complete! Created ${totalCreated} total documents across ${personas.length} personas.`, 'success');
+            log('\nTo view documents:', 'info');
+            log('1. Open Career Canvas (career-canvas.html)', 'info');
+            log('2. Switch to a persona using the mindmap', 'info');
+            log('3. Navigate to Interview Preparation > Documents', 'info');
+
+            button.disabled = false;
+        }
+    </script>
+</body>
+</html>

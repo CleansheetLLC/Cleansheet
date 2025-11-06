@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Example Diagrams - Cleansheet</title>
+    <style>
+        :root {
+            --color-primary-blue: #0066CC;
+            --color-dark: #1a1a1a;
+            --color-neutral-text: #333333;
+            --color-neutral-border: #e5e5e7;
+            --font-family-ui: 'Questrial', -apple-system, sans-serif;
+            --font-family-body: 'Barlow', -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            margin: 0;
+            padding: 40px 20px;
+            background: #f5f5f7;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-family: var(--font-family-ui);
+            font-size: 28px;
+            color: var(--color-dark);
+            margin: 0 0 8px 0;
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: var(--color-primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #output {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid var(--color-neutral-border);
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        #output.show {
+            display: block;
+        }
+
+        .success {
+            color: #16a34a;
+        }
+
+        .info {
+            color: var(--color-primary-blue);
+        }
+
+        .warning {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seed Example Diagrams</h1>
+        <p>
+            This utility creates 3 context-relevant diagrams for each of the three example personas (Retail Manager, Research Chemist, Data Analyst).
+            Diagrams will be randomly linked to existing experiences or portfolio items.
+        </p>
+        <p>
+            <strong>Note:</strong> This will create new diagrams in your browser's localStorage. It will not delete existing diagrams.
+        </p>
+
+        <button id="seedButton" onclick="runSeeding()">Seed Diagrams</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const personaDiagrams = {
+            'retail-manager': [
+                {
+                    name: 'Store Layout & Customer Flow',
+                    description: 'Floor plan showing product placement, checkout zones, and optimal customer traffic patterns for maximum sales conversion.',
+                    diagramData: null
+                },
+                {
+                    name: 'Team Organization Chart',
+                    description: 'Organizational structure showing reporting relationships, shift schedules, and department responsibilities.',
+                    diagramData: null
+                },
+                {
+                    name: 'Inventory Management Process Flow',
+                    description: 'Workflow diagram illustrating receiving, stocking, inventory counts, and reordering processes.',
+                    diagramData: null
+                }
+            ],
+            'chemist': [
+                {
+                    name: 'Lab Equipment Layout',
+                    description: 'Laboratory floor plan showing equipment placement, safety stations, and workflow zones for optimal efficiency.',
+                    diagramData: null
+                },
+                {
+                    name: 'Synthesis Reaction Pathway',
+                    description: 'Chemical reaction scheme showing synthesis steps, intermediate compounds, and reaction conditions.',
+                    diagramData: null
+                },
+                {
+                    name: 'Quality Control Workflow',
+                    description: 'Process flowchart for sample testing, analysis methods, data validation, and approval procedures.',
+                    diagramData: null
+                }
+            ],
+            'data-analyst': [
+                {
+                    name: 'Data Pipeline Architecture',
+                    description: 'System architecture diagram showing data sources, ETL processes, databases, and reporting layers.',
+                    diagramData: null
+                },
+                {
+                    name: 'Dashboard Wireframe - Sales Analytics',
+                    description: 'Wireframe design for executive sales dashboard with KPIs, trend charts, and drill-down capabilities.',
+                    diagramData: null
+                },
+                {
+                    name: 'Analysis Process Flowchart',
+                    description: 'Workflow showing data collection, cleaning, analysis, visualization, and stakeholder communication steps.',
+                    diagramData: null
+                }
+            ]
+        };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            output.classList.add('show');
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = message + '\n';
+            output.appendChild(span);
+        }
+
+        function seedDiagramsForPersona(persona) {
+            log(`\n=== Seeding diagrams for ${persona} ===`, 'info');
+
+            // Get existing experiences and portfolio items
+            const experiencesKey = `userExperiences_${persona}`;
+            const portfolioKey = `userPortfolio_${persona}`;
+            const diagramsKey = `diagrams_${persona}`;
+
+            const experiences = JSON.parse(localStorage.getItem(experiencesKey) || '[]');
+            const portfolio = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
+            const existingDiagrams = JSON.parse(localStorage.getItem(diagramsKey) || '[]');
+
+            log(`Found ${experiences.length} experiences and ${portfolio.length} portfolio items`);
+
+            if (experiences.length === 0 && portfolio.length === 0) {
+                log(`⚠ No experiences or portfolio items found for ${persona}. Creating unlinked diagrams.`, 'warning');
+            }
+
+            const allLinkableItems = [
+                ...experiences.map(exp => ({
+                    type: 'experience',
+                    id: exp.id,
+                    name: `${exp.title || exp.role} at ${exp.company}`
+                })),
+                ...portfolio.map(item => ({
+                    type: 'portfolio',
+                    id: item.id,
+                    name: item.name || item.title
+                }))
+            ];
+
+            const diagrams = personaDiagrams[persona];
+            const newDiagrams = [];
+
+            diagrams.forEach((diagram, index) => {
+                // Pick a random linkable item or create unlinked
+                let linkedType = 'none';
+                let linkedId = '';
+                let linkedName = '';
+
+                if (allLinkableItems.length > 0) {
+                    const randomItem = allLinkableItems[Math.floor(Math.random() * allLinkableItems.length)];
+                    linkedType = randomItem.type;
+                    linkedId = randomItem.id;
+                    linkedName = randomItem.name;
+                }
+
+                const now = new Date().toISOString();
+                const newDiagram = {
+                    id: (Date.now() + index * 100).toString(),
+                    name: diagram.name,
+                    description: diagram.description,
+                    linkedType: linkedType,
+                    linkedId: linkedId,
+                    linkedName: linkedName,
+                    diagramData: diagram.diagramData,
+                    created: now,
+                    lastModified: now
+                };
+
+                newDiagrams.push(newDiagram);
+                log(`✓ Created: ${diagram.name} ${linkedType !== 'none' ? `(linked to ${linkedType}: ${linkedName})` : '(unlinked)'}`, 'success');
+            });
+
+            // Add to existing diagrams
+            const allDiagrams = [...existingDiagrams, ...newDiagrams];
+            localStorage.setItem(diagramsKey, JSON.stringify(allDiagrams));
+
+            log(`✓ Saved ${newDiagrams.length} new diagrams for ${persona}`, 'success');
+            return newDiagrams.length;
+        }
+
+        function runSeeding() {
+            const button = document.getElementById('seedButton');
+            const output = document.getElementById('output');
+
+            button.disabled = true;
+            output.innerHTML = '';
+            output.classList.add('show');
+
+            log('🌱 Seeding example diagrams for all personas...\n', 'info');
+
+            let totalCreated = 0;
+            const personas = ['retail-manager', 'chemist', 'data-analyst'];
+
+            personas.forEach(persona => {
+                totalCreated += seedDiagramsForPersona(persona);
+            });
+
+            log(`\n✅ Complete! Created ${totalCreated} total diagrams across ${personas.length} personas.`, 'success');
+            log('\nTo view diagrams:', 'info');
+            log('1. Open Career Canvas (career-canvas.html)', 'info');
+            log('2. Switch to a persona using the mindmap', 'info');
+            log('3. Navigate to Interview Preparation > Diagrams', 'info');
+
+            button.disabled = false;
+        }
+    </script>
+</body>
+</html>

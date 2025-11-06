@@ -46,6 +46,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 
+    <!-- Konva.js Canvas Library (MIT License) -->
+    <script src="https://cdn.jsdelivr.net/npm/konva@9/konva.min.js"></script>
+
     <!-- Lexical Rich Text Editor (Bundled) -->
     <script src="shared/cleansheet-lexical.umd.js"></script>
     <script src="shared/lexical-document-editor.js"></script>
@@ -1574,6 +1577,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+        }
+
+        .tech-items-container .story-card {
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         /* Job Opportunity Cards */
@@ -4448,9 +4457,54 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </button>
                 </div>
             </div>
+            <!-- Whiteboard Toolbar -->
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: #f8f8f8; border-bottom: 1px solid var(--color-neutral-border); flex-wrap: wrap;">
+                <!-- Mode Buttons -->
+                <button onclick="setWhiteboardTool('select')" id="btnSelectMode" style="padding: 8px 12px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-cursor"></i>
+                </button>
+                <button onclick="setWhiteboardTool('draw')" id="btnDrawMode" style="padding: 8px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-pencil-simple"></i>
+                </button>
+                <button onclick="setWhiteboardTool('rectangle')" id="btnRectMode" style="padding: 8px 12px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-rectangle"></i>
+                </button>
+                <button onclick="setWhiteboardTool('circle')" id="btnCircleMode" style="padding: 8px 12px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-circle"></i>
+                </button>
+                <button onclick="setWhiteboardTool('line')" id="btnLineMode" style="padding: 8px 12px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-line-segment"></i>
+                </button>
+                <button onclick="setWhiteboardTool('text')" id="btnTextMode" style="padding: 8px 12px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-text-t"></i>
+                </button>
+
+                <div style="width: 1px; height: 24px; background: var(--color-neutral-border);"></div>
+
+                <!-- Color and Width -->
+                <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-ui); font-size: 13px; color: var(--color-neutral-text);">
+                    Color:
+                    <input type="color" id="brushColor" value="#000000" onchange="updateBrushColor(this.value)" style="width: 40px; height: 32px; border: 1px solid var(--color-neutral-border); border-radius: 4px; cursor: pointer;">
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-ui); font-size: 13px; color: var(--color-neutral-text);">
+                    Width:
+                    <input type="range" id="brushWidth" min="1" max="20" value="2" onchange="updateBrushWidth(this.value)" style="width: 100px;">
+                    <span id="brushWidthDisplay" style="min-width: 24px; text-align: center;">2</span>
+                </label>
+
+                <div style="width: 1px; height: 24px; background: var(--color-neutral-border);"></div>
+
+                <!-- Action Buttons -->
+                <button onclick="deleteSelectedWhiteboardObject()" style="padding: 8px 12px; background: white; color: #dc2626; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-trash"></i>
+                </button>
+                <button onclick="clearWhiteboardCanvas()" style="padding: 8px 12px; background: white; color: #dc2626; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                    <i class="ph ph-trash"></i> Clear All
+                </button>
+            </div>
             <!-- Whiteboard Canvas Container -->
             <div id="whiteboardCanvasContainer" style="flex: 1; overflow: hidden; position: relative;">
-                <!-- whiteboard.js will be loaded here -->
+                <!-- Konva.js canvas will be created here -->
             </div>
         </div>
 
@@ -9022,7 +9076,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
     <script>
         // Current persona and view mode
-        let currentPersona = 'default';
+        let currentPersona = localStorage.getItem('cleansheet_currentPersona') || 'default';
         let currentViewMode = 'seeker'; // 'seeker' or 'learner'
 
         // Azure Table Storage endpoint for profile requests (write-only SAS token)
@@ -9030,6 +9084,242 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // SAS token has 'add' permission only (cannot read existing data)
         // Token expires: 2026-11-05
         const PROFILE_REQUEST_TABLE_URL = 'https://storageb681.table.core.windows.net/ProfileRequests?se=2026-11-05T01%3A04Z&sp=a&sv=2019-02-02&tn=ProfileRequests&sig=Cx6YwQaoga8xPSzKJWCPenEoLZUbN/U85k6gPmqtOa8%3D';
+
+        // Example documents for each persona
+        const exampleDocuments = {
+            'career-changer': [
+                {
+                    id: 'example-doc-rm-1',
+                    name: 'Store Operations Playbook',
+                    description: 'Comprehensive guide for daily store operations, opening/closing procedures, and staff scheduling protocols.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-15T08:00:00.000Z',
+                    lastModified: '2024-01-15T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-doc-rm-2',
+                    name: 'Customer Service Training Manual',
+                    description: 'Training materials for new hires covering customer engagement, conflict resolution, and company policies.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-20T08:00:00.000Z',
+                    lastModified: '2024-01-20T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-doc-rm-3',
+                    name: 'Inventory Management Best Practices',
+                    description: 'Documentation of inventory tracking systems, reordering procedures, and loss prevention strategies.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-25T08:00:00.000Z',
+                    lastModified: '2024-01-25T08:00:00.000Z',
+                    isExample: true
+                }
+            ],
+            'product-manager': [
+                {
+                    id: 'example-doc-chem-1',
+                    name: 'Lab Safety & Compliance Protocol',
+                    description: 'Safety procedures, chemical handling guidelines, and regulatory compliance documentation for laboratory operations.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-15T08:00:00.000Z',
+                    lastModified: '2024-01-15T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-doc-chem-2',
+                    name: 'Experimental Procedures - Polymer Synthesis',
+                    description: 'Detailed methodology for polymer synthesis experiments including materials, equipment setup, and analysis techniques.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-20T08:00:00.000Z',
+                    lastModified: '2024-01-20T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-doc-chem-3',
+                    name: 'Quality Control Standards & Testing',
+                    description: 'Quality assurance protocols, testing procedures, and acceptance criteria for research outputs.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-25T08:00:00.000Z',
+                    lastModified: '2024-01-25T08:00:00.000Z',
+                    isExample: true
+                }
+            ],
+            'new-graduate': [
+                {
+                    id: 'example-doc-da-1',
+                    name: 'SQL Query Library & Documentation',
+                    description: 'Collection of reusable SQL queries for common reporting needs, with explanations and optimization notes.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-15T08:00:00.000Z',
+                    lastModified: '2024-01-15T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-doc-da-2',
+                    name: 'Dashboard Design Standards',
+                    description: 'Guidelines for creating effective data visualizations, color schemes, and user interface best practices.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-20T08:00:00.000Z',
+                    lastModified: '2024-01-20T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-doc-da-3',
+                    name: 'Data Cleaning & Validation Procedures',
+                    description: 'Step-by-step processes for data quality checks, handling missing values, and ensuring data integrity.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    content: '',
+                    created: '2024-01-25T08:00:00.000Z',
+                    lastModified: '2024-01-25T08:00:00.000Z',
+                    isExample: true
+                }
+            ]
+        };
+
+        // Example diagrams for each persona
+        const exampleDiagrams = {
+            'career-changer': [
+                {
+                    id: 'example-diag-rm-1',
+                    name: 'Store Layout & Customer Flow',
+                    description: 'Floor plan showing product placement, checkout zones, and optimal customer traffic patterns for maximum sales conversion.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-15T08:00:00.000Z',
+                    lastModified: '2024-01-15T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-diag-rm-2',
+                    name: 'Team Organization Chart',
+                    description: 'Organizational structure showing reporting relationships, shift schedules, and department responsibilities.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-20T08:00:00.000Z',
+                    lastModified: '2024-01-20T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-diag-rm-3',
+                    name: 'Inventory Management Process Flow',
+                    description: 'Workflow diagram illustrating receiving, stocking, inventory counts, and reordering processes.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-25T08:00:00.000Z',
+                    lastModified: '2024-01-25T08:00:00.000Z',
+                    isExample: true
+                }
+            ],
+            'product-manager': [
+                {
+                    id: 'example-diag-chem-1',
+                    name: 'Lab Equipment Layout',
+                    description: 'Laboratory floor plan showing equipment placement, safety stations, and workflow zones for optimal efficiency.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-15T08:00:00.000Z',
+                    lastModified: '2024-01-15T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-diag-chem-2',
+                    name: 'Synthesis Reaction Pathway',
+                    description: 'Chemical reaction scheme showing synthesis steps, intermediate compounds, and reaction conditions.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-20T08:00:00.000Z',
+                    lastModified: '2024-01-20T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-diag-chem-3',
+                    name: 'Quality Control Workflow',
+                    description: 'Process flowchart for sample testing, analysis methods, data validation, and approval procedures.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-25T08:00:00.000Z',
+                    lastModified: '2024-01-25T08:00:00.000Z',
+                    isExample: true
+                }
+            ],
+            'new-graduate': [
+                {
+                    id: 'example-diag-da-1',
+                    name: 'Data Pipeline Architecture',
+                    description: 'System architecture diagram showing data sources, ETL processes, databases, and reporting layers.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-15T08:00:00.000Z',
+                    lastModified: '2024-01-15T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-diag-da-2',
+                    name: 'Dashboard Wireframe - Sales Analytics',
+                    description: 'Wireframe design for executive sales dashboard with KPIs, trend charts, and drill-down capabilities.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-20T08:00:00.000Z',
+                    lastModified: '2024-01-20T08:00:00.000Z',
+                    isExample: true
+                },
+                {
+                    id: 'example-diag-da-3',
+                    name: 'Analysis Process Flowchart',
+                    description: 'Workflow showing data collection, cleaning, analysis, visualization, and stakeholder communication steps.',
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    diagramData: null,
+                    created: '2024-01-25T08:00:00.000Z',
+                    lastModified: '2024-01-25T08:00:00.000Z',
+                    isExample: true
+                }
+            ]
+        };
 
         // AudioTourManager - Web Audio API integration for Driver.js tour narrations
         class AudioTourManager {
@@ -9359,6 +9649,114 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     {
                         name: 'Interview Prep',
                         tier: 'member',  // Available to all tiers
+                        count: 0,
+                        children: []
+                    }
+                ]
+            },
+            'career-changer': {
+                name: 'Marcus Thompson',
+                goal: 'Store Manager → Analytics',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        tier: 'seeker',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Career Experience',
+                        tier: 'member',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Goals',
+                        tier: 'learner',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Portfolio',
+                        tier: 'learner',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Interview Prep',
+                        tier: 'member',
+                        count: 0,
+                        children: []
+                    }
+                ]
+            },
+            'product-manager': {
+                name: 'Dr. Sarah Chen',
+                goal: 'Research Scientist → Data Science',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        tier: 'seeker',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Career Experience',
+                        tier: 'member',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Goals',
+                        tier: 'learner',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Portfolio',
+                        tier: 'learner',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Interview Prep',
+                        tier: 'member',
+                        count: 0,
+                        children: []
+                    }
+                ]
+            },
+            'new-graduate': {
+                name: 'Jamie Rodriguez',
+                goal: 'CS Graduate → Software Engineering',
+                children: [
+                    {
+                        name: 'Job Opportunities',
+                        tier: 'seeker',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Career Experience',
+                        tier: 'member',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Goals',
+                        tier: 'learner',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Portfolio',
+                        tier: 'learner',
+                        count: 0,
+                        children: []
+                    },
+                    {
+                        name: 'Interview Prep',
+                        tier: 'member',
                         count: 0,
                         children: []
                     }
@@ -11962,6 +12360,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 return;
             }
 
+            // Set current persona to match the profile type so example docs/diagrams load correctly
+            currentPersona = profileType;
+            localStorage.setItem('cleansheet_currentPersona', profileType);
+
             // Clear existing data before loading example profile
             localStorage.removeItem(`userGoals_${currentPersona}`);
             localStorage.removeItem(`userPortfolio_${currentPersona}`);
@@ -12002,6 +12404,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // Load job opportunities
             if (profileData.jobOpportunities && profileData.jobOpportunities.length > 0) {
                 localStorage.setItem(`jobOpportunities_${currentPersona}`, JSON.stringify(profileData.jobOpportunities));
+            }
+
+            // Load example documents for this persona
+            const exampleDocs = exampleDocuments[currentPersona] || [];
+            if (exampleDocs.length > 0) {
+                localStorage.setItem(`interview_documents_${currentPersona}`, JSON.stringify(exampleDocs));
+            }
+
+            // Load example diagrams for this persona
+            const exampleDiags = exampleDiagrams[currentPersona] || [];
+            if (exampleDiags.length > 0) {
+                localStorage.setItem(`diagrams_${currentPersona}`, JSON.stringify(exampleDiags));
             }
 
             // Calculate active jobs count (excluding rejected and not-interested)
@@ -15838,7 +16252,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                     ${d.name || 'Untitled Diagram'}
                                 </h4>
-                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0; word-wrap: break-word; overflow-wrap: break-word;">
                                     ${d.description || 'No description'}
                                 </p>
                             </div>
@@ -15971,7 +16385,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                     ${d.name || 'Untitled Document'}
                                 </h4>
-                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0; word-wrap: break-word; overflow-wrap: break-word;">
                                     ${d.description || 'No description'}
                                 </p>
                             </div>
@@ -17183,14 +17597,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 excalidrawAutoSaveTimer = null;
             }
 
-            // Remove message listener
-            window.removeEventListener('message', handleExcalidrawMessage);
+            // Dispose Konva canvas
+            if (window.currentKonvaStage) {
+                window.currentKonvaStage.destroy();
+                window.currentKonvaStage = null;
+                window.currentKonvaLayer = null;
+            }
 
             // Clear all whiteboard state
-            excalidrawIframe = null;
-            currentExcalidrawData = null;
-            currentExcalidrawSession = null;
             currentWhiteboardId = null;
+            currentWhiteboardTool = 'draw';
+            shapeDrawing = false;
+            tempShape = null;
 
             // Clear the container completely
             const container = document.getElementById('whiteboardCanvasContainer');
@@ -17226,171 +17644,285 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         let excalidrawAutoSaveTimer = null;
         let currentExcalidrawData = null;
         let currentExcalidrawSession = null; // Track which session is active
+        let isLoadingWhiteboard = false; // Flag to prevent saves during load
 
         function initializeWhiteboardJS(whiteboard) {
+            isLoadingWhiteboard = true;
             const container = document.getElementById('whiteboardCanvasContainer');
-
-            // Remove any existing event listeners first
-            if (handleExcalidrawMessage) {
-                window.removeEventListener('message', handleExcalidrawMessage);
-            }
 
             // Clear container and all global state
             container.innerHTML = '';
             currentExcalidrawData = null;
             excalidrawIframe = null;
 
-            // Create a unique session ID for this whiteboard instance
-            currentExcalidrawSession = `${whiteboard.id}_${Date.now()}`;
-            console.log('Starting new Excalidraw session:', currentExcalidrawSession);
+            console.log('Initializing Konva.js canvas for whiteboard:', whiteboard.id);
 
-            // Create iframe for Excalidraw
-            excalidrawIframe = document.createElement('iframe');
-            excalidrawIframe.style.width = '100%';
-            excalidrawIframe.style.height = '100%';
-            excalidrawIframe.style.border = 'none';
+            // Create div for Konva stage
+            const stageDiv = document.createElement('div');
+            stageDiv.id = 'konvaContainer';
+            stageDiv.style.border = '1px solid #e5e5e7';
+            stageDiv.style.background = 'white';
+            container.appendChild(stageDiv);
 
-            // Load saved data if exists and encode in URL
-            let excalidrawUrl = 'https://excalidraw.com/';
+            // Initialize Konva Stage and Layer
+            const stage = new Konva.Stage({
+                container: 'konvaContainer',
+                width: container.clientWidth,
+                height: container.clientHeight
+            });
+
+            const layer = new Konva.Layer();
+            stage.add(layer);
+
+            // Store references globally
+            window.currentKonvaStage = stage;
+            window.currentKonvaLayer = layer;
+            window.isDrawing = false;
+            window.currentShape = null;
+
+            console.log('Konva initialized - width:', stage.width(), 'height:', stage.height());
+
+            // Load saved data if exists
             if (whiteboard.canvasData) {
                 try {
-                    currentExcalidrawData = JSON.parse(whiteboard.canvasData);
-                    console.log('Loaded saved canvas data for whiteboard:', whiteboard.id, 'elements:', currentExcalidrawData.elements?.length || 0);
-
-                    // Encode scene data in URL hash to load it directly
-                    const sceneData = JSON.stringify({
-                        type: 'excalidraw',
-                        version: 2,
-                        source: 'career-canvas',
-                        elements: currentExcalidrawData.elements || [],
-                        appState: currentExcalidrawData.appState || {}
-                    });
-                    const encodedData = btoa(unescape(encodeURIComponent(sceneData)));
-                    excalidrawUrl = `https://excalidraw.com/#json=${encodedData}`;
-                    console.log('Loading scene from URL, elements:', currentExcalidrawData.elements?.length || 0);
+                    const canvasData = JSON.parse(whiteboard.canvasData);
+                    // Konva can load JSON directly
+                    const nodes = Konva.Node.create(canvasData);
+                    layer.add(nodes);
+                    console.log('Loaded saved canvas data');
                 } catch (e) {
-                    console.error('Error encoding saved data:', e);
-                    currentExcalidrawData = null;
-                    // Add timestamp to force blank canvas
-                    excalidrawUrl = `https://excalidraw.com/?blank=${Date.now()}`;
+                    console.error('Error loading saved data:', e);
                 }
             } else {
                 console.log('No saved canvas data, starting with blank whiteboard');
-                currentExcalidrawData = { elements: [], appState: {} };
-                // Encode EMPTY scene in URL to override autosave
-                try {
-                    const emptyScene = JSON.stringify({
-                        type: 'excalidraw',
-                        version: 2,
-                        source: 'career-canvas',
-                        elements: [],
-                        appState: { viewBackgroundColor: '#ffffff' }
+            }
+
+            isLoadingWhiteboard = false;
+
+            // Konva drawing handlers
+            setupKonvaDrawing(stage, layer);
+        }
+
+        function setupKonvaDrawing(stage, layer) {
+            let isPaint = false;
+            let lastLine;
+
+            stage.on('mousedown touchstart', (e) => {
+                const pos = stage.getPointerPosition();
+                window.isDrawing = true;
+
+                const color = document.getElementById('brushColor').value;
+                const strokeWidth = parseInt(document.getElementById('brushWidth').value);
+
+                if (currentWhiteboardTool === 'draw') {
+                    // Freehand drawing
+                    lastLine = new Konva.Line({
+                        stroke: color,
+                        strokeWidth: strokeWidth,
+                        globalCompositeOperation: 'source-over',
+                        points: [pos.x, pos.y, pos.x, pos.y],
                     });
-                    const encodedData = btoa(unescape(encodeURIComponent(emptyScene)));
-                    excalidrawUrl = `https://excalidraw.com/#json=${encodedData},${Date.now()}`;
-                    console.log('Loading EMPTY scene from URL to clear autosave');
-                } catch (e) {
-                    console.error('Error encoding empty scene:', e);
-                    excalidrawUrl = `https://excalidraw.com/?t=${Date.now()}`;
+                    layer.add(lastLine);
+                } else if (currentWhiteboardTool === 'rectangle') {
+                    window.currentShape = new Konva.Rect({
+                        x: pos.x,
+                        y: pos.y,
+                        width: 0,
+                        height: 0,
+                        stroke: color,
+                        strokeWidth: strokeWidth,
+                        draggable: true
+                    });
+                    layer.add(window.currentShape);
+                } else if (currentWhiteboardTool === 'circle') {
+                    window.currentShape = new Konva.Circle({
+                        x: pos.x,
+                        y: pos.y,
+                        radius: 0,
+                        stroke: color,
+                        strokeWidth: strokeWidth,
+                        draggable: true
+                    });
+                    layer.add(window.currentShape);
+                } else if (currentWhiteboardTool === 'line') {
+                    window.currentShape = new Konva.Line({
+                        points: [pos.x, pos.y, pos.x, pos.y],
+                        stroke: color,
+                        strokeWidth: strokeWidth,
+                        draggable: true
+                    });
+                    layer.add(window.currentShape);
+                } else if (currentWhiteboardTool === 'text') {
+                    const text = new Konva.Text({
+                        x: pos.x,
+                        y: pos.y,
+                        text: 'Double-click to edit',
+                        fontSize: 20,
+                        fill: color,
+                        draggable: true
+                    });
+                    layer.add(text);
+                    layer.draw();
+                    saveWhiteboardCanvas();
+                    return;
                 }
-            }
+            });
 
-            excalidrawIframe.src = excalidrawUrl;
-            container.appendChild(excalidrawIframe);
-            console.log('Created iframe with src:', excalidrawUrl.substring(0, 100));
+            stage.on('mousemove touchmove', (e) => {
+                if (!window.isDrawing) return;
 
-            // Wait for iframe to load
-            excalidrawIframe.onload = () => {
-                console.log('Excalidraw iframe loaded for session:', currentExcalidrawSession);
-                console.log('Scene data loaded via URL, no postMessage needed');
-                // Scene is already loaded via URL hash, no need to send postMessage
-            };
+                const pos = stage.getPointerPosition();
 
-            // Listen for changes from Excalidraw
-            window.addEventListener('message', handleExcalidrawMessage);
+                if (currentWhiteboardTool === 'draw' && lastLine) {
+                    const newPoints = lastLine.points().concat([pos.x, pos.y]);
+                    lastLine.points(newPoints);
+                } else if (window.currentShape) {
+                    const startPos = {
+                        x: window.currentShape.x(),
+                        y: window.currentShape.y()
+                    };
+
+                    if (currentWhiteboardTool === 'rectangle') {
+                        window.currentShape.width(pos.x - startPos.x);
+                        window.currentShape.height(pos.y - startPos.y);
+                    } else if (currentWhiteboardTool === 'circle') {
+                        const radius = Math.sqrt(
+                            Math.pow(pos.x - startPos.x, 2) + Math.pow(pos.y - startPos.y, 2)
+                        );
+                        window.currentShape.radius(radius);
+                    } else if (currentWhiteboardTool === 'line') {
+                        window.currentShape.points([startPos.x, startPos.y, pos.x, pos.y]);
+                    }
+                }
+
+                layer.batchDraw();
+            });
+
+            stage.on('mouseup touchend', () => {
+                window.isDrawing = false;
+                window.currentShape = null;
+                saveWhiteboardCanvas();
+            });
         }
 
-        function sendToExcalidraw(message) {
-            if (excalidrawIframe && excalidrawIframe.contentWindow) {
-                console.log('Sending message to Excalidraw:', message.type, message.payload?.elements?.length || 0, 'elements');
-                excalidrawIframe.contentWindow.postMessage(message, 'https://excalidraw.com');
-
-                // Also try alternative message format
-                excalidrawIframe.contentWindow.postMessage({
-                    type: 'excalidraw',
-                    payload: message.payload
-                }, 'https://excalidraw.com');
-            } else {
-                console.error('Cannot send to Excalidraw - iframe not ready');
-            }
-        }
-
-        function handleExcalidrawMessage(event) {
-            // Only accept messages from excalidraw.com
-            if (event.origin !== 'https://excalidraw.com') return;
-
-            // Ignore messages if no active session or whiteboard
-            if (!currentExcalidrawSession || !currentWhiteboardId) {
-                console.log('Ignoring message - no active session');
+        function saveKonvaCanvasData(immediate = false) {
+            if (!currentWhiteboardId) {
                 return;
             }
 
-            // Excalidraw sends periodic updates
-            if (event.data && event.data.elements) {
-                // Update the current data
-                currentExcalidrawData = {
-                    elements: event.data.elements,
-                    appState: event.data.appState || {}
-                };
+            const doSave = () => {
+                try {
+                    const layer = window.currentKonvaLayer;
+                    if (!layer) {
+                        return;
+                    }
 
-                console.log('Received update from Excalidraw:', event.data.elements.length, 'elements for whiteboard', currentWhiteboardId);
+                    // Export layer to JSON
+                    const canvasData = layer.toJSON();
+                    console.log('Konva canvas saved, nodes:', layer.children.length);
 
-                // Auto-save (debounced)
+                    const stored = localStorage.getItem(`whiteboards_${currentPersona}`);
+                    let whiteboards = stored ? JSON.parse(stored) : [];
+                    const index = whiteboards.findIndex(wb => wb.id === currentWhiteboardId);
+
+                    if (index !== -1) {
+                        console.log('=== SAVING WHITEBOARD ===');
+                        console.log('Whiteboard ID:', currentWhiteboardId);
+                        console.log('Whiteboard Name:', whiteboards[index].name);
+                        console.log('Canvas data size:', canvasData.length, 'bytes');
+
+                        whiteboards[index].canvasData = canvasData;
+                        whiteboards[index].lastModified = new Date().toISOString();
+                        localStorage.setItem(`whiteboards_${currentPersona}`, JSON.stringify(whiteboards));
+                        console.log('✓ Canvas saved successfully to localStorage');
+                    } else {
+                        console.error('Whiteboard not found with ID:', currentWhiteboardId);
+                    }
+                } catch (error) {
+                    console.error('Error saving canvas data:', error);
+                }
+            };
+
+            if (immediate) {
+                console.log('Immediate save requested');
+                // Save immediately without debounce
+                if (excalidrawAutoSaveTimer) {
+                    clearTimeout(excalidrawAutoSaveTimer);
+                    excalidrawAutoSaveTimer = null;
+                }
+                doSave();
+            } else {
+                console.log('Debounced save, waiting 1000ms');
+                // Debounce saves
                 if (excalidrawAutoSaveTimer) {
                     clearTimeout(excalidrawAutoSaveTimer);
                 }
-                excalidrawAutoSaveTimer = setTimeout(() => {
-                    saveExcalidrawData();
-                }, 2000);
-            }
-        }
-
-        function saveExcalidrawData() {
-            if (!currentWhiteboardId || !currentExcalidrawData) {
-                console.log('Cannot save - missing ID or data:', { id: currentWhiteboardId, hasData: !!currentExcalidrawData });
-                return;
-            }
-
-            try {
-                const canvasData = JSON.stringify(currentExcalidrawData);
-
-                const stored = localStorage.getItem(`whiteboards_${currentPersona}`);
-                let whiteboards = stored ? JSON.parse(stored) : [];
-                const index = whiteboards.findIndex(wb => wb.id === currentWhiteboardId);
-
-                if (index !== -1) {
-                    console.log('=== SAVING WHITEBOARD ===');
-                    console.log('Whiteboard ID:', currentWhiteboardId);
-                    console.log('Whiteboard Name:', whiteboards[index].name);
-                    console.log('Elements count:', currentExcalidrawData.elements?.length || 0);
-                    console.log('First few chars of canvasData:', canvasData.substring(0, 100));
-
-                    whiteboards[index].canvasData = canvasData;
-                    whiteboards[index].lastModified = new Date().toISOString();
-                    localStorage.setItem(`whiteboards_${currentPersona}`, JSON.stringify(whiteboards));
-                    console.log('Excalidraw data saved successfully');
-                } else {
-                    console.error('Whiteboard not found with ID:', currentWhiteboardId);
-                }
-            } catch (error) {
-                console.error('Error saving Excalidraw data:', error);
+                excalidrawAutoSaveTimer = setTimeout(doSave, 1000);
             }
         }
 
         function saveWhiteboardCanvas() {
-            // For Excalidraw iframe, save current data
-            if (currentWhiteboardId && currentExcalidrawData) {
-                saveExcalidrawData();
+            // Save current canvas state immediately
+            if (currentWhiteboardId && window.currentKonvaLayer) {
+                saveKonvaCanvasData(true); // Force immediate save
+            }
+        }
+
+        let currentWhiteboardTool = 'draw';
+
+        function setWhiteboardTool(tool) {
+            currentWhiteboardTool = tool;
+
+            // Reset all button styles
+            const buttons = ['btnSelectMode', 'btnDrawMode', 'btnRectMode', 'btnCircleMode', 'btnLineMode', 'btnTextMode'];
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.style.background = 'white';
+                    btn.style.color = 'var(--color-neutral-text)';
+                    btn.style.border = '1px solid var(--color-neutral-border)';
+                }
+            });
+
+            // Highlight active button
+            const activeBtn = document.getElementById('btn' + tool.charAt(0).toUpperCase() + tool.slice(1) + 'Mode');
+            if (activeBtn) {
+                activeBtn.style.background = 'var(--color-primary-blue)';
+                activeBtn.style.color = 'white';
+                activeBtn.style.border = 'none';
+            }
+
+        }
+
+        function updateBrushColor(color) {
+            // Color is read from the input when drawing
+            document.getElementById('brushColor').value = color;
+        }
+
+        function updateBrushWidth(width) {
+            document.getElementById('brushWidthDisplay').textContent = width;
+        }
+
+        function deleteSelectedWhiteboardObject() {
+            const stage = window.currentKonvaStage;
+            if (!stage) return;
+
+            const selected = stage.findOne('.selected');
+            if (selected) {
+                selected.destroy();
+                stage.draw();
+                saveWhiteboardCanvas();
+            }
+        }
+
+        function clearWhiteboardCanvas() {
+            const layer = window.currentKonvaLayer;
+            if (!layer) return;
+
+            if (confirm('Are you sure you want to clear the entire canvas? This cannot be undone.')) {
+                layer.destroyChildren();
+                layer.draw();
+                saveWhiteboardCanvas();
             }
         }
 
