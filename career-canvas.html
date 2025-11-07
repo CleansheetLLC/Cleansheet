@@ -1545,13 +1545,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         .tech-tabs {
             display: flex;
             gap: 0;
+            justify-content: center;
             border-bottom: 2px solid var(--color-neutral-border);
             margin-bottom: 20px;
         }
 
         .tech-tab {
-            flex: 1;
-            padding: 12px 16px;
+            padding: 12px 24px;
             background: none;
             border: none;
             border-bottom: 3px solid transparent;
@@ -3439,17 +3439,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-chat-text"></i>
                                         <span>Prompt</span>
                                     </button>
-                                    <button class="profile-dropdown-item" onclick="openSubscriptionModal()">
-                                        <i class="ph ph-crown"></i>
-                                        <span>Subscription</span>
-                                    </button>
-                                    <button class="profile-dropdown-item" onclick="importCanvasData()">
-                                        <i class="ph ph-upload"></i>
-                                        <span>Restore</span>
-                                    </button>
-                                    <button class="profile-dropdown-item" onclick="exportCanvasData()">
-                                        <i class="ph ph-download"></i>
-                                        <span>Backup</span>
+                                    <button class="profile-dropdown-item" onclick="openDataManagementModal()">
+                                        <i class="ph ph-database"></i>
+                                        <span>Data Management</span>
                                     </button>
                                     <button class="profile-dropdown-item" onclick="openInstallAppModal()">
                                         <i class="ph ph-download-simple"></i>
@@ -3515,7 +3507,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         Privacy & Data Notice
                                     </h4>
                                     <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0 0 8px 0;">
-                                        <strong>Your data is stored locally in your browser.</strong> All information is processed on your device and never sent to our servers.
+                                        <strong>Your data is stored locally in your browser.</strong> All information is processed on your device and never sent to our servers without your explicit action.
+                                    </p>
+                                    <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0 0 8px 0;">
+                                        <strong>Data transmission only occurs when you:</strong> (1) Click "Inquire" to request coaching services, (2) Click "Request Profile" to submit a profile building request, or (3) Manually export your data. No data is transmitted automatically, in the background, or without your notification, consent, and explicit button click.
                                     </p>
                                     <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0 0 8px 0;">
                                         We recommend exporting your experiences to JSON frequently to backup your work. Browser data can be lost if you clear your cache or use incognito/private mode.
@@ -5159,65 +5154,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <textarea id="rapidOnboardingGoal" placeholder="What's your primary career goal?" style="width: 100%; min-height: 60px; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
                             </div>
 
-                            <!-- Divider -->
-                            <div style="height: 1px; background: var(--color-neutral-border); margin: 8px 0;"></div>
-
-                            <!-- Request a Profile Checkbox -->
-                            <div>
-                                <label style="display: flex; align-items: start; gap: 10px; cursor: pointer; font-size: 13px; line-height: 1.5;">
-                                    <input type="checkbox" id="requestProfileCheckbox" onchange="toggleProfileRequestFields()" style="margin-top: 3px; width: 18px; height: 18px; cursor: pointer;">
-                                    <div>
-                                        <strong style="font-family: var(--font-family-ui); font-weight: 600; color: var(--color-dark);">Request a Profile (Experimental)</strong>
-                                        <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 4px; line-height: 1.5;">
-                                            During the preview period, request a Cleansheet profile built from publicly available information.
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <!-- Conditional Profile Request Fields -->
-                            <div id="profileRequestFields" style="display: none; padding: 16px; background: #fff7ed; border: 2px solid #f97316; border-radius: 8px; margin-top: 8px;">
-                                <div style="display: flex; flex-direction: column; gap: 14px;">
-                                    <!-- Email -->
-                                    <div>
-                                        <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Email Address *</label>
-                                        <input type="email" id="rapidOnboardingEmail" placeholder="your.email@example.com" style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                                        <div style="font-family: var(--font-family-body); font-size: 11px; color: #92400e; margin-top: 4px;">
-                                            <i class="ph ph-warning" style="margin-right: 4px;"></i>You must control this email address. 2FA will be leveraged for verification.
-                                        </div>
-                                    </div>
-
-                                    <!-- LinkedIn URL -->
-                                    <div>
-                                        <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">LinkedIn Profile URL</label>
-                                        <input type="url" id="rapidOnboardingLinkedIn" placeholder="https://linkedin.com/in/yourprofile" style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                                    </div>
-
-                                    <!-- Acknowledgement Checkbox -->
-                                    <div>
-                                        <label style="display: flex; align-items: start; gap: 10px; cursor: pointer; font-size: 12px; line-height: 1.5; padding: 12px; background: white; border: 2px solid #f97316; border-radius: 6px;">
-                                            <input type="checkbox" id="quickStartAcknowledgement" style="margin-top: 2px; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
-                                            <div style="font-family: var(--font-family-body); color: #92400e;">
-                                                I acknowledge that I am requesting a profile <strong>only for myself</strong>, I authorize Cleansheet to perform an <strong>AI-assisted open source search</strong> based on my current profile and the information provided in this form, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: #ea580c; text-decoration: underline; font-weight: 600;">Terms of Service</a>. *
-                                            </div>
-                                        </label>
-                                    </div>
-
-                                    <!-- Consent Notice -->
-                                    <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #f97316;">
-                                        <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: #ea580c; margin-bottom: 8px;">
-                                            <i class="ph ph-info" style="margin-right: 4px;"></i>What You're Consenting To:
-                                        </div>
-                                        <ul style="font-family: var(--font-family-body); font-size: 11px; line-height: 1.6; color: #92400e; margin: 0; padding-left: 20px;">
-                                            <li>Cleansheet will conduct an <strong>open source search</strong> to minimally populate your professional and educational profile</li>
-                                            <li>Cleansheet will <strong>retain this data</strong> to provide the requested service</li>
-                                            <li>You can submit <strong>erasure requests</strong> by submitting an <strong>Erasure Request</strong> from the user menu</li>
-                                            <li>This is an <strong>experimental preview service</strong> and data accuracy is not guaranteed</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
                             <button onclick="saveRapidOnboardingProfile()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)';">
                                 <i class="ph ph-check-circle" style="font-size: 18px;"></i>
                                 Start Building My Career Canvas
@@ -5229,7 +5165,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; margin-top: 20px; border-radius: 4px;">
                         <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
                             <i class="ph ph-lock-simple" style="margin-right: 4px;"></i>
-                            <strong>Privacy First:</strong> All data is stored locally in your browser. Cleansheet does not have access to your information. Remember to export your data regularly.
+                            <strong>Privacy First:</strong> All data is stored locally in your browser. Cleansheet does not have access to your information unless you explicitly request services by clicking "Inquire" or "Request Profile" buttons. Remember to export your data regularly.
                         </p>
                     </div>
                 </div>
@@ -5475,7 +5411,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
                         <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
                             <i class="ph ph-share-network" style="margin-right: 4px;"></i>
-                            <strong>What We'll Share:</strong> By submitting this form, you're sharing your profile information, career experience portfolio, and job opportunities with our coaching team so we can match you with the most appropriate coach for your needs.
+                            <strong>What We'll Share:</strong> By clicking "Submit Request", you're explicitly authorizing Cleansheet to transmit your profile information, career experience, stories, goals, portfolio, and job opportunities to our coaching team so we can match you with the most appropriate coach for your needs. No data is transmitted without this explicit action.
                         </p>
                     </div>
 
@@ -5553,14 +5489,82 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
+        <!-- Data Management Modal -->
+        <div class="modal" id="dataManagementModal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i class="ph ph-database" style="margin-right: 8px; color: var(--color-primary-blue);"></i>
+                        Data Management
+                    </h2>
+                    <button class="modal-close" onclick="closeDataManagementModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 24px 0;">
+                        Manage your Career Canvas data with backup and restore operations.
+                    </p>
+
+                    <!-- Action Cards -->
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                        <!-- Backup Option -->
+                        <button onclick="handleBackupFromModal()" style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; text-align: left;" onmouseover="this.style.borderColor='#16a34a'; this.style.background='#f0fdf4';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-download" style="font-size: 32px; color: #16a34a; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Backup Data</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Export all your Career Canvas data to a JSON file for safekeeping</div>
+                            </div>
+                        </button>
+
+                        <!-- Restore (Overwrite) Option -->
+                        <button onclick="handleRestoreFromModal('overwrite')" style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; text-align: left;" onmouseover="this.style.borderColor='#dc2626'; this.style.background='#fef2f2';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-trash" style="font-size: 32px; color: #dc2626; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Restore (Overwrite)</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Delete all existing data and replace it with backup data from a JSON file</div>
+                            </div>
+                        </button>
+
+                        <!-- Restore (Update) Option -->
+                        <button onclick="handleRestoreFromModal('update')" style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; text-align: left;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-plus-circle" style="font-size: 32px; color: var(--color-primary-blue); flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Restore (Update)</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Keep existing data and add backup data to it from a JSON file</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Info Note -->
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 4px;"></i>
+                            <strong>Note:</strong> We recommend backing up your data regularly. Restore operations will refresh the page to update all data.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Subscription Modal -->
         <div class="modal" id="subscriptionModal" style="display: none;">
             <div class="modal-content" style="max-width: 1200px;">
                 <div class="modal-header">
                     <h2 class="modal-title">Choose Your Cleansheet Plan</h2>
-                    <button class="modal-close" onclick="closeSubscriptionModal()">
-                        <i class="ph ph-x"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="openInstallAppModal();" style="padding: 8px 16px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(22, 163, 74, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(22, 163, 74, 0.3)';">
+                            <i class="ph ph-download-simple" style="font-size: 16px;"></i>
+                            <span>Install App</span>
+                        </button>
+                        <button onclick="closeSubscriptionModal(); restartTour();" style="padding: 8px 16px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(22, 163, 74, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(22, 163, 74, 0.3)';">
+                            <i class="ph ph-play-circle" style="font-size: 16px;"></i>
+                            <span>Start Tour</span>
+                        </button>
+                        <button class="modal-close" onclick="closeSubscriptionModal()">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-body" style="padding: 20px;">
                     <!-- Subscription Tiers Grid -->
@@ -5571,6 +5575,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Member</h3>
                                 <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">Free</div>
                                 <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">Always free, no credit card required</div>
+                                <div style="font-family: var(--font-family-body); font-size: 10px; color: #999999; margin-top: 4px; font-style: italic;">Desktop viewport on mobile devices</div>
                             </div>
                             <div style="flex: 1; padding: 14px 0;">
                                 <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">Includes:</div>
@@ -5618,7 +5623,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <span style="text-decoration: line-through; opacity: 0.5;">$9<span style="font-size: 14px; font-weight: 500;">/mo</span></span>
                                     <span style="margin-left: 8px;">FREE</span>
                                 </div>
-                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #16a34a; font-weight: 600;">Free for limited time</div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #16a34a; font-weight: 600;">Free for limited time, no credit card required</div>
                             </div>
                             <div style="flex: 1; padding: 14px 0;">
                                 <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">Everything in Member, plus:</div>
@@ -5626,6 +5631,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Profile Service <button onclick="event.stopPropagation(); openSubscriptionProfileRequestModal();" style="padding: 2px 8px; margin-left: 4px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(249, 115, 22, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(249, 115, 22, 0.3)';">Request</button></span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Mobile-Responsive Viewport</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
@@ -5637,19 +5646,15 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Diagrams</span>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Diagrams & Documents</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
-                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Documents</span>
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Mobile Interface</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cloud-Based Storage</span>
-                                    </div>
-                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
-                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Desktop & Mobile Sync</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
@@ -5679,7 +5684,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <span style="text-decoration: line-through; opacity: 0.5;">$19<span style="font-size: 14px; font-weight: 500;">/mo</span></span>
                                     <span style="margin-left: 8px;">FREE</span>
                                 </div>
-                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #16a34a; font-weight: 600;">Free for limited time</div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: #16a34a; font-weight: 600;">Free for limited time, no credit card required</div>
                             </div>
                             <div style="flex: 1; padding: 14px 0;">
                                 <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 10px;">Everything in Learner, plus:</div>
@@ -5691,6 +5696,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">LLM Prompt Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Application Asset Management</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
@@ -5732,25 +5741,61 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <div id="professionalPlanCard" style="border: 2px solid var(--color-neutral-border); border-radius: 10px; padding: 16px; background: white; display: flex; flex-direction: column; opacity: 0.6; cursor: not-allowed;">
                             <div style="text-align: center; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-border);">
                                 <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Professional</h3>
-                                <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">$49<span style="font-size: 14px; font-weight: 500;">/mo</span></div>
-                                <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">Coming Soon</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">$14-$49<span style="font-size: 14px; font-weight: 500;">/mo</span></div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">Digital Transformation Canvas</div>
                             </div>
-                            <div style="flex: 1; padding: 14px 0; display: flex; align-items: center; justify-content: center;">
-                                <div style="text-align: center;">
-                                    <i class="ph ph-clock" style="font-size: 48px; color: #f59e0b; margin-bottom: 12px;"></i>
-                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Coming Soon</div>
-                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 4px;">Project management & team collaboration tools</div>
+                            <div style="flex: 1; padding: 14px 0;">
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Project Management & Planning</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Collaborative Authoring</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Structured Data Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">ML Pipeline Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Workflow Automation</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Sales Pipeline Management</span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Service Integration</span>
+                                    </div>
                                 </div>
                             </div>
-                            <button disabled style="padding: 12px 24px; background: #e5e5e7; color: #999999; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: not-allowed; width: 100%;">
-                                Coming Soon
+                            <button onclick="window.open('canvas-tour-pro.html', '_blank')" style="padding: 12px 24px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(249, 115, 22, 0.3)';">
+                                <i class="ph ph-cursor-click" style="font-size: 16px;"></i>
+                                Interactive Preview
+                                <i class="ph ph-arrow-square-out" style="font-size: 14px; opacity: 0.8;"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Cleansheet Engagements Grid -->
-                    <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                        <!-- Cleansheet Quarter Engagement -->
+                    <!-- Cleansheet Engagements Section -->
+                    <div style="margin-top: 16px;">
+                        <!-- Collapsible Header -->
+                        <button onclick="toggleEngagementsSection()" style="width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between;" onmouseover="this.style.background='linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%)';" onmouseout="this.style.background='linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';">
+                            <span>Cleansheet Services & Partnerships</span>
+                            <i id="engagementsToggleIcon" class="ph ph-caret-down" style="font-size: 20px; transition: transform 0.3s;"></i>
+                        </button>
+
+                        <!-- Engagements Grid (Collapsible) -->
+                        <div id="engagementsGrid" style="display: none; margin-top: 12px;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                                <!-- Cleansheet Quarter Engagement -->
                         <div style="padding: 11px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
                             <div style="display: flex; align-items: flex-start; gap: 10px;">
                                 <div style="flex-shrink: 0;">
@@ -5772,6 +5817,31 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                             <i class="ph ph-eye" style="margin-right: 4px;"></i>Preview
                                         </button>
                                         <button onclick="event.stopPropagation(); openCoachingInquiryModal('cleansheet_quarter');" style="padding: 6px 12px; background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 102, 204, 0.3)';">
+                                            <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recruiter Partnership -->
+                        <div style="padding: 11px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <div style="flex-shrink: 0;">
+                                    <div style="width: 40px; height: 40px; background: #16a34a; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-handshake" style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Recruiter Partnership</h4>
+                                    <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
+                                        We are exploring partnership opportunities with recruitment professionals and agencies. We are very early in our business development cycle and welcome conversations about potential collaboration models.
+                                    </p>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: #16a34a;">
+                                            Early Stage
+                                        </div>
+                                        <button onclick="event.stopPropagation(); openCoachingInquiryModal('recruiter_partnership');" style="padding: 6px 12px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(22, 163, 74, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(22, 163, 74, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(22, 163, 74, 0.3)';">
                                             <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
                                         </button>
                                     </div>
@@ -5803,29 +5873,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Recruiter Partnership -->
-                        <div style="padding: 11px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
-                            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                <div style="flex-shrink: 0;">
-                                    <div style="width: 40px; height: 40px; background: #16a34a; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="ph ph-handshake" style="font-size: 24px; color: white;"></i>
-                                    </div>
-                                </div>
-                                <div style="flex: 1;">
-                                    <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Recruiter Partnership</h4>
-                                    <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
-                                        We are exploring partnership opportunities with recruitment professionals and agencies. We are very early in our business development cycle and welcome conversations about potential collaboration models.
-                                    </p>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: #16a34a;">
-                                            Early Stage
-                                        </div>
-                                        <button onclick="event.stopPropagation(); openCoachingInquiryModal('recruiter_partnership');" style="padding: 6px 12px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(22, 163, 74, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(22, 163, 74, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(22, 163, 74, 0.3)';">
-                                            <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -7752,7 +7799,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <button class="add-story-btn" onclick="addExperienceRecord()" style="flex: 0 0 auto; margin-bottom: 0;">
                         <i class="ph ph-plus-circle"></i> Add Experience
                     </button>
-                    <button class="add-story-btn" onclick="toggleProfileRequestForm()" style="flex: 0 0 auto; margin-bottom: 0; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
+                    <button id="requestProfileButton" class="add-story-btn" onclick="toggleProfileRequestForm()" style="flex: 0 0 auto; margin-bottom: 0; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
                         <i class="ph ph-user-focus"></i> Request Profile
                     </button>
                 </div>
@@ -10263,6 +10310,140 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             return tier;
         }
 
+        // Apply viewport settings based on subscription tier
+        function applyViewportForTier() {
+            const currentTier = getCurrentSubscriptionTier();
+            const viewportMeta = document.querySelector('meta[name="viewport"]');
+
+            if (!viewportMeta) {
+                console.error('[Viewport] Viewport meta tag not found');
+                return;
+            }
+
+            if (currentTier === 'member') {
+                // Member tier: Fixed desktop width on mobile
+                viewportMeta.setAttribute('content', 'width=1024, initial-scale=1.0, user-scalable=no, maximum-scale=1.0');
+                console.log('[Viewport] Applied desktop viewport for Member tier (width=1024)');
+
+                // Hide Request Profile button for Member tier (Career Experience section)
+                const requestProfileBtn = document.getElementById('requestProfileButton');
+                if (requestProfileBtn) {
+                    requestProfileBtn.style.display = 'none';
+                    console.log('[Tier Features] Request Profile button hidden for Member tier');
+                }
+
+                // Hide Assets tab in Interview Preparation for Member tier
+                const assetsTab = document.getElementById('assetsTab');
+                if (assetsTab) {
+                    assetsTab.style.display = 'none';
+                    console.log('[Tier Features] Assets tab hidden for Member tier');
+                }
+
+                // Show notification once per session
+                if (!sessionStorage.getItem('viewport_notification_shown')) {
+                    setTimeout(() => {
+                        showViewportNotification();
+                        sessionStorage.setItem('viewport_notification_shown', 'true');
+                    }, 1000); // Delay 1 second to avoid overwhelming user on load
+                }
+            } else if (currentTier === 'learner') {
+                // Learner tier: Mobile-responsive viewport
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                console.log('[Viewport] Applied mobile-responsive viewport for Learner tier');
+
+                // Show Request Profile button for Learner tier (Career Experience section)
+                const requestProfileBtn = document.getElementById('requestProfileButton');
+                if (requestProfileBtn) {
+                    requestProfileBtn.style.display = 'flex';
+                    console.log('[Tier Features] Request Profile button visible for Learner tier');
+                }
+
+                // Show Assets tab in Interview Preparation for Learner tier
+                const assetsTab = document.getElementById('assetsTab');
+                if (assetsTab) {
+                    assetsTab.style.display = 'inline-flex';
+                    console.log('[Tier Features] Assets tab visible for Learner tier');
+                }
+
+                // Hide advanced asset types for Learner tier
+                const assetTypeWhiteboard = document.getElementById('assetTypeWhiteboard');
+                const assetTypeMarkdown = document.getElementById('assetTypeMarkdown');
+                const assetTypeCode = document.getElementById('assetTypeCode');
+                if (assetTypeWhiteboard) assetTypeWhiteboard.style.display = 'none';
+                if (assetTypeMarkdown) assetTypeMarkdown.style.display = 'none';
+                if (assetTypeCode) assetTypeCode.style.display = 'none';
+                console.log('[Tier Features] Advanced asset types (Whiteboard, Markdown, Code) hidden for Learner tier');
+            } else {
+                // Seeker tier: Mobile-responsive viewport with all features
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                console.log(`[Viewport] Applied mobile-responsive viewport for ${currentTier} tier`);
+
+                // Show Request Profile button for Seeker tier (Career Experience section)
+                const requestProfileBtn = document.getElementById('requestProfileButton');
+                if (requestProfileBtn) {
+                    requestProfileBtn.style.display = 'flex';
+                    console.log('[Tier Features] Request Profile button visible for paid tiers');
+                }
+
+                // Show Assets tab in Interview Preparation for Seeker tier
+                const assetsTab = document.getElementById('assetsTab');
+                if (assetsTab) {
+                    assetsTab.style.display = 'inline-flex';
+                    console.log('[Tier Features] Assets tab visible for paid tiers');
+                }
+
+                // Show all asset types for Seeker tier
+                const assetTypeWhiteboard = document.getElementById('assetTypeWhiteboard');
+                const assetTypeMarkdown = document.getElementById('assetTypeMarkdown');
+                const assetTypeCode = document.getElementById('assetTypeCode');
+                if (assetTypeWhiteboard) assetTypeWhiteboard.style.display = 'flex';
+                if (assetTypeMarkdown) assetTypeMarkdown.style.display = 'flex';
+                if (assetTypeCode) assetTypeCode.style.display = 'flex';
+                console.log('[Tier Features] All asset types visible for Seeker tier');
+            }
+        }
+
+        // Show notification for viewport restriction
+        function showViewportNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #0066CC 0%, #004C99 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+                z-index: 10000;
+                font-family: var(--font-family-body);
+                font-size: 13px;
+                max-width: 90%;
+                text-align: center;
+                animation: slideUpFade 0.3s ease-out;
+            `;
+
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <i class="ph ph-info" style="font-size: 18px;"></i>
+                    <span>Mobile view optimized for desktop. <strong>Upgrade to Learner</strong> for mobile-responsive experience.</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideDownFade 0.3s ease-out';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
         // Check if a node should be visible based on subscription tier
         function shouldShowNode(nodeName) {
             // Always filter based on subscription tier
@@ -11415,6 +11596,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function openSubscriptionModal() {
+            // Close any open slideouts first
+            closeInterviewSlideout();
+
             document.getElementById('subscriptionModal').style.display = 'flex';
             // Close profile dropdown
             const dropdown = document.getElementById('profileDropdown');
@@ -11429,8 +11613,25 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('subscriptionModal').style.display = 'none';
         }
 
+        // Toggle Engagements Section
+        function toggleEngagementsSection() {
+            const grid = document.getElementById('engagementsGrid');
+            const icon = document.getElementById('engagementsToggleIcon');
+
+            if (grid.style.display === 'none') {
+                grid.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                grid.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
         // Quick Start Modal Functions
         window.openRapidOnboardingModal = function() {
+            // Close any open slideouts first
+            closeInterviewSlideout();
+
             document.getElementById('rapidOnboardingModal').style.display = 'flex';
 
             // Clear form fields
@@ -11438,10 +11639,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             document.getElementById('rapidOnboardingLastName').value = '';
             document.getElementById('rapidOnboardingProfession').value = '';
             document.getElementById('rapidOnboardingGoal').value = '';
-            document.getElementById('requestProfileCheckbox').checked = false;
-            document.getElementById('rapidOnboardingEmail').value = '';
-            document.getElementById('rapidOnboardingLinkedIn').value = '';
-            document.getElementById('profileRequestFields').style.display = 'none';
         };
 
         window.closeRapidOnboardingModal = function() {
@@ -11958,13 +12155,21 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         const inquirySource = modal.getAttribute('data-inquiry-source') || 'general_inquiry';
                         console.log('[Coaching Inquiry] Service type:', inquirySource);
 
-                        // Get data from window object (with fallback)
-                        const currentProfile = window.profile || {};
-                        const currentExperiences = window.experiences || [];
-                        const currentStories = window.stories || [];
-                        const currentGoals = window.goals || [];
-                        const currentPortfolio = window.portfolio || [];
+                        // Load full profile data from localStorage (not window objects which may be stale)
                         const currentPersona = window.currentPersona || 'career-changer';
+                        const currentProfile = JSON.parse(localStorage.getItem('cleansheet_profile') || '{}');
+                        const currentExperiences = JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]');
+                        const currentStories = JSON.parse(localStorage.getItem(`userStories_${currentPersona}`) || '[]');
+                        const currentGoals = JSON.parse(localStorage.getItem(`userGoals_${currentPersona}`) || '[]');
+                        const currentPortfolio = JSON.parse(localStorage.getItem(`userPortfolio_${currentPersona}`) || '[]');
+                        const currentJobOpportunities = JSON.parse(localStorage.getItem(`userJobs_${currentPersona}`) || '[]');
+
+                        console.log('[Coaching Inquiry] Profile data loaded from localStorage:');
+                        console.log('  - Experiences:', currentExperiences.length);
+                        console.log('  - Stories:', currentStories.length);
+                        console.log('  - Goals:', currentGoals.length);
+                        console.log('  - Portfolio:', currentPortfolio.length);
+                        console.log('  - Job Opportunities:', currentJobOpportunities.length);
 
                         // Prepare coaching inquiry data
                         const inquiryData = {
@@ -11974,6 +12179,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             experienceCount: currentExperiences.length,
                             storyCount: currentStories.length,
                             goalCount: currentGoals.length,
+                            portfolioCount: currentPortfolio.length,
+                            jobCount: currentJobOpportunities.length,
                             hasProfile: !!currentProfile.firstName || !!currentProfile.lastName || !!currentProfile.profession,
                             persona: currentPersona
                         };
@@ -11982,7 +12189,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         const browserMetadata = getBrowserMetadata();
                         const ipAddress = await getClientIPAddress();
 
-                        // Wrap in blob data structure
+                        // Wrap in blob data structure with FULL profile data
                         const blobData = {
                             metadata: {
                                 requestType: 'coachingInquiry',
@@ -11992,24 +12199,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 platform: browserMetadata.platform,
                                 language: browserMetadata.language,
                                 requestDate: new Date().toISOString(),
-                                source: inquirySource
+                                source: inquirySource,
+                                persona: currentPersona
                             },
                             inquiry: inquiryData,
-                            profile: {
-                                firstName: currentProfile.firstName || '',
-                                lastName: currentProfile.lastName || '',
-                                profession: currentProfile.profession || '',
-                                goal: currentProfile.goal || ''
-                            },
-                            profileSummary: {
-                                experienceCount: currentExperiences.length,
-                                storyCount: currentStories.length,
-                                goalCount: currentGoals.length,
-                                portfolioCount: currentPortfolio.length,
-                                hasGoal: !!currentProfile.goal,
-                                hasProfession: !!currentProfile.profession,
-                                persona: currentPersona
-                            }
+                            profile: currentProfile,
+                            experiences: currentExperiences,
+                            stories: currentStories,
+                            goals: currentGoals,
+                            portfolio: currentPortfolio,
+                            jobOpportunities: currentJobOpportunities
                         };
 
                         // Upload blob
@@ -12022,9 +12221,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             blobName,
                             'coachingInquiry',
                             {
+                                serviceType: inquirySource,
                                 experienceCount: currentExperiences.length,
                                 storyCount: currentStories.length,
                                 goalCount: currentGoals.length,
+                                portfolioCount: currentPortfolio.length,
+                                jobCount: currentJobOpportunities.length,
                                 hasNotes: !!notes,
                                 persona: currentPersona
                             }
@@ -12099,6 +12301,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Store selected plan in localStorage
             localStorage.setItem('subscription_tier', plan);
+
+            // Apply viewport settings for new tier
+            applyViewportForTier();
 
             // Update the subscription tier badge in the welcome header
             updateSubscriptionTierDisplay();
@@ -13836,6 +14041,68 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             } catch (error) {
                 alert('Error exporting data: ' + error.message);
             }
+        }
+
+        // Data Management Modal Functions
+        function openDataManagementModal() {
+            // Close profile dropdown
+            document.getElementById('profileDropdown').classList.remove('active');
+            // Close any open slideouts
+            closeInterviewSlideout();
+            // Open the data management modal
+            document.getElementById('dataManagementModal').style.display = 'flex';
+        }
+
+        function closeDataManagementModal() {
+            document.getElementById('dataManagementModal').style.display = 'none';
+        }
+
+        function handleBackupFromModal() {
+            // Close the modal first
+            closeDataManagementModal();
+            // Call the existing export function
+            exportCanvasData();
+        }
+
+        function handleRestoreFromModal(mode) {
+            // Close the data management modal
+            closeDataManagementModal();
+
+            // Create and trigger file input
+            const fileInput = document.getElementById('jsonFileInput');
+            fileInput.value = ''; // Reset input
+
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+
+                        // Validate JSON structure
+                        if (!data.userFirstName || !data.userLastName || !data.experiences) {
+                            alert('Invalid JSON format. Please ensure the file contains userFirstName, userLastName, and experiences fields.');
+                            return;
+                        }
+
+                        // Process import directly based on mode
+                        pendingImportData = data;
+                        if (mode === 'overwrite') {
+                            processImportWithMode(true); // true = overwrite
+                        } else if (mode === 'update') {
+                            processImportWithMode(false); // false = update/merge
+                        }
+
+                    } catch (error) {
+                        alert('Error parsing JSON file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            fileInput.click();
         }
 
         // Install App Modal Functions
@@ -16158,6 +16425,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 ...code.map(c => ({ ...c, assetType: 'Code', icon: 'ph-code' })),
                 ...mermaid.map(m => ({ ...m, assetType: 'Mermaid', icon: 'ph-fish' }))
             ];
+
+            // Apply tier-based filtering (hide advanced asset types for Learner tier)
+            const currentTier = getCurrentSubscriptionTier();
+            if (currentTier === 'learner') {
+                allAssets = allAssets.filter(a =>
+                    a.assetType !== 'Whiteboard' &&
+                    a.assetType !== 'Markdown' &&
+                    a.assetType !== 'Code'
+                );
+                console.log('[Tier Features] Filtered out Whiteboard, Markdown, and Code assets for Learner tier');
+            }
 
             // Apply badge-click filter if provided
             if (filterType && filterId) {
@@ -37018,6 +37296,10 @@ F &= ma \\\\
         // Auto-open Canvas Tour on page load - simple version
         window.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded');
+
+            // Apply viewport settings based on subscription tier
+            applyViewportForTier();
+
             openCanvasModal();
 
             // Initialize profile display
@@ -37055,10 +37337,10 @@ F &= ma \\\\
                 initializeUIGuidance();
             }, 500);
 
-            // Start onboarding tour for new users
-            setTimeout(() => {
-                startTour();
-            }, 1000);
+            // Start onboarding tour for new users (disabled - user can click tour button)
+            // setTimeout(() => {
+            //     startTour();
+            // }, 1000);
         });
 
         // Service Worker Registration for PWA
