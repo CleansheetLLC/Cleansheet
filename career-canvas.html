@@ -5193,6 +5193,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <input type="url" id="rapidOnboardingLinkedIn" placeholder="https://linkedin.com/in/yourprofile" style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
                                     </div>
 
+                                    <!-- Acknowledgement Checkbox -->
+                                    <div>
+                                        <label style="display: flex; align-items: start; gap: 10px; cursor: pointer; font-size: 12px; line-height: 1.5; padding: 12px; background: white; border: 2px solid #f97316; border-radius: 6px;">
+                                            <input type="checkbox" id="quickStartAcknowledgement" style="margin-top: 2px; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
+                                            <div style="font-family: var(--font-family-body); color: #92400e;">
+                                                I acknowledge that I am requesting a profile <strong>only for myself</strong>, I authorize Cleansheet to perform an <strong>AI-assisted open source search</strong> based on my current profile and the information provided in this form, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: #ea580c; text-decoration: underline; font-weight: 600;">Terms of Service</a>. *
+                                            </div>
+                                        </label>
+                                    </div>
+
                                     <!-- Consent Notice -->
                                     <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #f97316;">
                                         <div style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: #ea580c; margin-bottom: 8px;">
@@ -5354,6 +5364,80 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
+        <!-- Subscription Profile Request Modal -->
+        <div class="modal" id="subscriptionProfileRequestModal" style="display: none; z-index: 10001;">
+            <div class="modal-content" style="max-width: 550px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i class="ph ph-user-focus" style="margin-right: 8px; color: #f97316;"></i>
+                        Request a Cleansheet Profile
+                    </h2>
+                    <button class="modal-close" onclick="closeSubscriptionProfileRequestModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="background: #fff7ed; border-left: 4px solid #f97316; padding: 16px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.6; color: #92400e; margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 6px; font-size: 16px; vertical-align: middle;"></i>
+                            During the preview period, request a Cleansheet profile built from publicly available information.
+                        </p>
+                    </div>
+
+                    <form id="subscriptionProfileRequestForm" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Email -->
+                        <div>
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">Email Address *</label>
+                            <input type="email" id="subProfileEmail" placeholder="your.email@example.com" required style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            <div style="font-family: var(--font-family-body); font-size: 11px; color: #92400e; margin-top: 4px;">
+                                <i class="ph ph-warning" style="margin-right: 4px;"></i>You must control this email address. 2FA will be leveraged for verification.
+                            </div>
+                        </div>
+
+                        <!-- LinkedIn URL -->
+                        <div>
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">LinkedIn Profile URL *</label>
+                            <input type="url" id="subProfileLinkedIn" placeholder="https://www.linkedin.com/in/yourprofile" required style="width: 100%; padding: 10px 12px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+
+                        <!-- Acknowledgement Checkbox -->
+                        <div>
+                            <label style="display: flex; align-items: start; gap: 10px; cursor: pointer; font-size: 12px; line-height: 1.5; padding: 12px; background: white; border: 2px solid #f97316; border-radius: 6px;">
+                                <input type="checkbox" id="subscriptionAcknowledgement" style="margin-top: 2px; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
+                                <div style="font-family: var(--font-family-body); color: #92400e;">
+                                    I acknowledge that I am requesting a profile <strong>only for myself</strong>, I authorize Cleansheet to perform an <strong>AI-assisted open source search</strong> based on my current profile and the information provided in this form, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: #ea580c; text-decoration: underline; font-weight: 600;">Terms of Service</a>. *
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Privacy Notice -->
+                        <div style="background: #fffbeb; border: 1px solid #fbbf24; padding: 12px; border-radius: 6px;">
+                            <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #92400e; margin-bottom: 6px;">
+                                <i class="ph ph-shield-check" style="margin-right: 4px;"></i>Privacy Notice
+                            </div>
+                            <ul style="font-family: var(--font-family-body); font-size: 11px; line-height: 1.5; color: #92400e; margin: 0; padding-left: 18px;">
+                                <li>Cleansheet will conduct an <strong>open source search</strong> to minimally populate your professional and educational profile</li>
+                                <li>Cleansheet will <strong>retain this data</strong> to provide the requested service</li>
+                                <li>You can submit <strong>erasure requests</strong> from the user menu</li>
+                                <li>This is an <strong>experimental preview service</strong> and data accuracy is not guaranteed</li>
+                            </ul>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div style="display: flex; gap: 12px; margin-top: 8px;">
+                            <button type="submit" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 8px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(249, 115, 22, 0.3)';">
+                                <i class="ph ph-paper-plane-tilt" style="font-size: 18px;"></i>
+                                Submit Request
+                            </button>
+                            <button type="button" onclick="closeSubscriptionProfileRequestModal()" style="padding: 12px 20px; background: white; color: var(--color-neutral-text); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.color='var(--color-primary-blue)';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.color='var(--color-neutral-text)';">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Mock Interview Interest Modal -->
         <div class="modal" id="mockInterviewInterestModal" style="display: none;">
             <div class="modal-content" style="max-width: 600px;">
@@ -5479,24 +5563,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </button>
                 </div>
                 <div class="modal-body" style="padding: 20px;">
-                    <!-- Feature Legend -->
-                    <div style="display: flex; gap: 20px; padding: 12px 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; align-items: center; justify-content: center;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <i class="ph ph-check-circle" style="font-size: 16px; color: #0066CC;"></i>
-                            <span style="font-family: var(--font-family-ui); font-size: 12px; color: var(--color-dark);">Available Now</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <i class="ph ph-wrench" style="font-size: 16px; color: #f59e0b;"></i>
-                            <span style="font-family: var(--font-family-ui); font-size: 12px; color: var(--color-dark);">Under Construction</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <i class="ph ph-clock" style="font-size: 16px; color: #f59e0b;"></i>
-                            <span style="font-family: var(--font-family-ui); font-size: 12px; color: var(--color-dark);">Coming Soon</span>
-                        </div>
-                    </div>
-
                     <!-- Subscription Tiers Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
                         <!-- Member Tier (Free) -->
                         <div id="memberPlanCard" onclick="selectPlan('member')" style="border: 2px solid var(--color-neutral-border); border-radius: 10px; padding: 16px; background: white; display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s;">
                             <div style="text-align: center; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-border);">
@@ -5522,10 +5590,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Local Storage (Browser-based)</span>
-                                    </div>
-                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
-                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">JSON Export/Import</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
@@ -5561,7 +5625,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <div style="display: flex; flex-direction: column; gap: 8px;">
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Profile Service <span style="font-size: 11px; color: var(--color-neutral-text); font-style: italic;">(subject to availability)</span></span>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Profile Service <button onclick="event.stopPropagation(); openSubscriptionProfileRequestModal();" style="padding: 2px 8px; margin-left: 4px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(249, 115, 22, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(249, 115, 22, 0.3)';">Request</button></span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
@@ -5592,8 +5656,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Advanced Learning Resources</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
-                                        <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Coach Access</span>
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: var(--color-primary-blue); flex-shrink: 0; margin-top: 2px;"></i>
+                                        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                                            <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Portfolio Coaching</span>
+                                            <button onclick="event.stopPropagation(); openCoachingInquiryModal('portfolio_coaching');" style="padding: 6px 12px; background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 102, 204, 0.3)';">
+                                                <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -5636,8 +5705,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Company Research Tools</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
-                                        <i class="ph ph-wrench" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Interview Whiteboards <span style="font-size: 11px; color: var(--color-neutral-text); font-style: italic;">(under construction)</span></span>
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: var(--color-primary-blue); flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Interview Whiteboards</span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-clock" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
@@ -5645,7 +5714,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
-                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Mock Interviews & Portfolio Development <span style="font-size: 11px; color: var(--color-neutral-text); font-style: italic;">(subject to availability)</span></span>
+                                        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                                            <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Mock Interviews</span>
+                                            <button onclick="event.stopPropagation(); openCoachingInquiryModal('mock_interviews');" style="padding: 6px 12px; background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 102, 204, 0.3)';">
+                                                <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -5653,26 +5727,104 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 Subscribe
                             </button>
                         </div>
-                    </div>
 
-                    <!-- Cleansheet Quarter Add-On -->
-                    <div style="margin-top: 16px; padding: 14px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div style="flex-shrink: 0;">
-                                <div style="width: 40px; height: 40px; background: var(--color-primary-blue); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="ph ph-chalkboard-teacher" style="font-size: 24px; color: white;"></i>
+                        <!-- Professional Tier -->
+                        <div id="professionalPlanCard" style="border: 2px solid var(--color-neutral-border); border-radius: 10px; padding: 16px; background: white; display: flex; flex-direction: column; opacity: 0.6; cursor: not-allowed;">
+                            <div style="text-align: center; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-border);">
+                                <h3 style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Professional</h3>
+                                <div style="font-family: var(--font-family-ui); font-size: 28px; font-weight: 700; color: var(--color-primary-blue); margin-bottom: 2px;">$49<span style="font-size: 14px; font-weight: 500;">/mo</span></div>
+                                <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text);">Coming Soon</div>
+                            </div>
+                            <div style="flex: 1; padding: 14px 0; display: flex; align-items: center; justify-content: center;">
+                                <div style="text-align: center;">
+                                    <i class="ph ph-clock" style="font-size: 48px; color: #f59e0b; margin-bottom: 12px;"></i>
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">Coming Soon</div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 4px;">Project management & team collaboration tools</div>
                                 </div>
                             </div>
-                            <div style="flex: 1;">
-                                <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Cleansheet Quarter Engagement</h4>
-                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
-                                    Available to Seeker subscribers: 12-week coaching engagement with a Cleansheet Success Manager. Includes goal setting, capstone project planning, 4 synchronous virtual meetings (30-45 min), asynchronous collaboration, and personalized career development support.
-                                </p>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: var(--color-primary-blue);">$499<span style="font-size: 12px; font-weight: 500; color: var(--color-neutral-text);">/quarter</span></div>
-                                    <button onclick="openCoachPreviewModal()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-accent-blue)'; this.style.boxShadow='0 2px 8px rgba(0, 102, 204, 0.3)';" onmouseout="this.style.background='var(--color-primary-blue)'; this.style.boxShadow='none';">
-                                        <i class="ph ph-eye"></i> Preview
-                                    </button>
+                            <button disabled style="padding: 12px 24px; background: #e5e5e7; color: #999999; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: not-allowed; width: 100%;">
+                                Coming Soon
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cleansheet Engagements Grid -->
+                    <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <!-- Cleansheet Quarter Engagement -->
+                        <div style="padding: 11px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <div style="flex-shrink: 0;">
+                                    <div style="width: 40px; height: 40px; background: var(--color-primary-blue); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-chalkboard-teacher" style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Cleansheet Quarter Engagement</h4>
+                                    <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
+                                        12-week structured coaching engagement with a Cleansheet Success Manager. Includes goal setting, capstone project planning, virtual meetings, and personalized guidance tailored to your objectives.
+                                    </p>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: var(--color-primary-blue);">
+                                            <span style="text-decoration: line-through; opacity: 0.5;">$1199<span style="font-size: 12px; font-weight: 500;"></span></span>
+                                            <span style="margin-left: 8px;">FREE</span>
+                                        </div>
+                                        <button onclick="openCoachPreviewModal()" style="padding: 6px 12px; background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 102, 204, 0.3)';">
+                                            <i class="ph ph-eye" style="margin-right: 4px;"></i>Preview
+                                        </button>
+                                        <button onclick="event.stopPropagation(); openCoachingInquiryModal('cleansheet_quarter');" style="padding: 6px 12px; background: linear-gradient(135deg, #0066CC 0%, #004C99 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 102, 204, 0.3)';">
+                                            <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cleansheet Consulting Engagement -->
+                        <div style="padding: 11px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <div style="flex-shrink: 0;">
+                                    <div style="width: 40px; height: 40px; background: #7c3aed; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-briefcase" style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Cleansheet Consulting Engagement</h4>
+                                    <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
+                                        Enterprise consulting services for digital transformation, data pipeline architecture, and systems integration. Custom engagements tailored to your organization's technical challenges and strategic objectives.
+                                    </p>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: #7c3aed;">
+                                            Custom Quote
+                                        </div>
+                                        <button onclick="event.stopPropagation(); openCoachingInquiryModal('consulting_services');" style="padding: 6px 12px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(124, 58, 237, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(124, 58, 237, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(124, 58, 237, 0.3)';">
+                                            <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recruiter Partnership -->
+                        <div style="padding: 11px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid var(--color-neutral-border);">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <div style="flex-shrink: 0;">
+                                    <div style="width: 40px; height: 40px; background: #16a34a; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph ph-handshake" style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 4px 0;">Recruiter Partnership</h4>
+                                    <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 0 0 10px 0; line-height: 1.4;">
+                                        We are exploring partnership opportunities with recruitment professionals and agencies. We are very early in our business development cycle and welcome conversations about potential collaboration models.
+                                    </p>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 700; color: #16a34a;">
+                                            Early Stage
+                                        </div>
+                                        <button onclick="event.stopPropagation(); openCoachingInquiryModal('recruiter_partnership');" style="padding: 6px 12px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(22, 163, 74, 0.3); width: fit-content;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(22, 163, 74, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(22, 163, 74, 0.3)';">
+                                            <i class="ph ph-chat-circle-dots" style="margin-right: 4px;"></i>Inquire
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -5687,6 +5839,139 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coaching Inquiry Modal -->
+        <div class="modal" id="coachingInquiryModal" style="display: none; z-index: 10001;">
+            <div class="modal-content" style="max-width: 550px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i id="coachingModalIcon" class="ph ph-chalkboard-teacher" style="margin-right: 8px; color: var(--color-primary-blue);"></i>
+                        <span id="coachingModalTitle">Request Coaching Session</span>
+                    </h2>
+                    <button class="modal-close" onclick="closeCoachingInquiryModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- Empty Profile Warning -->
+                    <div id="coachingEmptyProfileWarning" style="display: none; background: #fef2f2; border-left: 4px solid #dc2626; padding: 16px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: #991b1b; margin: 0 0 12px 0;">
+                            <i class="ph ph-x-circle" style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>
+                            <strong>Profile Required:</strong> Your profile appears to be empty.
+                        </p>
+                        <p style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.6; color: #991b1b; margin: 0 0 12px 0;">
+                            To provide the best coaching experience, we need to understand your career background. Please complete one of the following before requesting coaching services:
+                        </p>
+                        <ul style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #991b1b; margin: 0; padding-left: 24px;">
+                            <li style="margin-bottom: 6px;">Fill out the <strong>Quick Start</strong> form to set up your basic profile</li>
+                            <li style="margin-bottom: 6px;">Use the <strong>Profile Request</strong> service to have us build your profile from LinkedIn</li>
+                            <li>Manually add your career experiences using the Career Experience section</li>
+                        </ul>
+                    </div>
+
+                    <!-- Experience Warning (if < 4 experiences) -->
+                    <div id="coachingExperienceWarning" style="display: none; background: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.6; color: #92400e; margin: 0 0 10px 0;">
+                            <i class="ph ph-warning" style="margin-right: 6px; font-size: 16px; vertical-align: middle;"></i>
+                            <strong>Recommendation:</strong> You currently have fewer than 4 career experiences in your profile.
+                        </p>
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
+                            For the best coaching experience, we recommend using the <strong>Profile Request</strong> service first to fully populate your career history. This will help your coach provide more personalized guidance.
+                        </p>
+                    </div>
+
+                    <p id="coachingModalDescription" style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 20px 0;">
+                        Connect with a Cleansheet Success Manager to discuss your career goals and coaching needs.
+                    </p>
+
+                    <form id="coachingInquiryForm" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Email Field -->
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">
+                                Email Address *
+                            </label>
+                            <input type="email" id="coachingInquiryEmail" required
+                                   style="width: 100%; padding: 10px 12px; font-family: var(--font-family-body); font-size: 14px; border: 1px solid var(--color-neutral-border); border-radius: 6px; box-sizing: border-box;"
+                                   placeholder="your@email.com">
+                        </div>
+
+                        <!-- Notes Field -->
+                        <div>
+                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">
+                                Additional Notes (Optional)
+                            </label>
+                            <textarea id="coachingInquiryNotes" rows="4"
+                                      style="width: 100%; padding: 10px 12px; font-family: var(--font-family-body); font-size: 14px; border: 1px solid var(--color-neutral-border); border-radius: 6px; box-sizing: border-box; resize: vertical;"
+                                      placeholder="Tell us about your coaching goals, specific challenges you're facing, or any questions you have..."></textarea>
+                        </div>
+
+                        <!-- Acknowledgement -->
+                        <div>
+                            <label id="coachingAcknowledgementLabel" style="display: flex; align-items: start; gap: 10px; cursor: pointer; font-size: 12px; line-height: 1.5; padding: 12px; background: #e3f2fd; border: 2px solid var(--color-primary-blue); border-radius: 6px;">
+                                <input type="checkbox" id="coachingInquiryAcknowledgement" required style="margin-top: 2px; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
+                                <div id="coachingAcknowledgementText" style="font-family: var(--font-family-body); color: #0c4a6e;">
+                                    I acknowledge that I am sharing my profile information with Cleansheet to <strong>facilitate the coach match process</strong>, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary-blue); text-decoration: underline; font-weight: 600;">Terms of Service</a>. *
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" style="width: 100%; padding: 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-accent-blue)';" onmouseout="this.style.background='var(--color-primary-blue)';">
+                            <i class="ph ph-paper-plane-tilt" style="margin-right: 6px;"></i>
+                            Submit Inquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coaching Inquiry Confirmation Modal -->
+        <div class="modal" id="coachingInquiryConfirmationModal" style="display: none; z-index: 10002;">
+            <div class="modal-content" style="max-width: 550px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i class="ph ph-check-circle" style="margin-right: 8px; color: #16a34a;"></i>
+                        Coaching Inquiry Submitted
+                    </h2>
+                    <button class="modal-close" onclick="closeCoachingInquiryConfirmationModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 16px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: #15803d; margin: 0;">
+                            <i class="ph ph-check-circle" style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>
+                            <strong>Thank you!</strong> Your coaching inquiry has been successfully submitted.
+                        </p>
+                    </div>
+
+                    <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-calendar-check" style="font-size: 20px; color: var(--color-primary-blue);"></i>
+                        What Happens Next
+                    </h3>
+
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <ol style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.7; color: var(--color-dark); margin: 0; padding-left: 20px;">
+                            <li style="margin-bottom: 10px;">Our team will review your profile and coaching request</li>
+                            <li style="margin-bottom: 10px;">We will match you with the best Cleansheet Success Manager for your goals</li>
+                            <li style="margin-bottom: 10px;">You'll receive an email from <strong style="color: var(--color-primary-blue);">coaching@cleansheet.dev</strong> with next steps</li>
+                            <li>We typically respond within <strong>24-48 hours</strong></li>
+                        </ol>
+                    </div>
+
+                    <div style="background: #e3f2fd; border-left: 4px solid var(--color-primary-blue); padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #0c4a6e; margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 4px;"></i>
+                            <strong>While you wait:</strong> Continue building your career canvas and exploring the Cleansheet Library to prepare for your coaching session.
+                        </p>
+                    </div>
+
+                    <button onclick="closeCoachingInquiryConfirmationModal()" style="width: 100%; padding: 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-accent-blue)';" onmouseout="this.style.background='var(--color-primary-blue)';">
+                        Got It, Thanks!
+                    </button>
                 </div>
             </div>
         </div>
@@ -7169,21 +7454,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 </div>
                             </div>
                         </div>
-                        <div class="experience-filter-container" style="position: relative; flex: 0 0 auto;">
-                            <button class="experience-filter-btn" onclick="togglePortfolioFilter()" id="portfolioFilterBtn">
-                                <i class="ph ph-funnel"></i> Filter by Portfolio
-                                <span id="portfolioFilterCount" style="display: none; margin-left: 4px; padding: 2px 6px; background: var(--color-primary-blue); color: white; border-radius: 10px; font-size: 10px; font-weight: 600;"></span>
-                            </button>
-                            <div class="experience-filter-dropdown" id="portfolioFilterDropdown" style="display: none;">
-                                <div style="padding: 8px; border-bottom: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Select Portfolio Items</span>
-                                    <button onclick="clearPortfolioFilter()" style="background: none; border: none; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 4px;">Clear</button>
-                                </div>
-                                <div id="portfolioFilterOptions" style="max-height: 300px; overflow-y: auto; padding: 4px;">
-                                    <!-- Portfolio checkboxes will be populated here -->
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div id="storiesContainer" class="stories-container">
                         <!-- Story cards will be dynamically inserted here -->
@@ -7227,14 +7497,51 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             </div>
                         </div>
                     </div>
+                    <!-- Search Filter -->
+                    <div style="background: white; border-radius: 8px; border: 1px solid var(--color-neutral-border); padding: 12px 16px; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-magnifying-glass" style="font-size: 18px; color: var(--color-neutral-text);"></i>
+                            <input
+                                type="text"
+                                id="assetsSearchInput"
+                                placeholder="Filter by name..."
+                                oninput="filterAssetsByName()"
+                                style="flex: 1; border: none; outline: none; font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);"
+                            />
+                            <button onclick="clearAssetsSearch()" id="assetsClearSearchBtn" style="display: none; padding: 4px; background: none; border: none; color: var(--color-neutral-text); cursor: pointer; font-size: 16px;">
+                                <i class="ph ph-x"></i>
+                            </button>
+                        </div>
+                    </div>
                     <!-- Assets Table -->
                     <div style="background: white; border-radius: 8px; border: 1px solid var(--color-neutral-border); overflow: hidden;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr style="background: var(--color-neutral-background); border-bottom: 2px solid var(--color-neutral-border);">
-                                    <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Name</th>
-                                    <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 120px;">Type</th>
-                                    <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 250px;">Linked To</th>
+                                    <th onclick="sortAssetsTable('name')" style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); cursor: pointer; user-select: none;" onmouseover="this.style.background='rgba(0, 102, 204, 0.05)'" onmouseout="this.style.background='transparent'">
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            Name
+                                            <i class="ph ph-caret-up-down" id="sortIconName" style="font-size: 14px; opacity: 0.3;"></i>
+                                        </div>
+                                    </th>
+                                    <th onclick="sortAssetsTable('type')" style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 120px; cursor: pointer; user-select: none;" onmouseover="this.style.background='rgba(0, 102, 204, 0.05)'" onmouseout="this.style.background='transparent'">
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            Type
+                                            <i class="ph ph-caret-up-down" id="sortIconType" style="font-size: 14px; opacity: 0.3;"></i>
+                                        </div>
+                                    </th>
+                                    <th onclick="sortAssetsTable('linkedTo')" style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 200px; cursor: pointer; user-select: none;" onmouseover="this.style.background='rgba(0, 102, 204, 0.05)'" onmouseout="this.style.background='transparent'">
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            Linked To
+                                            <i class="ph ph-caret-up-down" id="sortIconLinkedTo" style="font-size: 14px; opacity: 0.3;"></i>
+                                        </div>
+                                    </th>
+                                    <th onclick="sortAssetsTable('lastModified')" style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 140px; cursor: pointer; user-select: none;" onmouseover="this.style.background='rgba(0, 102, 204, 0.05)'" onmouseout="this.style.background='transparent'">
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            Last Updated
+                                            <i class="ph ph-caret-down" id="sortIconLastModified" style="font-size: 14px; opacity: 1;"></i>
+                                        </div>
+                                    </th>
                                     <th style="padding: 12px 16px; text-align: right; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 120px;">Actions</th>
                                 </tr>
                             </thead>
@@ -7474,6 +7781,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <div>
                             <label style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">LinkedIn Profile URL *</label>
                             <input type="url" id="slideoutProfileLinkedIn" placeholder="https://linkedin.com/in/yourprofile" style="width: 100%; padding: 8px 10px; border: 2px solid #f97316; border-radius: 6px; font-family: var(--font-family-body); font-size: 13px;">
+                        </div>
+
+                        <!-- Acknowledgement Checkbox -->
+                        <div>
+                            <label style="display: flex; align-items: start; gap: 8px; cursor: pointer; font-size: 11px; line-height: 1.5; padding: 10px; background: white; border: 2px solid #f97316; border-radius: 6px;">
+                                <input type="checkbox" id="slideoutAcknowledgement" style="margin-top: 2px; width: 14px; height: 14px; cursor: pointer; flex-shrink: 0;">
+                                <div style="font-family: var(--font-family-body); color: #92400e;">
+                                    I acknowledge that I am requesting a profile <strong>only for myself</strong>, I authorize Cleansheet to perform an <strong>AI-assisted open source search</strong> based on my current profile and the information provided in this form, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: #ea580c; text-decoration: underline; font-weight: 600;">Terms of Service</a>. *
+                                </div>
+                            </label>
                         </div>
 
                         <!-- Consent Notice -->
@@ -9488,6 +9805,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // Token expires: 2026-11-05
         const PROFILE_REQUEST_TABLE_URL = 'https://storageb681.table.core.windows.net/ProfileRequests?se=2026-11-05T01%3A04Z&sp=a&sv=2019-02-02&tn=ProfileRequests&sig=Cx6YwQaoga8xPSzKJWCPenEoLZUbN/U85k6gPmqtOa8%3D';
 
+        // Azure Blob Storage container for large profile data (write-only SAS token)
+        // Used for storing complete profile exports that exceed Table Storage 32KB limit
+        // SAS token has 'w' permission only (write, cannot read/list/delete)
+        // Token expires: 2026-11-05
+        // Generated by azure-create-profile-blobs.sh on 2025-11-07
+        const PROFILE_BLOB_CONTAINER_URL = 'https://storageb681.blob.core.windows.net/profileblobs?se=2026-11-05T01%3A04Z&sp=w&spr=https&sv=2022-11-02&sr=c&sig=vBTWVGRSUjGwTB4LdLLjVc6mpnZdt/RYx0RRun8%2BW3U%3D';
+
         // Example documents for each persona
         const exampleDocuments = {
             'career-changer': [
@@ -10836,6 +11160,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Profile dropdown functions
         function toggleProfileDropdown() {
+            // Close any open slideouts first
+            const slideout = document.getElementById('interviewSlideout');
+            if (slideout && slideout.classList.contains('active')) {
+                slideout.classList.remove('active');
+            }
+
+            // Then toggle the profile dropdown
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('active');
         }
@@ -11163,6 +11494,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     alert('Please enter your LinkedIn profile URL to request a profile.');
                     return;
                 }
+
+                // Acknowledgement checkbox is mandatory
+                const acknowledgement = document.getElementById('quickStartAcknowledgement').checked;
+                if (!acknowledgement) {
+                    alert('You must acknowledge and agree to the terms before requesting a profile.');
+                    return;
+                }
             }
 
             // Clear any existing example profile data before creating new profile
@@ -11185,56 +11523,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
 
-            // If profile request is checked, send to Azure Table Storage
+            // If profile request is checked, send to Blob Storage
             if (requestProfile) {
                 try {
-                    // Generate unique RowKey: timestamp + random suffix
-                    const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
-                    const randomSuffix = Math.random().toString(36).substring(2, 8);
-                    const rowKey = `${timestamp}_${randomSuffix}`;
-
-                    // Create Table Storage entity (flat JSON object)
-                    const entity = {
-                        PartitionKey: 'ProfileRequest',
-                        RowKey: rowKey,
-                        requestType: 'ProfileRequest',
-                        firstName: firstName,
-                        lastName: lastName,
-                        profession: profession || '',
-                        email: email,
-                        linkedInURL: linkedIn || '',
-                        requestDate: new Date().toISOString()
-                    };
-
-                    // POST to Azure Table Storage
-                    const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json;odata=nometadata'
-                        },
-                        body: JSON.stringify(entity)
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Table Storage error: ${response.status} - ${errorText}`);
-                    }
-
-                    // Store request locally for reference
-                    const profileRequest = {
+                    // Submit profile request via blob storage workflow
+                    await submitProfileRequestWithBlob({
                         email: email,
                         linkedIn: linkedIn,
                         firstName: firstName,
                         lastName: lastName,
                         profession: profession,
-                        requestDate: entity.requestDate,
-                        status: 'submitted',
-                        rowKey: rowKey
-                    };
-                    localStorage.setItem('cleansheet_profile_request', JSON.stringify(profileRequest));
+                        source: 'quick_start_modal'
+                    });
 
-                    console.log('Profile request sent successfully to Table Storage');
+                    console.log('Profile request sent successfully via blob storage');
 
                     // Show confirmation modal
                     openProfileRequestConfirmationModal();
@@ -11246,19 +11548,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 } catch (error) {
                     console.error('Failed to send profile request:', error);
-
-                    // Still save locally even if API fails
-                    const profileRequest = {
-                        email: email,
-                        linkedIn: linkedIn,
-                        firstName: firstName,
-                        lastName: lastName,
-                        profession: profession,
-                        requestDate: new Date().toISOString(),
-                        status: 'failed',
-                        error: error.message
-                    };
-                    localStorage.setItem('cleansheet_profile_request', JSON.stringify(profileRequest));
 
                     // Show error but don't block profile creation
                     alert(`Welcome, ${firstName}! Your profile has been created.\n\nNote: We encountered an issue submitting your profile request. Please try again later or contact support at privacy@cleansheet.dev.\n\nYou can still use Career Canvas normally.`);
@@ -11335,38 +11624,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             try {
-                // Generate unique RowKey: timestamp + random suffix
-                const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
-                const randomSuffix = Math.random().toString(36).substring(2, 8);
-                const rowKey = `${timestamp}_${randomSuffix}`;
+                // Submit erasure request via blob storage workflow
+                await submitErasureRequestWithBlob(name, email);
 
-                // Create Table Storage entity (flat JSON object)
-                const entity = {
-                    PartitionKey: 'ErasureRequest',
-                    RowKey: rowKey,
-                    requestType: 'ErasureRequest',
-                    name: name,
-                    email: email,
-                    requestDate: new Date().toISOString(),
-                    status: 'pending'
-                };
-
-                // POST to Azure Table Storage
-                const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json;odata=nometadata'
-                    },
-                    body: JSON.stringify(entity)
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Table Storage error: ${response.status} - ${errorText}`);
-                }
-
-                console.log('Erasure request submitted successfully to Table Storage');
+                console.log('Erasure request submitted successfully via blob storage');
 
                 // Show confirmation message
                 alert(`Erasure Request Submitted\n\nYour request has been received. You will receive a confirmation email at ${email} shortly.\n\nYou must respond to the confirmation email to verify your identity. Upon confirmation, Cleansheet will erase all records within 30 days.\n\nThis action is irreversible.`);
@@ -11425,44 +11686,28 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 return;
             }
 
+            // Acknowledgement checkbox is mandatory
+            const acknowledgement = document.getElementById('slideoutAcknowledgement').checked;
+            if (!acknowledgement) {
+                alert('You must acknowledge and agree to the terms before requesting a profile.');
+                return;
+            }
+
             try {
                 // Get current profile info for context
                 const profile = loadProfile();
 
-                // Generate unique RowKey: timestamp + random suffix
-                const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
-                const randomSuffix = Math.random().toString(36).substring(2, 8);
-                const rowKey = `${timestamp}_${randomSuffix}`;
-
-                // Create Table Storage entity (flat JSON object)
-                const entity = {
-                    PartitionKey: 'ProfileRequest',
-                    RowKey: rowKey,
-                    requestType: 'ProfileRequest',
+                // Submit profile request via blob storage workflow
+                await submitProfileRequestWithBlob({
+                    email: email,
+                    linkedIn: linkedIn,
                     firstName: profile.firstName || '',
                     lastName: profile.lastName || '',
                     profession: profile.profession || '',
-                    email: email,
-                    linkedInURL: linkedIn,
-                    requestDate: new Date().toISOString()
-                };
-
-                // POST to Azure Table Storage
-                const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json;odata=nometadata'
-                    },
-                    body: JSON.stringify(entity)
+                    source: 'career_experience_slideout'
                 });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Table Storage error: ${response.status} - ${errorText}`);
-                }
-
-                console.log('Profile request submitted successfully from slideout');
+                console.log('Profile request submitted successfully from slideout via blob storage');
 
                 // Close the form
                 toggleProfileRequestForm();
@@ -11484,6 +11729,322 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         window.closeProfileRequestConfirmationModal = function() {
             document.getElementById('profileRequestConfirmationModal').style.display = 'none';
         };
+
+        // Subscription Profile Request Modal Functions
+        window.openSubscriptionProfileRequestModal = function() {
+            document.getElementById('subscriptionProfileRequestModal').style.display = 'flex';
+            // Clear form fields
+            document.getElementById('subProfileEmail').value = '';
+            document.getElementById('subProfileLinkedIn').value = '';
+        };
+
+        window.closeSubscriptionProfileRequestModal = function() {
+            document.getElementById('subscriptionProfileRequestModal').style.display = 'none';
+        };
+
+        // Handle subscription profile request form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('subscriptionProfileRequestForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const email = document.getElementById('subProfileEmail').value.trim();
+                    const linkedIn = document.getElementById('subProfileLinkedIn').value.trim();
+
+                    if (!email || !linkedIn) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+
+                    // Validate email format
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        alert('Please enter a valid email address.');
+                        return;
+                    }
+
+                    // Validate LinkedIn URL
+                    if (!linkedIn.includes('linkedin.com')) {
+                        alert('Please enter a valid LinkedIn profile URL.');
+                        return;
+                    }
+
+                    // Acknowledgement checkbox is mandatory
+                    const acknowledgement = document.getElementById('subscriptionAcknowledgement').checked;
+                    if (!acknowledgement) {
+                        alert('You must acknowledge and agree to the terms before requesting a profile.');
+                        return;
+                    }
+
+                    try {
+                        // Submit profile request via blob storage workflow
+                        await submitProfileRequestWithBlob({
+                            email: email,
+                            linkedIn: linkedIn,
+                            source: 'subscription_modal'
+                        });
+
+                        console.log('Profile request submitted successfully from subscription modal via blob storage');
+
+                        // Close the request modal
+                        closeSubscriptionProfileRequestModal();
+
+                        // Show confirmation modal
+                        openProfileRequestConfirmationModal();
+
+                    } catch (error) {
+                        console.error('Error submitting profile request:', error);
+                        alert(`Failed to submit profile request. Please try again or contact support at privacy@cleansheet.dev.\n\nError: ${error.message}`);
+                    }
+                });
+            }
+        });
+
+        // Coaching Inquiry Modal Functions
+        window.openCoachingInquiryModal = function(source) {
+            const modal = document.getElementById('coachingInquiryModal');
+            const emptyProfileWarning = document.getElementById('coachingEmptyProfileWarning');
+            const experienceWarning = document.getElementById('coachingExperienceWarning');
+            const form = document.getElementById('coachingInquiryForm');
+
+            // Store the source for form submission
+            modal.setAttribute('data-inquiry-source', source || 'general_inquiry');
+
+            // Load experiences directly from localStorage to ensure we have current data
+            let currentExperiences = [];
+            try {
+                const expData = localStorage.getItem('cleansheet_experiences');
+                if (expData) {
+                    currentExperiences = JSON.parse(expData);
+                }
+            } catch (e) {
+                console.error('Error loading experiences:', e);
+                currentExperiences = [];
+            }
+
+            // Get profile from window or load from localStorage
+            let currentProfile = window.profile;
+            if (!currentProfile) {
+                const saved = localStorage.getItem('cleansheet_profile');
+                currentProfile = saved ? JSON.parse(saved) : {
+                    firstName: 'Alex',
+                    lastName: 'Martinez',
+                    profession: 'Retail Manager'
+                };
+            }
+
+            console.log('[Coaching Modal] Experience count:', currentExperiences.length);
+            console.log('[Coaching Modal] Source:', source);
+
+            // Clear form fields
+            document.getElementById('coachingInquiryEmail').value = currentProfile.email || '';
+            document.getElementById('coachingInquiryNotes').value = '';
+            document.getElementById('coachingInquiryAcknowledgement').checked = false;
+
+            // Customize modal content based on source
+            const modalIcon = document.getElementById('coachingModalIcon');
+            const modalTitle = document.getElementById('coachingModalTitle');
+            const modalDescription = document.getElementById('coachingModalDescription');
+            const acknowledgementLabel = document.getElementById('coachingAcknowledgementLabel');
+            const acknowledgementText = document.getElementById('coachingAcknowledgementText');
+
+            if (source === 'consulting_services') {
+                // Consulting engagement customization
+                modalIcon.className = 'ph ph-briefcase';
+                modalIcon.style.color = '#7c3aed';
+                modalTitle.textContent = 'Request Consulting Engagement';
+                modalDescription.textContent = 'Connect with our consulting team to discuss digital transformation, data pipeline architecture, systems integration, or other enterprise technical challenges.';
+
+                // Update acknowledgement for consulting context
+                acknowledgementLabel.style.background = '#faf5ff';
+                acknowledgementLabel.style.borderColor = '#7c3aed';
+                acknowledgementText.style.color = '#581c87';
+                acknowledgementText.innerHTML = 'I acknowledge that I am sharing my information with Cleansheet to <strong>facilitate the service discovery process</strong>, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: #7c3aed; text-decoration: underline; font-weight: 600;">Terms of Service</a>. *';
+
+                // Hide profile warnings for consulting (not relevant)
+                emptyProfileWarning.style.display = 'none';
+                experienceWarning.style.display = 'none';
+                console.log('[Coaching Modal] Consulting mode - no profile warnings');
+            } else if (source === 'recruiter_partnership') {
+                // Recruiter partnership customization
+                modalIcon.className = 'ph ph-handshake';
+                modalIcon.style.color = '#16a34a';
+                modalTitle.textContent = 'Partnership Inquiry';
+                modalDescription.textContent = 'Connect with our business development team to explore partnership opportunities. We are in early stages and welcome conversations about how we might collaborate with recruitment professionals and agencies.';
+
+                // Update acknowledgement for partnership context
+                acknowledgementLabel.style.background = '#f0fdf4';
+                acknowledgementLabel.style.borderColor = '#16a34a';
+                acknowledgementText.style.color = '#14532d';
+                acknowledgementText.innerHTML = 'I acknowledge that I am sharing my information with Cleansheet to <strong>explore potential partnership opportunities</strong>, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: #16a34a; text-decoration: underline; font-weight: 600;">Terms of Service</a>. *';
+
+                // Hide profile warnings for partnerships (not relevant)
+                emptyProfileWarning.style.display = 'none';
+                experienceWarning.style.display = 'none';
+                console.log('[Coaching Modal] Partnership mode - no profile warnings');
+            } else {
+                // Career coaching/services customization
+                modalIcon.className = 'ph ph-chalkboard-teacher';
+                modalIcon.style.color = 'var(--color-primary-blue)';
+                modalTitle.textContent = 'Request Coaching Session';
+                modalDescription.textContent = 'Connect with a Cleansheet Success Manager to discuss your career goals and coaching needs.';
+
+                // Reset acknowledgement to coaching context
+                acknowledgementLabel.style.background = '#e3f2fd';
+                acknowledgementLabel.style.borderColor = 'var(--color-primary-blue)';
+                acknowledgementText.style.color = '#0c4a6e';
+                acknowledgementText.innerHTML = 'I acknowledge that I am sharing my profile information with Cleansheet to <strong>facilitate the coach match process</strong>, and I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary-blue); text-decoration: underline; font-weight: 600;">Terms of Service</a>. *';
+
+                // Show appropriate warning based on experience count
+                if (currentExperiences.length === 0) {
+                    // No experiences at all - show red empty profile warning
+                    emptyProfileWarning.style.display = 'block';
+                    experienceWarning.style.display = 'none';
+                    console.log('[Coaching Modal] Showing empty profile warning (0 experiences)');
+                } else if (currentExperiences.length < 4) {
+                    // Has some experiences but fewer than 4 - show yellow recommendation
+                    emptyProfileWarning.style.display = 'none';
+                    experienceWarning.style.display = 'block';
+                    console.log('[Coaching Modal] Showing experience warning (1-3 experiences)');
+                } else {
+                    // Profile is complete enough (4+ experiences)
+                    emptyProfileWarning.style.display = 'none';
+                    experienceWarning.style.display = 'none';
+                    console.log('[Coaching Modal] No warnings - profile is complete (4+ experiences)');
+                }
+            }
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeCoachingInquiryModal = function() {
+            document.getElementById('coachingInquiryModal').style.display = 'none';
+        };
+
+        window.openCoachingInquiryConfirmationModal = function() {
+            document.getElementById('coachingInquiryConfirmationModal').style.display = 'flex';
+        };
+
+        window.closeCoachingInquiryConfirmationModal = function() {
+            document.getElementById('coachingInquiryConfirmationModal').style.display = 'none';
+        };
+
+        // Handle coaching inquiry form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('coachingInquiryForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const email = document.getElementById('coachingInquiryEmail').value.trim();
+                    const notes = document.getElementById('coachingInquiryNotes').value.trim();
+                    const acknowledgement = document.getElementById('coachingInquiryAcknowledgement').checked;
+
+                    // Validation
+                    if (!email) {
+                        alert('Please provide your email address.');
+                        return;
+                    }
+
+                    if (!acknowledgement) {
+                        alert('You must acknowledge and agree to share your profile information and the Terms of Service.');
+                        return;
+                    }
+
+                    try {
+                        // Get the inquiry source from the modal's data attribute
+                        const modal = document.getElementById('coachingInquiryModal');
+                        const inquirySource = modal.getAttribute('data-inquiry-source') || 'general_inquiry';
+                        console.log('[Coaching Inquiry] Service type:', inquirySource);
+
+                        // Get data from window object (with fallback)
+                        const currentProfile = window.profile || {};
+                        const currentExperiences = window.experiences || [];
+                        const currentStories = window.stories || [];
+                        const currentGoals = window.goals || [];
+                        const currentPortfolio = window.portfolio || [];
+                        const currentPersona = window.currentPersona || 'career-changer';
+
+                        // Prepare coaching inquiry data
+                        const inquiryData = {
+                            email: email,
+                            notes: notes,
+                            serviceType: inquirySource,
+                            experienceCount: currentExperiences.length,
+                            storyCount: currentStories.length,
+                            goalCount: currentGoals.length,
+                            hasProfile: !!currentProfile.firstName || !!currentProfile.lastName || !!currentProfile.profession,
+                            persona: currentPersona
+                        };
+
+                        // Get metadata
+                        const browserMetadata = getBrowserMetadata();
+                        const ipAddress = await getClientIPAddress();
+
+                        // Wrap in blob data structure
+                        const blobData = {
+                            metadata: {
+                                requestType: 'coachingInquiry',
+                                ipAddress: ipAddress,
+                                browserType: browserMetadata.browserType,
+                                userAgent: browserMetadata.userAgent,
+                                platform: browserMetadata.platform,
+                                language: browserMetadata.language,
+                                requestDate: new Date().toISOString(),
+                                source: inquirySource
+                            },
+                            inquiry: inquiryData,
+                            profile: {
+                                firstName: currentProfile.firstName || '',
+                                lastName: currentProfile.lastName || '',
+                                profession: currentProfile.profession || '',
+                                goal: currentProfile.goal || ''
+                            },
+                            profileSummary: {
+                                experienceCount: currentExperiences.length,
+                                storyCount: currentStories.length,
+                                goalCount: currentGoals.length,
+                                portfolioCount: currentPortfolio.length,
+                                hasGoal: !!currentProfile.goal,
+                                hasProfession: !!currentProfile.profession,
+                                persona: currentPersona
+                            }
+                        };
+
+                        // Upload blob
+                        const blobName = await uploadProfileBlob(email, blobData);
+                        console.log('Coaching inquiry blob uploaded:', blobName);
+
+                        // Create table reference
+                        await createProfileBlobTableReference(
+                            email,
+                            blobName,
+                            'coachingInquiry',
+                            {
+                                experienceCount: currentExperiences.length,
+                                storyCount: currentStories.length,
+                                goalCount: currentGoals.length,
+                                hasNotes: !!notes,
+                                persona: currentPersona
+                            }
+                        );
+
+                        console.log('Coaching inquiry submitted successfully via blob storage');
+
+                        // Close inquiry modal
+                        closeCoachingInquiryModal();
+
+                        // Show confirmation modal
+                        openCoachingInquiryConfirmationModal();
+
+                    } catch (error) {
+                        console.error('Error submitting coaching inquiry:', error);
+                        alert(`Failed to submit coaching inquiry. Please try again or contact support at coaching@cleansheet.dev.\n\nError: ${error.message}`);
+                    }
+                });
+            }
+        });
 
         function openCoachPreviewModal() {
             const modal = document.getElementById('coachPreviewModal');
@@ -15545,6 +16106,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         let selectedAssetsExperienceFilters = new Set();
         let selectedAssetsPortfolioFilters = new Set();
         let pendingAssetsFilter = null; // Store filter to apply on next load
+        let assetsSortColumn = 'lastModified'; // Default sort column
+        let assetsSortDirection = 'desc'; // Default sort direction (newest first)
+        let assetsNameFilter = ''; // Search/filter by name
+        let allLoadedAssets = []; // Store all assets for filtering/sorting
 
         function loadAllAssets(filterType = null, filterId = null) {
             // Check for pending filter if no parameters provided
@@ -15630,12 +16195,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 });
             }
 
-            // Sort by last modified (newest first)
-            allAssets.sort((a, b) => {
-                const dateA = new Date(a.lastModified || a.created || 0);
-                const dateB = new Date(b.lastModified || b.created || 0);
-                return dateB - dateA;
-            });
+            // Store all assets for filtering/sorting
+            allLoadedAssets = allAssets;
+
+            // Apply name filter
+            if (assetsNameFilter) {
+                allAssets = allAssets.filter(asset => {
+                    const name = (asset.name || 'Untitled').toLowerCase();
+                    return name.includes(assetsNameFilter.toLowerCase());
+                });
+            }
+
+            // Apply sorting
+            allAssets = sortAssetsList(allAssets, assetsSortColumn, assetsSortDirection);
 
             // Populate filter dropdowns
             populateAssetsExperienceFilter();
@@ -15666,6 +16238,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     'Mermaid': '#2563eb'
                 }[asset.assetType];
 
+                // Format last modified date with timestamp (dd-mmm-yy at hh:mm)
+                const lastModifiedDate = asset.lastModified || asset.created;
+                let formattedDate = 'Unknown';
+                if (lastModifiedDate) {
+                    const date = new Date(lastModifiedDate);
+
+                    // Format: dd-mmm-yy at hh:mm
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const month = monthNames[date.getMonth()];
+                    const year = String(date.getFullYear()).slice(-2);
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                    formattedDate = `${day}-${month}-${year} at ${hours}:${minutes}`;
+                }
+
                 return `
                     <tr style="border-bottom: 1px solid var(--color-neutral-border);">
                         <td style="padding: 12px 16px;">
@@ -15679,6 +16268,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </td>
                         <td style="padding: 12px 16px;">
                             <span style="font-family: var(--font-family-body); font-size: 12px;">${linkedText}</span>
+                        </td>
+                        <td style="padding: 12px 16px;">
+                            <span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">${formattedDate}</span>
                         </td>
                         <td style="padding: 12px 16px; text-align: right;">
                             <div style="display: flex; gap: 6px; justify-content: flex-end;">
@@ -15701,6 +16293,109 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }).join('');
 
             console.log('Loaded', allAssets.length, 'total assets');
+        }
+
+        // Sorting function for assets
+        function sortAssetsList(assets, column, direction) {
+            return assets.sort((a, b) => {
+                let valA, valB;
+
+                switch(column) {
+                    case 'name':
+                        valA = (a.name || 'Untitled').toLowerCase();
+                        valB = (b.name || 'Untitled').toLowerCase();
+                        break;
+                    case 'type':
+                        valA = a.assetType;
+                        valB = b.assetType;
+                        break;
+                    case 'linkedTo':
+                        valA = a.linkedName || '';
+                        valB = b.linkedName || '';
+                        break;
+                    case 'lastModified':
+                        valA = new Date(a.lastModified || a.created || 0).getTime();
+                        valB = new Date(b.lastModified || b.created || 0).getTime();
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (direction === 'asc') {
+                    return valA > valB ? 1 : valA < valB ? -1 : 0;
+                } else {
+                    return valA < valB ? 1 : valA > valB ? -1 : 0;
+                }
+            });
+        }
+
+        // Sort table by clicking column header
+        function sortAssetsTable(column) {
+            // Toggle direction if clicking same column, otherwise default to asc
+            if (assetsSortColumn === column) {
+                assetsSortDirection = assetsSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                assetsSortColumn = column;
+                assetsSortDirection = column === 'lastModified' ? 'desc' : 'asc'; // Default newest first for dates
+            }
+
+            // Update sort icons
+            const icons = {
+                'name': 'sortIconName',
+                'type': 'sortIconType',
+                'linkedTo': 'sortIconLinkedTo',
+                'lastModified': 'sortIconLastModified'
+            };
+
+            // Reset all icons to neutral
+            Object.values(icons).forEach(iconId => {
+                const icon = document.getElementById(iconId);
+                if (icon) {
+                    icon.className = 'ph ph-caret-up-down';
+                    icon.style.opacity = '0.3';
+                }
+            });
+
+            // Set active icon
+            const activeIcon = document.getElementById(icons[column]);
+            if (activeIcon) {
+                activeIcon.className = assetsSortDirection === 'asc' ? 'ph ph-caret-up' : 'ph ph-caret-down';
+                activeIcon.style.opacity = '1';
+            }
+
+            // Reload table with new sort
+            loadAllAssets();
+        }
+
+        // Filter assets by name
+        function filterAssetsByName() {
+            const searchInput = document.getElementById('assetsSearchInput');
+            const clearBtn = document.getElementById('assetsClearSearchBtn');
+
+            assetsNameFilter = searchInput.value.trim();
+
+            // Show/hide clear button
+            if (assetsNameFilter) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+
+            // Reload table with filter
+            loadAllAssets();
+        }
+
+        // Clear search filter
+        function clearAssetsSearch() {
+            const searchInput = document.getElementById('assetsSearchInput');
+            const clearBtn = document.getElementById('assetsClearSearchBtn');
+
+            searchInput.value = '';
+            assetsNameFilter = '';
+            clearBtn.style.display = 'none';
+
+            // Reload table without filter
+            loadAllAssets();
         }
 
         function openAssetByTypeAndId(assetType, assetId) {
@@ -15931,7 +16626,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const portfolioItems = portfolioData ? JSON.parse(portfolioData) : [];
                 portfolioItems.forEach(item => {
                     const option = document.createElement('option');
-                    option.value = item.id;
+                    option.value = item.id || item.name || item.title;
                     option.textContent = item.name || item.title;
                     select.appendChild(option);
                 });
@@ -16690,6 +17385,61 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 return `<code>${code}</code>`;
             });
 
+            // Process tables before line-by-line processing
+            const tables = [];
+            const tableRegex = /^\|.+\|\s*\n\|[-:\s|]+\|\s*\n(?:\|.+\|\s*\n?)+/gm;
+            html = html.replace(tableRegex, (match) => {
+                const placeholder = `__TABLE_${tables.length}__`;
+                const lines = match.trim().split('\n');
+
+                if (lines.length < 2) {
+                    tables.push(match); // Invalid table, keep as-is
+                    return placeholder;
+                }
+
+                // Parse header
+                const headerCells = lines[0].split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+
+                // Parse alignment row (optional, skip for now)
+                const alignments = lines[1].split('|').filter(cell => cell.trim()).map(cell => {
+                    const c = cell.trim();
+                    if (c.startsWith(':') && c.endsWith(':')) return 'center';
+                    if (c.endsWith(':')) return 'right';
+                    return 'left';
+                });
+
+                // Parse data rows
+                const dataRows = lines.slice(2).map(line =>
+                    line.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
+                );
+
+                // Build HTML table
+                let tableHtml = '<table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--font-family-body); font-size: 14px;">';
+
+                // Header
+                tableHtml += '<thead><tr style="background: rgba(255, 255, 255, 0.1); border-bottom: 2px solid rgba(255, 255, 255, 0.2);">';
+                headerCells.forEach((cell, i) => {
+                    const align = alignments[i] || 'left';
+                    tableHtml += `<th style="padding: 12px; text-align: ${align}; font-family: var(--font-family-ui); font-weight: 600; color: white;">${cell}</th>`;
+                });
+                tableHtml += '</tr></thead>';
+
+                // Body
+                tableHtml += '<tbody>';
+                dataRows.forEach(row => {
+                    tableHtml += '<tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">';
+                    row.forEach((cell, i) => {
+                        const align = alignments[i] || 'left';
+                        tableHtml += `<td style="padding: 12px; text-align: ${align}; color: white;">${cell}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                });
+                tableHtml += '</tbody></table>';
+
+                tables.push(tableHtml);
+                return placeholder;
+            });
+
             // Split into lines for line-by-line processing
             const lines = html.split('\n');
             const processed = [];
@@ -16699,8 +17449,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
 
-                // Skip processing if line contains a code block placeholder
-                if (line.includes('__CODE_BLOCK_')) {
+                // Skip processing if line contains a code block or table placeholder
+                if (line.includes('__CODE_BLOCK_') || line.includes('__TABLE_')) {
                     if (inList) {
                         processed.push(`</${listType}>`);
                         inList = false;
@@ -16788,6 +17538,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 html = html.replace(`__CODE_BLOCK_${i}__`, block);
             });
 
+            // Restore tables
+            tables.forEach((table, i) => {
+                html = html.replace(`__TABLE_${i}__`, table);
+            });
+
             // Now process __ and _ patterns (after code blocks restored)
             html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
             html = html.replace(/_(.+?)_/g, '<em>$1</em>');
@@ -16873,17 +17628,79 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const container = document.getElementById('assetsExperienceFilterOptions');
             if (!container) return;
 
-            container.innerHTML = userExperiences.map((exp, index) => {
-                const checked = selectedAssetsExperienceFilters.has(index) ? 'checked' : '';
+            container.innerHTML = ''; // Clear existing content
+
+            if (userExperiences.length === 0) {
+                container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--color-neutral-text); font-size: 12px;">No experiences found</div>';
+                return;
+            }
+
+            // Load all assets to count linked items (using correct storage keys)
+            const allAssets = [];
+
+            // Load documents
+            const storedDc = localStorage.getItem(`interview_documents_${currentPersona}`);
+            if (storedDc) allAssets.push(...JSON.parse(storedDc));
+
+            // Load diagrams (correct key: diagrams not interview_diagrams)
+            const storedDg = localStorage.getItem(`diagrams_${currentPersona}`);
+            if (storedDg) allAssets.push(...JSON.parse(storedDg));
+
+            // Load whiteboards
+            const storedWb = localStorage.getItem(`whiteboards_${currentPersona}`);
+            if (storedWb) allAssets.push(...JSON.parse(storedWb));
+
+            // Load markdown
+            const storedMd = localStorage.getItem(`markdown_${currentPersona}`);
+            if (storedMd) allAssets.push(...JSON.parse(storedMd));
+
+            // Load code
+            const storedCd = localStorage.getItem(`code_${currentPersona}`);
+            if (storedCd) allAssets.push(...JSON.parse(storedCd));
+
+            // Load plantuml
+            const storedPu = localStorage.getItem(`plantuml_${currentPersona}`);
+            if (storedPu) allAssets.push(...JSON.parse(storedPu));
+
+            // Load mermaid
+            const storedMm = localStorage.getItem(`mermaid_${currentPersona}`);
+            if (storedMm) allAssets.push(...JSON.parse(storedMm));
+
+            // Sort by most recent (matching Stories tab behavior)
+            const sortedExperiences = [...userExperiences].sort((a, b) => {
+                const dateA = a.startDate || '0000-00-00';
+                const dateB = b.startDate || '0000-00-00';
+                return dateB.localeCompare(dateA);
+            });
+
+            sortedExperiences.forEach((exp, sortIndex) => {
+                // Get original index from userExperiences array
+                const originalIndex = userExperiences.indexOf(exp);
+                const checked = selectedAssetsExperienceFilters.has(originalIndex) ? 'checked' : '';
                 const displayName = exp.title || exp.role || 'Untitled Experience';
                 const company = exp.company || '';
-                return `
-                    <label style="display: block; padding: 8px; cursor: pointer; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); border-radius: 4px;" onmouseover="this.style.background='var(--color-neutral-background)';" onmouseout="this.style.background='transparent';">
-                        <input type="checkbox" ${checked} onchange="toggleAssetsExperienceFilterItem(${index})" style="margin-right: 8px;">
-                        ${displayName}${company ? ` (${company})` : ''}
-                    </label>
+
+                // Count assets linked to this experience (matching loadAllAssets filter logic)
+                const linkedCount = allAssets.filter(asset => {
+                    if (asset.linkedType !== 'experience') return false;
+                    // Use same findIndex logic as loadAllAssets to map linkedId to index
+                    const assetExpIndex = userExperiences.findIndex(e =>
+                        (e.id && e.id === asset.linkedId) ||
+                        (e.title && e.title === asset.linkedId) ||
+                        (e.role && asset.linkedId && asset.linkedId.includes(e.role))
+                    );
+                    return assetExpIndex === originalIndex;
+                }).length;
+                const hasItems = linkedCount > 0;
+
+                const option = document.createElement('div');
+                option.className = 'experience-filter-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="assetsExpFilter_${originalIndex}" ${checked} onchange="toggleAssetsExperienceFilterItem(${originalIndex})" style="margin-right: 8px;">
+                    <label for="assetsExpFilter_${originalIndex}" style="cursor: pointer; font-family: var(--font-family-body); font-size: 12px; color: ${hasItems ? 'var(--color-dark)' : '#999999'};">${displayName}${company ? ` (${company})` : ''} ${linkedCount > 0 ? `(${linkedCount})` : ''}</label>
                 `;
-            }).join('');
+                container.appendChild(option);
+            });
         }
 
         function populateAssetsPortfolioFilter() {
@@ -16892,16 +17709,77 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const container = document.getElementById('assetsPortfolioFilterOptions');
             if (!container) return;
 
-            container.innerHTML = portfolioItems.map((item, index) => {
+            container.innerHTML = ''; // Clear existing content
+
+            if (portfolioItems.length === 0) {
+                container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--color-neutral-text); font-size: 12px;">No portfolio items found</div>';
+                return;
+            }
+
+            // Load all assets to count linked items (using correct storage keys)
+            const allAssets = [];
+
+            // Load documents
+            const storedDc = localStorage.getItem(`interview_documents_${currentPersona}`);
+            if (storedDc) allAssets.push(...JSON.parse(storedDc));
+
+            // Load diagrams (correct key: diagrams not interview_diagrams)
+            const storedDg = localStorage.getItem(`diagrams_${currentPersona}`);
+            if (storedDg) allAssets.push(...JSON.parse(storedDg));
+
+            // Load whiteboards
+            const storedWb = localStorage.getItem(`whiteboards_${currentPersona}`);
+            if (storedWb) allAssets.push(...JSON.parse(storedWb));
+
+            // Load markdown
+            const storedMd = localStorage.getItem(`markdown_${currentPersona}`);
+            if (storedMd) allAssets.push(...JSON.parse(storedMd));
+
+            // Load code
+            const storedCd = localStorage.getItem(`code_${currentPersona}`);
+            if (storedCd) allAssets.push(...JSON.parse(storedCd));
+
+            // Load plantuml
+            const storedPu = localStorage.getItem(`plantuml_${currentPersona}`);
+            if (storedPu) allAssets.push(...JSON.parse(storedPu));
+
+            // Load mermaid
+            const storedMm = localStorage.getItem(`mermaid_${currentPersona}`);
+            if (storedMm) allAssets.push(...JSON.parse(storedMm));
+
+
+            portfolioItems.forEach((item, index) => {
                 const checked = selectedAssetsPortfolioFilters.has(index) ? 'checked' : '';
                 const displayName = item.name || item.title || 'Untitled Portfolio Item';
-                return `
-                    <label style="display: block; padding: 8px; cursor: pointer; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); border-radius: 4px;" onmouseover="this.style.background='var(--color-neutral-background)';" onmouseout="this.style.background='transparent';">
-                        <input type="checkbox" ${checked} onchange="toggleAssetsPortfolioFilterItem(${index})" style="margin-right: 8px;">
-                        ${displayName}
-                    </label>
+
+                // Count assets linked to this portfolio item (matching loadAllAssets filter logic)
+                const linkedCount = allAssets.filter(asset => {
+                    if (asset.linkedType !== 'portfolio') return false;
+
+                    // Handle legacy data where linkedId is string "undefined"
+                    // In this case, we can't match reliably, so skip these assets
+                    if (asset.linkedId === "undefined" || asset.linkedId === undefined) {
+                        return false;
+                    }
+
+                    // Use same findIndex logic as loadAllAssets to map linkedId to index
+                    const assetPortIndex = portfolioItems.findIndex(p =>
+                        (p.id && p.id === asset.linkedId) ||
+                        (p.name && p.name === asset.linkedId) ||
+                        (p.title && p.title === asset.linkedId)
+                    );
+                    return assetPortIndex === index;
+                }).length;
+                const hasItems = linkedCount > 0;
+
+                const option = document.createElement('div');
+                option.className = 'experience-filter-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="assetsPortFilter_${index}" ${checked} onchange="toggleAssetsPortfolioFilterItem(${index})" style="margin-right: 8px;">
+                    <label for="assetsPortFilter_${index}" style="cursor: pointer; font-family: var(--font-family-body); font-size: 12px; color: ${hasItems ? 'var(--color-dark)' : '#999999'};">${displayName} ${linkedCount > 0 ? `(${linkedCount})` : ''}</label>
                 `;
-            }).join('');
+                container.appendChild(option);
+            });
         }
 
         function toggleAssetsExperienceFilter() {
@@ -17113,13 +17991,25 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
         }
 
-        // Close dropdown when clicking outside
+        // Close all filter dropdowns when clicking outside
         document.addEventListener('click', function(event) {
-            const filterContainer = document.querySelector('.experience-filter-container');
-            const dropdown = document.getElementById('experienceFilterDropdown');
+            // Check if click is inside any filter container
+            const isInsideFilterContainer = event.target.closest('.experience-filter-container');
 
-            if (filterContainer && !filterContainer.contains(event.target) && dropdown) {
-                dropdown.style.display = 'none';
+            if (!isInsideFilterContainer) {
+                // Close all filter dropdowns (Stories tab only has experience filter now)
+                const dropdowns = [
+                    'experienceFilterDropdown',
+                    'assetsExperienceFilterDropdown',
+                    'assetsPortfolioFilterDropdown'
+                ];
+
+                dropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.style.display = 'none';
+                    }
+                });
             }
         });
 
@@ -17128,6 +18018,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function togglePortfolioFilter() {
             const dropdown = document.getElementById('portfolioFilterDropdown');
+            if (!dropdown) return; // Element no longer exists (removed from Stories tab)
+
             const isVisible = dropdown.style.display === 'block';
 
             if (!isVisible) {
@@ -17140,6 +18032,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function populatePortfolioFilter() {
             const container = document.getElementById('portfolioFilterOptions');
+            if (!container) return; // Element no longer exists (removed from Stories tab)
+
             container.innerHTML = '';
 
             // Load portfolio items
@@ -17198,6 +18092,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function updatePortfolioFilterCount() {
             const countBadge = document.getElementById('portfolioFilterCount');
+            if (!countBadge) return; // Element no longer exists (removed from Stories tab)
+
             const count = selectedPortfolioFilters.size;
 
             if (count > 0) {
@@ -19233,6 +20129,458 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 alert(`Error submitting request: ${error.message}\n\nPlease try again. If the problem persists, contact support.`);
             }
         }
+
+        // ========================================
+        // Profile Blob Storage Functions
+        // ========================================
+
+        /**
+         * Gets browser metadata for request tracking
+         * @returns {object} - Browser type and user agent info
+         */
+        function getBrowserMetadata() {
+            const ua = navigator.userAgent;
+            let browserType = 'Unknown';
+
+            if (ua.includes('Firefox/')) {
+                browserType = 'Firefox';
+            } else if (ua.includes('Chrome/') && !ua.includes('Edg/')) {
+                browserType = 'Chrome';
+            } else if (ua.includes('Safari/') && !ua.includes('Chrome/')) {
+                browserType = 'Safari';
+            } else if (ua.includes('Edg/')) {
+                browserType = 'Edge';
+            } else if (ua.includes('OPR/') || ua.includes('Opera/')) {
+                browserType = 'Opera';
+            }
+
+            return {
+                browserType: browserType,
+                userAgent: ua,
+                platform: navigator.platform,
+                language: navigator.language
+            };
+        }
+
+        /**
+         * Gets client IP address (best effort - requires external service)
+         * Returns 'unavailable' if cannot be determined client-side
+         * @returns {Promise<string>} - IP address or 'unavailable'
+         */
+        async function getClientIPAddress() {
+            try {
+                // Use ipify service to get public IP address
+                const response = await fetch('https://api.ipify.org?format=json', {
+                    timeout: 3000 // 3 second timeout
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.ip || 'unavailable';
+                }
+            } catch (error) {
+                console.warn('Could not fetch IP address:', error);
+            }
+            return 'unavailable';
+        }
+
+        /**
+         * Submits an erasure request using blob storage workflow
+         * @param {string} name - User's full name
+         * @param {string} email - User's email address
+         * @returns {Promise<void>}
+         */
+        async function submitErasureRequestWithBlob(name, email) {
+            try {
+                // Get browser metadata
+                const browserMetadata = getBrowserMetadata();
+
+                // Get IP address (async, with fallback)
+                const ipAddress = await getClientIPAddress();
+
+                // Wrap erasure request data with metadata
+                const blobData = {
+                    metadata: {
+                        requestType: 'erasureRequest',
+                        ipAddress: ipAddress,
+                        browserType: browserMetadata.browserType,
+                        userAgent: browserMetadata.userAgent,
+                        platform: browserMetadata.platform,
+                        language: browserMetadata.language,
+                        requestDate: new Date().toISOString()
+                    },
+                    request: {
+                        name: name,
+                        email: email,
+                        status: 'pending'
+                    }
+                };
+
+                console.log('Submitting erasure request via blob storage...');
+                console.log('Name:', name);
+                console.log('Email:', email);
+                console.log('IP Address:', ipAddress);
+                console.log('Browser:', browserMetadata.browserType);
+
+                // Upload blob to Azure Blob Storage
+                const blobName = await uploadProfileBlob(email, blobData);
+                console.log('✓ Erasure request blob uploaded:', blobName);
+
+                // Create table reference entry
+                await createProfileBlobTableReference(
+                    email,
+                    blobName,
+                    'erasureRequest',  // requestType in table
+                    {
+                        name: name,
+                        status: 'pending',
+                        browserType: browserMetadata.browserType
+                    }
+                );
+                console.log('✓ Erasure request table entry created');
+
+                return { success: true, blobName: blobName };
+
+            } catch (error) {
+                console.error('Failed to submit erasure request via blob storage:', error);
+                throw error; // Re-throw to let caller handle UI feedback
+            }
+        }
+
+        /**
+         * Submits a profile request using blob storage workflow
+         * @param {object} requestData - Request data (email, linkedIn, firstName, lastName, profession, source)
+         * @returns {Promise<void>}
+         */
+        async function submitProfileRequestWithBlob(requestData) {
+            try {
+                // Get browser metadata
+                const browserMetadata = getBrowserMetadata();
+
+                // Get IP address (async, with fallback)
+                const ipAddress = await getClientIPAddress();
+
+                // Get current profile data for context
+                const profile = loadProfile();
+                const experiences = JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]');
+
+                // Wrap request data with metadata
+                const blobData = {
+                    metadata: {
+                        requestType: 'profileRequest',
+                        ipAddress: ipAddress,
+                        browserType: browserMetadata.browserType,
+                        userAgent: browserMetadata.userAgent,
+                        platform: browserMetadata.platform,
+                        language: browserMetadata.language,
+                        requestDate: new Date().toISOString(),
+                        source: requestData.source || 'unknown'
+                    },
+                    request: {
+                        email: requestData.email,
+                        linkedIn: requestData.linkedIn,
+                        firstName: requestData.firstName || profile.firstName || '',
+                        lastName: requestData.lastName || profile.lastName || '',
+                        profession: requestData.profession || profile.profession || '',
+                        goal: profile.goal || ''
+                    },
+                    profileSummary: {
+                        experienceCount: experiences.length,
+                        hasGoal: !!profile.goal,
+                        hasProfession: !!profile.profession,
+                        persona: currentPersona
+                    }
+                };
+
+                console.log('Submitting profile request via blob storage...');
+                console.log('Email:', requestData.email);
+                console.log('Source:', requestData.source);
+                console.log('IP Address:', ipAddress);
+                console.log('Browser:', browserMetadata.browserType);
+
+                // Upload blob to Azure Blob Storage
+                const blobName = await uploadProfileBlob(requestData.email, blobData);
+                console.log('✓ Profile request blob uploaded:', blobName);
+
+                // Create table reference entry
+                await createProfileBlobTableReference(
+                    requestData.email,
+                    blobName,
+                    'profileRequest',  // requestType in table
+                    {
+                        firstName: blobData.request.firstName,
+                        lastName: blobData.request.lastName,
+                        profession: blobData.request.profession,
+                        linkedInURL: requestData.linkedIn,
+                        source: requestData.source,
+                        browserType: browserMetadata.browserType,
+                        experienceCount: experiences.length
+                    }
+                );
+                console.log('✓ Profile request table entry created');
+
+                // Store request locally for reference
+                const localRequest = {
+                    email: requestData.email,
+                    linkedIn: requestData.linkedIn,
+                    firstName: blobData.request.firstName,
+                    lastName: blobData.request.lastName,
+                    profession: blobData.request.profession,
+                    requestDate: blobData.metadata.requestDate,
+                    status: 'submitted',
+                    blobName: blobName
+                };
+                localStorage.setItem('cleansheet_profile_request', JSON.stringify(localRequest));
+
+                return { success: true, blobName: blobName };
+
+            } catch (error) {
+                console.error('Failed to submit profile request via blob storage:', error);
+
+                // Store failed request locally
+                const failedRequest = {
+                    email: requestData.email,
+                    linkedIn: requestData.linkedIn,
+                    requestDate: new Date().toISOString(),
+                    status: 'failed',
+                    error: error.message
+                };
+                localStorage.setItem('cleansheet_profile_request', JSON.stringify(failedRequest));
+
+                throw error; // Re-throw to let caller handle UI feedback
+            }
+        }
+
+        /**
+         * Collects complete profile data from localStorage for blob storage
+         * Returns a comprehensive JSON object with all user data (not truncated/summarized)
+         */
+        function collectFullProfileData() {
+            const profile = JSON.parse(localStorage.getItem('cleansheet_profile') || '{}');
+            const experiences = JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]');
+            const stories = JSON.parse(localStorage.getItem(`userStories_${currentPersona}`) || '[]');
+            const goals = JSON.parse(localStorage.getItem(`userGoals_${currentPersona}`) || '[]');
+            const portfolio = JSON.parse(localStorage.getItem(`userPortfolio_${currentPersona}`) || '[]');
+            const jobOpportunities = JSON.parse(localStorage.getItem(`userJobs_${currentPersona}`) || '[]');
+
+            // Collect all asset types metadata (not full content to keep size reasonable)
+            const documents = JSON.parse(localStorage.getItem(`interview_documents_${currentPersona}`) || '[]');
+            const diagrams = JSON.parse(localStorage.getItem(`diagrams_${currentPersona}`) || '[]');
+            const whiteboards = JSON.parse(localStorage.getItem(`user_whiteboards_${currentPersona}`) || '[]');
+            const codeSnippets = JSON.parse(localStorage.getItem(`user_code_snippets_${currentPersona}`) || '[]');
+            const photos = JSON.parse(localStorage.getItem(`user_photos_${currentPersona}`) || '[]');
+            const pdfs = JSON.parse(localStorage.getItem(`user_pdfs_${currentPersona}`) || '[]');
+            const links = JSON.parse(localStorage.getItem(`user_links_${currentPersona}`) || '[]');
+
+            // Strip full content from documents to reduce size (keep metadata only)
+            const documentMetadata = documents.map(doc => ({
+                id: doc.id,
+                name: doc.name,
+                description: doc.description,
+                linkedType: doc.linkedType,
+                linkedId: doc.linkedId,
+                linkedName: doc.linkedName,
+                created: doc.created,
+                lastModified: doc.lastModified,
+                contentLength: doc.content ? doc.content.length : 0
+            }));
+
+            return {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    persona: currentPersona,
+                    version: '1.0'
+                },
+                profile: profile,
+                experiences: experiences,
+                stories: stories,
+                goals: goals,
+                portfolio: portfolio,
+                jobOpportunities: jobOpportunities,
+                assets: {
+                    documents: documentMetadata,
+                    diagrams: diagrams,
+                    whiteboards: whiteboards,
+                    codeSnippets: codeSnippets,
+                    photos: photos,
+                    pdfs: pdfs,
+                    links: links
+                }
+            };
+        }
+
+        /**
+         * Uploads profile data as JSON blob to Azure Blob Storage
+         * @param {string} email - User's email address (used in blob path)
+         * @param {object} profileData - Complete profile data object
+         * @returns {Promise<string>} - Blob name (path) on success
+         */
+        async function uploadProfileBlob(email, profileData) {
+            // Validate blob container URL is configured
+            if (PROFILE_BLOB_CONTAINER_URL === 'REPLACE_WITH_SAS_URL_FROM_SCRIPT') {
+                throw new Error('PROFILE_BLOB_CONTAINER_URL not configured. Run azure-create-profile-blobs.sh and update the constant.');
+            }
+
+            // Generate unique blob name: {email}/{timestamp}_{randomId}.json
+            const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
+            const randomId = Math.random().toString(36).substring(2, 9);
+            const blobName = `${email}/${timestamp}_${randomId}.json`;
+
+            // Convert profile data to JSON string
+            const jsonData = JSON.stringify(profileData, null, 2);
+            const jsonSize = new Blob([jsonData]).size;
+
+            // Enforce 10MB size limit (client-side check)
+            const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+            if (jsonSize > MAX_SIZE) {
+                throw new Error(`Profile data too large: ${(jsonSize / 1024 / 1024).toFixed(2)}MB exceeds 10MB limit`);
+            }
+
+            console.log(`Uploading profile blob: ${blobName} (${(jsonSize / 1024).toFixed(2)} KB)`);
+
+            // Construct full blob URL (container URL + blob name)
+            const blobUrl = `${PROFILE_BLOB_CONTAINER_URL.split('?')[0]}/${blobName}?${PROFILE_BLOB_CONTAINER_URL.split('?')[1]}`;
+
+            // Upload to Azure Blob Storage using PUT request
+            const response = await fetch(blobUrl, {
+                method: 'PUT',
+                headers: {
+                    'x-ms-blob-type': 'BlockBlob',
+                    'Content-Type': 'application/json',
+                    'x-ms-meta-email': email,
+                    'x-ms-meta-persona': currentPersona,
+                    'x-ms-meta-exportdate': new Date().toISOString()
+                },
+                body: jsonData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Blob upload failed: ${response.status} - ${errorText}`);
+            }
+
+            console.log(`✓ Blob uploaded successfully: ${blobName}`);
+            return blobName;
+        }
+
+        /**
+         * Creates a table entry in ProfileRequests referencing a blob
+         * @param {string} email - User's email
+         * @param {string} blobName - Blob path returned from uploadProfileBlob()
+         * @param {string} requestType - Type of request (e.g., 'FullProfileExport', 'SessionRequestWithBlob')
+         * @param {object} metadata - Additional metadata to store in table (optional)
+         * @returns {Promise<void>}
+         */
+        async function createProfileBlobTableReference(email, blobName, requestType, metadata = {}) {
+            // Generate unique RowKey matching blob naming convention
+            const timestamp = blobName.split('/')[1].split('_')[0]; // Extract timestamp from blobName
+            const randomId = blobName.split('_')[1].replace('.json', ''); // Extract randomId
+            const rowKey = `${timestamp}_${randomId}`;
+
+            // Create table entity with blob reference
+            const entity = {
+                PartitionKey: 'ProfileRequest',
+                RowKey: rowKey,
+                requestType: requestType, // Defines backend processing logic
+                email: email,
+                blobName: blobName, // Reference to blob location
+                requestDate: new Date().toISOString(),
+                persona: currentPersona,
+                status: 'pending',
+                ...metadata // Merge any additional metadata
+            };
+
+            console.log('Creating table entry with blob reference:', entity);
+
+            // POST to Azure Table Storage
+            const response = await fetch(PROFILE_REQUEST_TABLE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json;odata=nometadata'
+                },
+                body: JSON.stringify(entity)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Table entry creation failed: ${response.status} - ${errorText}`);
+            }
+
+            console.log('✓ Table entry created successfully');
+        }
+
+        /**
+         * Test workflow: Export full profile to blob storage
+         * This function exercises the complete blob upload workflow:
+         * 1. Collect full profile data from localStorage
+         * 2. Upload JSON blob to Azure Blob Storage
+         * 3. Create table reference entry in ProfileRequests
+         *
+         * Usage: Open browser console and run: testFullProfileExport('your@email.com')
+         */
+        window.testFullProfileExport = async function(email) {
+            if (!email) {
+                console.error('❌ Email required. Usage: testFullProfileExport("your@email.com")');
+                return;
+            }
+
+            console.log('========================================');
+            console.log('Starting Full Profile Export Test');
+            console.log('========================================');
+
+            try {
+                // Step 1: Collect profile data
+                console.log('Step 1: Collecting profile data...');
+                const profileData = collectFullProfileData();
+                const dataSize = new Blob([JSON.stringify(profileData)]).size;
+                console.log(`✓ Profile data collected: ${(dataSize / 1024).toFixed(2)} KB`);
+                console.log('  - Experiences:', profileData.experiences.length);
+                console.log('  - Stories:', profileData.stories.length);
+                console.log('  - Goals:', profileData.goals.length);
+                console.log('  - Portfolio:', profileData.portfolio.length);
+                console.log('  - Job Opportunities:', profileData.jobOpportunities.length);
+
+                // Step 2: Upload blob
+                console.log('\nStep 2: Uploading profile blob to Azure...');
+                const blobName = await uploadProfileBlob(email, profileData);
+                console.log(`✓ Blob uploaded: ${blobName}`);
+
+                // Step 3: Create table reference
+                console.log('\nStep 3: Creating table reference entry...');
+                await createProfileBlobTableReference(email, blobName, 'FullProfileExport', {
+                    experienceCount: profileData.experiences.length,
+                    storyCount: profileData.stories.length,
+                    goalCount: profileData.goals.length,
+                    portfolioCount: profileData.portfolio.length,
+                    jobCount: profileData.jobOpportunities.length
+                });
+
+                console.log('\n========================================');
+                console.log('✓ Full Profile Export Test SUCCESSFUL');
+                console.log('========================================');
+                console.log(`\nBlob Name: ${blobName}`);
+                console.log(`Email: ${email}`);
+                console.log(`Size: ${(dataSize / 1024).toFixed(2)} KB`);
+                console.log('\nTo verify:');
+                console.log('1. Check Azure Table Storage ProfileRequests table for new entry');
+                console.log('2. Use account key to read blob (SAS token is write-only)');
+                console.log(`\naz storage blob show --account-name storageb681 --account-key "$ACCOUNT_KEY" --container-name profileblobs --name "${blobName}"`);
+
+            } catch (error) {
+                console.error('\n========================================');
+                console.error('❌ Full Profile Export Test FAILED');
+                console.error('========================================');
+                console.error('Error:', error.message);
+                console.error('Details:', error);
+            }
+        };
+
+        // Log test function availability on page load
+        console.log('%c[Cleansheet Profile Blob Storage]', 'color: #0066CC; font-weight: bold;');
+        console.log('Test function available: testFullProfileExport(email)');
+        console.log('Example: testFullProfileExport("test@example.com")');
+        console.log('Before testing, run: ./azure-create-profile-blobs.sh');
+        console.log('Then update PROFILE_BLOB_CONTAINER_URL constant with the generated SAS URL');
 
         // ========================================
         // Whiteboard Functions
@@ -22975,39 +24323,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     ` : ''}
 
-                    <!-- SMART Components -->
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-                        ${goal.specific ? `
-                            <div class="exp-section">
-                                <div class="exp-section-label"><i class="ph ph-target" style="color: var(--color-primary-blue);"></i> Specific</div>
-                                <div class="exp-description">${escapeHtml(goal.specific)}</div>
-                            </div>
-                        ` : ''}
-                        ${goal.measurable ? `
-                            <div class="exp-section">
-                                <div class="exp-section-label"><i class="ph ph-chart-line" style="color: var(--color-primary-blue);"></i> Measurable</div>
-                                <div class="exp-description">${escapeHtml(goal.measurable)}</div>
-                            </div>
-                        ` : ''}
-                        ${goal.achievable ? `
-                            <div class="exp-section">
-                                <div class="exp-section-label"><i class="ph ph-check-circle" style="color: var(--color-primary-blue);"></i> Achievable</div>
-                                <div class="exp-description">${escapeHtml(goal.achievable)}</div>
-                            </div>
-                        ` : ''}
-                        ${goal.relevant ? `
-                            <div class="exp-section">
-                                <div class="exp-section-label"><i class="ph ph-lightbulb" style="color: var(--color-primary-blue);"></i> Relevant</div>
-                                <div class="exp-description">${escapeHtml(goal.relevant)}</div>
-                            </div>
-                        ` : ''}
-                        ${goal.notes ? `
-                            <div class="exp-section">
-                                <div class="exp-section-label">Notes</div>
-                                <div class="exp-description">${escapeHtml(goal.notes)}</div>
-                            </div>
-                        ` : ''}
-                    </div>
+                    <!-- Notes Section Only -->
+                    ${goal.notes ? `
+                        <div class="exp-section" style="margin-top: 12px;">
+                            <div class="exp-section-label">Notes</div>
+                            <div class="exp-description">${escapeHtml(goal.notes)}</div>
+                        </div>
+                    ` : ''}
                 `;
 
                 container.appendChild(card);
@@ -23214,33 +24536,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </div>
 
                     ${project.description ? `<div class="exp-description">${escapeHtml(project.description)}</div>` : ''}
-
-                    ${project.technologies && project.technologies.length > 0 ? `
-                        <div class="exp-section">
-                            <div class="exp-section-label">Technologies</div>
-                            <div class="exp-tags">
-                                ${project.technologies.map(tech => `<span class="exp-tag">${escapeHtml(tech)}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
-                    ${project.skills && project.skills.length > 0 ? `
-                        <div class="exp-section">
-                            <div class="exp-section-label">Key Skills</div>
-                            <div class="exp-tags">
-                                ${project.skills.map(skill => `<span class="exp-tag">${escapeHtml(skill)}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
-                    ${project.competencies && project.competencies.length > 0 ? `
-                        <div class="exp-section">
-                            <div class="exp-section-label">Competencies</div>
-                            <div class="exp-tags">
-                                ${project.competencies.map(comp => `<span class="exp-tag">${escapeHtml(comp)}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
                 `;
 
                 container.appendChild(card);
