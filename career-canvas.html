@@ -46,8 +46,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 
-    <!-- Konva.js Canvas Library (MIT License) -->
-    <script src="https://cdn.jsdelivr.net/npm/konva@9/konva.min.js"></script>
+    <!-- Excalidraw will be embedded via iframe -->
 
     <!-- Lexical Rich Text Editor (Bundled) -->
     <script src="shared/cleansheet-lexical.umd.js"></script>
@@ -56,8 +55,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Draw.io Diagram Editor -->
     <script src="shared/drawio-diagram-editor.js"></script>
 
-    <!-- Marked.js for Markdown Parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Monaco Editor (VS Code Editor) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+    <!-- Markdown parsing handled by built-in parser (no external dependency) -->
 
     <!-- Excalidraw via iframe embed -->
 
@@ -71,6 +72,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         });
         window.mermaid = mermaid;
     </script>
+
+    <!-- Pako for PlantUML compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
     <!-- KaTeX for LaTeX Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
@@ -3244,6 +3248,141 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             transform: scale(0.95) !important;
         }
 
+        /* Markdown Preview Styles - Dark Mode */
+        #markdownPreview h1 {
+            font-family: var(--font-family-ui);
+            font-size: 32px;
+            font-weight: 700;
+            margin: 24px 0 16px 0;
+            color: #ffffff;
+            border-bottom: 2px solid #404040;
+            padding-bottom: 8px;
+        }
+
+        #markdownPreview h2 {
+            font-family: var(--font-family-ui);
+            font-size: 26px;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+            color: #ffffff;
+        }
+
+        #markdownPreview h3 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 16px 0 10px 0;
+            color: #ffffff;
+        }
+
+        #markdownPreview h4, #markdownPreview h5, #markdownPreview h6 {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            margin: 12px 0 8px 0;
+            color: #ffffff;
+        }
+
+        #markdownPreview p {
+            margin: 0 0 16px 0;
+            line-height: 1.7;
+            color: #d4d4d4;
+        }
+
+        #markdownPreview ul, #markdownPreview ol {
+            margin: 0 0 16px 0;
+            padding-left: 28px;
+            color: #d4d4d4;
+        }
+
+        #markdownPreview li {
+            margin: 4px 0;
+        }
+
+        #markdownPreview a {
+            color: #4db8ff;
+            text-decoration: none;
+        }
+
+        #markdownPreview a:hover {
+            text-decoration: underline;
+        }
+
+        #markdownPreview code {
+            background: #2d2d2d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+            color: #ce9178;
+        }
+
+        #markdownPreview pre {
+            background: #0d1117;
+            color: #d4d4d4;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0 0 16px 0;
+            border: 1px solid #404040;
+        }
+
+        #markdownPreview pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-size: 13px;
+        }
+
+        #markdownPreview blockquote {
+            border-left: 4px solid #4db8ff;
+            padding-left: 16px;
+            margin: 0 0 16px 0;
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        #markdownPreview table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 0 16px 0;
+        }
+
+        #markdownPreview table th,
+        #markdownPreview table td {
+            border: 1px solid #404040;
+            padding: 8px 12px;
+            text-align: left;
+            color: #d4d4d4;
+        }
+
+        #markdownPreview table th {
+            background: #2d2d2d;
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        #markdownPreview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        #markdownPreview hr {
+            border: none;
+            border-top: 2px solid #404040;
+            margin: 24px 0;
+        }
+
+        #markdownPreview strong {
+            color: #ffffff;
+        }
+
+        #markdownPreview em {
+            color: #d4d4d4;
+        }
+
     </style>
 </head>
 <body>
@@ -4373,6 +4512,147 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
         </div>
 
+        <!-- Unified Asset Creation/Edit Modal -->
+        <div class="modal" id="unifiedAssetModal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="unifiedAssetModalTitle">Create Asset</h2>
+                    <button class="modal-close" onclick="closeUnifiedAssetModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Asset Type Selector -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Asset Type
+                            </label>
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                                <button onclick="setUnifiedAssetType('Document')" id="assetTypeDocument" style="padding: 12px; background: var(--color-primary-blue); color: white; border: 2px solid var(--color-primary-blue); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-file-text" style="font-size: 24px;"></i>
+                                    Document
+                                </button>
+                                <button onclick="setUnifiedAssetType('Diagram')" id="assetTypeDiagram" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-flow-arrow" style="font-size: 24px;"></i>
+                                    Diagram
+                                </button>
+                                <button onclick="setUnifiedAssetType('Whiteboard')" id="assetTypeWhiteboard" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-chalkboard" style="font-size: 24px;"></i>
+                                    Whiteboard
+                                </button>
+                                <button onclick="setUnifiedAssetType('Markdown')" id="assetTypeMarkdown" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-markdown-logo" style="font-size: 24px;"></i>
+                                    Markdown
+                                </button>
+                                <button onclick="setUnifiedAssetType('Code')" id="assetTypeCode" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-code" style="font-size: 24px;"></i>
+                                    Code
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Link to Experience or Portfolio -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Link to (Optional)
+                            </label>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <button onclick="setUnifiedAssetLinkType('experience')" id="unifiedAssetLinkTypeExperience" style="flex: 1; padding: 8px 12px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-briefcase" style="margin-right: 6px;"></i>
+                                    Experience
+                                </button>
+                                <button onclick="setUnifiedAssetLinkType('portfolio')" id="unifiedAssetLinkTypePortfolio" style="flex: 1; padding: 8px 12px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-folder-open" style="margin-right: 6px;"></i>
+                                    Portfolio
+                                </button>
+                                <button onclick="setUnifiedAssetLinkType('none')" id="unifiedAssetLinkTypeNone" style="flex: 1; padding: 8px 12px; background: var(--color-primary-blue); color: white; border: 2px solid var(--color-primary-blue); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                    <i class="ph ph-x-circle" style="margin-right: 6px;"></i>
+                                    None
+                                </button>
+                            </div>
+                            <select id="unifiedAssetLinkSelect" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; display: none;">
+                                <option value="">Select an item...</option>
+                            </select>
+                        </div>
+
+                        <!-- Asset Name -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Name
+                            </label>
+                            <input type="text" id="unifiedAssetName" placeholder="e.g., System Architecture Overview" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        </div>
+
+                        <!-- Description -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Description
+                            </label>
+                            <textarea id="unifiedAssetDescription" placeholder="Describe what this asset demonstrates or documents..." rows="3" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Skills Tags -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Skills
+                            </label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="unifiedAssetSkillInput" placeholder="e.g., Problem Solving" style="flex: 1; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <button onclick="addUnifiedAssetTag('skill')" style="padding: 10px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                    <i class="ph ph-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="unifiedAssetSkillTags" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 32px; padding: 8px; background: var(--color-neutral-background); border-radius: 6px;">
+                                <span style="color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; font-style: italic;">No skills added yet</span>
+                            </div>
+                        </div>
+
+                        <!-- Technologies Tags -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Technologies
+                            </label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="unifiedAssetTechInput" placeholder="e.g., React, Python, AWS" style="flex: 1; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <button onclick="addUnifiedAssetTag('tech')" style="padding: 10px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                    <i class="ph ph-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="unifiedAssetTechTags" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 32px; padding: 8px; background: var(--color-neutral-background); border-radius: 6px;">
+                                <span style="color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; font-style: italic;">No technologies added yet</span>
+                            </div>
+                        </div>
+
+                        <!-- Competencies Tags -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                Competencies
+                            </label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="unifiedAssetCompInput" placeholder="e.g., System Design, Leadership" style="flex: 1; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                                <button onclick="addUnifiedAssetTag('comp')" style="padding: 10px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                    <i class="ph ph-plus"></i> Add
+                                </button>
+                            </div>
+                            <div id="unifiedAssetCompTags" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 32px; padding: 8px; background: var(--color-neutral-background); border-radius: 6px;">
+                                <span style="color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; font-style: italic;">No competencies added yet</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeUnifiedAssetModal()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="saveUnifiedAsset()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        <i class="ph ph-floppy-disk" style="margin-right: 6px;"></i>
+                        Create & Open
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Document Metadata Modal -->
         <div class="modal" id="documentModal" style="display: none;">
             <div class="modal-content" style="max-width: 600px;">
@@ -4451,15 +4731,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <button onclick="editWhiteboardMetadata()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
-                        <i class="ph ph-pencil-simple"></i>
-                        Edit Info
-                    </button>
+                    <!-- Edit Info button removed -->
                 </div>
             </div>
             <!-- Whiteboard Toolbar -->
-            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: #f8f8f8; border-bottom: 1px solid var(--color-neutral-border); flex-wrap: wrap;">
-                <!-- Mode Buttons -->
+            <div style="display: none; align-items: center; gap: 12px; padding: 12px 24px; background: #f8f8f8; border-bottom: 1px solid var(--color-neutral-border); flex-wrap: wrap;">
+                <!-- Mode Buttons (Hidden - Excalidraw provides its own toolbar) -->
                 <button onclick="setWhiteboardTool('select')" id="btnSelectMode" style="padding: 8px 12px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
                     <i class="ph ph-cursor"></i>
                 </button>
@@ -4504,7 +4781,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
             <!-- Whiteboard Canvas Container -->
             <div id="whiteboardCanvasContainer" style="flex: 1; overflow: hidden; position: relative;">
-                <!-- Konva.js canvas will be created here -->
+                <!-- Excalidraw iframe will be created here -->
             </div>
         </div>
 
@@ -4526,10 +4803,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
                         Auto-save enabled
                     </span>
-                    <button onclick="editDocumentMetadata()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
-                        <i class="ph ph-pencil-simple"></i>
-                        Edit Info
-                    </button>
                 </div>
             </div>
             <!-- Lexical Editor Container -->
@@ -4561,14 +4834,90 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
                         Auto-save enabled
                     </span>
-                    <button onclick="editDiagramMetadata()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
-                        <i class="ph ph-pencil-simple"></i>
-                        Edit Info
-                    </button>
                 </div>
             </div>
             <!-- Draw.io iframe -->
             <iframe id="diagramIframe" style="width: 100%; height: calc(100% - 60px); border: none; background: #f5f5f7;"></iframe>
+        </div>
+
+        <!-- Code Editor (Monaco/VS Code) -->
+        <div id="codeEditor" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10500; flex-direction: column;">
+            <!-- Code Editor Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: var(--color-dark); color: white; border-bottom: 1px solid var(--color-neutral-border);">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button onclick="closeCodeEditor()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-arrow-left"></i>
+                        Back
+                    </button>
+                    <h3 id="codeEditorTitle" style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; margin: 0;">
+                        Untitled Code
+                    </h3>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <select id="codeLanguageSelect" onchange="changeCodeLanguage()" style="padding: 8px 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                        <option value="javascript">JavaScript</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="csharp">C#</option>
+                        <option value="cpp">C++</option>
+                        <option value="go">Go</option>
+                        <option value="rust">Rust</option>
+                        <option value="php">PHP</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="sql">SQL</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="json">JSON</option>
+                        <option value="yaml">YAML</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="shell">Shell</option>
+                        <option value="powershell">PowerShell</option>
+                    </select>
+                    <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
+                        <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
+                        Auto-save enabled
+                    </span>
+                </div>
+            </div>
+
+            <!-- Monaco Editor Container -->
+            <div id="monacoEditorContainer" style="flex: 1; width: 100%; height: calc(100vh - 65px);"></div>
+        </div>
+
+        <!-- Markdown Editor (Side-by-Side) -->
+        <div id="markdownEditor" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10500; flex-direction: column;">
+            <!-- Markdown Editor Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: var(--color-dark); color: white; border-bottom: 1px solid var(--color-neutral-border);">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button onclick="closeMarkdownEditor()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-arrow-left"></i>
+                        Back
+                    </button>
+                    <h3 id="markdownEditorTitle" style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; margin: 0;">
+                        Untitled Markdown
+                    </h3>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
+                        <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
+                        Auto-save enabled
+                    </span>
+                </div>
+            </div>
+
+            <!-- Split View: Monaco Editor on Left, Preview on Right -->
+            <div style="display: flex; flex: 1; overflow: hidden;">
+                <!-- Monaco Editor Container (Left Side) -->
+                <div id="monacoMarkdownEditorContainer" style="flex: 1; width: 50%; height: calc(100vh - 65px); border-right: 1px solid #1e1e1e;"></div>
+
+                <!-- Markdown Preview (Right Side) -->
+                <div style="flex: 1; width: 50%; height: calc(100vh - 65px); overflow-y: auto; background: #1e1e1e;">
+                    <div id="markdownPreview" style="padding: 32px; font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: #d4d4d4; max-width: 800px; margin: 0 auto;">
+                        <!-- Rendered markdown will appear here -->
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Hidden File Input for JSON Import -->
@@ -6795,14 +7144,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <div id="interviewPrepContent" style="display: none; flex: 1; flex-direction: column; overflow: hidden;">
                 <div class="tech-tabs" style="border-bottom: 2px solid #e5e5e7; padding: 16px 24px 0 24px; background: var(--color-neutral-background); flex-shrink: 0;">
                     <button class="tech-tab active" onclick="switchInterviewTab('behavioral')">Stories</button>
-                    <button id="documentsTab" class="tech-tab" onclick="switchInterviewTab('documents')" style="display: none;">Documents</button>
-                    <button id="diagramsTab" class="tech-tab" onclick="switchInterviewTab('diagrams')" style="display: none;">Diagrams</button>
-                    <button id="whiteboardsMainTab" class="tech-tab" onclick="switchInterviewTab('whiteboards')" style="display: none;">
-                        Whiteboards
-                    </button>
-                    <button id="mockInterviewsTab" class="tech-tab" onclick="switchInterviewTab('mock')" style="display: none;">
-                        Mock Interviews
-                    </button>
+                    <button id="assetsTab" class="tech-tab" onclick="switchInterviewTab('assets')">Assets</button>
+                    <button id="mockInterviewsTab" class="tech-tab" onclick="switchInterviewTab('mock')">Mock Interviews</button>
                 </div>
 
                 <!-- Stories Content -->
@@ -6844,6 +7187,66 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </div>
                     <div id="storiesContainer" class="stories-container">
                         <!-- Story cards will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Assets Content (Unified Documents, Diagrams, Whiteboards) -->
+                <div class="slideout-body" id="assetsContent" style="display: none; flex: 1; flex-direction: column; overflow-y: auto;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+                        <button class="add-story-btn" onclick="openAssetCreationModal()" style="flex: 0 0 auto; margin-bottom: 0;">
+                            <i class="ph ph-plus-circle"></i> Add Asset
+                        </button>
+                        <div class="experience-filter-container" style="position: relative; flex: 0 0 auto;">
+                            <button class="experience-filter-btn" onclick="toggleAssetsExperienceFilter()" id="assetsExperienceFilterBtn">
+                                <i class="ph ph-funnel"></i> Filter by Experience
+                                <span id="assetsExperienceFilterCount" style="display: none; margin-left: 4px; padding: 2px 6px; background: var(--color-primary-blue); color: white; border-radius: 10px; font-size: 10px; font-weight: 600;"></span>
+                            </button>
+                            <div class="experience-filter-dropdown" id="assetsExperienceFilterDropdown" style="display: none;">
+                                <div style="padding: 8px; border-bottom: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Select Experiences</span>
+                                    <button onclick="clearAssetsExperienceFilter()" style="background: none; border: none; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 4px;">Clear</button>
+                                </div>
+                                <div id="assetsExperienceFilterOptions" style="max-height: 300px; overflow-y: auto; padding: 4px;">
+                                    <!-- Experience checkboxes will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="experience-filter-container" style="position: relative; flex: 0 0 auto;">
+                            <button class="experience-filter-btn" onclick="toggleAssetsPortfolioFilter()" id="assetsPortfolioFilterBtn">
+                                <i class="ph ph-funnel"></i> Filter by Portfolio
+                                <span id="assetsPortfolioFilterCount" style="display: none; margin-left: 4px; padding: 2px 6px; background: var(--color-primary-blue); color: white; border-radius: 10px; font-size: 10px; font-weight: 600;"></span>
+                            </button>
+                            <div class="experience-filter-dropdown" id="assetsPortfolioFilterDropdown" style="display: none;">
+                                <div style="padding: 8px; border-bottom: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Select Portfolio Items</span>
+                                    <button onclick="clearAssetsPortfolioFilter()" style="background: none; border: none; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 4px;">Clear</button>
+                                </div>
+                                <div id="assetsPortfolioFilterOptions" style="max-height: 300px; overflow-y: auto; padding: 4px;">
+                                    <!-- Portfolio checkboxes will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Assets Table -->
+                    <div style="background: white; border-radius: 8px; border: 1px solid var(--color-neutral-border); overflow: hidden;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: var(--color-neutral-background); border-bottom: 2px solid var(--color-neutral-border);">
+                                    <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Name</th>
+                                    <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 120px;">Type</th>
+                                    <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 250px;">Linked To</th>
+                                    <th style="padding: 12px 16px; text-align: right; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetsTableBody">
+                                <!-- Assets will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                        <div id="assetsEmptyState" style="display: none; padding: 48px 24px; text-align: center;">
+                            <i class="ph ph-files" style="font-size: 48px; color: var(--color-neutral-text); opacity: 0.5;"></i>
+                            <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); margin-top: 12px;">No assets yet</div>
+                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-top: 4px;">Create documents, diagrams, or whiteboards to get started.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -9863,20 +10266,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 {
                     name: 'Career Experience',
                     tier: 'member',  // Available to all tiers
-                    count: filteredChildren.find(c => c.name === 'Career Experience')?.count || 0,
+                    count: data.children.find(c => c.name === 'Career Experience')?.count || 0,
                     children: []
                 },
                 {
                     name: 'Goals',
                     premium: true,
                     tier: 'learner',  // Requires Learner tier
-                    count: filteredChildren.find(c => c.name === 'Goals')?.count || 0,
+                    count: data.children.find(c => c.name === 'Goals')?.count || 0,
                     children: []
                 },
                 {
                     name: 'Portfolio',
                     tier: 'learner',  // Requires Learner tier
-                    count: filteredChildren.find(c => c.name === 'Portfolio')?.count || 0,
+                    count: data.children.find(c => c.name === 'Portfolio')?.count || 0,
                     children: []
                 },
                 {
@@ -12520,6 +12923,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 localStorage.removeItem(`interview_documents_${currentPersona}`);
                 localStorage.removeItem(`diagrams_${currentPersona}`);
                 localStorage.removeItem(`whiteboards_${currentPersona}`);
+                localStorage.removeItem(`markdown_${currentPersona}`);
+                localStorage.removeItem(`plantuml_${currentPersona}`);
+                localStorage.removeItem(`code_${currentPersona}`);
+                localStorage.removeItem(`mermaid_${currentPersona}`);
             }
 
             // Import profile data
@@ -12646,6 +13053,54 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 }
             }
 
+            // Import markdown documents
+            const newMarkdown = data.markdown || [];
+            if (newMarkdown.length > 0) {
+                if (!importMode) {
+                    const existingMarkdown = JSON.parse(localStorage.getItem(`markdown_${currentPersona}`) || '[]');
+                    const mergedMarkdown = [...existingMarkdown, ...newMarkdown];
+                    localStorage.setItem(`markdown_${currentPersona}`, JSON.stringify(mergedMarkdown));
+                } else {
+                    localStorage.setItem(`markdown_${currentPersona}`, JSON.stringify(newMarkdown));
+                }
+            }
+
+            // Import PlantUML diagrams
+            const newPlantUML = data.plantuml || [];
+            if (newPlantUML.length > 0) {
+                if (!importMode) {
+                    const existingPlantUML = JSON.parse(localStorage.getItem(`plantuml_${currentPersona}`) || '[]');
+                    const mergedPlantUML = [...existingPlantUML, ...newPlantUML];
+                    localStorage.setItem(`plantuml_${currentPersona}`, JSON.stringify(mergedPlantUML));
+                } else {
+                    localStorage.setItem(`plantuml_${currentPersona}`, JSON.stringify(newPlantUML));
+                }
+            }
+
+            // Import code snippets
+            const newCode = data.code || [];
+            if (newCode.length > 0) {
+                if (!importMode) {
+                    const existingCode = JSON.parse(localStorage.getItem(`code_${currentPersona}`) || '[]');
+                    const mergedCode = [...existingCode, ...newCode];
+                    localStorage.setItem(`code_${currentPersona}`, JSON.stringify(mergedCode));
+                } else {
+                    localStorage.setItem(`code_${currentPersona}`, JSON.stringify(newCode));
+                }
+            }
+
+            // Import Mermaid diagrams
+            const newMermaid = data.mermaid || [];
+            if (newMermaid.length > 0) {
+                if (!importMode) {
+                    const existingMermaid = JSON.parse(localStorage.getItem(`mermaid_${currentPersona}`) || '[]');
+                    const mergedMermaid = [...existingMermaid, ...newMermaid];
+                    localStorage.setItem(`mermaid_${currentPersona}`, JSON.stringify(mergedMermaid));
+                } else {
+                    localStorage.setItem(`mermaid_${currentPersona}`, JSON.stringify(newMermaid));
+                }
+            }
+
             // Import job opportunities
             const newJobOpportunities = data.jobOpportunities || [];
             if (newJobOpportunities.length > 0) {
@@ -12662,7 +13117,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Show success message
             const mode = importMode ? 'OVERWRITE' : 'UPDATE';
-            alert(`Successfully imported (${mode} mode):\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${newExperiences.length} experiences\n- ${newStories.length} stories\n- ${newGoals.length} goals\n- ${newPortfolio.length} portfolio projects\n- ${newDiagrams.length} diagrams\n- ${newDocuments.length} documents\n- ${newWhiteboards.length} whiteboards\n- ${newJobOpportunities.length} job opportunities\n\nPage will refresh to update the canvas.`);
+            alert(`Successfully imported (${mode} mode):\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${newExperiences.length} experiences\n- ${newStories.length} stories\n- ${newGoals.length} goals\n- ${newPortfolio.length} portfolio projects\n- ${newDiagrams.length} diagrams\n- ${newDocuments.length} documents\n- ${newWhiteboards.length} whiteboards\n- ${newMarkdown.length} markdown docs\n- ${newPlantUML.length} plantuml diagrams\n- ${newCode.length} code snippets\n- ${newMermaid.length} mermaid diagrams\n- ${newJobOpportunities.length} job opportunities\n\nPage will refresh to update the canvas.`);
 
             // Refresh page to update all badge numbers and UI
             window.location.reload();
@@ -12742,6 +13197,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const whiteboardsJson = localStorage.getItem(`whiteboards_${currentPersona}`);
                 const whiteboards = whiteboardsJson ? JSON.parse(whiteboardsJson) : [];
 
+                // Get new asset types from localStorage
+                const markdownJson = localStorage.getItem(`markdown_${currentPersona}`);
+                const markdown = markdownJson ? JSON.parse(markdownJson) : [];
+
+                const plantumlJson = localStorage.getItem(`plantuml_${currentPersona}`);
+                const plantuml = plantumlJson ? JSON.parse(plantumlJson) : [];
+
+                const codeJson = localStorage.getItem(`code_${currentPersona}`);
+                const code = codeJson ? JSON.parse(codeJson) : [];
+
+                const mermaidJson = localStorage.getItem(`mermaid_${currentPersona}`);
+                const mermaid = mermaidJson ? JSON.parse(mermaidJson) : [];
+
                 // Get job opportunities from localStorage
                 const jobOpportunitiesJson = localStorage.getItem(`jobOpportunities_${currentPersona}`);
                 const jobOpportunities = jobOpportunitiesJson ? JSON.parse(jobOpportunitiesJson) : [];
@@ -12780,9 +13248,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     diagrams: diagrams,
                     documents: documents,
                     whiteboards: whiteboards,
+                    markdown: markdown,
+                    plantuml: plantuml,
+                    code: code,
+                    mermaid: mermaid,
                     jobOpportunities: jobOpportunities,
                     exportDate: new Date().toISOString(),
-                    version: '3.0'
+                    version: '4.0'
                 };
 
                 // Create download
@@ -12798,7 +13270,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects\n- ${diagrams.length} diagrams\n- ${documents.length} documents\n- ${whiteboards.length} whiteboards\n- ${jobOpportunities.length} job opportunities`);
+                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects\n- ${diagrams.length} diagrams\n- ${documents.length} documents\n- ${whiteboards.length} whiteboards\n- ${markdown.length} markdown docs\n- ${plantuml.length} plantuml diagrams\n- ${code.length} code snippets\n- ${mermaid.length} mermaid diagrams\n- ${jobOpportunities.length} job opportunities`);
 
             } catch (error) {
                 alert('Error exporting data: ' + error.message);
@@ -12903,41 +13375,45 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         // Update experience count in D3 mindmap
         function updateExperienceCount(count) {
-            // Update the personaData structure
-            if (personaData['default'] && personaData['default'].children) {
-                const careerExpNode = personaData['default'].children.find(c => c.name === 'Career Experience');
+            // Update the personaData structure for current persona
+            if (personaData[currentPersona] && personaData[currentPersona].children) {
+                const careerExpNode = personaData[currentPersona].children.find(c => c.name === 'Career Experience');
                 if (careerExpNode) {
                     careerExpNode.count = count;
+                    console.log('[Badges] Updated Career Experience count to:', count, 'for persona:', currentPersona);
                 }
             }
         }
 
         function updateStoryCount(count) {
             // Update the personaData structure for Interview Prep
-            if (personaData['default'] && personaData['default'].children) {
-                const interviewPrepNode = personaData['default'].children.find(c => c.name === 'Interview Prep');
+            if (personaData[currentPersona] && personaData[currentPersona].children) {
+                const interviewPrepNode = personaData[currentPersona].children.find(c => c.name === 'Interview Prep');
                 if (interviewPrepNode) {
                     interviewPrepNode.count = count;
+                    console.log('[Badges] Updated Interview Prep count to:', count, 'for persona:', currentPersona);
                 }
             }
         }
 
         function updateGoalsCount(count) {
             // Update the personaData structure for Goals
-            if (personaData['default'] && personaData['default'].children) {
-                const goalsNode = personaData['default'].children.find(c => c.name === 'Goals');
+            if (personaData[currentPersona] && personaData[currentPersona].children) {
+                const goalsNode = personaData[currentPersona].children.find(c => c.name === 'Goals');
                 if (goalsNode) {
                     goalsNode.count = count;
+                    console.log('[Badges] Updated Goals count to:', count, 'for persona:', currentPersona);
                 }
             }
         }
 
         function updateJobOpportunitiesCount(count) {
             // Update the personaData structure for Job Opportunities
-            if (personaData['default'] && personaData['default'].children) {
-                const jobOpportunitiesNode = personaData['default'].children.find(c => c.name === 'Job Opportunities');
+            if (personaData[currentPersona] && personaData[currentPersona].children) {
+                const jobOpportunitiesNode = personaData[currentPersona].children.find(c => c.name === 'Job Opportunities');
                 if (jobOpportunitiesNode) {
                     jobOpportunitiesNode.count = count;
+                    console.log('[Badges] Updated Job Opportunities count to:', count, 'for persona:', currentPersona);
                 }
             }
         }
@@ -14802,6 +15278,30 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             // The stories will be automatically filtered by loadStories()
         }
 
+        function openAssetsFilteredByExperience(experienceId) {
+            // Set pending filter to be applied when assets tab loads
+            pendingAssetsFilter = {
+                type: 'experience',
+                id: experienceId
+            };
+
+            // Open the interview prep slideout directly to the assets tab
+            // This will call loadAllAssets() which will pick up pendingAssetsFilter
+            openInterviewPrepSlideout('assets');
+        }
+
+        function openAssetsFilteredByPortfolio(portfolioId) {
+            // Set pending filter to be applied when assets tab loads
+            pendingAssetsFilter = {
+                type: 'portfolio',
+                id: portfolioId
+            };
+
+            // Open the interview prep slideout directly to the assets tab
+            // This will call loadAllAssets() which will pick up pendingAssetsFilter
+            openInterviewPrepSlideout('assets');
+        }
+
         // Open Interview Prep and navigate directly to a specific whiteboard
         function openWhiteboardFromLink(whiteboardId) {
             // Open the interview prep slideout
@@ -14995,6 +15495,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // Function to switch between interview tabs
         function switchInterviewTab(tab) {
             const behavioralContent = document.getElementById('behavioralContent');
+            const assetsContent = document.getElementById('assetsContent');
             const diagramsContent = document.getElementById('diagramsContent');
             const documentsContent = document.getElementById('documentsContent');
             const mockContent = document.getElementById('mockContent');
@@ -15004,6 +15505,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Hide all content sections
             behavioralContent.style.display = 'none';
+            assetsContent.style.display = 'none';
             diagramsContent.style.display = 'none';
             documentsContent.style.display = 'none';
             mockContent.style.display = 'none';
@@ -15016,6 +15518,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             if (tab === 'behavioral') {
                 behavioralContent.style.display = 'flex';
                 tabs[0].classList.add('active');
+            } else if (tab === 'assets') {
+                assetsContent.style.display = 'flex';
+                document.getElementById('assetsTab').classList.add('active');
+                loadAllAssets();
             } else if (tab === 'diagrams') {
                 diagramsContent.style.display = 'flex';
                 document.getElementById('diagramsTab').classList.add('active');
@@ -15033,6 +15539,1447 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.getElementById('mockInterviewsTab').classList.add('active');
                 loadMockSessions();
             }
+        }
+
+        // Assets Tab Functions (Unified Documents, Diagrams, Whiteboards)
+        let selectedAssetsExperienceFilters = new Set();
+        let selectedAssetsPortfolioFilters = new Set();
+        let pendingAssetsFilter = null; // Store filter to apply on next load
+
+        function loadAllAssets(filterType = null, filterId = null) {
+            // Check for pending filter if no parameters provided
+            if (!filterType && !filterId && pendingAssetsFilter) {
+                filterType = pendingAssetsFilter.type;
+                filterId = pendingAssetsFilter.id;
+                pendingAssetsFilter = null; // Clear after using
+            }
+
+            console.log('=== LOADING ALL ASSETS ===');
+            console.log('Persona:', currentPersona);
+            console.log('Filter:', filterType, filterId);
+
+            const tableBody = document.getElementById('assetsTableBody');
+            const emptyState = document.getElementById('assetsEmptyState');
+
+            // Load all seven asset types
+            const documentsStored = localStorage.getItem(`interview_documents_${currentPersona}`);
+            let documents = documentsStored ? JSON.parse(documentsStored) : [];
+
+            const diagramsStored = localStorage.getItem(`diagrams_${currentPersona}`);
+            let diagrams = diagramsStored ? JSON.parse(diagramsStored) : [];
+
+            const whiteboardsStored = localStorage.getItem(`whiteboards_${currentPersona}`);
+            let whiteboards = whiteboardsStored ? JSON.parse(whiteboardsStored) : [];
+
+            const markdownStored = localStorage.getItem(`markdown_${currentPersona}`);
+            let markdown = markdownStored ? JSON.parse(markdownStored) : [];
+
+            const plantumlStored = localStorage.getItem(`plantuml_${currentPersona}`);
+            let plantuml = plantumlStored ? JSON.parse(plantumlStored) : [];
+
+            const codeStored = localStorage.getItem(`code_${currentPersona}`);
+            let code = codeStored ? JSON.parse(codeStored) : [];
+
+            const mermaidStored = localStorage.getItem(`mermaid_${currentPersona}`);
+            let mermaid = mermaidStored ? JSON.parse(mermaidStored) : [];
+
+            // Combine all assets with type indicators
+            let allAssets = [
+                ...documents.map(d => ({ ...d, assetType: 'Document', icon: 'ph-file-text' })),
+                ...diagrams.map(d => ({ ...d, assetType: 'Diagram', icon: 'ph-flow-arrow' })),
+                ...whiteboards.map(w => ({ ...w, assetType: 'Whiteboard', icon: 'ph-chalkboard' })),
+                ...markdown.map(m => ({ ...m, assetType: 'Markdown', icon: 'ph-markdown-logo' })),
+                ...plantuml.map(p => ({ ...p, assetType: 'PlantUML', icon: 'ph-plant' })),
+                ...code.map(c => ({ ...c, assetType: 'Code', icon: 'ph-code' })),
+                ...mermaid.map(m => ({ ...m, assetType: 'Mermaid', icon: 'ph-fish' }))
+            ];
+
+            // Apply badge-click filter if provided
+            if (filterType && filterId) {
+                allAssets = allAssets.filter(a =>
+                    a.linkedType === filterType && a.linkedId === filterId
+                );
+            }
+
+            // Apply dropdown experience filter
+            if (selectedAssetsExperienceFilters.size > 0) {
+                loadUserExperiences();
+                allAssets = allAssets.filter(a => {
+                    if (a.linkedType !== 'experience') return false;
+                    const expIndex = userExperiences.findIndex(exp =>
+                        (exp.id && exp.id === a.linkedId) ||
+                        (exp.title && exp.title === a.linkedId) ||
+                        (exp.role && a.linkedId && a.linkedId.includes(exp.role))
+                    );
+                    return expIndex !== -1 && selectedAssetsExperienceFilters.has(expIndex);
+                });
+            }
+
+            // Apply dropdown portfolio filter
+            if (selectedAssetsPortfolioFilters.size > 0) {
+                const portfolioData = localStorage.getItem(`userPortfolio_${currentPersona}`);
+                const portfolioItems = portfolioData ? JSON.parse(portfolioData) : [];
+                allAssets = allAssets.filter(a => {
+                    if (a.linkedType !== 'portfolio') return false;
+                    const portIndex = portfolioItems.findIndex(item =>
+                        (item.id && item.id === a.linkedId) ||
+                        (item.name && item.name === a.linkedId) ||
+                        (item.title && item.title === a.linkedId)
+                    );
+                    return portIndex !== -1 && selectedAssetsPortfolioFilters.has(portIndex);
+                });
+            }
+
+            // Sort by last modified (newest first)
+            allAssets.sort((a, b) => {
+                const dateA = new Date(a.lastModified || a.created || 0);
+                const dateB = new Date(b.lastModified || b.created || 0);
+                return dateB - dateA;
+            });
+
+            // Populate filter dropdowns
+            populateAssetsExperienceFilter();
+            populateAssetsPortfolioFilter();
+
+            // Show/hide empty state
+            if (allAssets.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            // Populate table
+            tableBody.innerHTML = allAssets.map(asset => {
+                const linkedText = asset.linkedType === 'none' || !asset.linkedName
+                    ? '<span style="color: var(--color-neutral-text); font-style: italic;">Not linked</span>'
+                    : `<span style="color: var(--color-dark);">${asset.linkedName}</span>`;
+
+                const typeColor = {
+                    'Document': '#0066CC',
+                    'Diagram': '#16a34a',
+                    'Whiteboard': '#f59e0b',
+                    'Markdown': '#7c3aed',
+                    'PlantUML': '#0891b2',
+                    'Code': '#dc2626',
+                    'Mermaid': '#2563eb'
+                }[asset.assetType];
+
+                return `
+                    <tr style="border-bottom: 1px solid var(--color-neutral-border);">
+                        <td style="padding: 12px 16px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ${asset.icon}" style="font-size: 18px; color: ${typeColor};"></i>
+                                <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark);">${asset.name || 'Untitled'}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 12px 16px;">
+                            <span style="display: inline-block; padding: 4px 8px; background: ${typeColor}15; color: ${typeColor}; border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600;">${asset.assetType}</span>
+                        </td>
+                        <td style="padding: 12px 16px;">
+                            <span style="font-family: var(--font-family-body); font-size: 12px;">${linkedText}</span>
+                        </td>
+                        <td style="padding: 12px 16px; text-align: right;">
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button onclick="openAssetByTypeAndId('${asset.assetType}', '${asset.id}')" style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark);" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                    <i class="ph ph-pencil-simple" style="font-size: 14px;"></i>
+                                    Edit
+                                </button>
+                                <button onclick="editAssetMetadata('${asset.assetType}', '${asset.id}')" style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark);" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#e3f2fd';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                    <i class="ph ph-info" style="font-size: 14px;"></i>
+                                    Info
+                                </button>
+                                <button onclick="deleteAssetByTypeAndId('${asset.assetType}', '${asset.id}')" style="padding: 6px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #dc2626;" onmouseover="this.style.borderColor='#dc2626'; this.style.background='#fef2f2';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                    <i class="ph ph-trash" style="font-size: 14px;"></i>
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            console.log('Loaded', allAssets.length, 'total assets');
+        }
+
+        function openAssetByTypeAndId(assetType, assetId) {
+            console.log('Opening asset:', assetType, assetId);
+            if (assetType === 'Document') {
+                openDocumentByIdLexical(assetId);
+            } else if (assetType === 'Diagram') {
+                openDiagramByIdDrawio(assetId);
+            } else if (assetType === 'Whiteboard') {
+                openWhiteboardById(assetId);
+            } else if (assetType === 'Code') {
+                openCodeByIdMonaco(assetId);
+            } else if (assetType === 'Markdown') {
+                openMarkdownByIdMonaco(assetId);
+            } else if (assetType === 'PlantUML') {
+                alert('PlantUML editor coming soon!');
+            } else if (assetType === 'Mermaid') {
+                alert('Mermaid editor coming soon!');
+            }
+        }
+
+        function deleteAssetByTypeAndId(assetType, assetId) {
+            if (!confirm(`Are you sure you want to delete this ${assetType.toLowerCase()}?`)) return;
+
+            console.log('Deleting asset:', assetType, assetId);
+
+            const storageKeyMap = {
+                'Document': 'interview_documents',
+                'Diagram': 'diagrams',
+                'Whiteboard': 'whiteboards',
+                'Markdown': 'markdown',
+                'PlantUML': 'plantuml',
+                'Code': 'code',
+                'Mermaid': 'mermaid'
+            };
+
+            const storageKey = storageKeyMap[assetType];
+            if (storageKey) {
+                const stored = localStorage.getItem(`${storageKey}_${currentPersona}`);
+                let items = stored ? JSON.parse(stored) : [];
+                items = items.filter(item => item.id !== assetId);
+                localStorage.setItem(`${storageKey}_${currentPersona}`, JSON.stringify(items));
+            }
+
+            // Reload the assets view
+            loadAllAssets();
+        }
+
+        // Unified Asset Modal State
+        let currentUnifiedAssetType = 'Document';
+        let currentUnifiedAssetLinkType = 'none';
+        let currentUnifiedAssetId = null;
+        let unifiedAssetSkills = [];
+        let unifiedAssetTechnologies = [];
+        let unifiedAssetCompetencies = [];
+        let isEditingAsset = false;
+
+        function openAssetCreationModal() {
+            // Reset state
+            isEditingAsset = false;
+            currentUnifiedAssetId = null;
+            currentUnifiedAssetType = 'Document';
+            currentUnifiedAssetLinkType = 'none';
+            unifiedAssetSkills = [];
+            unifiedAssetTechnologies = [];
+            unifiedAssetCompetencies = [];
+
+            // Clear form
+            document.getElementById('unifiedAssetName').value = '';
+            document.getElementById('unifiedAssetDescription').value = '';
+            document.getElementById('unifiedAssetSkillInput').value = '';
+            document.getElementById('unifiedAssetTechInput').value = '';
+            document.getElementById('unifiedAssetCompInput').value = '';
+
+            // Reset type selector
+            setUnifiedAssetType('Document');
+            setUnifiedAssetLinkType('none');
+
+            // Show asset type selector
+            const assetTypeSection = document.querySelector('[style*="Asset Type"]')?.parentElement;
+            if (assetTypeSection) assetTypeSection.style.display = 'flex';
+
+            // Update UI
+            renderUnifiedAssetTags();
+            document.getElementById('unifiedAssetModalTitle').textContent = 'Create Asset';
+            document.querySelector('#unifiedAssetModal .modal-footer button:last-child').innerHTML = '<i class="ph ph-floppy-disk" style="margin-right: 6px;"></i> Create & Open';
+
+            // Show modal
+            document.getElementById('unifiedAssetModal').style.display = 'flex';
+        }
+
+        function editAssetMetadata(assetType, assetId) {
+            console.log('Editing asset metadata:', assetType, assetId);
+
+            // Load asset data
+            const storageKeyMap = {
+                'Document': 'interview_documents',
+                'Diagram': 'diagrams',
+                'Whiteboard': 'whiteboards',
+                'Markdown': 'markdown',
+                'PlantUML': 'plantuml',
+                'Code': 'code',
+                'Mermaid': 'mermaid'
+            };
+
+            const storageKey = storageKeyMap[assetType];
+            const stored = localStorage.getItem(`${storageKey}_${currentPersona}`);
+            const assets = stored ? JSON.parse(stored) : [];
+            const asset = assets.find(a => a.id === assetId);
+
+            if (!asset) {
+                alert('Asset not found');
+                return;
+            }
+
+            // Set edit mode
+            isEditingAsset = true;
+            currentUnifiedAssetId = assetId;
+            currentUnifiedAssetType = assetType;
+
+            // Populate form
+            document.getElementById('unifiedAssetName').value = asset.name || '';
+            document.getElementById('unifiedAssetDescription').value = asset.description || '';
+
+            // Set linked type
+            currentUnifiedAssetLinkType = asset.linkedType || 'none';
+            setUnifiedAssetLinkType(currentUnifiedAssetLinkType);
+
+            // If linked, select the item
+            if (asset.linkedType && asset.linkedType !== 'none' && asset.linkedId) {
+                setTimeout(() => {
+                    const select = document.getElementById('unifiedAssetLinkSelect');
+                    if (select) {
+                        select.value = asset.linkedId;
+                    }
+                }, 100);
+            }
+
+            // Populate tags
+            unifiedAssetSkills = asset.skills || [];
+            unifiedAssetTechnologies = asset.technologies || [];
+            unifiedAssetCompetencies = asset.competencies || [];
+
+            // Hide asset type selector
+            const assetTypeSection = document.querySelector('label').parentElement;
+            for (let el of document.querySelectorAll('label')) {
+                if (el.textContent.includes('Asset Type')) {
+                    el.parentElement.style.display = 'none';
+                    break;
+                }
+            }
+
+            // Update UI
+            renderUnifiedAssetTags();
+            document.getElementById('unifiedAssetModalTitle').textContent = 'Edit Asset Info';
+            document.querySelector('#unifiedAssetModal .modal-footer button:last-child').innerHTML = '<i class="ph ph-floppy-disk" style="margin-right: 6px;"></i> Save Changes';
+
+            // Show modal
+            document.getElementById('unifiedAssetModal').style.display = 'flex';
+        }
+
+        function closeUnifiedAssetModal() {
+            document.getElementById('unifiedAssetModal').style.display = 'none';
+        }
+
+        function setUnifiedAssetType(type) {
+            currentUnifiedAssetType = type;
+
+            // Update button styles
+            const types = ['Document', 'Diagram', 'Whiteboard', 'Markdown', 'Code'];
+            types.forEach(t => {
+                const btn = document.getElementById(`assetType${t}`);
+                if (btn) { // Check if button exists
+                    if (t === type) {
+                        btn.style.background = 'var(--color-primary-blue)';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = 'var(--color-primary-blue)';
+                    } else {
+                        btn.style.background = 'white';
+                        btn.style.color = 'var(--color-dark)';
+                        btn.style.borderColor = 'var(--color-neutral-border)';
+                    }
+                }
+            });
+        }
+
+        function setUnifiedAssetLinkType(type) {
+            currentUnifiedAssetLinkType = type;
+            const select = document.getElementById('unifiedAssetLinkSelect');
+
+            // Update button styles
+            ['experience', 'portfolio', 'none'].forEach(t => {
+                const btn = document.getElementById(`unifiedAssetLinkType${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === type) {
+                    btn.style.background = 'var(--color-primary-blue)';
+                    btn.style.color = 'white';
+                    btn.style.borderColor = 'var(--color-primary-blue)';
+                } else {
+                    btn.style.background = 'white';
+                    btn.style.color = 'var(--color-dark)';
+                    btn.style.borderColor = 'var(--color-neutral-border)';
+                }
+            });
+
+            // Show/hide select dropdown
+            if (type === 'none') {
+                select.style.display = 'none';
+            } else {
+                select.style.display = 'block';
+                populateUnifiedAssetLinkOptions(type);
+            }
+        }
+
+        function populateUnifiedAssetLinkOptions(type) {
+            const select = document.getElementById('unifiedAssetLinkSelect');
+            select.innerHTML = '<option value="">Select an item...</option>';
+
+            if (type === 'experience') {
+                loadUserExperiences();
+                userExperiences.forEach(exp => {
+                    const option = document.createElement('option');
+                    option.value = exp.id || exp.title;
+                    option.textContent = `${exp.title || exp.role} at ${exp.company}`;
+                    select.appendChild(option);
+                });
+            } else if (type === 'portfolio') {
+                const portfolioData = localStorage.getItem(`userPortfolio_${currentPersona}`);
+                const portfolioItems = portfolioData ? JSON.parse(portfolioData) : [];
+                portfolioItems.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name || item.title;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function addUnifiedAssetTag(tagType) {
+            let inputId, arrayRef;
+
+            if (tagType === 'skill') {
+                inputId = 'unifiedAssetSkillInput';
+                arrayRef = unifiedAssetSkills;
+            } else if (tagType === 'tech') {
+                inputId = 'unifiedAssetTechInput';
+                arrayRef = unifiedAssetTechnologies;
+            } else if (tagType === 'comp') {
+                inputId = 'unifiedAssetCompInput';
+                arrayRef = unifiedAssetCompetencies;
+            }
+
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (value && !arrayRef.includes(value)) {
+                arrayRef.push(value);
+                input.value = '';
+                renderUnifiedAssetTags();
+            }
+        }
+
+        function removeUnifiedAssetTag(tagType, value) {
+            if (tagType === 'skill') {
+                unifiedAssetSkills = unifiedAssetSkills.filter(s => s !== value);
+            } else if (tagType === 'tech') {
+                unifiedAssetTechnologies = unifiedAssetTechnologies.filter(t => t !== value);
+            } else if (tagType === 'comp') {
+                unifiedAssetCompetencies = unifiedAssetCompetencies.filter(c => c !== value);
+            }
+            renderUnifiedAssetTags();
+        }
+
+        function renderUnifiedAssetTags() {
+            // Render skills
+            const skillContainer = document.getElementById('unifiedAssetSkillTags');
+            if (unifiedAssetSkills.length === 0) {
+                skillContainer.innerHTML = '<span style="color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; font-style: italic;">No skills added yet</span>';
+            } else {
+                skillContainer.innerHTML = unifiedAssetSkills.map(skill => `
+                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: #e3f2fd; color: var(--color-primary-blue); border-radius: 4px; font-family: var(--font-family-body); font-size: 12px; font-weight: 500;">
+                        ${skill}
+                        <i class="ph ph-x" onclick="removeUnifiedAssetTag('skill', '${skill}')" style="cursor: pointer; font-size: 14px;"></i>
+                    </span>
+                `).join('');
+            }
+
+            // Render technologies
+            const techContainer = document.getElementById('unifiedAssetTechTags');
+            if (unifiedAssetTechnologies.length === 0) {
+                techContainer.innerHTML = '<span style="color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; font-style: italic;">No technologies added yet</span>';
+            } else {
+                techContainer.innerHTML = unifiedAssetTechnologies.map(tech => `
+                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: #dcfce7; color: #16a34a; border-radius: 4px; font-family: var(--font-family-body); font-size: 12px; font-weight: 500;">
+                        ${tech}
+                        <i class="ph ph-x" onclick="removeUnifiedAssetTag('tech', '${tech}')" style="cursor: pointer; font-size: 14px;"></i>
+                    </span>
+                `).join('');
+            }
+
+            // Render competencies
+            const compContainer = document.getElementById('unifiedAssetCompTags');
+            if (unifiedAssetCompetencies.length === 0) {
+                compContainer.innerHTML = '<span style="color: var(--color-neutral-text); font-family: var(--font-family-body); font-size: 12px; font-style: italic;">No competencies added yet</span>';
+            } else {
+                compContainer.innerHTML = unifiedAssetCompetencies.map(comp => `
+                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: #fef3c7; color: #f59e0b; border-radius: 4px; font-family: var(--font-family-body); font-size: 12px; font-weight: 500;">
+                        ${comp}
+                        <i class="ph ph-x" onclick="removeUnifiedAssetTag('comp', '${comp}')" style="cursor: pointer; font-size: 14px;"></i>
+                    </span>
+                `).join('');
+            }
+        }
+
+        function saveUnifiedAsset() {
+            console.log('=== SAVE UNIFIED ASSET ===');
+            console.log('isEditingAsset:', isEditingAsset);
+            console.log('currentUnifiedAssetId:', currentUnifiedAssetId);
+            console.log('currentUnifiedAssetType:', currentUnifiedAssetType);
+
+            const name = document.getElementById('unifiedAssetName').value.trim();
+            const description = document.getElementById('unifiedAssetDescription').value.trim();
+
+            if (!name) {
+                alert('Please enter a name for the asset');
+                return;
+            }
+
+            // Get link details
+            let linkedId = '';
+            let linkedName = '';
+            if (currentUnifiedAssetLinkType !== 'none') {
+                const select = document.getElementById('unifiedAssetLinkSelect');
+                linkedId = select.value;
+                linkedName = select.options[select.selectedIndex]?.text || '';
+            }
+
+            const now = new Date().toISOString();
+            let assetId;
+            let asset;
+
+            // Check if we're editing or creating
+            if (isEditingAsset) {
+                console.log('>>> EDITING MODE');
+                // EDITING MODE: Update existing asset
+                assetId = currentUnifiedAssetId;
+
+                // Load existing asset from localStorage
+                const storageKeyMap = {
+                    'Document': `interview_documents_${currentPersona}`,
+                    'Diagram': `diagrams_${currentPersona}`,
+                    'Whiteboard': `whiteboards_${currentPersona}`,
+                    'Markdown': `markdown_${currentPersona}`,
+                    'Code': `code_${currentPersona}`,
+                    'PlantUML': `plantuml_${currentPersona}`,
+                    'Mermaid': `mermaid_${currentPersona}`
+                };
+
+                const storageKey = storageKeyMap[currentUnifiedAssetType];
+                const stored = localStorage.getItem(storageKey);
+                const assets = stored ? JSON.parse(stored) : [];
+                const existingAsset = assets.find(a => a.id === assetId);
+
+                if (!existingAsset) {
+                    alert('Asset not found!');
+                    return;
+                }
+
+                // Update only the metadata fields (preserve content, diagramData, etc.)
+                asset = {
+                    ...existingAsset,
+                    name: name,
+                    description: description,
+                    linkedType: currentUnifiedAssetLinkType,
+                    linkedId: linkedId,
+                    linkedName: linkedName,
+                    skills: unifiedAssetSkills,
+                    technologies: unifiedAssetTechnologies,
+                    competencies: unifiedAssetCompetencies,
+                    lastModified: now
+                    // Keep original created date and content fields
+                };
+
+                // Update asset in array
+                const assetIndex = assets.findIndex(a => a.id === assetId);
+                assets[assetIndex] = asset;
+                localStorage.setItem(storageKey, JSON.stringify(assets));
+
+                console.log('Updated asset metadata:', currentUnifiedAssetType, assetId);
+
+                // Close modal and refresh table (don't open editor)
+                closeUnifiedAssetModal();
+                loadAllAssets();
+                return;
+
+            } else {
+                console.log('>>> CREATION MODE');
+                // CREATION MODE: Create new asset object
+                assetId = Date.now().toString();
+                asset = {
+                    id: assetId,
+                    name: name,
+                    description: description,
+                    linkedType: currentUnifiedAssetLinkType,
+                    linkedId: linkedId,
+                    linkedName: linkedName,
+                    skills: unifiedAssetSkills,
+                    technologies: unifiedAssetTechnologies,
+                    competencies: unifiedAssetCompetencies,
+                    created: now,
+                    lastModified: now
+                };
+            }
+
+            // Save based on type
+            if (currentUnifiedAssetType === 'Document') {
+                asset.content = '';  // Empty Lexical content
+                const stored = localStorage.getItem(`interview_documents_${currentPersona}`);
+                const documents = stored ? JSON.parse(stored) : [];
+                documents.push(asset);
+                localStorage.setItem(`interview_documents_${currentPersona}`, JSON.stringify(documents));
+
+                // Close modal and open editor
+                closeUnifiedAssetModal();
+                openDocumentByIdLexical(assetId);
+
+            } else if (currentUnifiedAssetType === 'Diagram') {
+                asset.diagramData = null;  // Empty diagram
+                const stored = localStorage.getItem(`diagrams_${currentPersona}`);
+                const diagrams = stored ? JSON.parse(stored) : [];
+                diagrams.push(asset);
+                localStorage.setItem(`diagrams_${currentPersona}`, JSON.stringify(diagrams));
+
+                // Close modal and open editor
+                closeUnifiedAssetModal();
+                openDiagramByIdDrawio(assetId);
+
+            } else if (currentUnifiedAssetType === 'Whiteboard') {
+                asset.canvasData = null;  // Empty whiteboard
+                const stored = localStorage.getItem(`whiteboards_${currentPersona}`);
+                const whiteboards = stored ? JSON.parse(stored) : [];
+                whiteboards.push(asset);
+                localStorage.setItem(`whiteboards_${currentPersona}`, JSON.stringify(whiteboards));
+
+                // Close modal and open editor
+                closeUnifiedAssetModal();
+                openWhiteboardById(assetId);
+
+            } else if (currentUnifiedAssetType === 'Markdown') {
+                // Store in localStorage and open Monaco editor
+                asset.content = '# Welcome\n\nStart writing your markdown here...';  // Default markdown content
+                const stored = localStorage.getItem(`markdown_${currentPersona}`);
+                const markdownDocs = stored ? JSON.parse(stored) : [];
+                markdownDocs.push(asset);
+                localStorage.setItem(`markdown_${currentPersona}`, JSON.stringify(markdownDocs));
+
+                closeUnifiedAssetModal();
+                openMarkdownByIdMonaco(assetId);
+
+            } else if (currentUnifiedAssetType === 'PlantUML') {
+                // Placeholder: Store in localStorage but show coming soon message
+                asset.content = '';  // Empty PlantUML content
+                const stored = localStorage.getItem(`plantuml_${currentPersona}`);
+                const plantumlDocs = stored ? JSON.parse(stored) : [];
+                plantumlDocs.push(asset);
+                localStorage.setItem(`plantuml_${currentPersona}`, JSON.stringify(plantumlDocs));
+
+                closeUnifiedAssetModal();
+                alert('PlantUML editor coming soon! Your asset has been saved and will be editable once the feature is implemented.');
+
+            } else if (currentUnifiedAssetType === 'Code') {
+                // Store in localStorage and open Monaco editor
+                asset.content = '';  // Empty code content
+                asset.language = 'javascript';  // Default language
+                const stored = localStorage.getItem(`code_${currentPersona}`);
+                const codeSnippets = stored ? JSON.parse(stored) : [];
+                codeSnippets.push(asset);
+                localStorage.setItem(`code_${currentPersona}`, JSON.stringify(codeSnippets));
+
+                closeUnifiedAssetModal();
+                openCodeByIdMonaco(assetId);
+
+            } else if (currentUnifiedAssetType === 'Mermaid') {
+                // Placeholder: Store in localStorage but show coming soon message
+                asset.content = '';  // Empty Mermaid content
+                const stored = localStorage.getItem(`mermaid_${currentPersona}`);
+                const mermaidDocs = stored ? JSON.parse(stored) : [];
+                mermaidDocs.push(asset);
+                localStorage.setItem(`mermaid_${currentPersona}`, JSON.stringify(mermaidDocs));
+
+                closeUnifiedAssetModal();
+                alert('Mermaid diagram editor coming soon! Your asset has been saved and will be editable once the feature is implemented.');
+            }
+
+            console.log('Created new asset:', currentUnifiedAssetType, assetId);
+        }
+
+        // Handle Enter key in tag inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            ['unifiedAssetSkillInput', 'unifiedAssetTechInput', 'unifiedAssetCompInput'].forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const tagType = inputId.includes('Skill') ? 'skill' : inputId.includes('Tech') ? 'tech' : 'comp';
+                            addUnifiedAssetTag(tagType);
+                        }
+                    });
+                }
+            });
+
+            // Initialize Monaco Editor loader
+            if (typeof require !== 'undefined' && require.config) {
+                require.config({
+                    paths: {
+                        'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs'
+                    }
+                });
+            }
+        });
+
+        // Monaco Code Editor Functions
+        let monacoEditor = null;
+        let currentEditingCodeId = null;
+        let autoSaveCodeInterval = null;
+
+        function openCodeByIdMonaco(id) {
+            console.log('=== OPENING CODE SNIPPET ===');
+            console.log('[Code] ID:', id);
+
+            const stored = localStorage.getItem(`code_${currentPersona}`);
+            const codeSnippets = stored ? JSON.parse(stored) : [];
+            const codeSnippet = codeSnippets.find(c => c.id === id);
+
+            if (!codeSnippet) {
+                console.error('[Code] Not found with ID:', id);
+                alert('Code snippet not found');
+                return;
+            }
+
+            console.log('[Code] Found:', {
+                id: codeSnippet.id,
+                name: codeSnippet.name,
+                language: codeSnippet.language,
+                contentLength: codeSnippet.content ? codeSnippet.content.length : 0
+            });
+
+            currentEditingCodeId = id;
+
+            // Show editor
+            document.getElementById('codeEditor').style.display = 'flex';
+            document.getElementById('codeEditorTitle').textContent = codeSnippet.name || 'Untitled Code';
+            document.getElementById('codeLanguageSelect').value = codeSnippet.language || 'javascript';
+
+            // Initialize Monaco editor if not already done
+            if (!monacoEditor) {
+                require(['vs/editor/editor.main'], function() {
+                    console.log('[Code] Monaco loaded, creating editor');
+                    monacoEditor = monaco.editor.create(document.getElementById('monacoEditorContainer'), {
+                        value: codeSnippet.content || '',
+                        language: codeSnippet.language || 'javascript',
+                        theme: 'vs-dark',
+                        automaticLayout: true,
+                        fontSize: 14,
+                        minimap: { enabled: true },
+                        scrollBeyondLastLine: false,
+                        wordWrap: 'on',
+                        lineNumbers: 'on',
+                        renderWhitespace: 'selection',
+                        tabSize: 4,
+                        insertSpaces: true
+                    });
+
+                    // Start auto-save
+                    startCodeAutoSave();
+
+                    console.log('[Code] ✅ Editor initialized');
+                });
+            } else {
+                // Editor already exists, just update content and language
+                monacoEditor.setValue(codeSnippet.content || '');
+                monaco.editor.setModelLanguage(monacoEditor.getModel(), codeSnippet.language || 'javascript');
+                console.log('[Code] Editor content updated');
+
+                // Restart auto-save
+                startCodeAutoSave();
+            }
+        }
+
+        function closeCodeEditor() {
+            console.log('=== CLOSING CODE EDITOR ===');
+
+            // Stop auto-save
+            if (autoSaveCodeInterval) {
+                clearInterval(autoSaveCodeInterval);
+                autoSaveCodeInterval = null;
+            }
+
+            // Save one last time before closing
+            if (currentEditingCodeId && monacoEditor) {
+                saveCodeContent();
+            }
+
+            // Hide editor
+            document.getElementById('codeEditor').style.display = 'none';
+            currentEditingCodeId = null;
+
+            // Reload assets list to show updated last modified time
+            if (typeof loadAllAssets === 'function') {
+                loadAllAssets();
+            }
+
+            console.log('[Code] ✅ Editor closed');
+        }
+
+        function changeCodeLanguage() {
+            if (!monacoEditor) return;
+
+            const newLanguage = document.getElementById('codeLanguageSelect').value;
+            monaco.editor.setModelLanguage(monacoEditor.getModel(), newLanguage);
+
+            // Save the language change
+            if (currentEditingCodeId) {
+                const stored = localStorage.getItem(`code_${currentPersona}`);
+                let codeSnippets = stored ? JSON.parse(stored) : [];
+                const index = codeSnippets.findIndex(c => c.id === currentEditingCodeId);
+
+                if (index !== -1) {
+                    codeSnippets[index].language = newLanguage;
+                    codeSnippets[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`code_${currentPersona}`, JSON.stringify(codeSnippets));
+                    console.log('[Code] Language changed to:', newLanguage);
+                }
+            }
+        }
+
+        function startCodeAutoSave() {
+            // Clear any existing interval
+            if (autoSaveCodeInterval) {
+                clearInterval(autoSaveCodeInterval);
+            }
+
+            // Auto-save every 2 seconds
+            autoSaveCodeInterval = setInterval(() => {
+                if (currentEditingCodeId && monacoEditor) {
+                    saveCodeContent();
+                }
+            }, 2000);
+
+            console.log('[Code] Auto-save started');
+        }
+
+        function saveCodeContent() {
+            if (!currentEditingCodeId || !monacoEditor) {
+                console.warn('[Code] No code ID or editor to save');
+                return;
+            }
+
+            const content = monacoEditor.getValue();
+
+            try {
+                const stored = localStorage.getItem(`code_${currentPersona}`);
+                let codeSnippets = stored ? JSON.parse(stored) : [];
+                const index = codeSnippets.findIndex(c => c.id === currentEditingCodeId);
+
+                if (index !== -1) {
+                    codeSnippets[index].content = content;
+                    codeSnippets[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`code_${currentPersona}`, JSON.stringify(codeSnippets));
+                    console.log('[Code] ✅ Auto-saved, content length:', content.length);
+                }
+            } catch (error) {
+                console.error('[Code] ❌ Error saving:', error);
+            }
+        }
+
+        function editCodeMetadata() {
+            if (!currentEditingCodeId) return;
+
+            const stored = localStorage.getItem(`code_${currentPersona}`);
+            const codeSnippets = stored ? JSON.parse(stored) : [];
+            const codeSnippet = codeSnippets.find(c => c.id === currentEditingCodeId);
+
+            if (!codeSnippet) return;
+
+            // For now, use a simple prompt to edit name and description
+            const newName = prompt('Code Snippet Name:', codeSnippet.name);
+            if (newName === null) return; // User cancelled
+
+            const newDescription = prompt('Description:', codeSnippet.description);
+            if (newDescription === null) return; // User cancelled
+
+            // Update metadata
+            const index = codeSnippets.findIndex(c => c.id === currentEditingCodeId);
+            if (index !== -1) {
+                codeSnippets[index].name = newName.trim() || 'Untitled Code';
+                codeSnippets[index].description = newDescription.trim();
+                codeSnippets[index].lastModified = new Date().toISOString();
+                localStorage.setItem(`code_${currentPersona}`, JSON.stringify(codeSnippets));
+
+                // Update title in editor
+                document.getElementById('codeEditorTitle').textContent = newName || 'Untitled Code';
+
+                console.log('[Code] Metadata updated');
+            }
+        }
+
+        // Monaco Markdown Editor Functions
+        let monacoMarkdownEditor = null;
+        let currentEditingMarkdownId = null;
+        let autoSaveMarkdownInterval = null;
+
+        function openMarkdownByIdMonaco(id) {
+            console.log('=== OPENING MARKDOWN DOCUMENT ===');
+            console.log('[Markdown] ID:', id);
+
+            const stored = localStorage.getItem(`markdown_${currentPersona}`);
+            const markdownDocs = stored ? JSON.parse(stored) : [];
+            const markdownDoc = markdownDocs.find(m => m.id === id);
+
+            if (!markdownDoc) {
+                console.error('[Markdown] Not found with ID:', id);
+                alert('Markdown document not found');
+                return;
+            }
+
+            console.log('[Markdown] Found:', {
+                id: markdownDoc.id,
+                name: markdownDoc.name,
+                contentLength: markdownDoc.content ? markdownDoc.content.length : 0
+            });
+
+            currentEditingMarkdownId = id;
+
+            // Show editor
+            document.getElementById('markdownEditor').style.display = 'flex';
+            document.getElementById('markdownEditorTitle').textContent = markdownDoc.name || 'Untitled Markdown';
+
+            // Initialize Monaco editor if not already done
+            if (!monacoMarkdownEditor) {
+                require(['vs/editor/editor.main'], function() {
+                    console.log('[Markdown] Monaco loaded, creating editor');
+                    monacoMarkdownEditor = monaco.editor.create(document.getElementById('monacoMarkdownEditorContainer'), {
+                        value: markdownDoc.content || '# Welcome\n\nStart writing your markdown here...',
+                        language: 'markdown',
+                        theme: 'vs-dark',
+                        automaticLayout: true,
+                        fontSize: 14,
+                        minimap: { enabled: true },
+                        scrollBeyondLastLine: false,
+                        wordWrap: 'on',
+                        lineNumbers: 'on',
+                        renderWhitespace: 'selection',
+                        tabSize: 2,
+                        insertSpaces: true
+                    });
+
+                    // Update preview on content change
+                    monacoMarkdownEditor.onDidChangeModelContent(() => {
+                        updateMarkdownPreview();
+                    });
+
+                    // Initial preview render
+                    updateMarkdownPreview();
+
+                    // Start auto-save
+                    startMarkdownAutoSave();
+
+                    // Setup scroll synchronization
+                    const previewContainer = document.getElementById('markdownPreview').parentElement;
+                    let isEditorScrolling = false;
+                    let isPreviewScrolling = false;
+
+                    // Sync preview scroll when editor scrolls
+                    monacoMarkdownEditor.onDidScrollChange((e) => {
+                        if (isPreviewScrolling) return;
+                        isEditorScrolling = true;
+
+                        const editorScrollTop = e.scrollTop;
+                        const editorScrollHeight = monacoMarkdownEditor.getScrollHeight();
+                        const editorViewportHeight = monacoMarkdownEditor.getLayoutInfo().height;
+
+                        const scrollPercentage = editorScrollTop / (editorScrollHeight - editorViewportHeight);
+                        previewContainer.scrollTop = scrollPercentage * (previewContainer.scrollHeight - previewContainer.clientHeight);
+
+                        setTimeout(() => { isEditorScrolling = false; }, 100);
+                    });
+
+                    // Sync editor scroll when preview scrolls
+                    previewContainer.addEventListener('scroll', () => {
+                        if (isEditorScrolling) return;
+                        isPreviewScrolling = true;
+
+                        const scrollPercentage = previewContainer.scrollTop / (previewContainer.scrollHeight - previewContainer.clientHeight);
+                        const editorScrollHeight = monacoMarkdownEditor.getScrollHeight();
+                        const editorViewportHeight = monacoMarkdownEditor.getLayoutInfo().height;
+                        const targetScrollTop = scrollPercentage * (editorScrollHeight - editorViewportHeight);
+
+                        monacoMarkdownEditor.setScrollTop(targetScrollTop);
+
+                        setTimeout(() => { isPreviewScrolling = false; }, 100);
+                    });
+
+                    console.log('[Markdown] ✅ Editor initialized with scroll sync');
+                });
+            } else {
+                // Editor already exists, just update content
+                monacoMarkdownEditor.setValue(markdownDoc.content || '# Welcome\n\nStart writing your markdown here...');
+                console.log('[Markdown] Editor content updated');
+
+                // Update preview
+                updateMarkdownPreview();
+
+                // Restart auto-save
+                startMarkdownAutoSave();
+            }
+        }
+
+        function closeMarkdownEditor() {
+            console.log('=== CLOSING MARKDOWN EDITOR ===');
+
+            // Stop auto-save
+            if (autoSaveMarkdownInterval) {
+                clearInterval(autoSaveMarkdownInterval);
+                autoSaveMarkdownInterval = null;
+            }
+
+            // Save one last time before closing
+            if (currentEditingMarkdownId && monacoMarkdownEditor) {
+                saveMarkdownContent();
+            }
+
+            // Hide editor
+            document.getElementById('markdownEditor').style.display = 'none';
+            currentEditingMarkdownId = null;
+
+            // Reload assets list to show updated last modified time
+            if (typeof loadAllAssets === 'function') {
+                loadAllAssets();
+            }
+
+            console.log('[Markdown] ✅ Editor closed');
+        }
+
+        function startMarkdownAutoSave() {
+            // Clear any existing interval
+            if (autoSaveMarkdownInterval) {
+                clearInterval(autoSaveMarkdownInterval);
+            }
+
+            // Auto-save every 2 seconds
+            autoSaveMarkdownInterval = setInterval(() => {
+                if (currentEditingMarkdownId && monacoMarkdownEditor) {
+                    saveMarkdownContent();
+                }
+            }, 2000);
+
+            console.log('[Markdown] Auto-save started');
+        }
+
+        function saveMarkdownContent() {
+            if (!currentEditingMarkdownId || !monacoMarkdownEditor) {
+                console.warn('[Markdown] No markdown ID or editor to save');
+                return;
+            }
+
+            const content = monacoMarkdownEditor.getValue();
+
+            try {
+                const stored = localStorage.getItem(`markdown_${currentPersona}`);
+                let markdownDocs = stored ? JSON.parse(stored) : [];
+                const index = markdownDocs.findIndex(m => m.id === currentEditingMarkdownId);
+
+                if (index !== -1) {
+                    markdownDocs[index].content = content;
+                    markdownDocs[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`markdown_${currentPersona}`, JSON.stringify(markdownDocs));
+                    console.log('[Markdown] ✅ Auto-saved, content length:', content.length);
+                }
+            } catch (error) {
+                console.error('[Markdown] ❌ Error saving:', error);
+            }
+        }
+
+        // PlantUML encoder function
+        function encodePlantUML(plantumlCode) {
+            // PlantUML uses a custom base64-like encoding
+            const encode64 = (data) => {
+                let r = '';
+                for (let i = 0; i < data.length; i += 3) {
+                    if (i + 2 === data.length) {
+                        r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
+                    } else if (i + 1 === data.length) {
+                        r += append3bytes(data.charCodeAt(i), 0, 0);
+                    } else {
+                        r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), data.charCodeAt(i + 2));
+                    }
+                }
+                return r;
+            };
+
+            const append3bytes = (b1, b2, b3) => {
+                const c1 = b1 >> 2;
+                const c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+                const c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+                const c4 = b3 & 0x3F;
+                let r = '';
+                r += encode6bit(c1 & 0x3F);
+                r += encode6bit(c2 & 0x3F);
+                r += encode6bit(c3 & 0x3F);
+                r += encode6bit(c4 & 0x3F);
+                return r;
+            };
+
+            const encode6bit = (b) => {
+                if (b < 10) return String.fromCharCode(48 + b);
+                b -= 10;
+                if (b < 26) return String.fromCharCode(65 + b);
+                b -= 26;
+                if (b < 26) return String.fromCharCode(97 + b);
+                b -= 26;
+                if (b === 0) return '-';
+                if (b === 1) return '_';
+                return '?';
+            };
+
+            // Compress using a simple deflate-like algorithm (simplified)
+            const utf8Encode = unescape(encodeURIComponent(plantumlCode));
+
+            // Use pako if available, otherwise use uncompressed
+            if (typeof pako !== 'undefined') {
+                const compressed = pako.deflate(utf8Encode, { level: 9 });
+                return encode64(String.fromCharCode.apply(null, compressed));
+            } else {
+                // Fallback: just encode without compression
+                return encode64(utf8Encode);
+            }
+        }
+
+        // Simple built-in markdown parser (no external dependencies)
+        function parseMarkdown(markdown) {
+            let html = markdown;
+
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Process code blocks first (to protect them from other transformations)
+            const codeBlocks = [];
+            let diagramCounter = 0;
+            html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+                const trimmedCode = code.trim();
+
+                console.log('[Markdown] Code block detected, language:', lang, 'length:', trimmedCode.length);
+
+                // Handle Mermaid diagrams
+                if (lang && lang.toLowerCase() === 'mermaid') {
+                    console.log('[Markdown] Rendering Mermaid diagram');
+                    const mermaidId = `mermaid-${Date.now()}-${diagramCounter++}`;
+                    codeBlocks.push(`<div class="mermaid-diagram" id="${mermaidId}" data-diagram="${escapeHtml(trimmedCode)}" style="background: white; padding: 20px; border-radius: 8px; margin: 16px 0;"><div class="mermaid">${trimmedCode}</div></div>`);
+                    return placeholder;
+                }
+
+                // Handle PlantUML diagrams
+                if (lang && (lang.toLowerCase() === 'plantuml' || lang.toLowerCase() === 'puml')) {
+                    console.log('[Markdown] Rendering PlantUML diagram');
+                    const encodedUml = encodePlantUML(trimmedCode);
+                    const plantUmlUrl = `https://www.plantuml.com/plantuml/svg/${encodedUml}`;
+                    console.log('[Markdown] PlantUML URL:', plantUmlUrl);
+                    codeBlocks.push(`<div style="background: white; padding: 20px; border-radius: 8px; margin: 16px 0; text-align: center;"><img src="${plantUmlUrl}" alt="PlantUML Diagram" style="max-width: 100%; height: auto;" onerror="this.parentElement.innerHTML='<p style=\\'color:red\\'>Error loading PlantUML diagram. Check console for URL.</p>'"></div>`);
+                    return placeholder;
+                }
+
+                // Regular code block
+                codeBlocks.push(`<pre><code>${escapeHtml(trimmedCode)}</code></pre>`);
+                return placeholder;
+            });
+
+            // Inline code (but protect placeholders)
+            html = html.replace(/`([^`]+)`/g, (match, code) => {
+                // Don't process if this looks like a placeholder
+                if (code.includes('__CODE_BLOCK_')) return match;
+                return `<code>${code}</code>`;
+            });
+
+            // Split into lines for line-by-line processing
+            const lines = html.split('\n');
+            const processed = [];
+            let inList = false;
+            let listType = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+
+                // Skip processing if line contains a code block placeholder
+                if (line.includes('__CODE_BLOCK_')) {
+                    if (inList) {
+                        processed.push(`</${listType}>`);
+                        inList = false;
+                        listType = null;
+                    }
+                    processed.push(line);
+                    continue;
+                }
+
+                // Headings
+                if (line.match(/^(#{1,6})\s+(.+)$/)) {
+                    const level = RegExp.$1.length;
+                    const text = RegExp.$2;
+                    line = `<h${level}>${text}</h${level}>`;
+                }
+                // Horizontal rule
+                else if (line.match(/^[-*_]{3,}$/)) {
+                    line = '<hr>';
+                }
+                // Unordered list
+                else if (line.match(/^[-*]\s+(.+)$/)) {
+                    if (!inList || listType !== 'ul') {
+                        if (inList) processed.push(`</${listType}>`);
+                        processed.push('<ul>');
+                        inList = true;
+                        listType = 'ul';
+                    }
+                    line = `<li>${RegExp.$1}</li>`;
+                }
+                // Ordered list
+                else if (line.match(/^\d+\.\s+(.+)$/)) {
+                    if (!inList || listType !== 'ol') {
+                        if (inList) processed.push(`</${listType}>`);
+                        processed.push('<ol>');
+                        inList = true;
+                        listType = 'ol';
+                    }
+                    line = `<li>${RegExp.$1}</li>`;
+                }
+                // Blockquote
+                else if (line.match(/^>\s+(.+)$/)) {
+                    line = `<blockquote>${RegExp.$1}</blockquote>`;
+                }
+                // Normal paragraph
+                else if (line.trim() !== '') {
+                    if (inList) {
+                        processed.push(`</${listType}>`);
+                        inList = false;
+                        listType = null;
+                    }
+                    line = `<p>${line}</p>`;
+                } else {
+                    if (inList) {
+                        processed.push(`</${listType}>`);
+                        inList = false;
+                        listType = null;
+                    }
+                }
+
+                processed.push(line);
+            }
+
+            if (inList) {
+                processed.push(`</${listType}>`);
+            }
+
+            html = processed.join('\n');
+
+            // Bold (but exclude code block placeholders)
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            // Skip __ bold processing for now, will do after code blocks restored
+
+            // Italic
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            // Skip _ italic processing for now, will do after code blocks restored
+
+            // Links
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+            // Images
+            html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+
+            // Restore code blocks BEFORE processing __ and _ patterns
+            codeBlocks.forEach((block, i) => {
+                html = html.replace(`__CODE_BLOCK_${i}__`, block);
+            });
+
+            // Now process __ and _ patterns (after code blocks restored)
+            html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+            return html;
+        }
+
+        function updateMarkdownPreview() {
+            if (!monacoMarkdownEditor) {
+                console.warn('[Markdown] Editor not initialized');
+                return;
+            }
+
+            const markdownContent = monacoMarkdownEditor.getValue();
+            const previewElement = document.getElementById('markdownPreview');
+
+            if (!previewElement) {
+                console.error('[Markdown] Preview element not found');
+                return;
+            }
+
+            try {
+                // Use built-in markdown parser
+                previewElement.innerHTML = parseMarkdown(markdownContent);
+
+                // Render Mermaid diagrams
+                if (window.mermaid) {
+                    setTimeout(() => {
+                        const mermaidElements = previewElement.querySelectorAll('.mermaid');
+                        if (mermaidElements.length > 0) {
+                            mermaid.run({
+                                nodes: mermaidElements,
+                                suppressErrors: false
+                            }).then(() => {
+                                console.log('[Markdown] ✅ Mermaid diagrams rendered:', mermaidElements.length);
+                            }).catch(err => {
+                                console.error('[Markdown] ❌ Mermaid render error:', err);
+                            });
+                        }
+                    }, 100);
+                }
+
+                console.log('[Markdown] ✅ Preview updated, content length:', markdownContent.length);
+            } catch (error) {
+                console.error('[Markdown] ❌ Error rendering preview:', error);
+                previewElement.innerHTML = `<p style="color: #f48771;">Error rendering markdown: ${error.message}</p>`;
+            }
+        }
+
+        function editMarkdownMetadata() {
+            if (!currentEditingMarkdownId) return;
+
+            const stored = localStorage.getItem(`markdown_${currentPersona}`);
+            const markdownDocs = stored ? JSON.parse(stored) : [];
+            const markdownDoc = markdownDocs.find(m => m.id === currentEditingMarkdownId);
+
+            if (!markdownDoc) return;
+
+            // For now, use a simple prompt to edit name and description
+            const newName = prompt('Markdown Document Name:', markdownDoc.name);
+            if (newName === null) return; // User cancelled
+
+            const newDescription = prompt('Description:', markdownDoc.description);
+            if (newDescription === null) return; // User cancelled
+
+            // Update metadata
+            const index = markdownDocs.findIndex(m => m.id === currentEditingMarkdownId);
+            if (index !== -1) {
+                markdownDocs[index].name = newName.trim() || 'Untitled Markdown';
+                markdownDocs[index].description = newDescription.trim();
+                markdownDocs[index].lastModified = new Date().toISOString();
+                localStorage.setItem(`markdown_${currentPersona}`, JSON.stringify(markdownDocs));
+
+                // Update title in editor
+                document.getElementById('markdownEditorTitle').textContent = newName || 'Untitled Markdown';
+
+                console.log('[Markdown] Metadata updated');
+            }
+        }
+
+        function populateAssetsExperienceFilter() {
+            loadUserExperiences();
+            const container = document.getElementById('assetsExperienceFilterOptions');
+            if (!container) return;
+
+            container.innerHTML = userExperiences.map((exp, index) => {
+                const checked = selectedAssetsExperienceFilters.has(index) ? 'checked' : '';
+                const displayName = exp.title || exp.role || 'Untitled Experience';
+                const company = exp.company || '';
+                return `
+                    <label style="display: block; padding: 8px; cursor: pointer; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); border-radius: 4px;" onmouseover="this.style.background='var(--color-neutral-background)';" onmouseout="this.style.background='transparent';">
+                        <input type="checkbox" ${checked} onchange="toggleAssetsExperienceFilterItem(${index})" style="margin-right: 8px;">
+                        ${displayName}${company ? ` (${company})` : ''}
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function populateAssetsPortfolioFilter() {
+            const portfolioData = localStorage.getItem(`userPortfolio_${currentPersona}`);
+            const portfolioItems = portfolioData ? JSON.parse(portfolioData) : [];
+            const container = document.getElementById('assetsPortfolioFilterOptions');
+            if (!container) return;
+
+            container.innerHTML = portfolioItems.map((item, index) => {
+                const checked = selectedAssetsPortfolioFilters.has(index) ? 'checked' : '';
+                const displayName = item.name || item.title || 'Untitled Portfolio Item';
+                return `
+                    <label style="display: block; padding: 8px; cursor: pointer; font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); border-radius: 4px;" onmouseover="this.style.background='var(--color-neutral-background)';" onmouseout="this.style.background='transparent';">
+                        <input type="checkbox" ${checked} onchange="toggleAssetsPortfolioFilterItem(${index})" style="margin-right: 8px;">
+                        ${displayName}
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleAssetsExperienceFilter() {
+            const dropdown = document.getElementById('assetsExperienceFilterDropdown');
+            const isVisible = dropdown.style.display === 'block';
+
+            if (!isVisible) {
+                populateAssetsExperienceFilter();
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function toggleAssetsPortfolioFilter() {
+            const dropdown = document.getElementById('assetsPortfolioFilterDropdown');
+            const isVisible = dropdown.style.display === 'block';
+
+            if (!isVisible) {
+                populateAssetsPortfolioFilter();
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function toggleAssetsExperienceFilterItem(index) {
+            if (selectedAssetsExperienceFilters.has(index)) {
+                selectedAssetsExperienceFilters.delete(index);
+            } else {
+                selectedAssetsExperienceFilters.add(index);
+            }
+
+            // Update filter count badge
+            const countBadge = document.getElementById('assetsExperienceFilterCount');
+            if (selectedAssetsExperienceFilters.size > 0) {
+                countBadge.textContent = selectedAssetsExperienceFilters.size;
+                countBadge.style.display = 'inline-block';
+            } else {
+                countBadge.style.display = 'none';
+            }
+
+            loadAllAssets();
+        }
+
+        function toggleAssetsPortfolioFilterItem(index) {
+            if (selectedAssetsPortfolioFilters.has(index)) {
+                selectedAssetsPortfolioFilters.delete(index);
+            } else {
+                selectedAssetsPortfolioFilters.add(index);
+            }
+
+            // Update filter count badge
+            const countBadge = document.getElementById('assetsPortfolioFilterCount');
+            if (selectedAssetsPortfolioFilters.size > 0) {
+                countBadge.textContent = selectedAssetsPortfolioFilters.size;
+                countBadge.style.display = 'inline-block';
+            } else {
+                countBadge.style.display = 'none';
+            }
+
+            loadAllAssets();
+        }
+
+        function clearAssetsExperienceFilter() {
+            selectedAssetsExperienceFilters.clear();
+            const countBadge = document.getElementById('assetsExperienceFilterCount');
+            countBadge.style.display = 'none';
+            populateAssetsExperienceFilter();
+            loadAllAssets();
+        }
+
+        function clearAssetsPortfolioFilter() {
+            selectedAssetsPortfolioFilters.clear();
+            const countBadge = document.getElementById('assetsPortfolioFilterCount');
+            countBadge.style.display = 'none';
+            populateAssetsPortfolioFilter();
+            loadAllAssets();
         }
 
         // Legacy function (no longer called from mindmap)
@@ -16978,8 +18925,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             console.log('Total whiteboards:', whiteboards.length);
             whiteboards.forEach(wb => {
                 const hasData = !!wb.canvasData;
-                const elementsCount = hasData ? (JSON.parse(wb.canvasData).elements?.length || 0) : 0;
-                console.log(`- ${wb.name} (ID: ${wb.id}): elements=${elementsCount}, dataSize=${wb.canvasData?.length || 0} bytes`);
+                const dataType = hasData ? (wb.canvasData.trim().startsWith('{') ? 'JSON (Excalidraw)' : 'XML (draw.io)') : 'none';
+                console.log(`- ${wb.name} (ID: ${wb.id}): format=${dataType}, dataSize=${wb.canvasData?.length || 0} bytes`);
             });
 
             // Apply badge-click filter if provided (from Experience/Portfolio cards)
@@ -17588,33 +19535,32 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         function closeWhiteboardEditor() {
             console.log('Closing whiteboard editor');
 
-            // Save current whiteboard state
-            saveWhiteboardCanvas();
-
-            // Clear auto-save timer
+            // CRITICAL: Clear timer BEFORE nulling state variables
+            // This prevents any pending auto-save from running after state is cleared
             if (excalidrawAutoSaveTimer) {
                 clearTimeout(excalidrawAutoSaveTimer);
                 excalidrawAutoSaveTimer = null;
             }
 
-            // Dispose Konva canvas
-            if (window.currentKonvaStage) {
-                window.currentKonvaStage.destroy();
-                window.currentKonvaStage = null;
-                window.currentKonvaLayer = null;
-            }
+            // Save current whiteboard state one final time
+            saveWhiteboardCanvas();
 
-            // Clear all whiteboard state
-            currentWhiteboardId = null;
-            currentWhiteboardTool = 'draw';
-            shapeDrawing = false;
-            tempShape = null;
-
-            // Clear the container completely
+            // Clear the container completely (removes iframe from DOM)
             const container = document.getElementById('whiteboardCanvasContainer');
             if (container) {
                 container.innerHTML = '';
             }
+
+            // Clear all state variables AFTER container is cleared
+            // This ensures no messages from old iframe can trigger saves
+            excalidrawIframe = null;
+            currentWhiteboardId = null;
+            currentExcalidrawSession = null;
+            currentWhiteboardTool = 'draw';
+            shapeDrawing = false;
+            tempShape = null;
+
+            console.log('All whiteboard state cleared');
 
             // Hide editor
             const editorEl = document.getElementById('whiteboardEditor');
@@ -17646,283 +19592,242 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         let currentExcalidrawSession = null; // Track which session is active
         let isLoadingWhiteboard = false; // Flag to prevent saves during load
 
+        // draw.io Whiteboard URL (Sketch mode optimized for tech professionals)
+        const DRAWIO_WHITEBOARD_URL = 'https://embed.diagrams.net/?' + new URLSearchParams({
+            embed: '1',              // Enable embed mode
+            proto: 'json',           // Use JSON protocol for messages
+            ui: 'sketch',            // Sketch mode - whiteboard-style interface
+            sketch: '1',             // Enable sketch/rough drawing style
+            dark: 'auto',            // Auto dark mode based on system preference
+            spin: '1',               // Show loading spinner
+            saveAndExit: '0',        // Hide "Save and Exit" button
+            libraries: '1',          // Enable shape libraries
+            noSaveBtn: '1',          // Hide Save button (we have autosave)
+            noExitBtn: '1',          // Hide Exit button (we have Back button)
+            libs: 'general;basic;arrows2;flowchart;aws4;azure;gcp2;network;cisco;uml;er;sitemap;mockups',
+            grid: '1',               // Enable grid for precision
+            rulers: '1',             // Show rulers
+            autosave: '1'            // Enable autosave
+        });
+
+        // Get empty whiteboard XML template
+        function getEmptyWhiteboardXML() {
+            return `<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+  </root>
+</mxGraphModel>`;
+        }
+
         function initializeWhiteboardJS(whiteboard) {
             isLoadingWhiteboard = true;
             const container = document.getElementById('whiteboardCanvasContainer');
 
-            // Clear container and all global state
+            // Generate unique session ID for this whiteboard instance
+            const sessionId = whiteboard.id + '_' + Date.now();
+            currentExcalidrawSession = sessionId;
+
+            // Clear container
             container.innerHTML = '';
-            currentExcalidrawData = null;
-            excalidrawIframe = null;
 
-            console.log('Initializing Konva.js canvas for whiteboard:', whiteboard.id);
+            console.log('[Whiteboard] Initializing draw.io Sketch mode for:', whiteboard.id, 'session:', sessionId);
 
-            // Create div for Konva stage
-            const stageDiv = document.createElement('div');
-            stageDiv.id = 'konvaContainer';
-            stageDiv.style.border = '1px solid #e5e5e7';
-            stageDiv.style.background = 'white';
-            container.appendChild(stageDiv);
+            // Create iframe for draw.io
+            const iframe = document.createElement('iframe');
+            iframe.id = 'drawioIframe';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.allow = 'clipboard-read; clipboard-write';
+            iframe.dataset.sessionId = sessionId;
+            iframe.dataset.whiteboardId = whiteboard.id; // Store whiteboard ID for validation
 
-            // Initialize Konva Stage and Layer
-            const stage = new Konva.Stage({
-                container: 'konvaContainer',
-                width: container.clientWidth,
-                height: container.clientHeight
-            });
+            // Use draw.io sketch mode
+            iframe.src = DRAWIO_WHITEBOARD_URL;
 
-            const layer = new Konva.Layer();
-            stage.add(layer);
+            container.appendChild(iframe);
+            excalidrawIframe = iframe; // Keep variable name for compatibility
 
-            // Store references globally
-            window.currentKonvaStage = stage;
-            window.currentKonvaLayer = layer;
-            window.isDrawing = false;
-            window.currentShape = null;
-
-            console.log('Konva initialized - width:', stage.width(), 'height:', stage.height());
-
-            // Load saved data if exists
-            if (whiteboard.canvasData) {
-                try {
-                    const canvasData = JSON.parse(whiteboard.canvasData);
-                    // Konva can load JSON directly
-                    const nodes = Konva.Node.create(canvasData);
-                    layer.add(nodes);
-                    console.log('Loaded saved canvas data');
-                } catch (e) {
-                    console.error('Error loading saved data:', e);
-                }
-            } else {
-                console.log('No saved canvas data, starting with blank whiteboard');
-            }
-
-            isLoadingWhiteboard = false;
-
-            // Konva drawing handlers
-            setupKonvaDrawing(stage, layer);
+            // draw.io will send 'init' event when ready, handled by message listener
+            iframe.onload = () => {
+                console.log('[Whiteboard] draw.io iframe loaded for session:', sessionId);
+            };
         }
 
-        function setupKonvaDrawing(stage, layer) {
-            let isPaint = false;
-            let lastLine;
+        // Setup postMessage listener for draw.io
+        window.addEventListener('message', (event) => {
+            // Only accept messages from diagrams.net
+            if (!event.origin.includes('diagrams.net')) return;
 
-            stage.on('mousedown touchstart', (e) => {
-                const pos = stage.getPointerPosition();
-                window.isDrawing = true;
-
-                const color = document.getElementById('brushColor').value;
-                const strokeWidth = parseInt(document.getElementById('brushWidth').value);
-
-                if (currentWhiteboardTool === 'draw') {
-                    // Freehand drawing
-                    lastLine = new Konva.Line({
-                        stroke: color,
-                        strokeWidth: strokeWidth,
-                        globalCompositeOperation: 'source-over',
-                        points: [pos.x, pos.y, pos.x, pos.y],
-                    });
-                    layer.add(lastLine);
-                } else if (currentWhiteboardTool === 'rectangle') {
-                    window.currentShape = new Konva.Rect({
-                        x: pos.x,
-                        y: pos.y,
-                        width: 0,
-                        height: 0,
-                        stroke: color,
-                        strokeWidth: strokeWidth,
-                        draggable: true
-                    });
-                    layer.add(window.currentShape);
-                } else if (currentWhiteboardTool === 'circle') {
-                    window.currentShape = new Konva.Circle({
-                        x: pos.x,
-                        y: pos.y,
-                        radius: 0,
-                        stroke: color,
-                        strokeWidth: strokeWidth,
-                        draggable: true
-                    });
-                    layer.add(window.currentShape);
-                } else if (currentWhiteboardTool === 'line') {
-                    window.currentShape = new Konva.Line({
-                        points: [pos.x, pos.y, pos.x, pos.y],
-                        stroke: color,
-                        strokeWidth: strokeWidth,
-                        draggable: true
-                    });
-                    layer.add(window.currentShape);
-                } else if (currentWhiteboardTool === 'text') {
-                    const text = new Konva.Text({
-                        x: pos.x,
-                        y: pos.y,
-                        text: 'Double-click to edit',
-                        fontSize: 20,
-                        fill: color,
-                        draggable: true
-                    });
-                    layer.add(text);
-                    layer.draw();
-                    saveWhiteboardCanvas();
-                    return;
-                }
-            });
-
-            stage.on('mousemove touchmove', (e) => {
-                if (!window.isDrawing) return;
-
-                const pos = stage.getPointerPosition();
-
-                if (currentWhiteboardTool === 'draw' && lastLine) {
-                    const newPoints = lastLine.points().concat([pos.x, pos.y]);
-                    lastLine.points(newPoints);
-                } else if (window.currentShape) {
-                    const startPos = {
-                        x: window.currentShape.x(),
-                        y: window.currentShape.y()
-                    };
-
-                    if (currentWhiteboardTool === 'rectangle') {
-                        window.currentShape.width(pos.x - startPos.x);
-                        window.currentShape.height(pos.y - startPos.y);
-                    } else if (currentWhiteboardTool === 'circle') {
-                        const radius = Math.sqrt(
-                            Math.pow(pos.x - startPos.x, 2) + Math.pow(pos.y - startPos.y, 2)
-                        );
-                        window.currentShape.radius(radius);
-                    } else if (currentWhiteboardTool === 'line') {
-                        window.currentShape.points([startPos.x, startPos.y, pos.x, pos.y]);
-                    }
-                }
-
-                layer.batchDraw();
-            });
-
-            stage.on('mouseup touchend', () => {
-                window.isDrawing = false;
-                window.currentShape = null;
-                saveWhiteboardCanvas();
-            });
-        }
-
-        function saveKonvaCanvasData(immediate = false) {
-            if (!currentWhiteboardId) {
+            // CRITICAL: Validate message is from the CURRENT active iframe
+            if (!excalidrawIframe || event.source !== excalidrawIframe.contentWindow) {
+                console.log('[Whiteboard] Ignoring message from non-active iframe');
                 return;
             }
 
-            const doSave = () => {
-                try {
-                    const layer = window.currentKonvaLayer;
-                    if (!layer) {
-                        return;
-                    }
+            try {
+                const msg = JSON.parse(event.data);
+                console.log('[Whiteboard] Message received:', msg.event || msg.action);
 
-                    // Export layer to JSON
-                    const canvasData = layer.toJSON();
-                    console.log('Konva canvas saved, nodes:', layer.children.length);
+                switch (msg.event) {
+                    case 'init':
+                        // draw.io is ready, send initial diagram data
+                        console.log('[Whiteboard] draw.io ready (init event)');
 
-                    const stored = localStorage.getItem(`whiteboards_${currentPersona}`);
-                    let whiteboards = stored ? JSON.parse(stored) : [];
-                    const index = whiteboards.findIndex(wb => wb.id === currentWhiteboardId);
+                        // Verify this is still the active session
+                        const sessionId = excalidrawIframe.dataset.sessionId;
+                        if (currentExcalidrawSession !== sessionId) {
+                            console.log('[Whiteboard] Session changed, aborting load for:', sessionId);
+                            return;
+                        }
 
-                    if (index !== -1) {
-                        console.log('=== SAVING WHITEBOARD ===');
-                        console.log('Whiteboard ID:', currentWhiteboardId);
-                        console.log('Whiteboard Name:', whiteboards[index].name);
-                        console.log('Canvas data size:', canvasData.length, 'bytes');
+                        // Get whiteboard data
+                        const stored = localStorage.getItem(`whiteboards_${currentPersona}`);
+                        const whiteboards = stored ? JSON.parse(stored) : [];
+                        const whiteboard = whiteboards.find(wb => wb.id === currentWhiteboardId);
 
-                        whiteboards[index].canvasData = canvasData;
-                        whiteboards[index].lastModified = new Date().toISOString();
-                        localStorage.setItem(`whiteboards_${currentPersona}`, JSON.stringify(whiteboards));
-                        console.log('✓ Canvas saved successfully to localStorage');
-                    } else {
-                        console.error('Whiteboard not found with ID:', currentWhiteboardId);
-                    }
-                } catch (error) {
-                    console.error('Error saving canvas data:', error);
+                        let xmlData = getEmptyWhiteboardXML();
+
+                        // Load saved XML data if exists
+                        if (whiteboard && whiteboard.canvasData) {
+                            try {
+                                // Check if it's old Excalidraw JSON or new draw.io XML
+                                if (whiteboard.canvasData.trim().startsWith('{')) {
+                                    console.log('[Whiteboard] Old Excalidraw data detected, starting fresh');
+                                    xmlData = getEmptyWhiteboardXML();
+                                } else {
+                                    xmlData = whiteboard.canvasData;
+                                    console.log('[Whiteboard] Loading saved XML data');
+                                }
+                            } catch (e) {
+                                console.error('[Whiteboard] Error parsing saved data:', e);
+                            }
+                        } else {
+                            console.log('[Whiteboard] No saved data, starting with blank canvas');
+                        }
+
+                        // Send load message to draw.io
+                        excalidrawIframe.contentWindow.postMessage(JSON.stringify({
+                            action: 'load',
+                            xml: xmlData,
+                            autosave: 1,
+                            modified: 0
+                        }), '*');
+
+                        isLoadingWhiteboard = false;
+                        console.log('[Whiteboard] Scene data sent to draw.io');
+                        break;
+
+                    case 'load':
+                        // Diagram loaded successfully
+                        console.log('[Whiteboard] Diagram loaded, size:', msg.width, 'x', msg.height);
+                        break;
+
+                    case 'autosave':
+                        // Auto-save triggered by draw.io
+                        console.log('[Whiteboard] Auto-save triggered');
+                        if (msg.xml && currentWhiteboardId && !isLoadingWhiteboard) {
+                            saveDrawioWhiteboard(msg.xml);
+                        }
+                        break;
+
+                    case 'save':
+                        // User clicked Save button (shouldn't happen with noSaveBtn=1)
+                        console.log('[Whiteboard] Save button clicked');
+                        if (msg.xml && currentWhiteboardId) {
+                            saveDrawioWhiteboard(msg.xml);
+                        }
+                        break;
+
+                    case 'exit':
+                        // User requested exit
+                        console.log('[Whiteboard] Exit requested');
+                        closeWhiteboardEditor();
+                        break;
+
+                    default:
+                        console.log('[Whiteboard] Unhandled event:', msg.event);
                 }
-            };
-
-            if (immediate) {
-                console.log('Immediate save requested');
-                // Save immediately without debounce
-                if (excalidrawAutoSaveTimer) {
-                    clearTimeout(excalidrawAutoSaveTimer);
-                    excalidrawAutoSaveTimer = null;
-                }
-                doSave();
-            } else {
-                console.log('Debounced save, waiting 1000ms');
-                // Debounce saves
-                if (excalidrawAutoSaveTimer) {
-                    clearTimeout(excalidrawAutoSaveTimer);
-                }
-                excalidrawAutoSaveTimer = setTimeout(doSave, 1000);
+            } catch (error) {
+                console.error('[Whiteboard] Error handling message:', error);
             }
+        });
+
+        // Save whiteboard XML silently (called by autosave)
+        function saveDrawioWhiteboard(xmlData) {
+            console.log('=== SAVING WHITEBOARD ===');
+            console.log('[Whiteboard] ID:', currentWhiteboardId);
+
+            if (!currentWhiteboardId) {
+                console.warn('[Whiteboard] No whiteboard ID to save');
+                return;
+            }
+
+            if (!xmlData) {
+                console.warn('[Whiteboard] No XML data to save');
+                return;
+            }
+
+            try {
+                const stored = localStorage.getItem(`whiteboards_${currentPersona}`);
+                let whiteboards = stored ? JSON.parse(stored) : [];
+                console.log('[Whiteboard] Total whiteboards in storage:', whiteboards.length);
+
+                const index = whiteboards.findIndex(wb => wb.id === currentWhiteboardId);
+                console.log('[Whiteboard] Index:', index);
+
+                if (index === -1) {
+                    console.warn('[Whiteboard] Not found in localStorage with ID:', currentWhiteboardId);
+                    return;
+                }
+
+                console.log('[Whiteboard] Found to update:', {
+                    id: whiteboards[index].id,
+                    name: whiteboards[index].name,
+                    oldDataLength: whiteboards[index].canvasData ? whiteboards[index].canvasData.length : 0
+                });
+
+                // Save whiteboard XML
+                console.log('[Whiteboard] New data length:', xmlData.length);
+                console.log('[Whiteboard] Data preview:', xmlData.substring(0, 100));
+
+                whiteboards[index].canvasData = xmlData;
+                whiteboards[index].lastModified = new Date().toISOString();
+
+                localStorage.setItem(`whiteboards_${currentPersona}`, JSON.stringify(whiteboards));
+                console.log('[Whiteboard] ✅ Saved successfully to localStorage');
+            } catch (error) {
+                console.error('[Whiteboard] ❌ Error saving:', error);
+                console.error('[Whiteboard] Error stack:', error.stack);
+            }
+        }
+
+        function saveExcalidrawScene() {
+            // No longer needed - draw.io autosaves automatically
+            // Keep for compatibility but make it a no-op
+            console.log('[Whiteboard] saveExcalidrawScene() called - using draw.io autosave instead');
         }
 
         function saveWhiteboardCanvas() {
-            // Save current canvas state immediately
-            if (currentWhiteboardId && window.currentKonvaLayer) {
-                saveKonvaCanvasData(true); // Force immediate save
-            }
-        }
-
-        let currentWhiteboardTool = 'draw';
-
-        function setWhiteboardTool(tool) {
-            currentWhiteboardTool = tool;
-
-            // Reset all button styles
-            const buttons = ['btnSelectMode', 'btnDrawMode', 'btnRectMode', 'btnCircleMode', 'btnLineMode', 'btnTextMode'];
-            buttons.forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btn) {
-                    btn.style.background = 'white';
-                    btn.style.color = 'var(--color-neutral-text)';
-                    btn.style.border = '1px solid var(--color-neutral-border)';
-                }
-            });
-
-            // Highlight active button
-            const activeBtn = document.getElementById('btn' + tool.charAt(0).toUpperCase() + tool.slice(1) + 'Mode');
-            if (activeBtn) {
-                activeBtn.style.background = 'var(--color-primary-blue)';
-                activeBtn.style.color = 'white';
-                activeBtn.style.border = 'none';
-            }
-
-        }
-
-        function updateBrushColor(color) {
-            // Color is read from the input when drawing
-            document.getElementById('brushColor').value = color;
-        }
-
-        function updateBrushWidth(width) {
-            document.getElementById('brushWidthDisplay').textContent = width;
-        }
-
-        function deleteSelectedWhiteboardObject() {
-            const stage = window.currentKonvaStage;
-            if (!stage) return;
-
-            const selected = stage.findOne('.selected');
-            if (selected) {
-                selected.destroy();
-                stage.draw();
-                saveWhiteboardCanvas();
-            }
+            // draw.io autosaves, but we can rely on that
+            // This function kept for compatibility
+            console.log('[Whiteboard] saveWhiteboardCanvas() called - relying on draw.io autosave');
         }
 
         function clearWhiteboardCanvas() {
-            const layer = window.currentKonvaLayer;
-            if (!layer) return;
+            if (!excalidrawIframe) return;
 
             if (confirm('Are you sure you want to clear the entire canvas? This cannot be undone.')) {
-                layer.destroyChildren();
-                layer.draw();
-                saveWhiteboardCanvas();
+                // Send empty XML to draw.io
+                excalidrawIframe.contentWindow.postMessage(JSON.stringify({
+                    action: 'load',
+                    xml: getEmptyWhiteboardXML(),
+                    autosave: 1,
+                    modified: 0
+                }), '*');
+
+                console.log('[Whiteboard] Canvas cleared');
             }
         }
 
@@ -20214,28 +22119,40 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Count stories associated with this experience
                 const storyCount = behavioralStories.filter(story => story.experienceIndex === originalIndex).length;
 
-                // Count whiteboards linked to this experience
+                // Count ALL assets linked to this experience
                 const storedWb = localStorage.getItem(`whiteboards_${currentPersona}`);
                 const allWhiteboards = storedWb ? JSON.parse(storedWb) : [];
-                const linkedWhiteboards = allWhiteboards.filter(wb =>
-                    wb.linkedType === 'experience' &&
-                    wb.linkedId === (exp.id || exp.title)
-                );
 
-                // Count diagrams linked to this experience
                 const storedDg = localStorage.getItem(`diagrams_${currentPersona}`);
                 const allDiagrams = storedDg ? JSON.parse(storedDg) : [];
-                const linkedDiagrams = allDiagrams.filter(d =>
-                    d.linkedType === 'experience' &&
-                    d.linkedId === (exp.id || exp.title)
-                );
 
-                // Count documents linked to this experience
                 const storedDc = localStorage.getItem(`interview_documents_${currentPersona}`);
                 const allDocuments = storedDc ? JSON.parse(storedDc) : [];
-                const linkedDocuments = allDocuments.filter(d =>
-                    d.linkedType === 'experience' &&
-                    d.linkedId === (exp.id || exp.title)
+
+                const storedMd = localStorage.getItem(`markdown_${currentPersona}`);
+                const allMarkdown = storedMd ? JSON.parse(storedMd) : [];
+
+                const storedCode = localStorage.getItem(`code_${currentPersona}`);
+                const allCode = storedCode ? JSON.parse(storedCode) : [];
+
+                const storedPuml = localStorage.getItem(`plantuml_${currentPersona}`);
+                const allPlantUML = storedPuml ? JSON.parse(storedPuml) : [];
+
+                const storedMermaid = localStorage.getItem(`mermaid_${currentPersona}`);
+                const allMermaid = storedMermaid ? JSON.parse(storedMermaid) : [];
+
+                // Count all linked assets
+                const linkedAssets = [
+                    ...allWhiteboards,
+                    ...allDiagrams,
+                    ...allDocuments,
+                    ...allMarkdown,
+                    ...allCode,
+                    ...allPlantUML,
+                    ...allMermaid
+                ].filter(asset =>
+                    asset.linkedType === 'experience' &&
+                    asset.linkedId === (exp.id || exp.title)
                 );
 
                 const card = document.createElement('div');
@@ -20247,9 +22164,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                                 <div class="exp-title">${escapeHtml(exp.title || exp.role || 'Untitled Position')}</div>
                                 ${storyCount > 0 ? `<span onclick="openInterviewPrepFiltered(${originalIndex})" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #e3f2fd; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-primary-blue); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.background='#e3f2fd'; this.style.color='var(--color-primary-blue)';" title="Click to view ${storyCount} STAR ${storyCount === 1 ? 'story' : 'stories'} for this experience"><i class="ph ph-star" style="font-size: 12px;"></i>${storyCount}</span>` : ''}
-                                ${linkedDiagrams.length > 0 ? `<span onclick="openDiagramsFilteredByExperience('${exp.id || exp.title}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #fef3c7; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #d97706; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#d97706'; this.style.color='white';" onmouseout="this.style.background='#fef3c7'; this.style.color='#d97706';" title="Click to view ${linkedDiagrams.length} diagram${linkedDiagrams.length === 1 ? '' : 's'} for this experience"><i class="ph ph-flow-arrow" style="font-size: 12px;"></i>${linkedDiagrams.length}</span>` : ''}
-                                ${linkedDocuments.length > 0 ? `<span onclick="openDocumentsFilteredByExperience('${exp.id || exp.title}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #fce7f3; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #be123c; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#be123c'; this.style.color='white';" onmouseout="this.style.background='#fce7f3'; this.style.color='#be123c';" title="Click to view ${linkedDocuments.length} document${linkedDocuments.length === 1 ? '' : 's'} for this experience"><i class="ph ph-file-text" style="font-size: 12px;"></i>${linkedDocuments.length}</span>` : ''}
-                                ${linkedWhiteboards.length > 0 ? `<span onclick="openWhiteboardsFilteredByExperience('${exp.id || exp.title}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdf4; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #16a34a; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#16a34a'; this.style.color='white';" onmouseout="this.style.background='#f0fdf4'; this.style.color='#16a34a';" title="Click to view ${linkedWhiteboards.length} whiteboard${linkedWhiteboards.length === 1 ? '' : 's'} for this experience"><i class="ph ph-chalkboard" style="font-size: 12px;"></i>${linkedWhiteboards.length}</span>` : ''}
+                                ${linkedAssets.length > 0 ? `<span onclick="openAssetsFilteredByExperience('${exp.id || exp.title}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdf4; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #16a34a; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#16a34a'; this.style.color='white';" onmouseout="this.style.background='#f0fdf4'; this.style.color='#16a34a';" title="Click to view ${linkedAssets.length} asset${linkedAssets.length === 1 ? '' : 's'} for this experience"><i class="ph ph-folder-open" style="font-size: 12px;"></i>${linkedAssets.length}</span>` : ''}
                                 <button onclick="openStoryFormForExperience(${originalIndex})" style="display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; padding: 0; background: white; border: 1px solid var(--color-primary-blue); border-radius: 50%; color: var(--color-primary-blue); font-size: 10px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='var(--color-primary-blue)';" title="Add STAR story for this experience"><i class="ph ph-plus" style="font-size: 10px;"></i></button>
                             </div>
                             <div class="exp-company">${escapeHtml(exp.company || exp.organizationName || '')}${exp.location ? ' • ' + escapeHtml(exp.location) : ''}</div>
@@ -21240,28 +23155,40 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Find original index
                 const originalIndex = userPortfolioProjects.findIndex(p => p === project);
 
-                // Count whiteboards linked to this portfolio project
+                // Count ALL assets linked to this portfolio project
                 const storedWb = localStorage.getItem(`whiteboards_${currentPersona}`);
                 const allWhiteboards = storedWb ? JSON.parse(storedWb) : [];
-                const linkedWhiteboards = allWhiteboards.filter(wb =>
-                    wb.linkedType === 'portfolio' &&
-                    wb.linkedId === (project.id || project.name)
-                );
 
-                // Count diagrams linked to this portfolio project
                 const storedDg = localStorage.getItem(`diagrams_${currentPersona}`);
                 const allDiagrams = storedDg ? JSON.parse(storedDg) : [];
-                const linkedDiagrams = allDiagrams.filter(d =>
-                    d.linkedType === 'portfolio' &&
-                    d.linkedId === (project.id || project.name)
-                );
 
-                // Count documents linked to this portfolio project
                 const storedDc = localStorage.getItem(`interview_documents_${currentPersona}`);
                 const allDocuments = storedDc ? JSON.parse(storedDc) : [];
-                const linkedDocuments = allDocuments.filter(d =>
-                    d.linkedType === 'portfolio' &&
-                    d.linkedId === (project.id || project.name)
+
+                const storedMd = localStorage.getItem(`markdown_${currentPersona}`);
+                const allMarkdown = storedMd ? JSON.parse(storedMd) : [];
+
+                const storedCode = localStorage.getItem(`code_${currentPersona}`);
+                const allCode = storedCode ? JSON.parse(storedCode) : [];
+
+                const storedPuml = localStorage.getItem(`plantuml_${currentPersona}`);
+                const allPlantUML = storedPuml ? JSON.parse(storedPuml) : [];
+
+                const storedMermaid = localStorage.getItem(`mermaid_${currentPersona}`);
+                const allMermaid = storedMermaid ? JSON.parse(storedMermaid) : [];
+
+                // Count all linked assets
+                const linkedAssets = [
+                    ...allWhiteboards,
+                    ...allDiagrams,
+                    ...allDocuments,
+                    ...allMarkdown,
+                    ...allCode,
+                    ...allPlantUML,
+                    ...allMermaid
+                ].filter(asset =>
+                    asset.linkedType === 'portfolio' &&
+                    asset.linkedId === (project.id || project.name)
                 );
 
                 const card = document.createElement('div');
@@ -21273,9 +23200,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                                 <div class="exp-title">${escapeHtml(project.name)}</div>
                                 ${project.link ? `<a href="${escapeHtml(project.link)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 2px 8px; background: #e3f2fd; color: var(--color-primary-blue); border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-blue)'; this.style.color='white';" onmouseout="this.style.background='#e3f2fd'; this.style.color='var(--color-primary-blue)';"><i class="ph ph-arrow-square-out" style="font-size: 12px; margin-right: 4px;"></i>View</a>` : ''}
-                                ${linkedDiagrams.length > 0 ? `<span onclick="openDiagramsFilteredByPortfolio('${project.id || project.name}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #fef3c7; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #d97706; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#d97706'; this.style.color='white';" onmouseout="this.style.background='#fef3c7'; this.style.color='#d97706';" title="Click to view ${linkedDiagrams.length} diagram${linkedDiagrams.length === 1 ? '' : 's'} for this portfolio item"><i class="ph ph-flow-arrow" style="font-size: 12px;"></i>${linkedDiagrams.length}</span>` : ''}
-                                ${linkedDocuments.length > 0 ? `<span onclick="openDocumentsFilteredByPortfolio('${project.id || project.name}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #fce7f3; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #be123c; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#be123c'; this.style.color='white';" onmouseout="this.style.background='#fce7f3'; this.style.color='#be123c';" title="Click to view ${linkedDocuments.length} document${linkedDocuments.length === 1 ? '' : 's'} for this portfolio item"><i class="ph ph-file-text" style="font-size: 12px;"></i>${linkedDocuments.length}</span>` : ''}
-                                ${linkedWhiteboards.length > 0 ? `<span onclick="openWhiteboardsFilteredByPortfolio('${project.id || project.name}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdf4; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #16a34a; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#16a34a'; this.style.color='white';" onmouseout="this.style.background='#f0fdf4'; this.style.color='#16a34a';" title="Click to view ${linkedWhiteboards.length} whiteboard${linkedWhiteboards.length === 1 ? '' : 's'} for this portfolio item"><i class="ph ph-chalkboard" style="font-size: 12px;"></i>${linkedWhiteboards.length}</span>` : ''}
+                                ${linkedAssets.length > 0 ? `<span onclick="openAssetsFilteredByPortfolio('${project.id || project.name}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdf4; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: #16a34a; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#16a34a'; this.style.color='white';" onmouseout="this.style.background='#f0fdf4'; this.style.color='#16a34a';" title="Click to view ${linkedAssets.length} asset${linkedAssets.length === 1 ? '' : 's'} for this portfolio item"><i class="ph ph-folder-open" style="font-size: 12px;"></i>${linkedAssets.length}</span>` : ''}
                             </div>
                         </div>
                         <div class="story-actions">
@@ -21370,6 +23295,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             const projectData = {
+                id: currentPortfolioIndex === null ? `portfolio_${Date.now()}` : (userPortfolioProjects[currentPortfolioIndex].id || `portfolio_${Date.now()}`),
                 name,
                 link: document.getElementById('portfolioLink').value.trim(),
                 description: document.getElementById('portfolioDescription').value.trim(),
@@ -21480,10 +23406,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
         function updatePortfolioCount(count) {
             // Update the personaData structure for Portfolio
-            if (personaData['default'] && personaData['default'].children) {
-                const portfolioNode = personaData['default'].children.find(c => c.name === 'Portfolio');
+            if (personaData[currentPersona] && personaData[currentPersona].children) {
+                const portfolioNode = personaData[currentPersona].children.find(c => c.name === 'Portfolio');
                 if (portfolioNode) {
                     portfolioNode.count = count;
+                    console.log('[Badges] Updated Portfolio count to:', count, 'for persona:', currentPersona);
                 }
             }
         }
@@ -30842,8 +32769,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     break;
                 case 'markdown':
                     blockContent = `
-                        <div class="markdown-editor" style="padding-top: 32px;">
-                            <textarea class="markdown-input" placeholder="Enter markdown content..." style="width: 100%; min-height: 120px; border: none; font-family: monospace; font-size: 13px; color: var(--color-dark); outline: none; resize: vertical; line-height: 1.5;"># Technical Documentation
+                        <div class="markdown-editor" style="padding-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px; padding-left: 4px;">MARKDOWN</div>
+                                <textarea class="markdown-input" placeholder="Enter markdown content..." style="width: 100%; min-height: 300px; max-height: 500px; border: 1px solid var(--color-neutral-border); border-radius: 4px; padding: 12px; font-family: monospace; font-size: 13px; color: var(--color-dark); outline: none; resize: vertical; line-height: 1.5; overflow-y: auto;"># Technical Documentation
 
 ## Overview
 
@@ -30873,7 +32802,11 @@ function greet(name) {
 | Link | \`[text](url)\` |
 
 > **Note:** This is a blockquote for important callouts.</textarea>
-                            <div class="markdown-preview" style="display: none; width: 100%; min-height: 120px; padding: 12px; border: 1px solid var(--color-neutral-border); border-radius: 4px; background: white; font-family: var(--font-family-body); font-size: 14px; line-height: 1.6;"></div>
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 6px; padding-left: 4px;">PREVIEW</div>
+                                <div class="markdown-preview" style="width: 100%; min-height: 300px; max-height: 500px; padding: 12px; border: 1px solid var(--color-neutral-border); border-radius: 4px; background: white; font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; overflow-y: auto;"></div>
+                            </div>
                         </div>
                     `;
                     break;
@@ -31065,12 +32998,8 @@ F &= ma \\\\
             if (blockType !== 'divider') {
                 block.setAttribute('draggable', 'true');
 
-                // Add preview toggle button for markdown, mermaid, and latex blocks
-                const previewButton = blockType === 'markdown'
-                    ? `<button onclick="toggleMarkdownPreview('${blockId}')" title="Toggle preview" class="block-control-btn markdown-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
-                            <i class="ph ph-eye" style="font-size: 14px;"></i>
-                        </button>`
-                    : blockType === 'mermaid'
+                // Add preview toggle button for mermaid and latex blocks (markdown shows live split view)
+                const previewButton = blockType === 'mermaid'
                     ? `<button onclick="toggleMermaidPreview('${blockId}')" title="Toggle preview" class="block-control-btn mermaid-preview-btn" data-mode="edit" style="width: 24px; height: 24px; border-radius: 4px; background: white; border: 1px solid var(--color-neutral-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--color-neutral-text); transition: all 0.2s;">
                             <i class="ph ph-eye" style="font-size: 14px;"></i>
                         </button>`
@@ -31126,6 +33055,47 @@ F &= ma \\\\
                             ]
                         },
                         placeholder: 'Enter rich text content...'
+                    });
+                }
+            }
+
+            // Initialize live preview and scroll synchronization for markdown blocks
+            if (blockType === 'markdown') {
+                const input = block.querySelector('.markdown-input');
+                const preview = block.querySelector('.markdown-preview');
+
+                if (input && preview) {
+                    // Initial preview render
+                    preview.innerHTML = parseMarkdown(input.value);
+
+                    let isInputScrolling = false;
+                    let isPreviewScrolling = false;
+
+                    // Live preview update as you type
+                    input.addEventListener('input', () => {
+                        preview.innerHTML = parseMarkdown(input.value);
+                    });
+
+                    // Sync preview scroll when input scrolls
+                    input.addEventListener('scroll', () => {
+                        if (isPreviewScrolling) return;
+                        isInputScrolling = true;
+
+                        const scrollPercentage = input.scrollTop / (input.scrollHeight - input.clientHeight);
+                        preview.scrollTop = scrollPercentage * (preview.scrollHeight - preview.clientHeight);
+
+                        setTimeout(() => { isInputScrolling = false; }, 100);
+                    });
+
+                    // Sync input scroll when preview scrolls
+                    preview.addEventListener('scroll', () => {
+                        if (isInputScrolling) return;
+                        isPreviewScrolling = true;
+
+                        const scrollPercentage = preview.scrollTop / (preview.scrollHeight - preview.clientHeight);
+                        input.scrollTop = scrollPercentage * (input.scrollHeight - input.clientHeight);
+
+                        setTimeout(() => { isPreviewScrolling = false; }, 100);
                     });
                 }
             }
@@ -31380,30 +33350,35 @@ F &= ma \\\\
                 // Switch to preview mode
                 const markdownText = input.value;
 
-                // Parse markdown using Marked.js
-                if (typeof marked !== 'undefined') {
-                    // Configure marked for better rendering
-                    marked.setOptions({
-                        breaks: true,
-                        gfm: true,
-                        headerIds: false,
-                        mangle: false
-                    });
+                // Save current scroll position as percentage
+                const scrollPercentage = input.scrollTop / (input.scrollHeight - input.clientHeight);
 
-                    preview.innerHTML = marked.parse(markdownText);
-                } else {
-                    preview.innerHTML = '<p style="color: red;">Markdown parser not loaded</p>';
-                }
+                // Parse markdown using built-in parser
+                preview.innerHTML = parseMarkdown(markdownText);
 
                 input.style.display = 'none';
                 preview.style.display = 'block';
+
+                // Restore scroll position after content renders
+                setTimeout(() => {
+                    preview.scrollTop = scrollPercentage * (preview.scrollHeight - preview.clientHeight);
+                }, 50);
+
                 toggleBtn.setAttribute('data-mode', 'preview');
                 toggleBtn.setAttribute('title', 'Back to edit');
                 icon.className = 'ph ph-pencil-simple';
             } else {
                 // Switch back to edit mode
+                const scrollPercentage = preview.scrollTop / (preview.scrollHeight - preview.clientHeight);
+
                 input.style.display = 'block';
                 preview.style.display = 'none';
+
+                // Restore scroll position
+                setTimeout(() => {
+                    input.scrollTop = scrollPercentage * (input.scrollHeight - input.clientHeight);
+                }, 50);
+
                 toggleBtn.setAttribute('data-mode', 'edit');
                 toggleBtn.setAttribute('title', 'Toggle preview');
                 icon.className = 'ph ph-eye';
