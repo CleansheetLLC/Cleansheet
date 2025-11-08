@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Cleansheet User Profile",
-  "description": "Schema for Cleansheet career canvas user profiles including experiences, portfolio, STAR stories, diagrams (draw.io), documents (Lexical), and whiteboards (Excalidraw)",
+  "description": "Schema for Cleansheet career canvas user profiles including experiences, portfolio, STAR stories, diagrams (draw.io), documents (Lexical), whiteboards (Excalidraw), and presentations (Reveal.js)",
   "type": "object",
   "properties": {
     "userFirstName": {
@@ -720,6 +720,104 @@
           }
         },
         "required": ["id", "name", "linkedType", "created"]
+      }
+    },
+    "presentations": {
+      "type": "array",
+      "description": "Presentation slideshows created with Reveal.js",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the presentation"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the presentation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the presentation content"
+          },
+          "linkedType": {
+            "type": "string",
+            "description": "Type of linked item: 'experience', 'portfolio', or 'none'",
+            "enum": ["experience", "portfolio", "none"]
+          },
+          "linkedId": {
+            "type": ["string", "null"],
+            "description": "ID or name of the linked experience or portfolio item"
+          },
+          "linkedName": {
+            "type": ["string", "null"],
+            "description": "Display name of the linked item"
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "lastModified": {
+            "type": "string",
+            "description": "Last modification timestamp in ISO 8601 format",
+            "format": "date-time"
+          },
+          "slides": {
+            "type": "array",
+            "description": "Array of slides in the presentation",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier for the slide"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Type of slide (e.g., 'title', 'content')"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "Markdown content of the slide"
+                }
+              },
+              "required": ["id", "type", "content"]
+            }
+          },
+          "theme": {
+            "type": "string",
+            "description": "Reveal.js theme name",
+            "enum": ["white", "black", "league", "beige", "sky", "night", "serif", "simple", "solarized", "moon"]
+          },
+          "transition": {
+            "type": "string",
+            "description": "Reveal.js transition effect",
+            "enum": ["slide", "fade", "convex", "concave", "zoom", "none"]
+          },
+          "skills": {
+            "type": "array",
+            "description": "Skills demonstrated in this asset",
+            "items": {
+              "type": "string"
+            }
+          },
+          "technologies": {
+            "type": "array",
+            "description": "Technologies used or demonstrated",
+            "items": {
+              "type": "string"
+            }
+          },
+          "competencies": {
+            "type": "array",
+            "description": "Competencies demonstrated",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["id", "name", "linkedType", "created", "slides"]
       }
     }
   },

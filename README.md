@@ -332,6 +332,7 @@ Cleansheet is developed by a solo technical founder actively working in cloud ar
 - **Phosphor Icons** - Icon library (MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces (Open Font License)
 - **Lexical** - Extensible text editor framework by Meta (MIT License)
+- **Reveal.js** - HTML presentation framework (MIT License)
 - **draw.io** - Diagramming and whiteboarding tool (Apache License 2.0)
 
 ### Inspiration

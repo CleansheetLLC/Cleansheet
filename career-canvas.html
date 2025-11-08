@@ -46,6 +46,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 
+    <!-- Reveal.js for presentations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/white.css" id="revealTheme">
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/markdown/markdown.js"></script>
+
     <!-- Excalidraw will be embedded via iframe -->
 
     <!-- Lexical Rich Text Editor (Bundled) -->
@@ -4519,7 +4525,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
                                 Asset Type
                             </label>
-                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
                                 <button onclick="setUnifiedAssetType('Document')" id="assetTypeDocument" style="padding: 12px; background: var(--color-primary-blue); color: white; border: 2px solid var(--color-primary-blue); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                     <i class="ph ph-file-text" style="font-size: 24px;"></i>
                                     Document
@@ -4539,6 +4545,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <button onclick="setUnifiedAssetType('Code')" id="assetTypeCode" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                     <i class="ph ph-code" style="font-size: 24px;"></i>
                                     Code
+                                </button>
+                                <button onclick="setUnifiedAssetType('Presentation')" id="assetTypePresentation" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-presentation" style="font-size: 24px;"></i>
+                                    Presentation
                                 </button>
                             </div>
                         </div>
@@ -4906,6 +4916,116 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <div style="flex: 1; width: 50%; height: calc(100vh - 65px); overflow-y: auto; background: #1e1e1e;">
                     <div id="markdownPreview" style="padding: 32px; font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: #d4d4d4; max-width: 800px; margin: 0 auto;">
                         <!-- Rendered markdown will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Presentation Editor (Reveal.js) -->
+        <div id="presentationEditor" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10500; flex-direction: column;">
+            <!-- Presentation Editor Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: var(--color-dark); color: white; border-bottom: 1px solid var(--color-neutral-border);">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button onclick="closePresentationEditor()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-arrow-left"></i>
+                        Back
+                    </button>
+                    <h3 id="presentationEditorTitle" style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; margin: 0;">
+                        Untitled Presentation
+                    </h3>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Theme Selector -->
+                    <select id="presentationThemeSelect" onchange="changePresentationTheme()" style="padding: 8px 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                        <option value="league">League</option>
+                        <option value="beige">Beige</option>
+                        <option value="sky">Sky</option>
+                        <option value="night">Night</option>
+                        <option value="serif">Serif</option>
+                        <option value="simple">Simple</option>
+                        <option value="solarized">Solarized</option>
+                        <option value="moon">Moon</option>
+                    </select>
+                    <!-- Transition Selector -->
+                    <select id="presentationTransitionSelect" onchange="changePresentationTransition()" style="padding: 8px 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                        <option value="slide">Slide</option>
+                        <option value="fade">Fade</option>
+                        <option value="convex">Convex</option>
+                        <option value="concave">Concave</option>
+                        <option value="zoom">Zoom</option>
+                        <option value="none">None</option>
+                    </select>
+                    <!-- Style Button -->
+                    <button onclick="showStyleCustomizer()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 6px; padding: 8px 16px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-palette"></i>
+                        Style
+                    </button>
+                    <!-- Present Mode Button -->
+                    <button onclick="startPresentationMode()" style="background: #10b981; border: none; color: white; border-radius: 6px; padding: 8px 16px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-play"></i>
+                        Present
+                    </button>
+                    <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
+                        <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
+                        Auto-save enabled
+                    </span>
+                </div>
+            </div>
+
+            <!-- Main Content: Slides List + Editor + Preview -->
+            <div style="display: flex; flex: 1; overflow: hidden; height: calc(100vh - 65px);">
+                <!-- Left Sidebar: Slide Thumbnails -->
+                <div style="width: 200px; background: var(--color-neutral-background); border-right: 1px solid var(--color-neutral-border); display: flex; flex-direction: column;">
+                    <!-- Add Slide Button -->
+                    <div style="padding: 12px; border-bottom: 1px solid var(--color-neutral-border);">
+                        <button onclick="addSlideToPresentation()" style="width: 100%; padding: 10px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="ph ph-plus"></i>
+                            Add Slide
+                        </button>
+                    </div>
+                    <!-- Slide List -->
+                    <div id="slidesList" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Slide thumbnails will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Right Panel: Editor + Preview -->
+                <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                    <!-- Slide Editor (Top Half) -->
+                    <div style="flex: 1; border-bottom: 1px solid var(--color-neutral-border); display: flex; flex-direction: column;">
+                        <div style="padding: 12px 16px; background: var(--color-neutral-background); border-bottom: 1px solid var(--color-neutral-border); display: flex; align-items: center; justify-content: space-between;">
+                            <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; margin: 0; color: var(--color-dark);">
+                                Edit Slide (Markdown)
+                            </h4>
+                            <span id="currentSlideNumber" style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">
+                                Slide 1 of 1
+                            </span>
+                        </div>
+                        <textarea id="slideContentTextarea" placeholder="# Slide Title
+
+- Bullet point 1
+- Bullet point 2
+
+Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; resize: none; outline: none;" oninput="updateRevealPreview()"></textarea>
+                    </div>
+
+                    <!-- Reveal.js Preview (Bottom Half) -->
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <div style="padding: 12px 16px; background: var(--color-neutral-background); border-bottom: 1px solid var(--color-neutral-border);">
+                            <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; margin: 0; color: var(--color-dark);">
+                                Preview
+                            </h4>
+                        </div>
+                        <div id="revealPreview" style="flex: 1; overflow: auto; background: #2b2b2b;">
+                            <!-- Reveal.js slides will be rendered here -->
+                            <div class="reveal" style="width: 100%; height: 100%;">
+                                <div class="slides" id="previewSlides">
+                                    <!-- Slides dynamically generated -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -13629,6 +13749,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 localStorage.removeItem(`plantuml_${currentPersona}`);
                 localStorage.removeItem(`code_${currentPersona}`);
                 localStorage.removeItem(`mermaid_${currentPersona}`);
+                localStorage.removeItem(`presentations_${currentPersona}`);
             }
 
             // Import profile data
@@ -13803,6 +13924,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 }
             }
 
+            // Import presentations
+            const newPresentations = data.presentations || [];
+            if (newPresentations.length > 0) {
+                if (!importMode) {
+                    const existingPresentations = JSON.parse(localStorage.getItem(`presentations_${currentPersona}`) || '[]');
+                    const mergedPresentations = [...existingPresentations, ...newPresentations];
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(mergedPresentations));
+                } else {
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(newPresentations));
+                }
+            }
+
             // Import job opportunities
             const newJobOpportunities = data.jobOpportunities || [];
             if (newJobOpportunities.length > 0) {
@@ -13819,7 +13952,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             // Show success message
             const mode = importMode ? 'OVERWRITE' : 'UPDATE';
-            alert(`Successfully imported (${mode} mode):\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${newExperiences.length} experiences\n- ${newStories.length} stories\n- ${newGoals.length} goals\n- ${newPortfolio.length} portfolio projects\n- ${newDiagrams.length} diagrams\n- ${newDocuments.length} documents\n- ${newWhiteboards.length} whiteboards\n- ${newMarkdown.length} markdown docs\n- ${newPlantUML.length} plantuml diagrams\n- ${newCode.length} code snippets\n- ${newMermaid.length} mermaid diagrams\n- ${newJobOpportunities.length} job opportunities\n\nPage will refresh to update the canvas.`);
+            alert(`Successfully imported (${mode} mode):\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${newExperiences.length} experiences\n- ${newStories.length} stories\n- ${newGoals.length} goals\n- ${newPortfolio.length} portfolio projects\n- ${newDiagrams.length} diagrams\n- ${newDocuments.length} documents\n- ${newWhiteboards.length} whiteboards\n- ${newMarkdown.length} markdown docs\n- ${newPlantUML.length} plantuml diagrams\n- ${newCode.length} code snippets\n- ${newMermaid.length} mermaid diagrams\n- ${newPresentations.length} presentations\n- ${newJobOpportunities.length} job opportunities\n\nPage will refresh to update the canvas.`);
 
             // Refresh page to update all badge numbers and UI
             window.location.reload();
@@ -13912,6 +14045,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const mermaidJson = localStorage.getItem(`mermaid_${currentPersona}`);
                 const mermaid = mermaidJson ? JSON.parse(mermaidJson) : [];
 
+                const presentationsJson = localStorage.getItem(`presentations_${currentPersona}`);
+                const presentations = presentationsJson ? JSON.parse(presentationsJson) : [];
+
                 // Get job opportunities from localStorage
                 const jobOpportunitiesJson = localStorage.getItem(`jobOpportunities_${currentPersona}`);
                 const jobOpportunities = jobOpportunitiesJson ? JSON.parse(jobOpportunitiesJson) : [];
@@ -13954,6 +14090,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     plantuml: plantuml,
                     code: code,
                     mermaid: mermaid,
+                    presentations: presentations,
                     jobOpportunities: jobOpportunities,
                     exportDate: new Date().toISOString(),
                     version: '4.0'
@@ -13972,7 +14109,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects\n- ${diagrams.length} diagrams\n- ${documents.length} documents\n- ${whiteboards.length} whiteboards\n- ${markdown.length} markdown docs\n- ${plantuml.length} plantuml diagrams\n- ${code.length} code snippets\n- ${mermaid.length} mermaid diagrams\n- ${jobOpportunities.length} job opportunities`);
+                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects\n- ${diagrams.length} diagrams\n- ${documents.length} documents\n- ${whiteboards.length} whiteboards\n- ${markdown.length} markdown docs\n- ${plantuml.length} plantuml diagrams\n- ${code.length} code snippets\n- ${mermaid.length} mermaid diagrams\n- ${presentations.length} presentations\n- ${jobOpportunities.length} job opportunities`);
 
             } catch (error) {
                 alert('Error exporting data: ' + error.message);
@@ -16351,6 +16488,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const mermaidStored = localStorage.getItem(`mermaid_${currentPersona}`);
             let mermaid = mermaidStored ? JSON.parse(mermaidStored) : [];
 
+            const presentationsStored = localStorage.getItem(`presentations_${currentPersona}`);
+            let presentations = presentationsStored ? JSON.parse(presentationsStored) : [];
+
             // Combine all assets with type indicators
             let allAssets = [
                 ...documents.map(d => ({ ...d, assetType: 'Document', icon: 'ph-file-text' })),
@@ -16359,7 +16499,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 ...markdown.map(m => ({ ...m, assetType: 'Markdown', icon: 'ph-markdown-logo' })),
                 ...plantuml.map(p => ({ ...p, assetType: 'PlantUML', icon: 'ph-plant' })),
                 ...code.map(c => ({ ...c, assetType: 'Code', icon: 'ph-code' })),
-                ...mermaid.map(m => ({ ...m, assetType: 'Mermaid', icon: 'ph-fish' }))
+                ...mermaid.map(m => ({ ...m, assetType: 'Mermaid', icon: 'ph-fish' })),
+                ...presentations.map(p => ({ ...p, assetType: 'Presentation', icon: 'ph-presentation' }))
             ];
 
             // Apply tier-based filtering (hide advanced asset types for Learner tier)
@@ -16449,7 +16590,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     'Markdown': '#7c3aed',
                     'PlantUML': '#0891b2',
                     'Code': '#dc2626',
-                    'Mermaid': '#2563eb'
+                    'Mermaid': '#2563eb',
+                    'Presentation': '#10b981'
                 }[asset.assetType];
 
                 // Format last modified date with timestamp (dd-mmm-yy at hh:mm)
@@ -16628,6 +16770,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 alert('PlantUML editor coming soon!');
             } else if (assetType === 'Mermaid') {
                 alert('Mermaid editor coming soon!');
+            } else if (assetType === 'Presentation') {
+                openPresentationByIdReveal(assetId);
             }
         }
 
@@ -16643,7 +16787,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 'Markdown': 'markdown',
                 'PlantUML': 'plantuml',
                 'Code': 'code',
-                'Mermaid': 'mermaid'
+                'Mermaid': 'mermaid',
+                'Presentation': 'presentations'
             };
 
             const storageKey = storageKeyMap[assetType];
@@ -16712,7 +16857,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 'Markdown': 'markdown',
                 'PlantUML': 'plantuml',
                 'Code': 'code',
-                'Mermaid': 'mermaid'
+                'Mermaid': 'mermaid',
+                'Presentation': 'presentations'
             };
 
             const storageKey = storageKeyMap[assetType];
@@ -16779,7 +16925,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             currentUnifiedAssetType = type;
 
             // Update button styles
-            const types = ['Document', 'Diagram', 'Whiteboard', 'Markdown', 'Code'];
+            const types = ['Document', 'Diagram', 'Whiteboard', 'Markdown', 'Code', 'Presentation'];
             types.forEach(t => {
                 const btn = document.getElementById(`assetType${t}`);
                 if (btn) { // Check if button exists
@@ -16964,7 +17110,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     'Markdown': `markdown_${currentPersona}`,
                     'Code': `code_${currentPersona}`,
                     'PlantUML': `plantuml_${currentPersona}`,
-                    'Mermaid': `mermaid_${currentPersona}`
+                    'Mermaid': `mermaid_${currentPersona}`,
+                    'Presentation': `presentations_${currentPersona}`
                 };
 
                 const storageKey = storageKeyMap[currentUnifiedAssetType];
@@ -17101,6 +17248,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 closeUnifiedAssetModal();
                 alert('Mermaid diagram editor coming soon! Your asset has been saved and will be editable once the feature is implemented.');
+
+            } else if (currentUnifiedAssetType === 'Presentation') {
+                // Create presentation with default title slide
+                asset.slides = [
+                    {
+                        id: Date.now().toString(),
+                        type: 'title',
+                        content: `# ${name}\n## Subtitle or Tagline\n\nYour Name | ${new Date().toLocaleDateString()}`
+                    }
+                ];
+                asset.theme = 'white';  // Default Reveal.js theme
+                asset.transition = 'slide';  // Default transition
+
+                const stored = localStorage.getItem(`presentations_${currentPersona}`);
+                const presentations = stored ? JSON.parse(stored) : [];
+                presentations.push(asset);
+                localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+
+                closeUnifiedAssetModal();
+                openPresentationByIdReveal(assetId);
             }
 
             console.log('Created new asset:', currentUnifiedAssetType, assetId);
@@ -17492,6 +17659,1218 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             } catch (error) {
                 console.error('[Markdown] ❌ Error saving:', error);
             }
+        }
+
+        // ========================================
+        // PRESENTATION EDITOR (REVEAL.JS) FUNCTIONS
+        // ========================================
+
+        let currentEditingPresentationId = null;
+        let currentSlideIndex = 0;
+        let revealInstance = null;
+        let autoSavePresentationInterval = null;
+
+        // Color Harmony Generation
+        function hexToHSL(hex) {
+            // Convert hex to RGB
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!result) return { h: 0, s: 0, l: 50 };
+
+            let r = parseInt(result[1], 16) / 255;
+            let g = parseInt(result[2], 16) / 255;
+            let b = parseInt(result[3], 16) / 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                    case g: h = ((b - r) / d + 2) / 6; break;
+                    case b: h = ((r - g) / d + 4) / 6; break;
+                }
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function hslToHex(h, s, l) {
+            s /= 100;
+            l /= 100;
+
+            const c = (1 - Math.abs(2 * l - 1)) * s;
+            const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            const m = l - c / 2;
+            let r = 0, g = 0, b = 0;
+
+            if (h >= 0 && h < 60) {
+                r = c; g = x; b = 0;
+            } else if (h >= 60 && h < 120) {
+                r = x; g = c; b = 0;
+            } else if (h >= 120 && h < 180) {
+                r = 0; g = c; b = x;
+            } else if (h >= 180 && h < 240) {
+                r = 0; g = x; b = c;
+            } else if (h >= 240 && h < 300) {
+                r = x; g = 0; b = c;
+            } else if (h >= 300 && h < 360) {
+                r = c; g = 0; b = x;
+            }
+
+            const toHex = (n) => {
+                const hex = Math.round((n + m) * 255).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+
+        function generateComplementaryColors(baseColor) {
+            const hsl = hexToHSL(baseColor);
+
+            // Generate 4 complementary colors using different harmony rules
+            return {
+                primary: baseColor,
+                // Complementary (opposite on color wheel)
+                secondary: hslToHex((hsl.h + 180) % 360, hsl.s, hsl.l),
+                // Triadic (120 degrees apart)
+                accent1: hslToHex((hsl.h + 120) % 360, hsl.s, hsl.l),
+                // Triadic (240 degrees apart)
+                accent2: hslToHex((hsl.h + 240) % 360, hsl.s, hsl.l),
+                // Analogous (30 degrees offset, lighter)
+                light: hslToHex((hsl.h + 30) % 360, Math.max(hsl.s - 20, 20), Math.min(hsl.l + 30, 90))
+            };
+        }
+
+        // Font families for presentations
+        const PRESENTATION_FONTS = [
+            { name: 'Barlow', value: 'Barlow, sans-serif' },
+            { name: 'Questrial', value: 'Questrial, sans-serif' },
+            { name: 'Arial', value: 'Arial, sans-serif' },
+            { name: 'Helvetica', value: 'Helvetica, sans-serif' },
+            { name: 'Georgia', value: 'Georgia, serif' },
+            { name: 'Times New Roman', value: '"Times New Roman", serif' },
+            { name: 'Courier New', value: '"Courier New", monospace' },
+            { name: 'Verdana', value: 'Verdana, sans-serif' },
+            { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+            { name: 'Palatino', value: 'Palatino, serif' }
+        ];
+
+        // Slide Templates
+        const SLIDE_TEMPLATES = {
+            title: {
+                name: 'Title Slide',
+                icon: 'ph-text-aa',
+                content: `# Presentation Title
+## Subtitle or Tagline
+
+Your Name | Date`
+            },
+            content: {
+                name: 'Content',
+                icon: 'ph-list-bullets',
+                content: `## Slide Title
+
+- Key point 1
+- Key point 2
+- Key point 3
+
+<!-- .element: class="fragment" -->
+- Animated point`
+            },
+            twoColumn: {
+                name: 'Two Column',
+                icon: 'ph-columns',
+                content: `## Two Column Layout
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div>
+
+### Left Column
+- Point 1
+- Point 2
+
+</div>
+<div>
+
+### Right Column
+- Point A
+- Point B
+
+</div>
+</div>`
+            },
+            imageText: {
+                name: 'Image + Text',
+                icon: 'ph-image',
+                content: `## Title
+
+<div style="display: flex; align-items: center; gap: 30px;">
+<div style="flex: 1;">
+
+- Key point 1
+- Key point 2
+- Key point 3
+
+</div>
+<div style="flex: 1;">
+
+![Image Description](https://via.placeholder.com/400x300)
+
+</div>
+</div>`
+            },
+            quote: {
+                name: 'Quote',
+                icon: 'ph-quotes',
+                content: `> "Insert your inspirational quote here"
+
+— Author Name`
+            },
+            code: {
+                name: 'Code',
+                icon: 'ph-code',
+                content: `## Code Example
+
+\`\`\`javascript
+function example() {
+    console.log('Hello, World!');
+    return true;
+}
+\`\`\`
+
+Explanation of the code`
+            },
+            section: {
+                name: 'Section Break',
+                icon: 'ph-text-t',
+                content: `# Section Title
+
+---
+
+Next Topic`
+            },
+            blank: {
+                name: 'Blank',
+                icon: 'ph-note-blank',
+                content: `## New Slide
+
+Start typing...`
+            }
+        };
+
+        function getTemplateContent(templateKey) {
+            return SLIDE_TEMPLATES[templateKey]?.content || SLIDE_TEMPLATES.blank.content;
+        }
+
+        function showTemplateSelector(callback) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 11000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                max-width: 600px;
+                width: 90%;
+            `;
+
+            const title = document.createElement('h3');
+            title.textContent = 'Choose Slide Template';
+            title.style.cssText = `
+                font-family: var(--font-family-ui);
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0 0 20px 0;
+                color: var(--color-dark);
+            `;
+            content.appendChild(title);
+
+            const grid = document.createElement('div');
+            grid.style.cssText = `
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-bottom: 20px;
+            `;
+
+            Object.keys(SLIDE_TEMPLATES).forEach(key => {
+                const template = SLIDE_TEMPLATES[key];
+                const btn = document.createElement('button');
+                btn.style.cssText = `
+                    padding: 16px 12px;
+                    background: white;
+                    border: 2px solid var(--color-neutral-border);
+                    border-radius: 8px;
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s;
+                `;
+                btn.onmouseover = () => {
+                    btn.style.borderColor = 'var(--color-primary-blue)';
+                    btn.style.background = '#e3f2fd';
+                };
+                btn.onmouseout = () => {
+                    btn.style.borderColor = 'var(--color-neutral-border)';
+                    btn.style.background = 'white';
+                };
+                btn.onclick = () => {
+                    document.body.removeChild(modal);
+                    callback(key);
+                };
+
+                const icon = document.createElement('i');
+                icon.className = `ph ${template.icon}`;
+                icon.style.cssText = `
+                    font-size: 24px;
+                    color: var(--color-primary-blue);
+                `;
+
+                const name = document.createElement('span');
+                name.textContent = template.name;
+                name.style.cssText = `
+                    font-family: var(--font-family-ui);
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--color-dark);
+                    text-align: center;
+                `;
+
+                btn.appendChild(icon);
+                btn.appendChild(name);
+                grid.appendChild(btn);
+            });
+
+            content.appendChild(grid);
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                background: white;
+                border: 1px solid var(--color-neutral-border);
+                border-radius: 6px;
+                font-family: var(--font-family-ui);
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+            `;
+            cancelBtn.onclick = () => document.body.removeChild(modal);
+            content.appendChild(cancelBtn);
+
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        function showStyleCustomizer() {
+            if (!currentEditingPresentationId) return;
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === currentEditingPresentationId);
+            if (!presentation) return;
+
+            // Initialize custom style if not exists
+            if (!presentation.customStyle) {
+                presentation.customStyle = {
+                    enabled: false,
+                    baseColor: '#0066CC',
+                    backgroundColor: '#ffffff',
+                    textColor: '#333333',
+                    fontFamily: 'Barlow, sans-serif',
+                    colors: generateComplementaryColors('#0066CC')
+                };
+            }
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 11000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow-y: auto;
+            `;
+
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                max-width: 700px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+            `;
+
+            content.innerHTML = `
+                <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; margin: 0 0 20px 0; color: var(--color-dark);">
+                    Custom Style Settings
+                </h3>
+
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Enable Custom Style -->
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #f5f5f7; border-radius: 8px;">
+                        <input type="checkbox" id="customStyleEnabled" ${presentation.customStyle.enabled ? 'checked' : ''}
+                            style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="customStyleEnabled" style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); cursor: pointer;">
+                            Enable Custom Style (overrides theme)
+                        </label>
+                    </div>
+
+                    <!-- Font Family -->
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">
+                            Font Family
+                        </label>
+                        <select id="customFontFamily" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; cursor: pointer;">
+                            ${PRESENTATION_FONTS.map(font =>
+                                `<option value="${font.value}" ${presentation.customStyle.fontFamily === font.value ? 'selected' : ''}>${font.name}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+
+                    <!-- Base Color Picker -->
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">
+                            Base Color (generates complementary colors)
+                        </label>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="color" id="customBaseColor" value="${presentation.customStyle.baseColor}"
+                                style="width: 60px; height: 40px; border: 2px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="customBaseColorHex" value="${presentation.customStyle.baseColor}"
+                                style="flex: 1; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: monospace; font-size: 14px;">
+                            <button onclick="regenerateColors()" style="padding: 10px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
+                                Generate
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Color Palette Preview -->
+                    <div id="colorPalettePreview">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Background Color -->
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">
+                            Background Color
+                        </label>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="color" id="customBackgroundColor" value="${presentation.customStyle.backgroundColor}"
+                                style="width: 60px; height: 40px; border: 2px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="customBackgroundColorHex" value="${presentation.customStyle.backgroundColor}"
+                                style="flex: 1; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: monospace; font-size: 14px;">
+                        </div>
+                    </div>
+
+                    <!-- Text Color -->
+                    <div>
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">
+                            Text Color
+                        </label>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="color" id="customTextColor" value="${presentation.customStyle.textColor}"
+                                style="width: 60px; height: 40px; border: 2px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer;">
+                            <input type="text" id="customTextColorHex" value="${presentation.customStyle.textColor}"
+                                style="flex: 1; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: monospace; font-size: 14px;">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; margin-top: 10px;">
+                        <button onclick="saveCustomStyle()" style="flex: 1; padding: 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                            Apply Style
+                        </button>
+                        <button onclick="closeStyleCustomizer()" style="flex: 1; padding: 12px; background: white; color: var(--color-dark); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners for color sync
+            content.querySelector('#customBaseColor').addEventListener('input', (e) => {
+                content.querySelector('#customBaseColorHex').value = e.target.value;
+            });
+            content.querySelector('#customBaseColorHex').addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    content.querySelector('#customBaseColor').value = e.target.value;
+                }
+            });
+            content.querySelector('#customBackgroundColor').addEventListener('input', (e) => {
+                content.querySelector('#customBackgroundColorHex').value = e.target.value;
+            });
+            content.querySelector('#customBackgroundColorHex').addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    content.querySelector('#customBackgroundColor').value = e.target.value;
+                }
+            });
+            content.querySelector('#customTextColor').addEventListener('input', (e) => {
+                content.querySelector('#customTextColorHex').value = e.target.value;
+            });
+            content.querySelector('#customTextColorHex').addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    content.querySelector('#customTextColor').value = e.target.value;
+                }
+            });
+
+            // Define global functions BEFORE appending modal
+            window.updateColorPalettePreview = function(colors) {
+                const preview = document.getElementById('colorPalettePreview');
+                if (!preview) return;
+
+                const colorRoles = [
+                    { key: 'primary', label: 'Primary', desc: 'Main brand color' },
+                    { key: 'secondary', label: 'Secondary', desc: 'Complementary accent' },
+                    { key: 'accent1', label: 'Accent 1', desc: 'Triadic harmony' },
+                    { key: 'accent2', label: 'Accent 2', desc: 'Triadic harmony' },
+                    { key: 'light', label: 'Light', desc: 'Backgrounds/subtle' }
+                ];
+
+                preview.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 16px; background: #f5f5f7; border-radius: 8px;">
+                        ${colorRoles.map(role => `
+                            <div style="text-align: center;">
+                                <div style="width: 100%; height: 60px; background: ${colors[role.key]}; border-radius: 6px; border: 2px solid var(--color-neutral-border); margin-bottom: 8px;"></div>
+                                <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-dark); margin-bottom: 2px;">${role.label}</div>
+                                <div style="font-family: monospace; font-size: 10px; color: var(--color-neutral-text);">${colors[role.key]}</div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-top: 4px;">${role.desc}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            };
+
+            window.regenerateColors = function() {
+                const baseColor = document.getElementById('customBaseColor').value;
+                const colors = generateComplementaryColors(baseColor);
+                window.updateColorPalettePreview(colors);
+            };
+
+            window.saveCustomStyle = function() {
+                const stored = localStorage.getItem(`presentations_${currentPersona}`);
+                let presentations = stored ? JSON.parse(stored) : [];
+                const index = presentations.findIndex(p => p.id === currentEditingPresentationId);
+
+                if (index !== -1) {
+                    const baseColor = document.getElementById('customBaseColor').value;
+                    presentations[index].customStyle = {
+                        enabled: document.getElementById('customStyleEnabled').checked,
+                        baseColor: baseColor,
+                        backgroundColor: document.getElementById('customBackgroundColor').value,
+                        textColor: document.getElementById('customTextColor').value,
+                        fontFamily: document.getElementById('customFontFamily').value,
+                        colors: generateComplementaryColors(baseColor)
+                    };
+                    presentations[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+
+                    console.log('[Presentation] Custom style saved');
+                    document.body.removeChild(modal);
+                    updateRevealPreview();
+                }
+            };
+
+            window.closeStyleCustomizer = function() {
+                document.body.removeChild(modal);
+            };
+
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            modal.id = 'styleCustomizerModal';
+
+            // Show color palette after modal is in DOM
+            window.updateColorPalettePreview(presentation.customStyle.colors);
+        }
+
+        function openPresentationByIdReveal(id) {
+            console.log('=== OPENING PRESENTATION ===');
+            console.log('[Presentation] ID:', id);
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === id);
+
+            if (!presentation) {
+                console.error('[Presentation] Not found with ID:', id);
+                alert('Presentation not found');
+                return;
+            }
+
+            console.log('[Presentation] Found:', {
+                id: presentation.id,
+                name: presentation.name,
+                slideCount: presentation.slides ? presentation.slides.length : 0
+            });
+
+            currentEditingPresentationId = id;
+            currentSlideIndex = 0;
+
+            // Show editor
+            document.getElementById('presentationEditor').style.display = 'flex';
+            document.getElementById('presentationEditorTitle').textContent = presentation.name || 'Untitled Presentation';
+
+            // Set theme and transition
+            document.getElementById('presentationThemeSelect').value = presentation.theme || 'white';
+            document.getElementById('presentationTransitionSelect').value = presentation.transition || 'slide';
+
+            // Load first slide
+            if (presentation.slides && presentation.slides.length > 0) {
+                loadSlide(0);
+            }
+
+            // Render slides list
+            renderSlidesList();
+
+            // Initialize Reveal.js
+            initializeReveal();
+
+            // Start auto-save
+            startPresentationAutoSave();
+
+            console.log('[Presentation] ✅ Editor opened');
+        }
+
+        function closePresentationEditor() {
+            console.log('=== CLOSING PRESENTATION EDITOR ===');
+
+            // Stop auto-save
+            if (autoSavePresentationInterval) {
+                clearInterval(autoSavePresentationInterval);
+                autoSavePresentationInterval = null;
+            }
+
+            // Save one last time before closing
+            if (currentEditingPresentationId) {
+                savePresentationSilently();
+            }
+
+            // Destroy Reveal instance
+            if (revealInstance) {
+                try {
+                    revealInstance.destroy();
+                    revealInstance = null;
+                } catch (e) {
+                    console.warn('[Presentation] Error destroying Reveal:', e);
+                }
+            }
+
+            // Hide editor
+            document.getElementById('presentationEditor').style.display = 'none';
+            currentEditingPresentationId = null;
+            currentSlideIndex = 0;
+
+            // Reload assets list
+            if (typeof loadAllAssets === 'function') {
+                loadAllAssets();
+            }
+
+            console.log('[Presentation] ✅ Editor closed');
+        }
+
+        function savePresentationSilently() {
+            if (!currentEditingPresentationId) {
+                console.warn('[Presentation] No presentation ID to save');
+                return;
+            }
+
+            try {
+                const stored = localStorage.getItem(`presentations_${currentPersona}`);
+                let presentations = stored ? JSON.parse(stored) : [];
+                const index = presentations.findIndex(p => p.id === currentEditingPresentationId);
+
+                if (index !== -1) {
+                    // Save current slide content
+                    const slideContent = document.getElementById('slideContentTextarea').value;
+                    presentations[index].slides[currentSlideIndex].content = slideContent;
+                    presentations[index].lastModified = new Date().toISOString();
+
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+                    console.log('[Presentation] ✅ Auto-saved, slide:', currentSlideIndex);
+                }
+            } catch (error) {
+                console.error('[Presentation] ❌ Error saving:', error);
+            }
+        }
+
+        function startPresentationAutoSave() {
+            // Clear any existing interval
+            if (autoSavePresentationInterval) {
+                clearInterval(autoSavePresentationInterval);
+            }
+
+            // Auto-save every 2 seconds
+            autoSavePresentationInterval = setInterval(() => {
+                if (currentEditingPresentationId) {
+                    savePresentationSilently();
+                }
+            }, 2000);
+
+            console.log('[Presentation] Auto-save started');
+        }
+
+        function addSlideToPresentation() {
+            if (!currentEditingPresentationId) return;
+
+            // Show template selector
+            showTemplateSelector((templateKey) => {
+                const stored = localStorage.getItem(`presentations_${currentPersona}`);
+                let presentations = stored ? JSON.parse(stored) : [];
+                const index = presentations.findIndex(p => p.id === currentEditingPresentationId);
+
+                if (index !== -1) {
+                    // Save current slide first
+                    savePresentationSilently();
+
+                    // Add new slide with selected template
+                    const newSlide = {
+                        id: Date.now().toString(),
+                        type: templateKey,
+                        content: getTemplateContent(templateKey)
+                    };
+                    presentations[index].slides.push(newSlide);
+                    presentations[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+
+                    // Switch to new slide
+                    currentSlideIndex = presentations[index].slides.length - 1;
+                    loadSlide(currentSlideIndex);
+                    renderSlidesList();
+                    updateRevealPreview();
+
+                    console.log('[Presentation] ✅ Added new slide with template:', templateKey);
+                }
+            });
+        }
+
+        function deleteSlideFromPresentation(slideIndex) {
+            if (!currentEditingPresentationId) return;
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            let presentations = stored ? JSON.parse(stored) : [];
+            const index = presentations.findIndex(p => p.id === currentEditingPresentationId);
+
+            if (index !== -1 && presentations[index].slides.length > 1) {
+                if (!confirm('Delete this slide?')) return;
+
+                presentations[index].slides.splice(slideIndex, 1);
+                presentations[index].lastModified = new Date().toISOString();
+                localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+
+                // Adjust current slide index
+                if (currentSlideIndex >= presentations[index].slides.length) {
+                    currentSlideIndex = presentations[index].slides.length - 1;
+                }
+
+                loadSlide(currentSlideIndex);
+                renderSlidesList();
+                updateRevealPreview();
+
+                console.log('[Presentation] ✅ Deleted slide', slideIndex);
+            } else {
+                alert('Cannot delete the last slide');
+            }
+        }
+
+        function selectSlide(slideIndex) {
+            // Save current slide first
+            savePresentationSilently();
+
+            // Switch to selected slide
+            currentSlideIndex = slideIndex;
+            loadSlide(slideIndex);
+        }
+
+        function loadSlide(slideIndex) {
+            if (!currentEditingPresentationId) return;
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === currentEditingPresentationId);
+
+            if (presentation && presentation.slides[slideIndex]) {
+                const slide = presentation.slides[slideIndex];
+                document.getElementById('slideContentTextarea').value = slide.content || '';
+                document.getElementById('currentSlideNumber').textContent =
+                    `Slide ${slideIndex + 1} of ${presentation.slides.length}`;
+
+                // Update active state in slides list
+                renderSlidesList();
+                updateRevealPreview();
+            }
+        }
+
+        function renderSlidesList() {
+            if (!currentEditingPresentationId) return;
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === currentEditingPresentationId);
+
+            if (!presentation) return;
+
+            const slidesList = document.getElementById('slidesList');
+            slidesList.innerHTML = '';
+
+            presentation.slides.forEach((slide, index) => {
+                const slideItem = document.createElement('div');
+                slideItem.style.cssText = `
+                    padding: 12px;
+                    background: ${index === currentSlideIndex ? 'var(--color-primary-blue)' : 'white'};
+                    color: ${index === currentSlideIndex ? 'white' : 'var(--color-dark)'};
+                    border: 1px solid ${index === currentSlideIndex ? 'var(--color-primary-blue)' : 'var(--color-neutral-border)'};
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-family: var(--font-family-ui);
+                    font-size: 12px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    transition: all 0.2s;
+                `;
+
+                slideItem.onclick = () => selectSlide(index);
+
+                const slideNumber = document.createElement('span');
+                slideNumber.textContent = `Slide ${index + 1}`;
+                slideItem.appendChild(slideNumber);
+
+                if (presentation.slides.length > 1) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = '<i class="ph ph-x"></i>';
+                    deleteBtn.style.cssText = `
+                        background: none;
+                        border: none;
+                        color: ${index === currentSlideIndex ? 'white' : 'var(--color-neutral-text)'};
+                        font-size: 16px;
+                        cursor: pointer;
+                        padding: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    `;
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteSlideFromPresentation(index);
+                    };
+                    slideItem.appendChild(deleteBtn);
+                }
+
+                slidesList.appendChild(slideItem);
+            });
+        }
+
+        function updateRevealPreview() {
+            if (!currentEditingPresentationId) return;
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === currentEditingPresentationId);
+
+            if (!presentation) {
+                console.warn('[Presentation] Presentation not found for preview update');
+                return;
+            }
+
+            // Get current slide content
+            const slideContent = document.getElementById('slideContentTextarea').value;
+
+            // Update slides array with current content
+            if (presentation.slides[currentSlideIndex]) {
+                presentation.slides[currentSlideIndex].content = slideContent;
+            }
+
+            console.log('[Presentation] Updating preview, total slides:', presentation.slides.length);
+            console.log('[Presentation] Current slide index:', currentSlideIndex);
+
+            // Regenerate preview HTML - create sections dynamically for better rendering
+            const previewSlides = document.getElementById('previewSlides');
+            previewSlides.innerHTML = ''; // Clear first
+
+            presentation.slides.forEach((slide, index) => {
+                const section = document.createElement('section');
+                section.setAttribute('data-markdown', '');
+
+                const textarea = document.createElement('textarea');
+                textarea.setAttribute('data-template', '');
+                textarea.textContent = slide.content;
+
+                section.appendChild(textarea);
+                previewSlides.appendChild(section);
+            });
+
+            console.log('[Presentation] Preview HTML updated with', presentation.slides.length, 'slides');
+
+            // Always reinitialize Reveal for markdown to be properly rendered
+            setTimeout(() => {
+                initializeReveal();
+            }, 100);
+        }
+
+        function initializeReveal() {
+            const previewContainer = document.getElementById('revealPreview');
+
+            if (typeof Reveal === 'undefined') {
+                console.error('[Presentation] Reveal.js not loaded');
+                return;
+            }
+
+            console.log('[Presentation] Initializing Reveal.js...');
+
+            try {
+                if (revealInstance) {
+                    try {
+                        revealInstance.destroy();
+                        console.log('[Presentation] Previous instance destroyed');
+                    } catch (e) {
+                        console.warn('[Presentation] Error destroying previous instance:', e);
+                    }
+                    revealInstance = null;
+                }
+
+                const revealElement = previewContainer.querySelector('.reveal');
+                if (!revealElement) {
+                    console.error('[Presentation] .reveal element not found');
+                    return;
+                }
+
+                revealInstance = new Reveal(revealElement, {
+                    embedded: true,
+                    width: 960,
+                    height: 700,
+                    margin: 0.1,
+                    minScale: 0.2,
+                    maxScale: 2.0,
+                    controls: true,
+                    progress: true,
+                    center: true,
+                    hash: false,
+                    slideNumber: true,
+                    transition: document.getElementById('presentationTransitionSelect').value || 'slide',
+                    plugins: [ RevealMarkdown ]
+                });
+
+                revealInstance.initialize().then(() => {
+                    console.log('[Presentation] ✅ Reveal initialized, navigating to slide:', currentSlideIndex);
+                    revealInstance.slide(currentSlideIndex, 0, 0);
+
+                    // Apply custom styles if enabled
+                    applyCustomStyles();
+                }).catch(error => {
+                    console.error('[Presentation] ❌ Error during initialization:', error);
+                });
+
+            } catch (error) {
+                console.error('[Presentation] ❌ Error initializing Reveal:', error);
+            }
+        }
+
+        function applyCustomStyles() {
+            if (!currentEditingPresentationId) return;
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === currentEditingPresentationId);
+
+            if (!presentation || !presentation.customStyle || !presentation.customStyle.enabled) {
+                // Remove custom style if exists
+                const existingStyle = document.getElementById('customPresentationStyle');
+                if (existingStyle) existingStyle.remove();
+                return;
+            }
+
+            const style = presentation.customStyle;
+            const colors = style.colors;
+
+            // Remove existing custom style
+            const existingStyle = document.getElementById('customPresentationStyle');
+            if (existingStyle) existingStyle.remove();
+
+            // Create new style element
+            const styleElement = document.createElement('style');
+            styleElement.id = 'customPresentationStyle';
+            styleElement.textContent = `
+                /* Custom Presentation Styles */
+                #revealPreview .reveal {
+                    font-family: ${style.fontFamily} !important;
+                }
+
+                #revealPreview .reveal .slides {
+                    background: ${style.backgroundColor} !important;
+                }
+
+                #revealPreview .reveal h1,
+                #revealPreview .reveal h2,
+                #revealPreview .reveal h3,
+                #revealPreview .reveal h4,
+                #revealPreview .reveal h5,
+                #revealPreview .reveal h6 {
+                    color: ${colors.primary} !important;
+                    font-family: ${style.fontFamily} !important;
+                }
+
+                #revealPreview .reveal p,
+                #revealPreview .reveal li,
+                #revealPreview .reveal td,
+                #revealPreview .reveal th {
+                    color: ${style.textColor} !important;
+                    font-family: ${style.fontFamily} !important;
+                }
+
+                #revealPreview .reveal a {
+                    color: ${colors.secondary} !important;
+                }
+
+                #revealPreview .reveal a:hover {
+                    color: ${colors.accent1} !important;
+                }
+
+                #revealPreview .reveal code {
+                    background: ${colors.light} !important;
+                    color: ${style.textColor} !important;
+                }
+
+                #revealPreview .reveal blockquote {
+                    border-left: 5px solid ${colors.accent1} !important;
+                    background: ${colors.light} !important;
+                }
+
+                #revealPreview .reveal .controls {
+                    color: ${colors.primary} !important;
+                }
+
+                #revealPreview .reveal .progress {
+                    background: ${colors.light} !important;
+                }
+
+                #revealPreview .reveal .progress span {
+                    background: ${colors.primary} !important;
+                }
+
+                #revealPreview .reveal section {
+                    background: ${style.backgroundColor} !important;
+                }
+
+                #revealPreview .reveal strong,
+                #revealPreview .reveal b {
+                    color: ${colors.accent2} !important;
+                }
+
+                #revealPreview .reveal em,
+                #revealPreview .reveal i {
+                    color: ${colors.secondary} !important;
+                }
+            `;
+
+            document.head.appendChild(styleElement);
+            console.log('[Presentation] ✅ Custom styles applied');
+        }
+
+        function changePresentationTheme() {
+            const theme = document.getElementById('presentationThemeSelect').value;
+
+            // Update theme stylesheet
+            const themeLink = document.getElementById('revealTheme');
+            if (themeLink) {
+                themeLink.href = `https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/${theme}.css`;
+            }
+
+            // Save theme to presentation
+            if (currentEditingPresentationId) {
+                const stored = localStorage.getItem(`presentations_${currentPersona}`);
+                let presentations = stored ? JSON.parse(stored) : [];
+                const index = presentations.findIndex(p => p.id === currentEditingPresentationId);
+
+                if (index !== -1) {
+                    presentations[index].theme = theme;
+                    presentations[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+                    console.log('[Presentation] Theme changed to:', theme);
+                }
+            }
+        }
+
+        function changePresentationTransition() {
+            const transition = document.getElementById('presentationTransitionSelect').value;
+
+            // Save transition to presentation
+            if (currentEditingPresentationId) {
+                const stored = localStorage.getItem(`presentations_${currentPersona}`);
+                let presentations = stored ? JSON.parse(stored) : [];
+                const index = presentations.findIndex(p => p.id === currentEditingPresentationId);
+
+                if (index !== -1) {
+                    presentations[index].transition = transition;
+                    presentations[index].lastModified = new Date().toISOString();
+                    localStorage.setItem(`presentations_${currentPersona}`, JSON.stringify(presentations));
+                    console.log('[Presentation] Transition changed to:', transition);
+
+                    // Update Reveal instance
+                    if (revealInstance) {
+                        revealInstance.configure({ transition: transition });
+                    }
+                }
+            }
+        }
+
+        function startPresentationMode() {
+            if (!currentEditingPresentationId) return;
+
+            // Save current state
+            savePresentationSilently();
+
+            const stored = localStorage.getItem(`presentations_${currentPersona}`);
+            const presentations = stored ? JSON.parse(stored) : [];
+            const presentation = presentations.find(p => p.id === currentEditingPresentationId);
+
+            if (!presentation) return;
+
+            // Create full-screen presentation window
+            const presentWindow = window.open('', '_blank', 'width=1920,height=1080,fullscreen=yes');
+
+            if (!presentWindow) {
+                alert('Please allow popups to start presentation mode');
+                return;
+            }
+
+            // Build presentation HTML
+            const slidesHTML = presentation.slides.map(slide => {
+                return `<section data-markdown><textarea data-template>${slide.content}</textarea></section>`;
+            }).join('\n');
+
+            // Generate custom style CSS if enabled
+            let customStyleCSS = '';
+            if (presentation.customStyle && presentation.customStyle.enabled) {
+                const style = presentation.customStyle;
+                const colors = style.colors;
+                customStyleCSS = `
+        /* Custom Presentation Styles */
+        .reveal {
+            font-family: ${style.fontFamily} !important;
+        }
+
+        .reveal .slides {
+            background: ${style.backgroundColor} !important;
+        }
+
+        .reveal h1,
+        .reveal h2,
+        .reveal h3 {
+            color: ${colors.primary} !important;
+        }
+
+        .reveal p,
+        .reveal li {
+            color: ${style.textColor} !important;
+        }
+
+        .reveal a {
+            color: ${colors.secondary} !important;
+        }
+
+        .reveal a:hover {
+            color: ${colors.accent1} !important;
+        }
+
+        .reveal code {
+            background: ${colors.light} !important;
+            color: ${style.textColor} !important;
+        }
+
+        .reveal pre {
+            background: ${colors.light} !important;
+        }
+
+        .reveal blockquote {
+            border-left: 5px solid ${colors.accent1} !important;
+            background: ${colors.light} !important;
+        }
+
+        .reveal strong {
+            color: ${colors.accent2} !important;
+        }
+
+        .reveal .controls {
+            color: ${colors.primary} !important;
+        }
+
+        .reveal .progress {
+            background: ${colors.light} !important;
+        }
+
+        .reveal .progress span {
+            background: ${colors.primary} !important;
+        }`;
+            }
+
+            const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>${presentation.name}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/${presentation.theme || 'white'}.css">
+    <style>
+        .reveal { font-family: 'Barlow', sans-serif; }
+        ${customStyleCSS}
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            ${slidesHTML}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/markdown/markdown.js"><\/script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: '${presentation.transition || 'slide'}',
+            plugins: [ RevealMarkdown ]
+        });
+    <\/script>
+</body>
+</html>`;
+            presentWindow.document.write(htmlContent);
+            presentWindow.document.close();
+
+            console.log('[Presentation] ✅ Presentation mode started with custom styles:', presentation.customStyle?.enabled || false);
         }
 
         // PlantUML encoder function
