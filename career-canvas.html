@@ -21563,6 +21563,279 @@ Start typing...`
             document.getElementById('sessionRequestModal').style.display = 'none';
         }
 
+        // Enhanced Consent Tracking System
+
+        /**
+         * Captures comprehensive consent data for transaction-level tracking
+         * @param {string} serviceType - The type of service (coaching, consulting, partnership, profileBuilding, erasure, session)
+         * @param {object} checkboxStates - Current state of consent checkboxes
+         * @param {object} additionalContext - Any additional context for the consent
+         * @returns {object} Complete consent data structure
+         */
+        function captureConsentData(serviceType, checkboxStates = {}, additionalContext = {}) {
+            return {
+                consentVersion: "2025.1",
+                consentTimestamp: new Date().toISOString(),
+                serviceType: serviceType,
+                specificConsents: buildSpecificConsents(serviceType, checkboxStates),
+                contextualAgreements: getContextualAgreements(serviceType, additionalContext),
+                legalBasis: "consent", // GDPR Article 6(1)(a)
+                consentText: getConsentText(serviceType), // Store actual text user saw
+                termsOfService: {
+                    agreed: checkboxStates.termsAccepted || false,
+                    version: "current",
+                    url: "https://cleansheet.info/terms-of-service.html"
+                }
+            };
+        }
+
+        /**
+         * Builds specific consent details based on service type and checkbox states
+         */
+        function buildSpecificConsents(serviceType, checkboxStates) {
+            const consents = {
+                dataProcessing: {
+                    agreed: true, // Implied by form submission
+                    purpose: getDataProcessingPurpose(serviceType),
+                    scope: getDataScope(serviceType),
+                    retention: getRetentionPolicy(serviceType)
+                },
+                dataSharing: {
+                    agreed: checkboxStates.sharing || false,
+                    withWhom: getDataSharingRecipients(serviceType),
+                    purpose: getDataSharingPurpose(serviceType)
+                }
+            };
+
+            // Add service-specific consents
+            switch (serviceType) {
+                case 'profileBuilding':
+                    consents.aiProcessing = {
+                        agreed: checkboxStates.acknowledgement || false,
+                        type: "AI-assisted open source search",
+                        authorization: "explicit"
+                    };
+                    consents.selfCertification = {
+                        agreed: checkboxStates.acknowledgement || false,
+                        statement: "requesting profile only for myself"
+                    };
+                    break;
+
+                case 'coaching':
+                    consents.profileSharing = {
+                        agreed: checkboxStates.coaching || false,
+                        purpose: "coach match process",
+                        recipients: ["Cleansheet coaching team"]
+                    };
+                    break;
+
+                case 'session':
+                    consents.profileSharing = {
+                        agreed: checkboxStates.mockInterview || false,
+                        purpose: "mock interview coaching",
+                        recipients: ["Cleansheet coaching team"]
+                    };
+                    break;
+
+                case 'erasure':
+                    consents.dataRights = {
+                        agreed: true, // Implied by erasure request submission
+                        rightExercised: "erasure",
+                        acknowledgment: "GDPR Article 17 right to erasure"
+                    };
+                    break;
+            }
+
+            return consents;
+        }
+
+        /**
+         * Gets contextual agreements based on service type
+         */
+        function getContextualAgreements(serviceType, additionalContext) {
+            const agreements = {
+                serviceType: serviceType,
+                specificAuthorizations: []
+            };
+
+            switch (serviceType) {
+                case 'profileBuilding':
+                    agreements.specificAuthorizations = [
+                        "AI-assisted open source search based on profile information",
+                        "Profile enhancement using publicly available data"
+                    ];
+                    break;
+
+                case 'coaching':
+                    agreements.specificAuthorizations = [
+                        "Profile sharing with coaching team for matching",
+                        "Experience data analysis for coach selection"
+                    ];
+                    break;
+
+                case 'consulting':
+                    agreements.specificAuthorizations = [
+                        "Profile analysis for service discovery",
+                        "Skills assessment for consulting opportunities"
+                    ];
+                    break;
+
+                case 'partnership':
+                    agreements.specificAuthorizations = [
+                        "Profile evaluation for partnership opportunities",
+                        "Business alignment assessment"
+                    ];
+                    break;
+
+                case 'session':
+                    agreements.specificAuthorizations = [
+                        "Profile sharing for mock interview coach matching",
+                        "Career data analysis for coaching preparation"
+                    ];
+                    break;
+
+                case 'erasure':
+                    agreements.specificAuthorizations = [
+                        "Data deletion across all Cleansheet systems",
+                        "Permanent removal of personal information"
+                    ];
+                    break;
+            }
+
+            if (additionalContext.persona) {
+                agreements.personaContext = additionalContext.persona;
+            }
+
+            return agreements;
+        }
+
+        /**
+         * Helper functions for consent data building
+         */
+        function getDataProcessingPurpose(serviceType) {
+            const purposes = {
+                'profileBuilding': 'AI-assisted profile enhancement and open source search',
+                'coaching': 'facilitate the coach match process',
+                'consulting': 'facilitate the service discovery process',
+                'partnership': 'explore potential partnership opportunities',
+                'session': 'mock interview coaching and coach matching',
+                'erasure': 'data deletion and privacy rights fulfillment'
+            };
+            return purposes[serviceType] || 'service delivery';
+        }
+
+        function getDataScope(serviceType) {
+            const scopes = {
+                'profileBuilding': ['profile', 'experiences', 'contact_info', 'browser_metadata'],
+                'coaching': ['profile', 'experiences', 'portfolio', 'job_opportunities', 'goals', 'stories'],
+                'consulting': ['profile', 'experiences', 'skills', 'contact_info'],
+                'partnership': ['profile', 'experiences', 'professional_info', 'contact_info'],
+                'session': ['profile', 'experiences', 'portfolio', 'job_opportunities'],
+                'erasure': ['all_personal_data']
+            };
+            return scopes[serviceType] || ['profile'];
+        }
+
+        function getDataSharingRecipients(serviceType) {
+            const recipients = {
+                'profileBuilding': ['Cleansheet AI systems', 'Profile enhancement services'],
+                'coaching': ['Cleansheet coaching team', 'Matched coaches'],
+                'consulting': ['Cleansheet consulting team', 'Service delivery team'],
+                'partnership': ['Cleansheet partnership team', 'Business development team'],
+                'session': ['Cleansheet coaching team', 'Mock interview coaches'],
+                'erasure': ['No data sharing - deletion only']
+            };
+            return recipients[serviceType] || ['Cleansheet team'];
+        }
+
+        function getDataSharingPurpose(serviceType) {
+            const purposes = {
+                'profileBuilding': 'profile enhancement and improvement',
+                'coaching': 'coach matching and service delivery',
+                'consulting': 'service discovery and consulting delivery',
+                'partnership': 'partnership evaluation and collaboration',
+                'session': 'mock interview coaching and preparation',
+                'erasure': 'no sharing - data deletion'
+            };
+            return purposes[serviceType] || 'service delivery';
+        }
+
+        function getRetentionPolicy(serviceType) {
+            const policies = {
+                'profileBuilding': 'retained until profile delivery or 90 days maximum',
+                'coaching': 'retained for duration of coaching relationship plus 1 year',
+                'consulting': 'retained for duration of consulting relationship plus 2 years',
+                'partnership': 'retained for duration of partnership evaluation plus 1 year',
+                'session': 'retained until session completion plus 30 days',
+                'erasure': 'immediate deletion upon verification'
+            };
+            return policies[serviceType] || 'as per Privacy Policy';
+        }
+
+        function getConsentText(serviceType) {
+            // This captures the actual consent text shown to the user
+            const texts = {
+                'profileBuilding': 'I acknowledge that I am requesting a profile only for myself, I authorize Cleansheet to perform an AI-assisted open source search based on my current profile and the information provided in this form, and I agree to the Terms of Service.',
+                'coaching': 'I acknowledge that I am sharing my profile information with Cleansheet to facilitate the coach match process, and I agree to the Terms of Service.',
+                'consulting': 'I acknowledge that I am sharing my information with Cleansheet to facilitate the service discovery process, and I agree to the Terms of Service.',
+                'partnership': 'I acknowledge that I am sharing my information with Cleansheet to explore potential partnership opportunities, and I agree to the Terms of Service.',
+                'session': 'I consent to sharing my profile, career experiences, job opportunities, and portfolio with Cleansheet\'s coaching team for the purpose of matching me with an appropriate mock interview coach.',
+                'erasure': 'I request the deletion of my personal data in accordance with my privacy rights.'
+            };
+            return texts[serviceType] || 'I agree to the processing of my data for the requested service.';
+        }
+
+        /**
+         * Maps request source to service type for consent tracking
+         */
+        function getServiceTypeFromSource(source) {
+            const sourceToServiceMap = {
+                'coaching': 'coaching',
+                'consulting': 'consulting',
+                'partnership': 'partnership',
+                'slideout': 'profileBuilding',
+                'subscription': 'profileBuilding',
+                'modal': 'profileBuilding'
+            };
+            return sourceToServiceMap[source] || 'profileBuilding';
+        }
+
+        /**
+         * Gets current checkbox states for consent tracking
+         */
+        function getCurrentCheckboxStates(serviceType) {
+            const states = {};
+
+            switch (serviceType) {
+                case 'profileBuilding':
+                    const slideoutAck = document.getElementById('slideoutAcknowledgement');
+                    const subscriptionAck = document.getElementById('subscriptionAcknowledgement');
+                    states.acknowledgement = (slideoutAck && slideoutAck.checked) || (subscriptionAck && subscriptionAck.checked) || false;
+                    states.termsAccepted = states.acknowledgement; // Terms acceptance is implied in acknowledgement
+                    break;
+
+                case 'coaching':
+                case 'consulting':
+                case 'partnership':
+                    const coachingAck = document.getElementById('coachingInquiryAcknowledgement');
+                    states.coaching = coachingAck && coachingAck.checked || false;
+                    states.termsAccepted = states.coaching; // Terms acceptance is implied
+                    break;
+
+                case 'session':
+                    const mockInterviewConsent = document.getElementById('mockInterviewConsent');
+                    states.mockInterview = mockInterviewConsent && mockInterviewConsent.checked || false;
+                    states.sharing = states.mockInterview;
+                    break;
+
+                case 'erasure':
+                    states.termsAccepted = true; // Implied by erasure request submission
+                    break;
+            }
+
+            return states;
+        }
+
         async function submitSessionRequest() {
             // Get form values
             const email = document.getElementById('sessionEmail').value.trim();
@@ -21658,7 +21931,16 @@ Start typing...`
                 const randomSuffix = Math.random().toString(36).substring(2, 8);
                 const rowKey = `${timestamp}_${randomSuffix}`;
 
-                // Create Table Storage entity with summarized data
+                // Capture consent data for this session request
+                const checkboxStates = getCurrentCheckboxStates('session');
+                const consentData = captureConsentData('session', checkboxStates, {
+                    persona: currentPersona,
+                    experienceCount: experiences.length,
+                    portfolioCount: portfolio.length,
+                    jobOpportunitiesCount: jobOpportunities.length
+                });
+
+                // Create Table Storage entity with summarized data and consent tracking
                 const entity = {
                     PartitionKey: 'SessionRequest',
                     RowKey: rowKey,
@@ -21676,7 +21958,14 @@ Start typing...`
                     portfolio: JSON.stringify(portfolioSummary),
                     jobOpportunities: JSON.stringify(jobsSummary),
                     requestDate: new Date().toISOString(),
-                    status: 'pending'
+                    status: 'pending',
+                    // Enhanced consent tracking
+                    consentData: JSON.stringify(consentData),
+                    consentVersion: consentData.consentVersion,
+                    consentTimestamp: consentData.consentTimestamp,
+                    legalBasis: consentData.legalBasis,
+                    dataProcessingPurpose: consentData.specificConsents.dataProcessing.purpose,
+                    consentedToSharing: consentData.specificConsents.profileSharing ? consentData.specificConsents.profileSharing.agreed : false
                 };
 
                 // POST to Azure Table Storage
@@ -21790,7 +22079,15 @@ Start typing...`
                 // Get IP address (async, with fallback)
                 const ipAddress = await getClientIPAddress();
 
-                // Wrap erasure request data with metadata
+                // Capture consent data for this erasure request
+                const checkboxStates = getCurrentCheckboxStates('erasure');
+                const consentData = captureConsentData('erasure', checkboxStates, {
+                    persona: currentPersona,
+                    requestedName: name,
+                    ipAddress: ipAddress
+                });
+
+                // Wrap erasure request data with metadata and consent tracking
                 const blobData = {
                     metadata: {
                         requestType: 'erasureRequest',
@@ -21805,7 +22102,9 @@ Start typing...`
                         name: name,
                         email: email,
                         status: 'pending'
-                    }
+                    },
+                    // Enhanced consent tracking for erasure requests
+                    consentData: consentData
                 };
 
                 console.log('Submitting erasure request via blob storage...');
@@ -21818,7 +22117,7 @@ Start typing...`
                 const blobName = await uploadProfileBlob(email, blobData);
                 console.log('✓ Erasure request blob uploaded:', blobName);
 
-                // Create table reference entry
+                // Create table reference entry with consent metadata
                 await createProfileBlobTableReference(
                     email,
                     blobName,
@@ -21826,7 +22125,13 @@ Start typing...`
                     {
                         name: name,
                         status: 'pending',
-                        browserType: browserMetadata.browserType
+                        browserType: browserMetadata.browserType,
+                        // Enhanced consent tracking in table
+                        consentVersion: consentData.consentVersion,
+                        consentTimestamp: consentData.consentTimestamp,
+                        legalBasis: consentData.legalBasis,
+                        rightExercised: 'erasure',
+                        dataProcessingPurpose: consentData.specificConsents.dataProcessing.purpose
                     }
                 );
                 console.log('✓ Erasure request table entry created');
@@ -21856,7 +22161,21 @@ Start typing...`
                 const profile = loadProfile();
                 const experiences = JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]');
 
-                // Wrap request data with metadata
+                // Determine service type from source for proper consent tracking
+                const serviceType = getServiceTypeFromSource(requestData.source);
+
+                // Capture consent data for this profile request
+                const checkboxStates = getCurrentCheckboxStates(serviceType);
+                const consentData = captureConsentData(serviceType, checkboxStates, {
+                    persona: currentPersona,
+                    experienceCount: experiences.length,
+                    hasGoal: !!profile.goal,
+                    hasProfession: !!profile.profession,
+                    source: requestData.source,
+                    ipAddress: ipAddress
+                });
+
+                // Wrap request data with metadata and consent tracking
                 const blobData = {
                     metadata: {
                         requestType: 'profileRequest',
@@ -21866,7 +22185,8 @@ Start typing...`
                         platform: browserMetadata.platform,
                         language: browserMetadata.language,
                         requestDate: new Date().toISOString(),
-                        source: requestData.source || 'unknown'
+                        source: requestData.source || 'unknown',
+                        serviceType: serviceType
                     },
                     request: {
                         email: requestData.email,
@@ -21881,7 +22201,9 @@ Start typing...`
                         hasGoal: !!profile.goal,
                         hasProfession: !!profile.profession,
                         persona: currentPersona
-                    }
+                    },
+                    // Enhanced consent tracking for profile requests
+                    consentData: consentData
                 };
 
                 console.log('Submitting profile request via blob storage...');
@@ -21894,7 +22216,7 @@ Start typing...`
                 const blobName = await uploadProfileBlob(requestData.email, blobData);
                 console.log('✓ Profile request blob uploaded:', blobName);
 
-                // Create table reference entry
+                // Create table reference entry with consent metadata
                 await createProfileBlobTableReference(
                     requestData.email,
                     blobName,
@@ -21906,7 +22228,16 @@ Start typing...`
                         linkedInURL: requestData.linkedIn,
                         source: requestData.source,
                         browserType: browserMetadata.browserType,
-                        experienceCount: experiences.length
+                        experienceCount: experiences.length,
+                        // Enhanced consent tracking in table
+                        serviceType: serviceType,
+                        consentVersion: consentData.consentVersion,
+                        consentTimestamp: consentData.consentTimestamp,
+                        legalBasis: consentData.legalBasis,
+                        dataProcessingPurpose: consentData.specificConsents.dataProcessing.purpose,
+                        consentedToProcessing: true,
+                        consentedToAI: consentData.specificConsents.aiProcessing ? consentData.specificConsents.aiProcessing.agreed : false,
+                        specificAuthorizations: JSON.stringify(consentData.contextualAgreements.specificAuthorizations)
                     }
                 );
                 console.log('✓ Profile request table entry created');
