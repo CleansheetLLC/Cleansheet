@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Genealogical Mapping & Records Navigation System - Cleansheet LLC White Paper</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <style>
+        /* CSS Variables - Corporate Professional Design System */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-h1: clamp(28px, 4vw, 32px);
+            --font-size-h2: clamp(24px, 3.5vw, 28px);
+            --font-size-h3: clamp(18px, 3vw, 24px);
+            --font-size-h4: clamp(16px, 2.8vw, 20px);
+            --font-size-body: clamp(14px, 2.5vw, 16px);
+            --font-size-small: clamp(12px, 2.2vw, 14px);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            line-height: 1.6;
+            color: var(--color-neutral-text);
+            background: var(--color-neutral-white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl) var(--spacing-xxl);
+            background: var(--color-neutral-background);
+            min-height: 100vh;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h1);
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h2);
+            color: var(--color-dark);
+            margin: var(--spacing-xxxl) 0 var(--spacing-lg) 0;
+            line-height: 1.3;
+        }
+
+        h3 {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h3);
+            color: var(--color-dark);
+            margin: var(--spacing-xl) 0 var(--spacing-md) 0;
+            line-height: 1.3;
+        }
+
+        h4 {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h4);
+            color: var(--color-dark);
+            margin: var(--spacing-lg) 0 var(--spacing-sm) 0;
+            line-height: 1.4;
+        }
+
+        p {
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-body);
+            color: var(--color-neutral-text);
+        }
+
+        ul, ol {
+            margin-bottom: var(--spacing-lg);
+            padding-left: var(--spacing-xl);
+        }
+
+        li {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-dark);
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxl) 0;
+            margin-bottom: var(--spacing-xxxl);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-xxl);
+        }
+
+        .header h1 {
+            color: var(--color-neutral-white);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .publication-info {
+            font-size: var(--font-size-small);
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: var(--spacing-lg);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Content Sections */
+        .section {
+            margin: var(--spacing-xxxl) 0;
+            padding: var(--spacing-xxl);
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pseudocode */
+        .pseudocode {
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: var(--font-size-small);
+            line-height: 1.4;
+            color: var(--color-dark);
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .pseudocode-header {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h4);
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Diagrams */
+        .diagram-container {
+            margin: var(--spacing-xl) 0;
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            padding: var(--spacing-xl);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagram-title {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-h4);
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+
+        /* Mermaid Diagrams */
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: var(--spacing-xl) 0;
+        }
+
+        /* Highlight Boxes */
+        .highlight-box {
+            background: var(--color-neutral-background);
+            border-radius: 8px;
+            padding: var(--spacing-xl);
+            margin: var(--spacing-xl) 0;
+            border-left: 4px solid var(--color-primary-blue);
+        }
+
+        .highlight-box h4 {
+            margin-top: 0;
+            color: var(--color-primary-blue);
+        }
+
+        /* Tables */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-xl) 0;
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: var(--color-primary-blue);
+            color: var(--color-neutral-white);
+            padding: var(--spacing-lg);
+            text-align: left;
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-border);
+            vertical-align: top;
+        }
+
+        .comparison-table tbody tr:nth-child(even) {
+            background: var(--color-neutral-background);
+        }
+
+        /* Family Tree Visual */
+        .family-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: var(--spacing-xl) 0;
+            padding: var(--spacing-xl);
+            background: var(--color-neutral-background);
+            border-radius: 8px;
+            gap: var(--spacing-md);
+        }
+
+        .generation {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .person-node {
+            background: var(--color-neutral-white);
+            border: 2px solid var(--color-primary-blue);
+            border-radius: 8px;
+            padding: var(--spacing-sm);
+            text-align: center;
+            min-width: 120px;
+            font-size: var(--font-size-small);
+        }
+
+        .person-node.active {
+            background: var(--color-primary-blue);
+            color: var(--color-neutral-white);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 var(--spacing-lg);
+            }
+
+            .header-content {
+                padding: 0 var(--spacing-lg);
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .pseudocode {
+                font-size: 12px;
+                padding: var(--spacing-md);
+            }
+
+            .diagram-container {
+                padding: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 style="text-align: center;">D3 Genealogical Mapping & Records Navigation System</h1>
+            <p class="publication-info">
+                <strong>Publication Date:</strong> November 9, 2025<br>
+                <strong>Version:</strong> 1.0<br>
+                <strong>Author:</strong> Cleansheet LLC<br>
+                <strong>Contact:</strong> cleansheet.info
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Abstract -->
+        <div class="section">
+            <h2>Abstract</h2>
+            <p>This disclosure presents a computer-implemented genealogical mapping and records navigation system that applies advanced D3.js visualization techniques with fixed-node positioning to family history research and ancestral data management. The system addresses critical limitations in traditional genealogical software by providing intuitive visual navigation through complex family relationships, integrated historical record management, and scalable data visualization for multi-generational family trees.</p>
+
+            <p>The innovation adapts proven D3 tree layout algorithms with novel relationship mapping specifically designed for genealogical data structures including bloodlines, marriages, adoptions, and step-relationships. Unlike standard family tree software that uses static hierarchical displays, this system implements dynamic node expansion with one-level-at-a-time exploration, enabling users to navigate complex family networks without visual overwhelm while maintaining spatial context of relationships.</p>
+
+            <p>Key technical innovations include bidirectional relationship visualization supporting both paternal and maternal lineages simultaneously, integrated historical records linking with automatic source citation management, privacy-aware sharing controls for sensitive family information, and collaborative family tree development with conflict resolution for disputed relationships. The system provides significant improvements in genealogical research efficiency while addressing privacy concerns and data accuracy challenges inherent in traditional family history platforms.</p>
+        </div>
+
+        <!-- Section 1: Technical Field -->
+        <div class="section">
+            <h2>1. Technical Field</h2>
+
+            <h3>1.1 Background</h3>
+            <p>This disclosure relates to genealogical data visualization and family history management systems, and more particularly to computer-implemented methods for interactive family tree navigation using D3.js fixed-node positioning with integrated historical records management, privacy controls, and collaborative research capabilities.</p>
+
+            <p>The system operates within the domain of genealogical research technology, specifically addressing the challenges of visualizing and navigating complex multi-generational family relationships, managing diverse historical record sources, and facilitating collaborative family history development across distributed research teams.</p>
+
+            <h3>1.2 Problem Statement</h3>
+            <p>Current genealogical software platforms suffer from significant limitations that impede effective family history research and collaboration:</p>
+
+            <ul>
+                <li><strong>Static Visualization Limitations:</strong> Traditional family tree displays become cluttered and unusable with large multi-generational datasets, lacking dynamic exploration capabilities for complex family networks</li>
+                <li><strong>Poor Relationship Context:</strong> Existing software struggles to represent complex family relationships including adoptions, step-families, multiple marriages, and non-traditional family structures</li>
+                <li><strong>Fragmented Records Management:</strong> Historical records are typically managed separately from family tree visualization, requiring manual correlation and lacking integrated source citation workflows</li>
+                <li><strong>Limited Collaboration Features:</strong> Multiple researchers working on shared family lines face conflicts, duplicate work, and inconsistent data entry without systematic collaboration tools</li>
+                <li><strong>Privacy and Sharing Challenges:</strong> Genealogical platforms often lack granular privacy controls for sensitive family information while still enabling appropriate research sharing</li>
+                <li><strong>Scalability Issues:</strong> Performance degrades significantly with large family datasets, limiting research scope and multi-generational exploration capabilities</li>
+            </ul>
+
+            <h3>1.3 Related Work</h3>
+            <p>Existing genealogical software approaches address family tree visualization and records management with various limitations:</p>
+
+            <ul>
+                <li><strong>Traditional Genealogy Software (Ancestry.com, MyHeritage):</strong> Provide comprehensive records databases but use static tree visualizations that become unwieldy with complex family structures</li>
+                <li><strong>Desktop Family Tree Applications (Family Tree Maker, Legacy):</strong> Offer detailed family tree management but lack modern interactive visualization and real-time collaboration capabilities</li>
+                <li><strong>Collaborative Platforms (FamilySearch, Geni):</strong> Support collaborative editing but struggle with conflict resolution and lack sophisticated visualization techniques</li>
+                <li><strong>Specialized Visualization Tools:</strong> Provide advanced tree layouts but are not designed specifically for genealogical data requirements and relationship complexities</li>
+            </ul>
+
+            <p>No existing solutions integrate advanced D3.js visualization techniques with genealogical-specific data modeling, privacy controls, and collaborative research workflows within a unified platform designed for professional and amateur genealogical research.</p>
+        </div>
+
+        <!-- Section 2: Summary of Invention -->
+        <div class="section">
+            <h2>2. Summary of Invention</h2>
+
+            <h3>2.1 Overview</h3>
+            <p>The D3 Genealogical Mapping & Records Navigation System provides a comprehensive solution for family history research through advanced interactive visualization techniques specifically adapted for genealogical data structures and research workflows. The system combines proven D3.js tree layout algorithms with genealogical-specific enhancements to enable intuitive navigation through complex family relationships while maintaining spatial context and relationship clarity.</p>
+
+            <p>The core innovation applies fixed-node positioning and one-level-at-a-time expansion techniques to genealogical data visualization, enabling researchers to explore multi-generational family networks without visual overwhelm while preserving important relationship context through intelligent spatial arrangement.</p>
+
+            <h3>2.2 Key Features</h3>
+            <ul>
+                <li><strong>Dynamic Genealogical Visualization:</strong> Adaptive D3 tree layouts optimized for family relationship display with support for complex family structures including adoptions, step-relationships, and multiple marriages</li>
+                <li><strong>Fixed-Node Positioning:</strong> Consistent spatial positioning maintaining relationship context during navigation with intelligent node arrangement for optimal family tree readability</li>
+                <li><strong>Integrated Records Management:</strong> Seamless linking of historical documents, photographs, and records to family tree nodes with automatic source citation and evidence tracking</li>
+                <li><strong>One-Level Expansion:</strong> Progressive disclosure of family relationships enabling focused exploration without losing spatial context of broader family network</li>
+                <li><strong>Collaborative Research Tools:</strong> Multi-user editing with conflict resolution, research task assignment, and systematic fact verification workflows</li>
+                <li><strong>Privacy-Aware Sharing:</strong> Granular privacy controls enabling selective sharing of family information with appropriate access restrictions for living individuals</li>
+            </ul>
+
+            <h3>2.3 Novel Aspects</h3>
+            <p>This system represents the first application of advanced D3.js visualization techniques to genealogical research with the following technical innovations:</p>
+
+            <ul>
+                <li><strong>Genealogical-Specific Node Layouts:</strong> Custom D3 algorithms optimized for family relationship display including paternal/maternal lineage visualization and complex relationship handling</li>
+                <li><strong>Historical Records Integration:</strong> Bidirectional linking between family tree nodes and historical records with automatic evidence strength assessment and source citation management</li>
+                <li><strong>Relationship Complexity Management:</strong> Advanced algorithms for displaying multiple marriages, adoptions, step-relationships, and non-traditional family structures within coherent visual framework</li>
+                <li><strong>Privacy-Preserving Collaboration:</strong> Sophisticated access controls enabling collaborative research while protecting sensitive information about living family members</li>
+                <li><strong>Progressive Disclosure Navigation:</strong> One-level-at-a-time expansion specifically adapted for genealogical exploration patterns and research workflows</li>
+            </ul>
+
+            <h3>2.4 Primary Advantages</h3>
+            <ul>
+                <li><strong>Enhanced Research Efficiency:</strong> Intuitive visual navigation reduces time required to understand complex family relationships and identify research opportunities</li>
+                <li><strong>Improved Data Accuracy:</strong> Integrated records management with source citation tracking ensures higher quality genealogical research and fact verification</li>
+                <li><strong>Collaborative Research Excellence:</strong> Systematic workflows for multi-researcher collaboration with conflict resolution and research task coordination</li>
+                <li><strong>Scalable Family Tree Management:</strong> Performance-optimized visualization supporting large multi-generational datasets without usability degradation</li>
+                <li><strong>Privacy-Compliant Sharing:</strong> Granular controls enabling appropriate information sharing while protecting privacy of living family members</li>
+            </ul>
+        </div>
+
+        <!-- Family Tree Visualization -->
+        <div class="section">
+            <h2>Genealogical Tree Structure Example</h2>
+            <p>The system adapts D3 fixed-node positioning for genealogical relationship display:</p>
+
+            <div class="family-tree">
+                <div class="generation">
+                    <div class="person-node">Great-Grandparents<br>Generation</div>
+                </div>
+                <div class="generation">
+                    <div class="person-node">Grandmother<br>Paternal</div>
+                    <div class="person-node">Grandfather<br>Paternal</div>
+                    <div class="person-node">Grandmother<br>Maternal</div>
+                    <div class="person-node">Grandfather<br>Maternal</div>
+                </div>
+                <div class="generation">
+                    <div class="person-node">Father</div>
+                    <div class="person-node active">Research Focus<br>Individual</div>
+                    <div class="person-node">Mother</div>
+                </div>
+                <div class="generation">
+                    <div class="person-node">Child 1</div>
+                    <div class="person-node">Child 2</div>
+                    <div class="person-node">Child 3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Detailed Description -->
+        <div class="section">
+            <h2>3. Detailed Description</h2>
+
+            <h3>3.1 System Architecture</h3>
+            <p>The genealogical mapping system employs a modular architecture designed for scalable family tree visualization, historical records integration, and collaborative research workflows.</p>
+
+            <div class="diagram-container">
+                <div class="diagram-title">Genealogical System Architecture</div>
+                <div class="mermaid">
+flowchart TB
+    VIZ["D3 Visualization Engine"]
+    DATA["Genealogical Data Manager"]
+    RECORDS["Historical Records Integration"]
+    COLLAB["Collaborative Research Tools"]
+    PRIVACY["Privacy & Sharing Controls"]
+    SEARCH["Family Search & Discovery"]
+
+    VIZ --> DATA
+    DATA --> RECORDS
+    RECORDS --> COLLAB
+    COLLAB --> PRIVACY
+    PRIVACY --> SEARCH
+    SEARCH --> VIZ
+                </div>
+            </div>
+
+            <h3>3.2 D3 Genealogical Visualization Engine</h3>
+            <p>The system adapts D3.js tree layout algorithms specifically for genealogical data visualization with enhanced relationship handling and progressive disclosure capabilities.</p>
+
+            <div class="pseudocode">
+                <div class="pseudocode-header">Genealogical D3 Visualization System</div>
+CLASS GeneologicalVisualizationEngine {
+    familyTreeData: FamilyTreeDataStructure
+    d3TreeLayout: D3TreeLayout
+    nodePositioning: FixedNodePositioning
+    relationshipMapper: FamilyRelationshipMapper
+
+    FUNCTION initializeGeneologicalTree(rootPersonId, treeContainer) {
+        // Configure D3 tree layout for genealogical display
+        treeLayout = d3.tree()
+            .nodeSize([120, 180]) // Optimized for person cards
+            .separation((a, b) => {
+                // Enhanced separation for family relationships
+                IF (a.data.relationship === 'spouse' && b.data.relationship === 'spouse') {
+                    RETURN 0.8  // Closer spacing for spouses
+                }
+                IF (a.parent === b.parent) {
+                    RETURN 1.2  // Standard sibling spacing
+                }
+                RETURN 2.0  // Generation separation
+            })
+
+        // Initialize root person and load immediate family
+        rootPerson = AWAIT familyTreeData.getPersonDetails(rootPersonId)
+        initialTreeData = AWAIT buildInitialTreeStructure(rootPerson)
+
+        // Create visualization with progressive disclosure
+        familyTreeVisualization = createFamilyTreeVisualization(initialTreeData, treeContainer)
+
+        // Setup interaction handlers
+        setupFamilyTreeInteractions()
+        setupRecordsIntegration()
+
+        RETURN familyTreeVisualization
+    }
+
+    FUNCTION buildInitialTreeStructure(rootPerson) {
+        treeStructure = {
+            person: rootPerson,
+            parents: null,
+            spouses: [],
+            children: [],
+            siblings: [],
+            _expandedLevels: new Set(['root'])
+        }
+
+        // Load immediate family relationships
+        treeStructure.parents = AWAIT loadParentGeneration(rootPerson.id)
+        treeStructure.spouses = AWAIT loadSpouses(rootPerson.id)
+        treeStructure.children = AWAIT loadChildGeneration(rootPerson.id)
+        treeStructure.siblings = AWAIT loadSiblings(rootPerson.id)
+
+        RETURN convertToD3HierarchyFormat(treeStructure)
+    }
+
+    FUNCTION loadParentGeneration(personId) {
+        parents = AWAIT familyTreeData.getParents(personId)
+        parentNodes = []
+
+        FOR EACH parent IN parents {
+            parentNode = {
+                person: parent,
+                relationship: determineParentalRelationship(parent, personId),
+                biologicalParent: parent.biologicalParent,
+                adoptiveParent: parent.adoptiveParent,
+                stepParent: parent.stepParent,
+                records: AWAIT loadPersonRecords(parent.id),
+                _collapsed: true // Initially collapsed for performance
+            }
+            parentNodes.push(parentNode)
+        }
+
+        RETURN parentNodes
+    }
+
+    FUNCTION handleNodeExpansion(nodeData, expansionType) {
+        personId = nodeData.person.id
+        currentLevel = nodeData.depth || 0
+
+        SWITCH (expansionType) {
+            CASE 'ancestors':
+                RETURN AWAIT expandAncestorLine(personId, currentLevel + 1)
+            CASE 'descendants':
+                RETURN AWAIT expandDescendantLine(personId, currentLevel - 1)
+            CASE 'siblings':
+                RETURN AWAIT expandSiblingGroup(personId)
+            CASE 'spouses':
+                RETURN AWAIT expandSpouseRelationships(personId)
+            DEFAULT:
+                RETURN AWAIT expandImmediateFamily(personId)
+        }
+    }
+
+    FUNCTION expandAncestorLine(personId, targetLevel) {
+        // Progressive disclosure up the family tree
+        ancestors = AWAIT familyTreeData.getAncestors(personId, 1) // One generation at a time
+
+        expandedNodes = []
+        FOR EACH ancestor IN ancestors {
+            ancestorNode = createPersonNode(ancestor, targetLevel)
+
+            // Enhance with relationship context
+            ancestorNode.relationshipPath = calculateRelationshipPath(personId, ancestor.id)
+            ancestorNode.records = AWAIT loadPersonRecords(ancestor.id)
+            ancestorNode.researchOpportunities = identifyResearchOpportunities(ancestor)
+
+            expandedNodes.push(ancestorNode)
+        }
+
+        // Update tree layout with new nodes
+        updateTreeLayout(expandedNodes, 'ancestors')
+
+        RETURN expandedNodes
+    }
+
+    FUNCTION createPersonNode(person, treeLevel) {
+        node = {
+            person: person,
+            level: treeLevel,
+            displayName: formatPersonDisplayName(person),
+            lifespan: calculateLifespan(person.birthDate, person.deathDate),
+            locations: extractLifeLocations(person),
+
+            // Genealogical metadata
+            recordCompleteness: assessRecordCompleteness(person),
+            researchPriority: calculateResearchPriority(person),
+            privacyLevel: determinePrivacyLevel(person),
+
+            // Visual properties
+            nodeSize: calculateNodeSize(person, treeLevel),
+            nodeColor: assignNodeColor(person),
+
+            // Interaction state
+            _expanded: false,
+            _highlighted: false,
+            _selected: false
+        }
+
+        RETURN node
+    }
+
+    FUNCTION setupFamilyTreeInteractions() {
+        // Click handlers for node expansion
+        d3.selectAll('.person-node')
+            .on('click', (event, d) => {
+                IF (event.shiftKey) {
+                    // Multi-select for comparison
+                    togglePersonSelection(d)
+                } ELSE IF (event.ctrlKey) {
+                    // Quick preview without expansion
+                    showPersonPreview(d)
+                } ELSE {
+                    // Standard expansion
+                    handleNodeExpansion(d, 'standard')
+                }
+            })
+            .on('dblclick', (event, d) => {
+                // Focus view on selected person
+                focusOnPerson(d.person.id)
+            })
+
+        // Hover interactions for relationship context
+        d3.selectAll('.person-node')
+            .on('mouseenter', (event, d) => {
+                highlightRelatedPersons(d)
+                showRelationshipTooltip(d, event)
+            })
+            .on('mouseleave', (event, d) => {
+                clearRelationshipHighlights()
+                hideTooltips()
+            })
+
+        // Drag interactions for tree repositioning
+        setupDragBehavior()
+    }
+}
+
+CLASS FamilyRelationshipMapper {
+    relationshipTypes: Map<String, RelationshipDefinition>
+
+    FUNCTION determineRelationshipType(person1, person2) {
+        // Calculate genetic relationship
+        commonAncestors = findCommonAncestors(person1.id, person2.id)
+
+        IF (commonAncestors.length === 0) {
+            RETURN analyzeMaritalConnection(person1, person2)
+        }
+
+        // Calculate cousin relationships, direct lineage, etc.
+        relationship = calculateGeneticRelationship(person1, person2, commonAncestors)
+
+        RETURN relationship
+    }
+
+    FUNCTION calculateGeneticRelationship(person1, person2, commonAncestors) {
+        closestAncestor = findClosestCommonAncestor(commonAncestors)
+
+        stepsFromPerson1 = countGenerationsToAncestor(person1.id, closestAncestor.id)
+        stepsFromPerson2 = countGenerationsToAncestor(person2.id, closestAncestor.id)
+
+        IF (stepsFromPerson1 === 1 && stepsFromPerson2 === 1) {
+            RETURN 'sibling'
+        } ELSE IF (stepsFromPerson1 === 1 && stepsFromPerson2 > 1) {
+            RETURN `aunt/uncle (${stepsFromPerson2 - 1} generation${stepsFromPerson2 > 2 ? 's' : ''} removed)`
+        } ELSE IF (stepsFromPerson1 === stepsFromPerson2) {
+            cousinLevel = stepsFromPerson1 - 1
+            RETURN `${cousinLevel}${getOrdinalSuffix(cousinLevel)} cousin`
+        } ELSE {
+            removed = Math.abs(stepsFromPerson1 - stepsFromPerson2)
+            cousinLevel = Math.min(stepsFromPerson1, stepsFromPerson2) - 1
+            RETURN `${cousinLevel}${getOrdinalSuffix(cousinLevel)} cousin ${removed} time${removed > 1 ? 's' : ''} removed`
+        }
+    }
+}
+            </div>
+
+            <h3>3.3 Historical Records Integration</h3>
+            <p>The system provides seamless integration between family tree visualization and historical records management with automatic source citation and evidence assessment capabilities.</p>
+
+            <div class="pseudocode">
+                <div class="pseudocode-header">Records Integration System</div>
+CLASS HistoricalRecordsIntegrator {
+    recordsSources: MultipleRecordProviders
+    citationManager: SourceCitationManager
+    evidenceAssessor: EvidenceStrengthAnalyzer
+
+    FUNCTION integrateRecordsWithFamilyTree(familyTreeNode) {
+        person = familyTreeNode.person
+
+        // Search multiple record sources
+        recordMatches = AWAIT searchHistoricalRecords(person)
+
+        // Assess evidence strength for each record
+        assessedRecords = []
+        FOR EACH record IN recordMatches {
+            evidenceStrength = evidenceAssessor.assessRecordEvidence(record, person)
+            citationInfo = citationManager.generateCitation(record)
+
+            assessedRecord = {
+                record: record,
+                evidenceStrength: evidenceStrength,
+                citation: citationInfo,
+                conflictsWithExisting: checkForConflicts(record, person),
+                recordType: classifyRecordType(record),
+                transcription: extractRecordTranscription(record),
+                linkedFacts: linkRecordToPersonFacts(record, person)
+            }
+
+            assessedRecords.push(assessedRecord)
+        }
+
+        // Update family tree node with record information
+        familyTreeNode.records = assessedRecords
+        familyTreeNode.recordCompleteness = calculateRecordCompleteness(assessedRecords)
+        familyTreeNode.researchOpportunities = identifyResearchOpportunities(person, assessedRecords)
+
+        // Update visualization to show record availability
+        updateNodeVisualWithRecordInfo(familyTreeNode)
+
+        RETURN assessedRecords
+    }
+
+    FUNCTION searchHistoricalRecords(person) {
+        searchCriteria = buildSearchCriteria(person)
+        allRecords = []
+
+        // Search multiple record providers in parallel
+        recordProviders = [
+            'census_records',
+            'vital_records',
+            'immigration_records',
+            'military_records',
+            'newspaper_records',
+            'church_records'
+        ]
+
+        searchPromises = recordProviders.map(provider => {
+            RETURN recordsSources[provider].search(searchCriteria)
+        })
+
+        recordResults = AWAIT Promise.allSettled(searchPromises)
+
+        // Consolidate and deduplicate results
+        FOR EACH result IN recordResults {
+            IF (result.status === 'fulfilled') {
+                allRecords = allRecords.concat(result.value)
+            }
+        }
+
+        // Remove duplicates and rank by relevance
+        uniqueRecords = deduplicateRecords(allRecords)
+        rankedRecords = rankRecordsByRelevance(uniqueRecords, person)
+
+        RETURN rankedRecords.slice(0, 50) // Top 50 most relevant
+    }
+
+    FUNCTION generateAutomaticCitations(records) {
+        citations = []
+
+        FOR EACH record IN records {
+            citation = {
+                sourceTitle: extractSourceTitle(record),
+                repository: record.repository,
+                recordIdentifier: record.identifier,
+                accessDate: getCurrentDate(),
+                url: record.url,
+                formattedCitation: formatCitationByStandard(record, 'chicago'),
+                evidenceType: determineEvidenceType(record)
+            }
+
+            citations.push(citation)
+        }
+
+        RETURN citations
+    }
+}
+            </div>
+        </div>
+
+        <!-- Section 4: Implementation Examples -->
+        <div class="section">
+            <h2>4. Implementation Examples</h2>
+
+            <h3>4.1 Multi-Generational Family Tree Navigation</h3>
+            <p>A genealogical researcher explores a complex family line with multiple marriages and adoptions, demonstrating the system's ability to handle complex family relationships through intuitive visual navigation.</p>
+
+            <div class="diagram-container">
+                <div class="diagram-title">Complex Family Relationship Navigation</div>
+                <div class="mermaid">
+flowchart TB
+    FOCUS["Research Focus Person<br>John Smith (1920-1995)"]
+
+    FATHER["Biological Father<br>Robert Smith"]
+    STEPFATHER["Step Father<br>William Jones"]
+    MOTHER["Mother<br>Mary Wilson"]
+
+    WIFE1["First Wife<br>Helen Brown"]
+    WIFE2["Second Wife<br>Susan Davis"]
+
+    CHILD1["Son (Helen)<br>Robert Smith Jr"]
+    CHILD2["Adopted Son<br>Michael Jones"]
+    CHILD3["Daughter (Susan)<br>Sarah Smith"]
+
+    FATHER --> FOCUS
+    MOTHER --> FOCUS
+    STEPFATHER -.-> FOCUS
+
+    FOCUS --> WIFE1
+    FOCUS --> WIFE2
+
+    FOCUS --> CHILD1
+    FOCUS --> CHILD2
+    FOCUS --> CHILD3
+                </div>
+            </div>
+
+            <h3>4.2 Collaborative Research Workflow</h3>
+            <p>Multiple researchers collaborate on a shared family line, demonstrating the system's conflict resolution and collaborative editing capabilities.</p>
+
+            <div class="highlight-box">
+                <h4>Collaborative Research Scenario</h4>
+                <ul>
+                    <li><strong>Primary Researcher:</strong> Family descendant with access to family documents and oral history</li>
+                    <li><strong>Professional Genealogist:</strong> Contracted researcher with expertise in specific geographic regions and record types</li>
+                    <li><strong>Volunteer Researcher:</strong> Extended family member contributing transcription work and local knowledge</li>
+                    <li><strong>Records Specialist:</strong> Expert in historical record interpretation and source evaluation</li>
+                </ul>
+            </div>
+
+            <p><strong>Collaborative Process Flow:</strong></p>
+            <ol>
+                <li><strong>Research Planning:</strong> Team establishes research objectives and divides responsibilities by expertise and geographic focus</li>
+                <li><strong>Parallel Research:</strong> Multiple researchers work simultaneously on different aspects of the family line with real-time progress visibility</li>
+                <li><strong>Evidence Integration:</strong> System consolidates findings from multiple sources with automatic conflict detection and resolution workflows</li>
+                <li><strong>Peer Review:</strong> Research findings undergo systematic review process with evidence strength assessment and source verification</li>
+                <li><strong>Publication Preparation:</strong> Completed research formatted for sharing with privacy controls and appropriate access permissions</li>
+            </ol>
+        </div>
+
+        <!-- Section 5: Technical Specifications -->
+        <div class="section">
+            <h2>5. Technical Specifications</h2>
+
+            <h3>5.1 Performance Benchmarks</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>Target Performance</th>
+                        <th>Maximum Dataset Size</th>
+                        <th>Concurrent Users</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Initial Tree Load</strong></td>
+                        <td>&lt;800ms</td>
+                        <td>10,000 persons</td>
+                        <td>50 concurrent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Node Expansion</strong></td>
+                        <td>&lt;300ms</td>
+                        <td>500 new nodes</td>
+                        <td>25 concurrent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Records Integration</strong></td>
+                        <td>&lt;1200ms</td>
+                        <td>100 records per person</td>
+                        <td>10 concurrent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Relationship Calculation</strong></td>
+                        <td>&lt;150ms</td>
+                        <td>15 generation depth</td>
+                        <td>100 concurrent</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>5.2 Privacy and Security Framework</h3>
+            <div class="highlight-box">
+                <h4>Privacy Protection Requirements</h4>
+                <ul>
+                    <li><strong>Living Person Protection:</strong> Automatic privacy restrictions for individuals born within past 100 years</li>
+                    <li><strong>Granular Sharing Controls:</strong> Individual node-level privacy settings with role-based access permissions</li>
+                    <li><strong>Data Encryption:</strong> AES-256 encryption for sensitive genealogical data at rest and in transit</li>
+                    <li><strong>Access Audit Trails:</strong> Comprehensive logging of data access and modification activities</li>
+                    <li><strong>Compliance Framework:</strong> GDPR and regional privacy law compliance for international genealogical research</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 6: Advantages and Benefits -->
+        <div class="section">
+            <h2>6. Advantages and Benefits</h2>
+
+            <h3>6.1 Research Efficiency Improvements</h3>
+            <p>The genealogical mapping system provides significant advantages over traditional family tree software through advanced visualization and integrated research workflows.</p>
+
+            <ul>
+                <li><strong>Intuitive Visual Navigation:</strong> D3-powered visualization enables rapid understanding of complex family relationships without losing spatial context</li>
+                <li><strong>Progressive Disclosure:</strong> One-level-at-a-time expansion prevents visual overwhelm while maintaining research focus and efficiency</li>
+                <li><strong>Integrated Records Management:</strong> Seamless correlation between family tree nodes and historical records reduces research coordination overhead</li>
+                <li><strong>Intelligent Research Prioritization:</strong> Automatic identification of research opportunities and evidence gaps guides efficient research planning</li>
+                <li><strong>Collaborative Research Excellence:</strong> Systematic workflows enable effective coordination among multiple researchers with expertise-based task distribution</li>
+            </ul>
+
+            <h3>6.2 Data Quality and Accuracy Benefits</h3>
+            <p>The system provides superior data quality management through automated evidence assessment and systematic source citation workflows.</p>
+
+            <ul>
+                <li><strong>Automated Evidence Assessment:</strong> Systematic evaluation of historical record evidence strength with conflict detection and resolution</li>
+                <li><strong>Source Citation Management:</strong> Automatic generation of properly formatted citations following genealogical standards</li>
+                <li><strong>Fact Verification Workflows:</strong> Peer review processes with expert validation for complex genealogical determinations</li>
+                <li><strong>Duplicate Detection:</strong> Advanced algorithms identify and resolve duplicate persons and records across large datasets</li>
+                <li><strong>Data Consistency Enforcement:</strong> Validation rules ensure genealogical data integrity and logical consistency</li>
+            </ul>
+
+            <h3>6.3 Privacy and Collaboration Advantages</h3>
+            <p>The platform provides sophisticated privacy controls enabling appropriate research sharing while protecting sensitive family information.</p>
+
+            <ul>
+                <li><strong>Granular Privacy Controls:</strong> Individual-level privacy settings with automatic restrictions for living persons</li>
+                <li><strong>Role-Based Access Management:</strong> Flexible permission systems supporting various researcher roles and responsibilities</li>
+                <li><strong>Secure Collaboration:</strong> Encrypted data sharing with audit trails for all research activities and data access</li>
+                <li><strong>Compliance-Ready:</strong> Built-in compliance with international privacy regulations for global genealogical research</li>
+                <li><strong>Ethical Research Support:</strong> Features promoting responsible genealogical research practices and appropriate information sharing</li>
+            </ul>
+        </div>
+
+        <!-- Section 7: Market Applications -->
+        <div class="section">
+            <h2>7. Market Applications</h2>
+
+            <h3>7.1 Target Markets</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Market Segment</th>
+                        <th>Primary Use Cases</th>
+                        <th>Key Benefits</th>
+                        <th>Market Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Amateur Genealogists</strong></td>
+                        <td>Personal family history research</td>
+                        <td>Intuitive navigation, records integration</td>
+                        <td>50M+ globally</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Professional Genealogists</strong></td>
+                        <td>Client research services</td>
+                        <td>Collaboration tools, evidence management</td>
+                        <td>10,000+ professionals</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Academic Researchers</strong></td>
+                        <td>Historical population studies</td>
+                        <td>Large dataset visualization, analytics</td>
+                        <td>1,000+ institutions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cultural Organizations</strong></td>
+                        <td>Community heritage projects</td>
+                        <td>Collaborative research, privacy controls</td>
+                        <td>5,000+ organizations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.2 Competitive Positioning</h3>
+            <p>The system establishes a new category of genealogical research software through advanced visualization techniques and integrated research workflows unavailable in existing platforms.</p>
+
+            <div class="highlight-box">
+                <h4>Key Differentiators</h4>
+                <ul>
+                    <li><strong>Advanced Visualization:</strong> First application of professional D3.js techniques to genealogical research with fixed-node positioning and progressive disclosure</li>
+                    <li><strong>Integrated Research Workflow:</strong> Seamless combination of visual navigation, records management, and collaborative research tools</li>
+                    <li><strong>Privacy-First Design:</strong> Comprehensive privacy controls designed specifically for genealogical research requirements</li>
+                    <li><strong>Scalable Architecture:</strong> Performance-optimized for large multi-generational datasets unlike traditional genealogical software</li>
+                    <li><strong>Professional Research Support:</strong> Advanced features supporting professional genealogical research practices and standards</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Publication Information -->
+        <div class="section">
+            <h2>Publication Information</h2>
+            <p><strong>Published by:</strong> Cleansheet LLC<br>
+            <strong>Publication Date:</strong> November 9, 2025<br>
+            <strong>Location:</strong> <a href="https://cleansheet.info" target="_blank">cleansheet.info</a><br>
+            <strong>License:</strong> Creative Commons Attribution 4.0 International License for industry advancement and open innovation</p>
+
+            <hr style="margin: 2em 0; border: none; border-top: 1px solid var(--color-neutral-border);">
+
+            <p><em><strong>Disclaimer:</strong> This document is published for educational and informational purposes to advance industry knowledge and technical innovation. The author(s) make no warranties about the completeness or accuracy of this information and are not liable for any use of this information.</em></p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid with professional styling
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#0066CC',
+                primaryTextColor: '#1a1a1a',
+                primaryBorderColor: '#004C99',
+                lineColor: '#333333',
+                secondaryColor: '#f5f5f7',
+                tertiaryColor: '#f8f8f8',
+                background: '#ffffff',
+                mainBkg: '#ffffff',
+                secondBkg: '#f5f5f7',
+                tertiaryTextColor: '#666666'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            fontFamily: 'Questrial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            securityLevel: 'loose'
+        });
+    </script>
+</body>
+</html>

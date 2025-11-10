@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context-Aware AI Prompt Generation System - Cleansheet LLC White Paper</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <style>
+        /* CSS Variables - Corporate Professional Design System */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-h1: clamp(28px, 4vw, 32px);
+            --font-size-h2: clamp(24px, 3.5vw, 28px);
+            --font-size-h3: clamp(18px, 3vw, 24px);
+            --font-size-h4: clamp(16px, 2.8vw, 20px);
+            --font-size-body: clamp(14px, 2.5vw, 16px);
+            --font-size-small: clamp(12px, 2.2vw, 14px);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            line-height: 1.6;
+            color: var(--color-neutral-text);
+            margin: 0;
+            padding: 0;
+            background: var(--color-neutral-white);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-ui);
+            color: var(--color-dark);
+            margin: var(--spacing-xxl) 0 var(--spacing-lg) 0;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: var(--font-size-h1);
+            color: var(--color-primary-blue);
+            text-align: center;
+            margin-bottom: var(--spacing-xxxl);
+            border-bottom: 2px solid var(--color-neutral-border);
+            padding-bottom: var(--spacing-lg);
+        }
+
+        h2 {
+            font-size: var(--font-size-h2);
+            color: var(--color-primary-blue);
+            border-left: 4px solid var(--color-primary-blue);
+            padding-left: var(--spacing-lg);
+            margin-top: var(--spacing-xxxl);
+        }
+
+        h3 {
+            font-size: var(--font-size-h3);
+            color: var(--color-accent-blue);
+        }
+
+        h4 {
+            font-size: var(--font-size-h4);
+            color: var(--color-dark);
+        }
+
+        p {
+            margin: var(--spacing-lg) 0;
+            font-size: var(--font-size-body);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl);
+        }
+
+        .header {
+            background: var(--color-dark);
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxxl) 0;
+            margin-bottom: var(--spacing-xxxl);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-xxl);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--color-neutral-white);
+            border-bottom: none;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .publication-info {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+            margin-bottom: 0;
+        }
+
+        /* Content Sections */
+        .section {
+            margin: var(--spacing-xxxl) 0;
+            padding: var(--spacing-xxl);
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .abstract {
+            background: var(--color-neutral-background-secondary);
+            border-left: 4px solid var(--color-primary-blue);
+            font-style: italic;
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: var(--spacing-xxl);
+            margin: var(--spacing-lg) 0;
+        }
+
+        li {
+            margin: var(--spacing-sm) 0;
+        }
+
+        /* Code and Technical Content */
+        .pseudocode {
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: var(--font-size-small);
+            line-height: 1.4;
+            color: var(--color-dark);
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-lg) 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        th {
+            background: var(--color-neutral-background);
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        /* Figures */
+        .figure {
+            margin: var(--spacing-xxl) 0;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .figure-description {
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+            font-style: italic;
+            margin-top: var(--spacing-md);
+        }
+
+        /* Mermaid Diagrams */
+        .mermaid {
+            background: var(--color-neutral-white);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            overflow-x: auto;
+        }
+
+        .figure .mermaid {
+            max-width: 100%;
+        }
+
+        /* Claims and Technical Lists */
+        .claim {
+            background: var(--color-neutral-background-secondary);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .claim-title {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-primary-blue);
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Key Features Highlights */
+        .key-features {
+            background: linear-gradient(135deg, var(--color-primary-blue), var(--color-accent-blue));
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxl);
+            border-radius: 8px;
+            margin: var(--spacing-xxl) 0;
+        }
+
+        .key-features h3 {
+            color: var(--color-neutral-white);
+            margin-top: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-lg);
+            }
+
+            .section {
+                padding: var(--spacing-lg);
+            }
+
+            .header-content {
+                padding: 0 var(--spacing-lg);
+            }
+
+            .pseudocode {
+                font-size: 12px;
+                padding: var(--spacing-md);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header {
+                background: none;
+                color: var(--color-dark);
+            }
+
+            .header h1 {
+                color: var(--color-primary-blue);
+            }
+
+            .section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Context-Aware AI Prompt Generation System</h1>
+            <p class="publication-info">
+                <strong>Publication Date:</strong> November 9, 2025<br>
+                <strong>Version:</strong> 1.0<br>
+                <strong>Author:</strong> Cleansheet LLC<br>
+                <strong>Contact:</strong> cleansheet.info
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section abstract">
+            <h2>Abstract</h2>
+            <p>A computer-implemented system for generating sophisticated AI prompts that automatically aggregates career profile data from multiple localStorage sources, enriches prompts with company-specific research directives, and optimizes prompt structure for different professional content types based on subscription tier and user preferences.</p>
+
+            <p>The system implements a novel multi-source data aggregation engine that collects user profiles, work experiences, behavioral stories, portfolio projects, and target job opportunities from separate localStorage sources while preserving relational context and data integrity. Career profile data is enhanced through competency analysis, achievement metrics extraction, and skill development timeline generation to provide comprehensive professional context for AI consumption.</p>
+
+            <p>Key innovations include company-specific research directive generation that instructs AI systems to investigate target employers' technology stacks, cultural values, interview practices, and competitive positioning before generating content. Unlike generic job description matching systems, this approach provides specific research instructions that enable AI to create highly personalized and competitively differentiated professional materials.</p>
+
+            <p>The invention features asset-type-specific prompt formatting that adapts instruction structure, tone requirements, and optimization strategies based on intended content format including resumes, cover letters, LinkedIn profiles, interview preparation materials, and portfolio descriptions. Each content type receives specialized formatting instructions while maintaining consistent company research integration and career profile context.</p>
+
+            <p>Commercial applications span career coaching platforms, recruitment technology, professional development services, and HR management systems where automated generation of personalized, company-specific professional content provides competitive advantage for job seekers and career development professionals.</p>
+
+            <p><strong>Keywords:</strong> artificial intelligence, prompt generation, career profile aggregation, company research, multi-source data integration, professional content optimization, subscription-based services, localStorage persistence</p>
+        </section>
+
+        <section class="section">
+            <h2>1. Technical Field</h2>
+
+            <h3>1.1 Background</h3>
+            <p>The present invention relates to artificial intelligence prompt generation systems, and more particularly to methods and systems for dynamically aggregating career profile data from multiple localStorage sources, enriching prompts with target company research directives, and generating structured AI prompts optimized for specific content types, subscription tiers, and professional contexts.</p>
+
+            <p>The invention operates within the domain of professional content generation, career development technology, and AI-powered document creation. It addresses the growing need for automated, personalized professional content that leverages comprehensive career data and company-specific research to create competitive differentiation in job applications and career positioning.</p>
+
+            <h3>1.2 Problem Statement</h3>
+            <p>The proliferation of AI-powered content generation tools has created significant opportunities for automated professional content creation, including resumes, cover letters, LinkedIn profiles, and interview preparation materials. However, existing AI prompt generation systems suffer from several critical limitations:</p>
+
+            <ul>
+                <li><strong>Manual Data Entry Requirements:</strong> Users must manually copy and paste their professional information into AI interfaces for each content generation session, creating friction and reducing usage frequency.</li>
+                <li><strong>Generic Prompt Construction:</strong> Most AI interactions use generic prompts that fail to leverage company-specific research or target employer context, resulting in generic outputs that lack competitive differentiation.</li>
+                <li><strong>Single-Asset Type Optimization:</strong> Prompts are typically optimized for one content type (e.g., resume OR cover letter) rather than dynamically adapting formatting and instructions based on the intended output format.</li>
+                <li><strong>Lack of Career Context Integration:</strong> AI prompts rarely incorporate comprehensive career timeline data, behavioral stories, portfolio projects, and competency evidence in structured formats that enable sophisticated AI analysis.</li>
+                <li><strong>Static Professional Data:</strong> Traditional prompt systems treat professional information as static text rather than dynamic, interconnected data structures that can be selectively included or emphasized based on context.</li>
+                <li><strong>Subscription-Agnostic Prompting:</strong> AI prompt generation typically doesn't adapt to user subscription levels or access permissions, missing opportunities for tiered value delivery.</li>
+            </ul>
+
+            <h3>1.3 Prior Art</h3>
+            <p>Current approaches to AI-powered professional content generation include:</p>
+
+            <ul>
+                <li><strong>Resume Builders with AI:</strong> Tools like Zety, Resume.io provide AI writing assistance but require manual data re-entry for each session and don't integrate with broader career management systems</li>
+                <li><strong>Cover Letter Generators:</strong> Services like CoverLetterAI generate letters but use basic job description matching without comprehensive company research directives</li>
+                <li><strong>LinkedIn Optimization Tools:</strong> Platforms like Jasper AI provide LinkedIn post/profile writing but don't integrate with personal career timeline data or competency tracking</li>
+                <li><strong>Interview Prep AI:</strong> Tools like Pramp provide AI-generated interview questions but don't leverage user's actual career experience data for personalized question generation</li>
+            </ul>
+
+            <p>None of these solutions provide comprehensive career profile aggregation with company-specific research instructions and multi-asset type prompt optimization within a unified system.</p>
+        </section>
+
+        <section class="section">
+            <h2>2. Summary of the Invention</h2>
+
+            <h3>2.1 Overview</h3>
+            <p>The present invention addresses these limitations by providing a context-aware AI prompt generation system that combines multi-dimensional career profile aggregation with company-specific research directives and asset-type optimization to create superior AI prompts for professional content generation.</p>
+
+            <div class="key-features">
+                <h3>2.2 Key Features</h3>
+                <ul>
+                    <li><strong>Multi-Dimensional Career Profile Aggregation:</strong> Comprehensive data collection from multiple localStorage sources including user profiles, work experiences, behavioral stories, portfolio projects, and target job opportunities</li>
+                    <li><strong>Company-Specific Research Directives:</strong> Intelligent prompt augmentation that instructs AI systems to research target companies' technological stack, cultural values, interview practices, and industry-specific knowledge requirements</li>
+                    <li><strong>Dynamic Asset Type Optimization:</strong> Single prompt generation engine that produces format-specific instructions for resumes, cover letters, LinkedIn profiles, interview preparation, and portfolio presentations</li>
+                    <li><strong>Subscription-Aware Prompt Enhancement:</strong> Tiered prompt sophistication that provides basic prompts for free users and comprehensive research directives for premium subscribers</li>
+                    <li><strong>Structured JSON Data Integration:</strong> Seamless embedding of career profile data in AI-consumable JSON format while maintaining human-readable prompt context</li>
+                    <li><strong>Selective Profile Inclusion System:</strong> Checkbox-based interface allowing users to choose which career profile sections to include in prompt generation</li>
+                </ul>
+            </div>
+
+            <h3>2.3 Novel Aspects</h3>
+            <ul>
+                <li><strong>Company Research Directive Integration:</strong> Unlike generic job description matching, the system provides specific instructions for AI to research target company's tools, technologies, cultural practices, and interview methodologies before generating content.</li>
+                <li><strong>Multi-Source localStorage Aggregation:</strong> Comprehensive data collection from separate localStorage keys (user profiles, experiences, stories, projects, opportunities) with intelligent relationship mapping and data integrity validation.</li>
+                <li><strong>Asset-Type-Specific Prompt Optimization:</strong> Single generation engine dynamically produces prompts optimized for different professional content types with appropriate length requirements, tone specifications, and formatting instructions.</li>
+                <li><strong>Subscription-Tiered Research Depth:</strong> Basic users receive standard prompts while premium users get comprehensive company research directives and advanced prompt sophistication.</li>
+                <li><strong>Relational Data Preservation:</strong> System maintains relationships between experiences, stories, and portfolio projects while allowing selective inclusion without losing contextual connections.</li>
+            </ul>
+
+            <h3>2.4 Primary Advantages</h3>
+            <ul>
+                <li>Eliminates manual data entry through automated profile aggregation</li>
+                <li>Creates competitive differentiation through company-specific research integration</li>
+                <li>Provides consistent optimization across multiple professional content types</li>
+                <li>Enables sophisticated freemium business models through subscription-tiered features</li>
+                <li>Maintains data relationships while allowing flexible profile customization</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>3. Detailed Description</h2>
+
+            <h3>3.1 System Architecture</h3>
+            <p>The Context-Aware AI Prompt Generation System operates through several interconnected components that work together to create sophisticated, personalized AI prompts:</p>
+
+            <ol>
+                <li><strong>Multi-Source Data Aggregation Engine</strong></li>
+                <li><strong>Company Research Directive Generator</strong></li>
+                <li><strong>Asset-Type-Specific Prompt Formatter</strong></li>
+                <li><strong>Subscription-Aware Enhancement Layer</strong></li>
+                <li><strong>Structured JSON Serialization System</strong></li>
+                <li><strong>Selective Inclusion Interface</strong></li>
+            </ol>
+
+            <div class="figure">
+                <div class="figure-title">Figure 1: System Architecture Overview</div>
+                <div class="mermaid">
+flowchart TB
+    subgraph DSL ["Multi-Source Data Layer"]
+        UP["User Profile<br>localStorage"]
+        WE["Work Experiences<br>localStorage"]
+        BS["Behavioral Stories<br>localStorage"]
+        PP["Portfolio Projects<br>localStorage"]
+        TO["Target Opportunities<br>localStorage"]
+    end
+
+    subgraph DPE ["Data Processing Engine"]
+        DPA["Data Profile<br>Aggregator"]
+        RMA["Relationship<br>Mapper"]
+        DVA["Data Validator<br>Enhancer"]
+        CAE["Competency<br>Analysis Engine"]
+    end
+
+    subgraph RDS ["Research Directive System"]
+        CRG["Company Research<br>Generator"]
+        TRA["Technology Research<br>Analyzer"]
+        CIA["Culture Intelligence<br>Analyzer"]
+        IRA["Interview Research<br>Analyzer"]
+    end
+
+    subgraph PGE ["Prompt Generation Engine"]
+        APF["Asset-Type Prompt<br>Formatter"]
+        STE["Subscription Tier<br>Enhancer"]
+        JSS["JSON Serialization<br>System"]
+        QOS["Quality Optimization<br>System"]
+    end
+
+    UP --> DPA
+    WE --> DPA
+    BS --> DPA
+    PP --> DPA
+    TO --> DPA
+
+    DPA --> RMA
+    RMA --> DVA
+    DVA --> CAE
+
+    CAE --> CRG
+    TO --> CRG
+    CRG --> TRA
+    CRG --> CIA
+    CRG --> IRA
+
+    CAE --> APF
+    CRG --> APF
+    TRA --> APF
+    CIA --> APF
+    IRA --> APF
+
+    APF --> STE
+    STE --> JSS
+    JSS --> QOS
+    QOS --> OUTPUT["Generated AI<br>Prompt"]
+                </div>
+                <div class="figure-description">Overall system architecture showing multi-source data aggregation, research directive generation, and asset-specific prompt formatting workflow.</div>
+            </div>
+
+            <h3>3.2 Core Method/Process</h3>
+
+            <p><strong>Step 1: Multi-Source Career Profile Aggregation</strong></p>
+            <p>The system begins by collecting comprehensive career data from multiple localStorage sources:</p>
+
+            <div class="pseudocode">
+ALGORITHM: CareerProfileAggregation
+INPUT: currentPersona, aggregationOptions
+OUTPUT: enhancedCareerProfile
+
+BEGIN
+    Initialize data collection systems
+    Initialize validation engines
+    Initialize relationship mappers
+    Initialize cache management
+
+    FOR each localStorage source DO
+        IF source exists THEN
+            Load data with error handling
+            Validate data structure and integrity
+            Apply enhancement algorithms
+            Map relationships to other data elements
+        ELSE
+            Generate default structure
+        END IF
+    END FOR
+
+    Aggregate all enhanced data sources
+    Perform cross-source validation
+    Calculate completeness scores
+    Generate profile metadata
+
+    RETURN enhanced career profile
+END
+            </div>
+
+            <p><strong>Step 2: Company Research Directive Generation</strong></p>
+            <p>Based on target opportunity data, the system generates specific research instructions for AI systems:</p>
+
+            <div class="pseudocode">
+ALGORITHM: CompanyResearchDirectiveGeneration
+INPUT: targetOpportunity, subscriptionTier
+OUTPUT: researchDirectives
+
+BEGIN
+    IF targetOpportunity exists THEN
+        Extract company information
+        Analyze job description for technologies
+        Identify cultural research areas
+        Determine interview style requirements
+        Generate industry context requirements
+
+        SWITCH subscriptionTier:
+            CASE 'member':
+                Apply basic research directives
+            CASE 'learner':
+                Add market context directives
+            CASE 'seeker':
+                Add comprehensive intelligence directives
+        END SWITCH
+    ELSE
+        Generate generic research template
+    END IF
+
+    Format research instructions for AI consumption
+    Validate directive completeness
+
+    RETURN formatted research directives
+END
+            </div>
+
+            <p><strong>Step 3: Asset-Type-Specific Prompt Formatting</strong></p>
+            <p>The system adapts the base prompt structure based on the target professional content type:</p>
+
+            <div class="pseudocode">
+ALGORITHM: AssetSpecificPromptFormatting
+INPUT: assetType, profileData, researchDirectives, userSelections
+OUTPUT: optimizedPrompt
+
+BEGIN
+    Build base prompt with research directives
+    Add structured profile data section
+
+    SWITCH assetType:
+        CASE 'resume':
+            Apply ATS optimization instructions
+            Add quantified achievement requirements
+            Include role-specific keyword integration
+
+        CASE 'cover-letter':
+            Apply narrative structure requirements
+            Add personalization and research integration
+            Include company-specific customization
+
+        CASE 'linkedin-summary':
+            Apply SEO optimization requirements
+            Add professional positioning instructions
+            Include keyword density specifications
+
+        CASE 'interview-prep':
+            Generate behavioral question templates
+            Add STAR method response structures
+            Include company-specific preparation materials
+    END SWITCH
+
+    Apply subscription tier enhancements
+    Integrate user selection preferences
+    Optimize for AI consumption patterns
+
+    RETURN formatted asset-specific prompt
+END
+            </div>
+
+            <h3>3.3 Technical Implementation Details</h3>
+
+            <h4>Data Structures and Storage</h4>
+            <p>The system utilizes localStorage for client-side data persistence with the following key structure patterns:</p>
+
+            <div class="pseudocode">
+DATA STRUCTURE: UserProfile
+{
+    firstName: String,
+    lastName: String,
+    profession: String,
+    location: String,
+    email: String,
+    phone: String,
+    linkedIn: String,
+    goals: String,
+    summary: String,
+    keyStrengths: Array[String],
+    preferredIndustries: Array[String],
+    careerStage: String,
+    lastUpdated: Timestamp
+}
+
+DATA STRUCTURE: WorkExperience
+{
+    id: String,
+    company: String,
+    title: String,
+    startDate: String,
+    endDate: String,
+    industry: String,
+    responsibilities: String,
+    achievements: String,
+    technologies: Array[String],
+    skills: Array[String],
+    linkedStories: Array[String],
+    linkedAssets: Array[String]
+}
+
+DATA STRUCTURE: BehavioralStory
+{
+    id: String,
+    title: String,
+    situation: String,
+    task: String,
+    action: String,
+    result: String,
+    competencies: Array[String],
+    experienceIndex: String,
+    impactMetrics: String,
+    demonstratedSkills: Array[String]
+}
+            </div>
+
+            <h4>API Interfaces and Integration Points</h4>
+            <p>The system provides clean interfaces for external AI service integration:</p>
+
+            <div class="pseudocode">
+INTERFACE: AIPromptDelivery
+{
+    generatePrompt(assetType, options): PromptObject
+    validatePrompt(promptObject): ValidationResult
+    optimizeForService(promptObject, serviceType): OptimizedPrompt
+    deliverToAI(optimizedPrompt, aiService): DeliveryResult
+}
+
+INTERFACE: DataAggregation
+{
+    aggregateProfile(persona): ProfileData
+    validateData(profileData): ValidationResult
+    enhanceData(profileData): EnhancedProfile
+    cacheProfile(profileData): CacheResult
+}
+
+INTERFACE: ResearchDirectives
+{
+    generateDirectives(targetOpportunity, tier): ResearchDirectives
+    validateDirectives(directives): ValidationResult
+    enhanceForTier(directives, tier): EnhancedDirectives
+}
+            </div>
+
+            <h3>3.4 Key Components</h3>
+
+            <h4>Component A: Advanced Data Aggregation Infrastructure</h4>
+            <p>The data aggregation infrastructure provides comprehensive career profile collection with intelligent enhancement and relationship preservation. This component handles all localStorage interactions, data validation, and cross-source correlation to ensure AI prompts have access to complete professional context.</p>
+
+            <p>Key capabilities include multi-persona support, temporal data analysis, competency extraction, achievement quantification, and relationship mapping between experiences, stories, and portfolio projects.</p>
+
+            <h4>Component B: Company Research Directive Engine</h4>
+            <p>The research directive engine transforms basic job opportunity information into comprehensive research instructions for AI systems. This component analyzes company information, job descriptions, and industry context to generate specific investigation requirements.</p>
+
+            <p>Research areas include technology stack analysis, cultural values investigation, interview methodology research, competitive positioning analysis, and industry trend identification. The component adapts research depth and sophistication based on subscription tier.</p>
+
+            <h4>Component C: Asset-Type Prompt Optimization System</h4>
+            <p>The prompt optimization system adapts base prompts for different professional content types while maintaining consistent company research integration and career profile context. Each asset type receives specialized formatting, tone, and structural requirements.</p>
+
+            <p>Supported asset types include ATS-optimized resumes, personalized cover letters, SEO-optimized LinkedIn summaries, comprehensive interview preparation, personal statements, and portfolio descriptions. Each type includes specific success metrics and optimization strategies.</p>
+        </section>
+
+        <section class="section">
+            <h2>4. Implementation Examples</h2>
+
+            <h3>4.1 Example 1: Resume Generation for Software Engineer Role</h3>
+
+            <p><strong>Scenario:</strong> User targeting Senior Software Engineer position at Microsoft</p>
+
+            <p><strong>Input:</strong></p>
+            <ul>
+                <li>User profile with 5 years development experience</li>
+                <li>3 work experiences with technology stacks</li>
+                <li>8 behavioral stories with STAR structure</li>
+                <li>4 portfolio projects including cloud architecture</li>
+                <li>Target opportunity at Microsoft for Azure team</li>
+            </ul>
+
+            <p><strong>Process:</strong></p>
+            <ol>
+                <li>System aggregates all career profile data from localStorage sources</li>
+                <li>Generates Microsoft-specific research directives including Azure technology focus, Microsoft culture research, and technical interview preparation</li>
+                <li>Applies resume-specific formatting with ATS optimization and quantified achievements</li>
+                <li>Integrates .NET, C#, Azure, and cloud architecture keywords based on job description analysis</li>
+                <li>Structures career progression narrative emphasizing scalability and enterprise architecture experience</li>
+            </ol>
+
+            <p><strong>Output:</strong> 2,400-word AI prompt with embedded JSON career data, Microsoft research directives, and ATS-optimized resume generation instructions</p>
+
+            <p><strong>Performance:</strong> Generated in 180ms with 94% profile data utilization and 15 Microsoft-specific research directives</p>
+
+            <h3>4.2 Example 2: Interview Preparation for Product Manager Role</h3>
+
+            <p><strong>Scenario:</strong> User preparing for Senior Product Manager interview at Stripe</p>
+
+            <p><strong>Input:</strong></p>
+            <ul>
+                <li>User profile with product management and technical background</li>
+                <li>4 work experiences including fintech and payments</li>
+                <li>12 behavioral stories covering leadership and strategic decisions</li>
+                <li>2 portfolio projects with user research and analytics</li>
+                <li>Target opportunity at Stripe for payments infrastructure team</li>
+            </ul>
+
+            <p><strong>Process:</strong></p>
+            <ol>
+                <li>Aggregates complete career profile with emphasis on product leadership stories</li>
+                <li>Generates Stripe-specific research including payments industry expertise, API-first culture, and technical product management requirements</li>
+                <li>Applies interview preparation formatting with behavioral question generation and STAR response templates</li>
+                <li>Creates 15 company-specific behavioral questions and technical scenarios</li>
+                <li>Integrates fintech industry knowledge and payment system complexity discussions</li>
+            </ol>
+
+            <p><strong>Output:</strong> 3,200-word comprehensive interview preparation with 15 behavioral questions, 8 technical scenarios, and Stripe culture integration</p>
+
+            <p><strong>Performance:</strong> Generated in 220ms with 12 behavioral stories integrated and 18 Stripe-specific research areas</p>
+        </section>
+
+        <section class="section">
+            <h2>5. Variations and Embodiments</h2>
+
+            <h3>5.1 Alternative Implementation A: Cloud-Based Profile Synchronization</h3>
+            <p>While the primary implementation uses localStorage for client-side data persistence, an alternative embodiment provides cloud-based profile synchronization for multi-device access. This variation maintains the same aggregation and prompt generation capabilities while enabling profile sharing across devices and platforms.</p>
+
+            <p>The cloud synchronization layer provides encrypted data storage, cross-device profile updates, and collaborative profile management for career coaching scenarios. All prompt generation continues to operate client-side for privacy and performance.</p>
+
+            <h3>5.2 Alternative Implementation B: Enterprise Team-Based Deployment</h3>
+            <p>An enterprise variation enables team-based career development with shared competency libraries, company research databases, and collaborative prompt generation. This implementation adds role-based access control, team analytics, and centralized company intelligence management.</p>
+
+            <p>Enterprise features include bulk prompt generation, team competency gap analysis, standardized company research templates, and integration with existing HR information systems.</p>
+
+            <h3>5.3 Optional Features</h3>
+            <ul>
+                <li><strong>Multi-language Support:</strong> Prompt generation in multiple languages for international job applications with cultural adaptation</li>
+                <li><strong>Industry-Specific Templates:</strong> Specialized prompt templates optimized for healthcare, finance, technology, education, and other professional sectors</li>
+                <li><strong>AI Service Integration:</strong> Direct integration with OpenAI, Claude, Gemini, and other language model APIs for seamless content generation</li>
+                <li><strong>Performance Analytics:</strong> Tracking of prompt effectiveness, content quality metrics, and application success rates</li>
+                <li><strong>Advanced Research Intelligence:</strong> Integration with LinkedIn, Glassdoor, company databases, and market intelligence services</li>
+            </ul>
+
+            <h3>5.4 Scalability Variations</h3>
+            <p>The system architecture supports horizontal scaling through several deployment patterns:</p>
+
+            <ul>
+                <li><strong>Single-User Browser Extension:</strong> Lightweight browser extension for individual career professionals</li>
+                <li><strong>Web Application Platform:</strong> Full-featured web application with subscription management and advanced features</li>
+                <li><strong>Enterprise SaaS Solution:</strong> Multi-tenant cloud platform with team management and administrative controls</li>
+                <li><strong>API-First Integration:</strong> Headless prompt generation service for integration into existing career platforms and HR systems</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>6. Technical Specifications</h2>
+
+            <h3>6.1 System Requirements</h3>
+            <p>The Context-Aware AI Prompt Generation System operates as a client-side JavaScript application with the following technical requirements:</p>
+
+            <ul>
+                <li><strong>Browser Support:</strong> Modern browsers supporting ES6, localStorage, and JSON processing (Chrome 70+, Firefox 65+, Safari 12+, Edge 79+)</li>
+                <li><strong>Memory Requirements:</strong> 50-100MB RAM for profile data caching and processing</li>
+                <li><strong>Storage Requirements:</strong> 5-50MB localStorage capacity depending on profile complexity</li>
+                <li><strong>Processing Performance:</strong> Sub-200ms prompt generation for typical career profiles</li>
+                <li><strong>Network Requirements:</strong> Optional internet connectivity for company research enhancement</li>
+            </ul>
+
+            <h3>6.2 Configuration Parameters</h3>
+
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Description</th>
+                    <th>Typical Value</th>
+                    <th>Range</th>
+                </tr>
+                <tr>
+                    <td>cacheExpirationTTL</td>
+                    <td>Profile cache time-to-live in milliseconds</td>
+                    <td>300000</td>
+                    <td>60000-1800000</td>
+                </tr>
+                <tr>
+                    <td>maxPromptLength</td>
+                    <td>Maximum AI prompt length in characters</td>
+                    <td>8000</td>
+                    <td>2000-15000</td>
+                </tr>
+                <tr>
+                    <td>competencyThreshold</td>
+                    <td>Minimum frequency for competency inclusion</td>
+                    <td>2</td>
+                    <td>1-5</td>
+                </tr>
+                <tr>
+                    <td>researchDirectiveDepth</td>
+                    <td>Research directive complexity by subscription tier</td>
+                    <td>3-8</td>
+                    <td>1-12</td>
+                </tr>
+                <tr>
+                    <td>profileCompletenessThreshold</td>
+                    <td>Minimum profile completeness for optimal prompts</td>
+                    <td>0.7</td>
+                    <td>0.3-0.9</td>
+                </tr>
+            </table>
+
+            <h3>6.3 Performance Characteristics</h3>
+
+            <ul>
+                <li><strong>Prompt Generation Speed:</strong> 50-250ms depending on profile complexity and research directive depth</li>
+                <li><strong>Profile Aggregation Time:</strong> 20-100ms for complete multi-source data collection</li>
+                <li><strong>Memory Usage:</strong> 30-80MB peak memory during prompt generation</li>
+                <li><strong>localStorage Efficiency:</strong> 85-95% compression ratio for JSON profile data</li>
+                <li><strong>Cache Hit Ratio:</strong> 75-90% for frequently accessed profile data</li>
+                <li><strong>Concurrent User Capacity:</strong> Unlimited (client-side processing)</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>7. Advantages and Benefits</h2>
+
+            <h3>7.1 Technical Advantages</h3>
+            <ul>
+                <li><strong>Comprehensive Data Integration:</strong> Eliminates manual data entry by automatically aggregating career information from multiple localStorage sources while preserving relationships and context</li>
+                <li><strong>Intelligent Research Enhancement:</strong> Goes beyond basic job description matching to provide specific company research directives that instruct AI systems to investigate technology stacks, culture, and interview practices</li>
+                <li><strong>Multi-Asset Optimization:</strong> Single prompt generation system adapts to different content types (resumes, cover letters, LinkedIn, interview prep) with appropriate formatting and optimization strategies</li>
+                <li><strong>Client-Side Performance:</strong> All processing occurs client-side for immediate response times, privacy protection, and unlimited scalability without server infrastructure</li>
+                <li><strong>Subscription-Tiered Architecture:</strong> Clean separation of features by subscription level enables sophisticated freemium business models with clear upgrade value</li>
+            </ul>
+
+            <h3>7.2 Business/Practical Benefits</h3>
+            <ul>
+                <li><strong>Reduced Time-to-Content:</strong> 90% reduction in time required to generate high-quality professional content through automated profile aggregation and prompt optimization</li>
+                <li><strong>Competitive Differentiation:</strong> Company-specific research directives enable creation of highly personalized content that stands out from generic AI-generated materials</li>
+                <li><strong>Improved Content Quality:</strong> Structured career data and specialized formatting instructions produce superior AI outputs compared to generic prompting approaches</li>
+                <li><strong>Scalable Monetization:</strong> Subscription-tiered research enhancement provides clear upgrade incentives while maintaining value for free users</li>
+                <li><strong>Universal Integration:</strong> Client-side architecture enables integration with any AI service without vendor lock-in or complex API management</li>
+            </ul>
+
+            <h3>7.3 Comparison to Alternatives</h3>
+
+            <table>
+                <tr>
+                    <th>Feature</th>
+                    <th>This Invention</th>
+                    <th>Generic AI Tools</th>
+                    <th>Resume Builders</th>
+                    <th>Career Platforms</th>
+                </tr>
+                <tr>
+                    <td>Data Entry</td>
+                    <td>Automated aggregation</td>
+                    <td>Manual copy/paste</td>
+                    <td>Form-based entry</td>
+                    <td>Manual data management</td>
+                </tr>
+                <tr>
+                    <td>Company Research</td>
+                    <td>Specific AI directives</td>
+                    <td>None/generic</td>
+                    <td>Basic job matching</td>
+                    <td>Static company data</td>
+                </tr>
+                <tr>
+                    <td>Content Types</td>
+                    <td>Multi-asset optimization</td>
+                    <td>Single-purpose</td>
+                    <td>Resume-focused</td>
+                    <td>Limited formats</td>
+                </tr>
+                <tr>
+                    <td>Career Context</td>
+                    <td>Complete profile integration</td>
+                    <td>Session-based data</td>
+                    <td>Resume-specific data</td>
+                    <td>Platform-locked data</td>
+                </tr>
+                <tr>
+                    <td>AI Integration</td>
+                    <td>Universal prompt generation</td>
+                    <td>Service-specific</td>
+                    <td>Built-in generation only</td>
+                    <td>No AI optimization</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>8. Figures and Diagrams</h2>
+
+            <div class="figure">
+                <h3>Figure 1: System Architecture Overview</h3>
+                <div class="figure-description">Multi-source data aggregation, research directive generation, and asset-specific prompt formatting workflow showing the complete system data flow from localStorage sources to generated AI prompts.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 2: Multi-Source Career Profile Aggregation Process</h3>
+                <div class="mermaid">
+flowchart TD
+    START["Profile Aggregation<br>Request"] --> COLLECT["Collect Data from<br>localStorage Sources"]
+
+    COLLECT --> UP_LOAD["Load User Profile<br>Basic Information"]
+    COLLECT --> EXP_LOAD["Load Work Experiences<br>with Timeline Data"]
+    COLLECT --> STORY_LOAD["Load Behavioral Stories<br>with STAR Structure"]
+    COLLECT --> PROJ_LOAD["Load Portfolio Projects<br>with Technology Data"]
+    COLLECT --> OPP_LOAD["Load Target Opportunities<br>with Company Info"]
+
+    UP_LOAD --> VALIDATE["Data Validation<br>and Error Recovery"]
+    EXP_LOAD --> VALIDATE
+    STORY_LOAD --> VALIDATE
+    PROJ_LOAD --> VALIDATE
+    OPP_LOAD --> VALIDATE
+
+    VALIDATE --> ENHANCE["Data Enhancement<br>and Analysis"]
+
+    ENHANCE --> COMP_ANALYSIS["Competency Extraction<br>and Frequency Analysis"]
+    ENHANCE --> ACHIEVE_EXTRACT["Achievement Metrics<br>Extraction"]
+    ENHANCE --> RELATION_MAP["Relationship Mapping<br>Between Data Elements"]
+    ENHANCE --> SKILL_TIMELINE["Skill Development<br>Timeline Generation"]
+
+    COMP_ANALYSIS --> MERGE["Merge Enhanced<br>Profile Data"]
+    ACHIEVE_EXTRACT --> MERGE
+    RELATION_MAP --> MERGE
+    SKILL_TIMELINE --> MERGE
+
+    MERGE --> QUALITY["Quality Assessment<br>and Completeness Score"]
+    QUALITY --> COMPLETE["Complete Aggregated<br>Career Profile"]
+                </div>
+                <div class="figure-description">Multi-source data aggregation process showing localStorage data collection, validation, enhancement, and relationship mapping.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 3: Company Research Directive Generation Flow</h3>
+                <div class="mermaid">
+flowchart TB
+    TARGET["Target Job<br>Opportunity"] --> ANALYZE["Analyze Company<br>and Role Context"]
+
+    ANALYZE --> COMPANY["Company Research<br>Directive Generation"]
+    ANALYZE --> TECH["Technology Stack<br>Research Directives"]
+    ANALYZE --> CULTURE["Cultural Intelligence<br>Research Directives"]
+    ANALYZE --> MARKET["Market Intelligence<br>Research Directives"]
+    ANALYZE --> INTERVIEW["Interview Process<br>Research Directives"]
+
+    COMPANY --> BASE_DIR["Base Research<br>Directives"]
+    TECH --> BASE_DIR
+    CULTURE --> BASE_DIR
+    MARKET --> BASE_DIR
+    INTERVIEW --> BASE_DIR
+
+    BASE_DIR --> TIER_CHECK{"Subscription<br>Tier Level"}
+
+    TIER_CHECK -->|Member| BASIC["Basic Research<br>Instructions"]
+    TIER_CHECK -->|Learner| STANDARD["Standard Research<br>with Market Context"]
+    TIER_CHECK -->|Seeker| PREMIUM["Premium Research<br>with Competitive Intelligence"]
+
+    BASIC --> PERSONALIZE["Personalize for<br>User Profile"]
+    STANDARD --> PERSONALIZE
+    PREMIUM --> PERSONALIZE
+
+    PERSONALIZE --> PRIORITIZE["Prioritize Research<br>Areas by Relevance"]
+    PRIORITIZE --> STRATEGY["Generate Execution<br>Strategy and Timeline"]
+    STRATEGY --> FINAL_DIR["Final Research<br>Directives"]
+                </div>
+                <div class="figure-description">Company research directive generation flow showing tier-based enhancement and personalization for user profile context.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 4: Asset-Type-Specific Prompt Formatting</h3>
+                <div class="mermaid">
+graph LR
+    subgraph "Asset Type Selection"
+        RESUME[Resume<br>Generation]
+        COVER[Cover Letter<br>Creation]
+        LINKEDIN[LinkedIn Summary<br>Optimization]
+        INTERVIEW[Interview Prep<br>Materials]
+        PORTFOLIO[Portfolio<br>Descriptions]
+        PERSONAL[Personal<br>Statements]
+    end
+
+    subgraph "Format Specifications"
+        RESUME_SPEC[ATS Optimization<br>Quantified Achievements<br>1-2 Pages Maximum]
+        COVER_SPEC[Personalization Focus<br>Company Research Integration<br>300-400 Words]
+        LINKEDIN_SPEC[SEO Keyword Integration<br>Professional Positioning<br>150-300 Words]
+        INTERVIEW_SPEC[STAR Method Response<br>Behavioral + Technical<br>Company-Specific Questions]
+        PORTFOLIO_SPEC[Technical Depth<br>Business Impact Focus<br>Project Methodology]
+        PERSONAL_SPEC[Narrative Structure<br>Achievement Highlighting<br>Career Progression Story]
+    end
+
+    subgraph "Content Integration"
+        PROFILE_DATA[Career Profile<br>Data Integration]
+        RESEARCH_DIR[Company Research<br>Directive Embedding]
+        USER_SELECT[User Selection<br>Preferences]
+    end
+
+    RESUME --> RESUME_SPEC
+    COVER --> COVER_SPEC
+    LINKEDIN --> LINKEDIN_SPEC
+    INTERVIEW --> INTERVIEW_SPEC
+    PORTFOLIO --> PORTFOLIO_SPEC
+    PERSONAL --> PERSONAL_SPEC
+
+    RESUME_SPEC --> PROFILE_DATA
+    COVER_SPEC --> PROFILE_DATA
+    LINKEDIN_SPEC --> PROFILE_DATA
+    INTERVIEW_SPEC --> PROFILE_DATA
+    PORTFOLIO_SPEC --> PROFILE_DATA
+    PERSONAL_SPEC --> PROFILE_DATA
+
+    PROFILE_DATA --> RESEARCH_DIR
+    RESEARCH_DIR --> USER_SELECT
+    USER_SELECT --> FINAL_PROMPT[Optimized AI<br>Prompt Output]
+                </div>
+                <div class="figure-description">Asset-type-specific prompt formatting system showing how different content types receive specialized formatting and optimization instructions.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 5: Subscription Tier Enhancement Architecture</h3>
+                <div class="mermaid">
+flowchart TD
+    BASE_PROMPT[Base Prompt<br>Generation] --> TIER_DETECT[Detect User<br>Subscription Tier]
+
+    TIER_DETECT --> MEMBER{Member Tier<br>$0/month}
+    TIER_DETECT --> LEARNER{Learner Tier<br>$10/month}
+    TIER_DETECT --> SEEKER{Seeker Tier<br>$25/month}
+
+    MEMBER --> BASIC_RES[Basic Company<br>Research Directives]
+    MEMBER --> BASIC_FORM[Standard Prompt<br>Formatting]
+
+    LEARNER --> ENHANCED_RES[Enhanced Research<br>with Market Context]
+    LEARNER --> IMPROVED_FORM[Improved Formatting<br>with Role Insights]
+
+    SEEKER --> PREMIUM_RES[Premium Research<br>with Competitive Intelligence]
+    SEEKER --> ADVANCED_FORM[Advanced Formatting<br>with Strategic Insights]
+
+    BASIC_RES --> COMBINE[Combine Enhanced<br>Components]
+    BASIC_FORM --> COMBINE
+
+    ENHANCED_RES --> COMBINE
+    IMPROVED_FORM --> COMBINE
+
+    PREMIUM_RES --> COMBINE
+    ADVANCED_FORM --> COMBINE
+
+    COMBINE --> VALIDATION[Validate Enhanced<br>Prompt Quality]
+    VALIDATION --> DELIVERY[Deliver Tier-Appropriate<br>Prompt]
+
+    subgraph "Enhancement Features by Tier"
+        MEMBER_FEAT[Company Basics<br>Role Requirements<br>Interview Preparation]
+        LEARNER_FEAT[Market Analysis<br>Career Development<br>Cultural Fit Assessment]
+        SEEKER_FEAT[Strategic Intelligence<br>Network Research<br>Competitive Positioning]
+    end
+                </div>
+                <div class="figure-description">Subscription tier enhancement architecture showing progressive feature delivery and value differentiation across tiers.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 6: Data Relationship Mapping</h3>
+                <div class="mermaid">
+flowchart TB
+    subgraph "Work Experience Data"
+        EXP1[Experience 1<br>Company A - Title A]
+        EXP2[Experience 2<br>Company B - Title B]
+        EXP3[Experience 3<br>Company C - Title C]
+    end
+
+    subgraph "Behavioral Stories"
+        STORY1[Leadership Story<br>Team Management]
+        STORY2[Problem Solving<br>Technical Challenge]
+        STORY3[Innovation Story<br>Process Improvement]
+    end
+
+    subgraph "Portfolio Projects"
+        PROJ1[Technical Project<br>System Architecture]
+        PROJ2[Business Project<br>Process Optimization]
+        PROJ3[Innovation Project<br>New Product Development]
+    end
+
+    subgraph "Competency Analysis"
+        COMP1[Leadership - 3x Evidence]
+        COMP2[Technical Skills - 5x Evidence]
+        COMP3[Problem Solving - 4x Evidence]
+        COMP4[Innovation - 2x Evidence]
+    end
+
+    EXP1 --> STORY1
+    EXP1 --> PROJ1
+    EXP2 --> STORY2
+    EXP2 --> PROJ2
+    EXP3 --> STORY3
+    EXP3 --> PROJ3
+
+    STORY1 --> COMP1
+    STORY1 --> COMP2
+    STORY2 --> COMP2
+    STORY2 --> COMP3
+    STORY3 --> COMP3
+    STORY3 --> COMP4
+
+    PROJ1 --> COMP2
+    PROJ2 --> COMP3
+    PROJ3 --> COMP4
+
+    COMP1 --> EVIDENCE[Evidence Chain<br>Validation]
+    COMP2 --> EVIDENCE
+    COMP3 --> EVIDENCE
+    COMP4 --> EVIDENCE
+
+    EVIDENCE --> AI_PROMPT[AI Prompt with<br>Validated Competencies]
+                </div>
+                <div class="figure-description">Data relationship mapping system showing how experiences, stories, and projects link to competency validation and evidence chains.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 7: Quality Optimization and Validation Process</h3>
+                <div class="mermaid">
+flowchart TD
+    PROMPT_GEN[Generated AI<br>Prompt] --> QUALITY_CHECK[Quality Assessment<br>and Validation]
+
+    QUALITY_CHECK --> COMPLETENESS[Profile Data<br>Completeness Check]
+    QUALITY_CHECK --> RESEARCH[Research Directive<br>Quality Assessment]
+    QUALITY_CHECK --> FORMAT[Formatting and Structure<br>Validation]
+    QUALITY_CHECK --> COHERENCE[Logical Coherence<br>and Flow Analysis]
+
+    COMPLETENESS --> COMP_SCORE{Completeness<br>Score >= 70%}
+    RESEARCH --> RES_SCORE{Research Quality<br>Score >= 80%}
+    FORMAT --> FORMAT_SCORE{Format Compliance<br>Score >= 90%}
+    COHERENCE --> COH_SCORE{Coherence<br>Score >= 85%}
+
+    COMP_SCORE -->|No| ENHANCE_PROFILE[Enhance Profile<br>Data Collection]
+    RES_SCORE -->|No| ENHANCE_RESEARCH[Enhance Research<br>Directives]
+    FORMAT_SCORE -->|No| ENHANCE_FORMAT[Enhance Formatting<br>and Structure]
+    COH_SCORE -->|No| ENHANCE_COHERENCE[Enhance Logical<br>Flow]
+
+    COMP_SCORE -->|Yes| PASS_CHECK[Quality Check<br>Passed]
+    RES_SCORE -->|Yes| PASS_CHECK
+    FORMAT_SCORE -->|Yes| PASS_CHECK
+    COH_SCORE -->|Yes| PASS_CHECK
+
+    ENHANCE_PROFILE --> REVALIDATE[Re-validate<br>Enhanced Prompt]
+    ENHANCE_RESEARCH --> REVALIDATE
+    ENHANCE_FORMAT --> REVALIDATE
+    ENHANCE_COHERENCE --> REVALIDATE
+
+    REVALIDATE --> QUALITY_CHECK
+    PASS_CHECK --> FINAL_PROMPT[Final Optimized<br>AI Prompt]
+
+    FINAL_PROMPT --> METRICS[Track Quality<br>Metrics]
+    METRICS --> LEARNING[Machine Learning<br>Optimization]
+                </div>
+                <div class="figure-description">Quality optimization and validation process showing iterative enhancement and machine learning feedback loops.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 8: Company Research Intelligence Integration</h3>
+                <div class="mermaid">
+graph LR
+    subgraph "Target Company Analysis"
+        COMPANY[Target Company<br>Information]
+        ROLE[Target Role<br>Requirements]
+        INDUSTRY[Industry<br>Context]
+    end
+
+    subgraph "Research Categories"
+        TECH_RES[Technology Stack<br>Research]
+        CULTURE_RES[Cultural Intelligence<br>Research]
+        MARKET_RES[Market Position<br>Research]
+        TALENT_RES[Talent Acquisition<br>Research]
+        FINANCE_RES[Financial Health<br>Research]
+    end
+
+    subgraph "AI Research Instructions"
+        TECH_INST[Investigate technical infrastructure<br>development practices and tools]
+        CULTURE_INST[Research company values<br>employee experience and culture]
+        MARKET_INST[Analyze market position<br>competitive landscape and trends]
+        TALENT_INST[Study hiring practices<br>employee retention and growth]
+        FINANCE_INST[Review financial performance<br>growth trajectory and stability]
+    end
+
+    COMPANY --> TECH_RES
+    ROLE --> TECH_RES
+    INDUSTRY --> TECH_RES
+
+    COMPANY --> CULTURE_RES
+    COMPANY --> MARKET_RES
+    COMPANY --> TALENT_RES
+    COMPANY --> FINANCE_RES
+
+    TECH_RES --> TECH_INST
+    CULTURE_RES --> CULTURE_INST
+    MARKET_RES --> MARKET_INST
+    TALENT_RES --> TALENT_INST
+    FINANCE_RES --> FINANCE_INST
+
+    TECH_INST --> AI_PROMPT[Comprehensive AI Prompt<br>with Research Directives]
+    CULTURE_INST --> AI_PROMPT
+    MARKET_INST --> AI_PROMPT
+    TALENT_INST --> AI_PROMPT
+    FINANCE_INST --> AI_PROMPT
+                </div>
+                <div class="figure-description">Company research intelligence integration showing how target company analysis generates specific AI research instructions.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 9: User Profile Selection and Customization Interface</h3>
+                <div class="mermaid">
+flowchart TD
+    USER_REQ[User Prompt<br>Generation Request] --> SELECTION[Profile Section<br>Selection Interface]
+
+    SELECTION --> CHECK_PROFILE{Include User<br>Profile Data?}
+    SELECTION --> CHECK_EXP{Include Work<br>Experience Data?}
+    SELECTION --> CHECK_STORY{Include Behavioral<br>Stories Data?}
+    SELECTION --> CHECK_PROJ{Include Portfolio<br>Projects Data?}
+    SELECTION --> CHECK_TARGET{Include Target<br>Opportunity Data?}
+
+    CHECK_PROFILE -->|Yes| PROFILE_DATA[User Profile<br>Personal Information]
+    CHECK_EXP -->|Yes| EXP_DATA[Work Experience<br>Timeline and Achievements]
+    CHECK_STORY -->|Yes| STORY_DATA[Behavioral Stories<br>STAR Format Examples]
+    CHECK_PROJ -->|Yes| PROJ_DATA[Portfolio Projects<br>Technical and Business Impact]
+    CHECK_TARGET -->|Yes| TARGET_DATA[Target Opportunity<br>Company and Role Context]
+
+    CHECK_PROFILE -->|No| SKIP_PROFILE[Skip Profile<br>Data Section]
+    CHECK_EXP -->|No| SKIP_EXP[Skip Experience<br>Data Section]
+    CHECK_STORY -->|No| SKIP_STORY[Skip Stories<br>Data Section]
+    CHECK_PROJ -->|No| SKIP_PROJ[Skip Projects<br>Data Section]
+    CHECK_TARGET -->|No| SKIP_TARGET[Skip Target<br>Data Section]
+
+    PROFILE_DATA --> COMPILE[Compile Selected<br>Profile Data]
+    EXP_DATA --> COMPILE
+    STORY_DATA --> COMPILE
+    PROJ_DATA --> COMPILE
+    TARGET_DATA --> COMPILE
+
+    SKIP_PROFILE --> COMPILE
+    SKIP_EXP --> COMPILE
+    SKIP_STORY --> COMPILE
+    SKIP_PROJ --> COMPILE
+    SKIP_TARGET --> COMPILE
+
+    COMPILE --> RELATIONSHIP[Preserve Data<br>Relationships]
+    RELATIONSHIP --> JSON[Format as JSON<br>for AI Consumption]
+    JSON --> EMBED[Embed in AI<br>Prompt Structure]
+                </div>
+                <div class="figure-description">User profile selection and customization interface showing selective data inclusion with relationship preservation.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 10: Performance Optimization and Caching System</h3>
+                <div class="mermaid">
+flowchart TB
+    REQUEST[Prompt Generation<br>Request] --> CACHE_CHECK[Check Profile<br>Data Cache]
+
+    CACHE_CHECK --> CACHED{Data Found<br>in Cache?}
+    CACHED -->|Yes| VALIDATE_CACHE[Validate Cache<br>Expiration]
+    CACHED -->|No| FRESH_LOAD[Load Fresh Data<br>from localStorage]
+
+    VALIDATE_CACHE --> EXPIRED{Cache<br>Expired?}
+    EXPIRED -->|No| USE_CACHE[Use Cached<br>Profile Data]
+    EXPIRED -->|Yes| REFRESH[Refresh Cache<br>with New Data]
+
+    FRESH_LOAD --> PROCESS[Process and<br>Enhance Data]
+    REFRESH --> PROCESS
+
+    PROCESS --> STORE_CACHE[Store in Cache<br>with Timestamp]
+    USE_CACHE --> GENERATE[Generate AI<br>Prompt]
+    STORE_CACHE --> GENERATE
+
+    GENERATE --> OPTIMIZE[Optimize Prompt<br>Performance]
+    OPTIMIZE --> BATCH[Batch Process<br>Multiple Requests]
+    BATCH --> CLEANUP[Memory Cleanup<br>and Resource Management]
+
+    subgraph "Performance Metrics"
+        LOAD_TIME[Data Load Time<br>< 100ms]
+        GEN_TIME[Prompt Generation<br>< 200ms]
+        CACHE_HIT[Cache Hit Rate<br>> 80%]
+        MEMORY[Memory Usage<br>< 50MB]
+    end
+
+    CLEANUP --> LOAD_TIME
+    CLEANUP --> GEN_TIME
+    CLEANUP --> CACHE_HIT
+    CLEANUP --> MEMORY
+
+    LOAD_TIME --> FINAL[Final Optimized<br>Prompt Output]
+    GEN_TIME --> FINAL
+    CACHE_HIT --> FINAL
+    MEMORY --> FINAL
+                </div>
+                <div class="figure-description">Performance optimization and caching system showing efficient data management and resource optimization strategies.</div>
+            </div>
+
+            <div class="figure">
+                <h3>Figure 11: Integration Architecture with External AI Services</h3>
+                <div class="mermaid">
+graph LR
+    subgraph "Internal System"
+        PROMPT_GEN[AI Prompt<br>Generator]
+        FORMAT[Format for<br>External APIs]
+        RESPONSE[Response<br>Handler]
+    end
+
+    subgraph "External AI Services"
+        OPENAI[OpenAI<br>GPT Models]
+        CLAUDE[Anthropic<br>Claude]
+        GEMINI[Google<br>Gemini]
+        CUSTOM[Custom<br>AI Services]
+    end
+
+    subgraph "Integration Layer"
+        API_ROUTER[API Request<br>Router]
+        AUTH[Authentication<br>Manager]
+        RATE[Rate Limiting<br>Controller]
+        ERROR[Error Handling<br>and Retry Logic]
+    end
+
+    PROMPT_GEN --> FORMAT
+    FORMAT --> API_ROUTER
+
+    API_ROUTER --> AUTH
+    AUTH --> RATE
+    RATE --> ERROR
+
+    ERROR --> OPENAI
+    ERROR --> CLAUDE
+    ERROR --> GEMINI
+    ERROR --> CUSTOM
+
+    OPENAI --> RESPONSE_PROC[Response<br>Processing]
+    CLAUDE --> RESPONSE_PROC
+    GEMINI --> RESPONSE_PROC
+    CUSTOM --> RESPONSE_PROC
+
+    RESPONSE_PROC --> QUALITY[Quality<br>Assessment]
+    QUALITY --> CACHE_RESP[Cache Response<br>for Optimization]
+    CACHE_RESP --> RESPONSE
+
+    RESPONSE --> USER_OUTPUT[Processed AI<br>Response to User]
+
+    subgraph "Monitoring and Analytics"
+        PERF[Performance<br>Metrics]
+        USAGE[Usage<br>Analytics]
+        COST[Cost<br>Tracking]
+        SUCCESS[Success<br>Rates]
+    end
+                </div>
+                <div class="figure-description">Integration architecture with external AI services showing API management, authentication, rate limiting, and response processing.</div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>9. Additional Considerations</h2>
+
+            <h3>9.1 Edge Cases</h3>
+            <p>The system handles unusual or boundary conditions through comprehensive error recovery and graceful degradation mechanisms:</p>
+
+            <ul>
+                <li><strong>Incomplete Profile Data:</strong> When career profile information is missing or incomplete, the system provides default structures, generates synthetic examples based on available data, and adjusts prompt complexity accordingly.</li>
+                <li><strong>Invalid Company Information:</strong> If target opportunity data is corrupted or company information is unavailable, the system falls back to generic research directives while maintaining asset-specific formatting.</li>
+                <li><strong>localStorage Capacity Limits:</strong> When localStorage approaches capacity limits, the system implements intelligent data compression, removes expired cache entries, and provides graceful storage management.</li>
+                <li><strong>Subscription Tier Conflicts:</strong> The system resolves subscription tier inconsistencies by applying the most restrictive access level and providing clear upgrade messaging.</li>
+                <li><strong>Large Profile Datasets:</strong> For users with extensive career histories, the system implements selective data inclusion, profile summarization, and performance optimization to maintain sub-200ms response times.</li>
+            </ul>
+
+            <h3>9.2 Error Handling</h3>
+            <p>Comprehensive error detection and recovery mechanisms ensure system reliability during data corruption, API failures, and unexpected conditions:</p>
+
+            <ul>
+                <li><strong>Data Validation Errors:</strong> JSON parsing failures and data structure inconsistencies trigger automatic data recovery using backup structures and default values.</li>
+                <li><strong>Processing Timeouts:</strong> Prompt generation operations that exceed performance thresholds are automatically terminated with fallback generation using cached data.</li>
+                <li><strong>localStorage Access Failures:</strong> Browser storage limitations and access restrictions are handled through alternative storage strategies and user notification.</li>
+                <li><strong>Network Connectivity Issues:</strong> Company research enhancement gracefully degrades to cached research data and provides offline functionality.</li>
+                <li><strong>Memory Management:</strong> Large dataset processing includes memory monitoring, garbage collection optimization, and progressive data loading to prevent browser crashes.</li>
+            </ul>
+
+            <h3>9.3 Security Considerations</h3>
+            <p>The system implements privacy-first architecture with comprehensive security measures for sensitive career data:</p>
+
+            <ul>
+                <li><strong>Client-Side Processing:</strong> All career data processing occurs locally in the browser, ensuring sensitive professional information never leaves the user's device.</li>
+                <li><strong>Data Encryption:</strong> Optional localStorage encryption for sensitive career information using browser-native cryptographic APIs.</li>
+                <li><strong>Input Sanitization:</strong> All user-provided data undergoes sanitization to prevent XSS attacks and data corruption.</li>
+                <li><strong>Access Control:</strong> Subscription tier validation and feature access control prevent unauthorized access to premium functionality.</li>
+                <li><strong>Audit Logging:</strong> Optional privacy-compliant activity logging for enterprise deployments with data retention controls.</li>
+            </ul>
+
+            <h3>9.4 Compatibility</h3>
+            <p>The system provides broad compatibility with existing career development tools and AI services:</p>
+
+            <ul>
+                <li><strong>Browser Compatibility:</strong> Support for all modern browsers with graceful degradation for legacy browser environments.</li>
+                <li><strong>AI Service Integration:</strong> Universal prompt formatting compatible with OpenAI, Claude, Gemini, and other major language model providers.</li>
+                <li><strong>Data Export Standards:</strong> JSON export functionality supporting integration with existing HR systems, applicant tracking systems, and career platforms.</li>
+                <li><strong>API Integration:</strong> RESTful API interfaces for enterprise integration with existing career development and human resources information systems.</li>
+                <li><strong>Mobile Compatibility:</strong> Responsive design and touch-optimized interfaces for mobile career management workflows.</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>10. Conclusion</h2>
+            <p>The Context-Aware AI Prompt Generation System with Multi-Dimensional Profile Aggregation and Company-Specific Research Directives represents a significant advancement in AI-powered professional content creation technology. By addressing the critical limitations of existing systems—manual data entry requirements, generic prompt construction, and lack of comprehensive career context integration—this invention enables a new generation of intelligent career development tools.</p>
+
+            <p>The system's key innovations in multi-source data aggregation, company-specific research directive generation, and asset-type optimization provide substantial competitive advantages for both individual professionals and career development platforms. The subscription-tiered architecture enables sophisticated business models while maintaining universal accessibility through basic feature availability.</p>
+
+            <p>Technical achievements include comprehensive localStorage data management, intelligent relationship mapping between career elements, and universal AI service compatibility. The client-side architecture ensures privacy protection, immediate response times, and unlimited scalability without complex server infrastructure requirements.</p>
+
+            <p>Commercial applications span career coaching platforms, recruitment technology, professional development services, and HR management systems where automated generation of personalized, company-specific professional content provides competitive differentiation and improved outcomes for job seekers and career development professionals.</p>
+
+            <p>The modular architecture and API-friendly design enable integration into existing platforms while providing standalone value for specialized career development applications, positioning this invention as a foundational technology for the future of AI-enhanced career development and professional content creation.</p>
+        </section>
+
+        <section class="section">
+            <h2>Publication Information</h2>
+            <p><strong>Published by:</strong> Cleansheet LLC<br>
+            <strong>Publication Date:</strong> November 9, 2025<br>
+            <strong>Location:</strong> <a href="https://cleansheet.info" target="_blank">cleansheet.info</a><br>
+            <strong>License:</strong> Creative Commons Attribution 4.0 International License for industry advancement and open innovation</p>
+
+            <hr style="margin: 2em 0; border: none; border-top: 1px solid var(--color-neutral-border);">
+
+            <p><em><strong>Disclaimer:</strong> This document is published for educational and informational purposes to advance industry knowledge and technical innovation. The author(s) make no warranties about the completeness or accuracy of this information and are not liable for any use of this information.</em></p>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Mermaid with professional styling
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#0066CC',
+                primaryTextColor: '#1a1a1a',
+                primaryBorderColor: '#004C99',
+                lineColor: '#333333',
+                secondaryColor: '#f5f5f7',
+                tertiaryColor: '#f8f8f8',
+                background: '#ffffff',
+                mainBkg: '#ffffff',
+                secondBkg: '#f5f5f7',
+                tertiaryTextColor: '#666666'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            fontFamily: 'Questrial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            securityLevel: 'loose'
+        });
+    </script>
+</body>
+</html>

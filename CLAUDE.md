@@ -1068,13 +1068,128 @@ None currently. Feature is non-functional pending proper solution.
 
 ---
 
+## Technical Innovation White Papers
+
+### White Paper Creation Process
+
+**Location:** `whitepapers/` directory
+**Reference Template:** `whitepapers/ip_template.md` - Comprehensive 10-section technical documentation structure
+
+### Key Learnings from Recent Development
+
+#### 1. Technical Documentation Standards
+
+**Essential Structure for Comprehensive Technical Disclosure:**
+- **Abstract:** 150-250 word comprehensive system overview with key technical benefits
+- **Technical Field:** Must include Background, Problem Statement, and Related Work subsections
+- **Summary of Invention:** Overview, Key Features, Novel Aspects, Primary Advantages
+- **Detailed Description:** Complete technical implementation with system architecture
+- **Implementation Examples:** Real-world usage scenarios with specific configurations
+- **Variations and Embodiments:** Alternative implementations to demonstrate technical breadth
+- **Technical Specifications:** Performance metrics, configuration tables, benchmarks
+- **Advantages and Benefits:** User experience, business, and technical advantages
+- **Competitive Analysis:** Market differentiation and comparison tables
+- **Implementation Considerations:** Security, scalability, edge cases, conclusion
+
+#### 2. HTML White Paper Standards
+
+**Corporate Professional Design System Integration:**
+- Remove floating Home button (conflicts with slideout close buttons)
+- Center-align title with `style="text-align: center;"`
+- Add publication information block with standardized format:
+  ```html
+  <p class="publication-info">
+      <strong>Publication Date:</strong> November 9, 2025<br>
+      <strong>Version:</strong> 1.0<br>
+      <strong>Author:</strong> Cleansheet LLC<br>
+      <strong>Contact:</strong> cleansheet.info
+  </p>
+  ```
+
+**Technical Documentation Requirements:**
+- Convert JavaScript code to pseudocode format for publication compliance
+- Use proper CSS class `.pseudocode` with `white-space: pre-wrap` for formatting
+- Implement Mermaid.js diagrams with Corporate Professional theme variables
+- Include comprehensive system architecture visualizations
+- Provide specific performance benchmarks and configuration parameters
+
+#### 3. Publication Standards and Quality
+
+**Comprehensive Technical Documentation:**
+- 15,000+ word detailed technical documentation for thoroughness
+- Multiple system architecture diagrams with Mermaid.js
+- Detailed pseudocode algorithms and implementation specifics
+- Performance specifications and competitive analysis
+- Alternative embodiments demonstrating technical versatility
+
+#### 4. White Paper Index Integration
+
+**Metadata Requirements for Index:**
+```javascript
+{
+    id: 'white-paper-slug',
+    title: 'Descriptive Title',
+    category: 'Technical Category',
+    summary: '1-2 sentence concise description',
+    abstract: 'Comprehensive 150-250 word abstract',
+    keywords: ['keyword1', 'keyword2', 'keyword3'],
+    domain: 'Technical Domain Classification'
+}
+```
+
+### Recent White Paper Developments
+
+#### 1. Subscription-Viewport Adaptation System (November 2025)
+**Innovation:** Dual-axis UI adaptation based on subscription tier and viewport dimensions
+**Technical Scope:** Dynamic feature rendering, responsive component libraries, performance optimization
+**Market Value:** First integrated approach to subscription-responsive design adaptation
+**Status:** Complete - Published for industry advancement
+
+#### 2. Multi-Modal Career Portfolio Management (November 2025)
+**Innovation:** Career-centric asset management with heterogeneous editor integration
+**Technical Scope:** Dynamic asset type routing, bidirectional career linking, subscription-tiered features
+**Market Value:** Novel approach to professional portfolio development with competency tracking
+**Status:** Complete - Published for industry advancement
+
+#### 3. STAR Evidence Linking Framework (November 2025)
+**Innovation:** Evidence-based professional storytelling with competency validation
+**Technical Scope:** Multi-modal asset relationship mapping, automated impact metrics extraction
+**Market Value:** Revolutionary approach to professional development and interview preparation
+**Status:** Complete - Published for industry advancement
+
+### White Paper Quality Assurance Checklist
+
+**Before Publication:**
+- [ ] Technical template structure compliance (all 10 sections)
+- [ ] Abstract meets 150-250 word requirement with key technical benefits
+- [ ] Technical Field includes Background, Problem Statement, Related Work
+- [ ] Summary of Invention has all 4 required subsections
+- [ ] Detailed Description includes system architecture diagrams
+- [ ] Implementation Examples provide real-world scenarios
+- [ ] Performance specifications with specific metrics
+- [ ] Competitive analysis with comparison tables
+- [ ] Corporate Professional design system implementation
+- [ ] Center-aligned title with publication info block
+- [ ] Mermaid diagrams with professional theme
+- [ ] Pseudocode formatting with proper CSS classes
+- [ ] 15,000+ word comprehensive technical disclosure
+
+**After Publication:**
+- [ ] Add to `whitepapers/index.html` with complete metadata
+- [ ] Verify white paper loads correctly in browser
+- [ ] Test Mermaid diagram rendering
+- [ ] Confirm responsive design across viewports
+- [ ] Document publication date for reference
+
+---
+
 ## Contact & Support
 
 - **Repository:** CleansheetLLC/Cleansheet
 - **Website:** [cleansheet.info](https://www.cleansheet.info)
-- **Documentation:** DESIGN_GUIDE.md, README.md
+- **Documentation:** DESIGN_GUIDE.md, README.md, whitepapers/ip_template.md
 
 ---
 
-**Last Updated:** 2025-11-05
-**Version:** 2.3 - Added Rich Text Editing & Diagrams section documenting Lexical.js and draw.io integrations
+**Last Updated:** 2025-11-09
+**Version:** 2.5 - Updated Technical Innovation White Papers section with refined publication standards and neutral positioning for industry advancement
