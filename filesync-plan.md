@@ -9,15 +9,19 @@
 
 ## Executive Summary
 
-This plan outlines the implementation of OneDrive and Google Drive synchronization capabilities for the Cleansheet platform, enabling automatic backup and cross-device sync of user career assets. The feature will be available to Learner and Job Seeker subscribers, providing enterprise-grade data protection and seamless workflow continuity.
+This plan outlines the sequential implementation of OneDrive and Google Drive synchronization capabilities for the Cleansheet platform, enabling automatic backup and cross-device sync of user career assets. The feature will be available to Learner and Job Seeker subscribers, providing enterprise-grade data protection and seamless workflow continuity.
+
+**Implementation Approach**: Sequential development with OneDrive first, followed by Google Drive as a separate phase.
 
 ### Key Deliverables
-- OneDrive integration with real-time sync
-- Google Drive integration with event-based updates
+- **Phase 1**: OneDrive integration with real-time sync
+- **Phase 2**: Google Drive integration with event-based updates (separate implementation)
 - Subscription-tier access controls
-- Privacy-compliant authentication
+- Privacy-compliant client-side authentication
 - Conflict resolution and versioning
 - Cross-platform file format compatibility
+
+**Prerequisites**: Manual JSON export/import functionality is already implemented in the existing Data Management system, providing the foundation for cloud storage integration.
 
 ---
 
@@ -320,33 +324,35 @@ class VersionManager {
 
 ### 6.1 Development Phases
 
-#### **Phase 1: Foundation (Weeks 1-4)**
-- [ ] Azure Functions setup for cloud API integration
-- [ ] OAuth authentication flows (OneDrive & Google Drive)
-- [ ] Token management and secure storage
+#### **Phase 1: OneDrive Integration (Weeks 1-6)**
+- [ ] OneDrive OAuth authentication flow (client-side)
+- [ ] Client-side token management (encrypted localStorage)
 - [ ] Basic file upload/download functionality
+- [ ] Integration with existing Data Management system
 - [ ] Subscription tier validation system
-
-#### **Phase 2: Core Sync Engine (Weeks 5-8)**
 - [ ] Real-time change detection (localStorage events)
-- [ ] File format conversion pipeline
-- [ ] Webhook receivers for cloud notifications
-- [ ] Basic conflict detection and resolution
 - [ ] Sync status UI components
 
-#### **Phase 3: Advanced Features (Weeks 9-12)**
-- [ ] Interactive conflict resolution UI
-- [ ] Version history and rollback
+#### **Phase 2: OneDrive Advanced Features (Weeks 7-10)**
+- [ ] File format conversion pipeline (Lexical → .docx, etc.)
+- [ ] Basic conflict detection and resolution
 - [ ] Selective sync controls
 - [ ] Performance optimization and batch operations
 - [ ] Comprehensive error handling
 
-#### **Phase 4: Testing & Deployment (Weeks 13-16)**
+#### **Phase 3: OneDrive Testing & Deployment (Weeks 11-12)**
 - [ ] End-to-end integration testing
-- [ ] Performance benchmarking
 - [ ] Security audit and penetration testing
 - [ ] User acceptance testing
 - [ ] Production deployment and monitoring
+
+#### **Phase 4: Google Drive Integration (Separate Project - Weeks 13-18)**
+- [ ] Google Drive OAuth authentication flow (client-side)
+- [ ] Google Drive API integration
+- [ ] Webhook receivers for Google Drive Events API
+- [ ] Multi-provider sync coordination
+- [ ] Provider selection UI
+- [ ] Testing and deployment
 
 ### 6.2 Key Components
 
@@ -962,34 +968,44 @@ class PrivacyComplianceManager {
 
 ## 14. Cost Analysis
 
-### 14.1 Development Costs
+### 14.1 Development Costs (Sequential Implementation)
 
+#### **OneDrive Phase (Client-Side Architecture)**
 | Phase | Duration | Resources | Estimated Cost |
 |-------|----------|-----------|----------------|
-| Foundation | 4 weeks | 2 developers | $32,000 |
-| Core Engine | 4 weeks | 2 developers + 1 architect | $48,000 |
-| Advanced Features | 4 weeks | 2 developers + 1 UX designer | $44,000 |
-| Testing & Deployment | 4 weeks | 2 developers + 1 QA engineer | $36,000 |
-| **Total Development** | **16 weeks** | - | **$160,000** |
+| OneDrive Integration | 6 weeks | 1 developer | $21,000 |
+| Advanced Features | 4 weeks | 1 developer | $14,000 |
+| Testing & Deployment | 2 weeks | 1 developer | $7,000 |
+| **OneDrive Total** | **12 weeks** | - | **$42,000** |
 
-### 14.2 Operational Costs
+#### **Google Drive Phase (Separate Project)**
+| Phase | Duration | Resources | Estimated Cost |
+|-------|----------|-----------|----------------|
+| Google Drive Integration | 4 weeks | 1 developer | $14,000 |
+| Multi-Provider Coordination | 2 weeks | 1 developer | $7,000 |
+| **Google Drive Total** | **6 weeks** | - | **$21,000** |
 
-#### **Azure Infrastructure (Monthly)**
-- Azure Functions (consumption): ~$200/month
-- Key Vault operations: ~$50/month
-- Cosmos DB (provisioned): ~$300/month
-- Service Bus operations: ~$100/month
-- **Total Infrastructure**: ~$650/month
+**Combined Total Development**: $63,000 (61% less than original server-side estimate)
+**Learning Curve Savings**: 16% reduction in Google Drive phase due to OneDrive experience
+
+### 14.2 Operational Costs (Client-Side Architecture)
+
+#### **Minimal Infrastructure (Monthly)**
+- Azure Static Web Apps (OAuth redirects): $9/month
+- Azure Blob Storage (temporary files): $2/month
+- **Total Infrastructure**: ~$11/month (~$132/year)
 
 #### **API Usage Costs**
-- OneDrive API: Free (within Microsoft Graph limits)
-- Google Drive API: Free (within standard quotas)
-- Additional quota requests: $500/month (estimated)
+- OneDrive API: **$0** (completely free within Microsoft Graph limits)
+- Google Drive API: **$0** (completely free within standard quotas)
+- **Total API Costs**: **$0**
 
 #### **Support & Maintenance**
-- 0.5 FTE developer for ongoing maintenance: $4,000/month
-- Monitoring and alerting: $200/month
-- **Total Operational**: ~$5,350/month
+- 0.25 FTE developer for ongoing maintenance: $2,000/month
+- Monitoring and basic alerting: $50/month
+- **Total Operational**: ~$2,061/month
+
+**Operational Savings vs Server-Side**: $3,289/month (61% reduction)
 
 ### 14.3 ROI Projection
 
@@ -1054,13 +1070,45 @@ class PrivacyComplianceManager {
 
 ---
 
+## Revised Implementation Approach
+
+### Sequential Development Strategy
+
+This plan has been updated to reflect a **sequential implementation approach**:
+
+1. **OneDrive First** (12 weeks, $42,000)
+   - Larger market share and better enterprise integration
+   - Leverages existing Data Management export/import system
+   - Client-side architecture for maximum privacy
+   - Full feature set with conflict resolution and selective sync
+
+2. **Google Drive Second** (6 weeks, $21,000)
+   - Separate development phase after OneDrive validation
+   - Benefits from lessons learned in OneDrive implementation
+   - Multi-provider coordination and selection UI
+
+### Key Architectural Decisions
+
+- **Client-Side OAuth**: Tokens stored in encrypted localStorage, never on servers
+- **Direct API Integration**: Browser communicates directly with cloud providers
+- **Minimal Infrastructure**: Only $132/year operational costs vs $65,000/year server-side
+- **Privacy-First**: No user data passes through Cleansheet servers
+
+### Cost Summary
+
+| Component | OneDrive Phase | Google Drive Phase | Combined Total |
+|-----------|----------------|-------------------|----------------|
+| Development | $42,000 | $21,000 | $63,000 |
+| First Year Operations | $132 | $0 | $132 |
+| Annual Maintenance | $24,732 | $8,244 | $32,976 |
+
+**Total First Year**: $66,864 (58% less than original server-side estimate)
+
 ## Conclusion
 
-The implementation of OneDrive and Google Drive sync for Cleansheet represents a significant value-add for Learner and Job Seeker subscribers, addressing a critical need for data portability and backup in professional career management. The proposed architecture balances feature richness with privacy compliance, ensuring that users maintain full control over their career data while benefiting from seamless cross-device access.
+The sequential implementation of cloud storage sync represents a measured approach that allows for validation at each step. The client-side architecture significantly reduces both development and operational costs while providing superior privacy protection.
 
-The phased rollout approach minimizes risk while allowing for iterative improvement based on user feedback. With proper execution, this feature should drive meaningful improvements in user engagement, subscription retention, and competitive positioning in the career development platform market.
-
-**Recommendation**: Proceed with development based on this plan, with regular milestone reviews to ensure alignment with business objectives and user needs.
+**Implementation Timeline**: To be determined based on business priorities and user demand validation.
 
 ---
 

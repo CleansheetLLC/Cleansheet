@@ -413,14 +413,15 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: white;
             border-radius: 12px;
             box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
-            overflow: auto;
+            overflow: hidden; /* FIXED: Remove scrollbars */
             position: relative;
         }
 
         #canvas-mindmap svg {
             display: block;
-            min-width: 100%;
-            min-height: 100%;
+            width: 100%;
+            height: 100%;
+            /* FIXED: Removed min-width/min-height to prevent overflow */
         }
 
 
@@ -18353,6 +18354,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         // D3 Mindmap Initialization - Tree Layout (Left to Right)
         function initializeMindmap(persona) {
             const container = document.getElementById('canvas-mindmap');
+
+            // FIXED: Always clear existing mindmap content to prevent duplicates
+            d3.select('#canvas-mindmap').selectAll('*').remove();
+
             const width = container.clientWidth;
             const height = container.clientHeight;
 
@@ -18373,13 +18378,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 children: data.children // Keep full data structure
             };
 
-            // Create SVG with expandable dimensions
+            // Create SVG that fits container perfectly
             const svg = d3.select('#canvas-mindmap')
                 .append('svg')
                 .attr('width', '100%')
                 .attr('height', '100%')
-                .style('min-width', width + 'px')
-                .style('min-height', height + 'px');
+                .attr('viewBox', `0 0 ${width} ${height}`)
+                .style('max-width', '100%')
+                .style('max-height', '100%');
 
             // Add gradient definition for premium badges
             const defs = svg.append('defs');
@@ -18433,14 +18439,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // Function to update the tree
             function update(source) {
-                // Count visible nodes to calculate needed height
+                // Count visible nodes to calculate needed height (for internal calculations only)
                 const visibleNodes = root.descendants();
                 const neededHeight = Math.max(height, visibleNodes.length * 60);
                 const neededWidth = Math.max(width, 1000);
 
-                // Update SVG size to accommodate all nodes
-                svg.style('min-width', neededWidth + 'px')
-                   .style('min-height', neededHeight + 'px');
+                // FIXED: Don't dynamically resize SVG - keep it constrained to container
+                // This prevents scrollbars from appearing
 
                 // Create tree layout with FIXED node spacing using nodeSize
                 const treeLayout = d3.tree()
@@ -18841,11 +18846,38 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // FIXED: Add badges after initial tree creation to ensure consistent display
             setTimeout(() => updateBadgesOnly(), 50);
 
-            // Add zoom behavior
+            // Add zoom behavior with pan constraints
             const zoom = d3.zoom()
                 .scaleExtent([0.5, 2])
                 .on('zoom', (event) => {
-                    g.attr('transform', event.transform);
+                    let transform = event.transform;
+
+                    // FIXED: Add pan constraints to keep mindmap visible on desktop
+                    if (window.innerWidth > 768) { // Only apply constraints on desktop
+                        const scale = transform.k;
+                        const svgWidth = svg.node().clientWidth;
+                        const svgHeight = svg.node().clientHeight;
+
+                        // Calculate scaled content bounds (rough estimate)
+                        const contentWidth = 800 * scale; // Approximate mindmap width
+                        const contentHeight = 400 * scale; // Approximate mindmap height
+
+                        // Constraint limits - allow 20% of content to go off-screen
+                        const minX = -contentWidth * 0.8;
+                        const maxX = svgWidth - contentWidth * 0.2;
+                        const minY = -contentHeight * 0.8;
+                        const maxY = svgHeight - contentHeight * 0.2;
+
+                        // Constrain transform
+                        transform = d3.zoomIdentity
+                            .translate(
+                                Math.max(minX, Math.min(maxX, transform.x)),
+                                Math.max(minY, Math.min(maxY, transform.y))
+                            )
+                            .scale(scale);
+                    }
+
+                    g.attr('transform', transform);
                 });
 
             svg.call(zoom);
