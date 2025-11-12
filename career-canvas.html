@@ -7982,7 +7982,15 @@ Your content here...
                                 Click "Compile PDF" to preview
                             </span>
                         </div>
-                        <div style="display: flex; gap: 8px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <label id="autoCompileToggleContainer" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-ui); font-size: 12px; color: var(--color-dark); cursor: pointer; user-select: none;">
+                                <input type="checkbox" id="autoCompileToggle" onchange="toggleAutoCompile()" checked style="cursor: pointer;">
+                                <span>Auto-compile</span>
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 4px; font-family: var(--font-family-ui); font-size: 12px; color: var(--color-dark);">
+                                <input type="number" id="autoCompileInterval" value="2.5" min="0.5" max="30" step="0.5" onchange="updateAutoCompileInterval()" style="width: 50px; padding: 2px 4px; border: 1px solid var(--color-neutral-border); border-radius: 3px; font-size: 12px; text-align: center;">
+                                <span>sec</span>
+                            </div>
                             <button id="compileLatexBtn" onclick="compileLatexToPDF()" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                                 <i class="ph ph-file-pdf"></i>
                                 Compile PDF
@@ -43412,6 +43420,12 @@ F &= ma \\\\
         let latexAutoSaveTimeout = null;
         let swiftLatex = null;
 
+        // Autocompile functionality
+        let autoCompileEnabled = true; // Default enabled, will be loaded from localStorage
+        let autoCompileTimeout = null;
+        let autoCompileDelay = 2500; // Default 2.5 seconds, editable by user
+        let hasInitialCompiled = false; // Flag to prevent double compilation on initial load
+
         // LaTeX Document localStorage schema
         function getLatexDocuments() {
             const key = `user_latex_documents_${currentPersona}`;
@@ -43707,10 +43721,11 @@ F &= ma \\\\
                         scrollBeyondLastLine: false
                     });
 
-                    // Add change listener for auto-save
+                    // Add change listener for auto-save and auto-compile
                     latexEditor.onDidChangeModelContent(() => {
                         if (currentLatexDocumentId) {
                             scheduleLaTexAutoSave();
+                            scheduleAutoCompile();
                         }
                     });
 
@@ -43746,6 +43761,124 @@ F &= ma \\\\
             }
         }
 
+        // Autocompile functionality
+        function scheduleAutoCompile() {
+            console.log('scheduleAutoCompile called:', { autoCompileEnabled, currentLatexDocumentId: !!currentLatexDocumentId, latexEditor: !!latexEditor, hasInitialCompiled });
+
+            if (!autoCompileEnabled || !currentLatexDocumentId || !latexEditor) return;
+
+            // Don't schedule autocompile if we haven't done the initial compile yet
+            // This prevents double compilation on document load
+            if (!hasInitialCompiled) {
+                console.log('Skipping autocompile - initial compile not yet completed');
+                return;
+            }
+
+            // Clear any pending auto-compile
+            if (autoCompileTimeout) {
+                clearTimeout(autoCompileTimeout);
+            }
+
+            // Update status to show pending compile
+            updateCompileStatus('pending');
+
+            // Schedule new compile
+            autoCompileTimeout = setTimeout(() => {
+                compileLatexToPDF(true); // true indicates auto-compile
+            }, autoCompileDelay);
+        }
+
+        function toggleAutoCompile() {
+            const toggle = document.getElementById('autoCompileToggle');
+            if (!toggle) return;
+
+            autoCompileEnabled = toggle.checked;
+            localStorage.setItem('latex_autocompile', autoCompileEnabled);
+
+            if (autoCompileEnabled) {
+                showToast('Auto-compile enabled', 'success');
+                // Trigger immediate compile if we have content
+                if (currentLatexDocumentId && latexEditor && latexEditor.getValue().trim()) {
+                    scheduleAutoCompile();
+                }
+            } else {
+                showToast('Auto-compile disabled', 'info');
+                // Clear any pending compile
+                if (autoCompileTimeout) {
+                    clearTimeout(autoCompileTimeout);
+                }
+                updateCompileStatus('idle');
+            }
+        }
+
+        function updateAutoCompileInterval() {
+            const intervalInput = document.getElementById('autoCompileInterval');
+            if (!intervalInput) return;
+
+            const newInterval = parseFloat(intervalInput.value);
+            if (isNaN(newInterval) || newInterval < 0.5 || newInterval > 30) {
+                // Reset to previous valid value
+                intervalInput.value = (autoCompileDelay / 1000).toFixed(1);
+                showToast('Invalid interval. Must be between 0.5 and 30 seconds.', 'error');
+                return;
+            }
+
+            autoCompileDelay = newInterval * 1000; // Convert to milliseconds
+            localStorage.setItem('latex_autocompile_delay', autoCompileDelay);
+
+            // If there's a pending autocompile, reschedule it with new delay
+            if (autoCompileTimeout && autoCompileEnabled) {
+                clearTimeout(autoCompileTimeout);
+                scheduleAutoCompile();
+            }
+
+            showToast(`Auto-compile interval set to ${newInterval}s`, 'success');
+        }
+
+        function initializeAutoCompileToggle() {
+            // Load preference from localStorage
+            const savedPreference = localStorage.getItem('latex_autocompile');
+            if (savedPreference !== null) {
+                autoCompileEnabled = savedPreference === 'true';
+            }
+
+            // Load interval from localStorage
+            const savedDelay = localStorage.getItem('latex_autocompile_delay');
+            if (savedDelay !== null) {
+                const delay = parseInt(savedDelay);
+                if (!isNaN(delay) && delay >= 500 && delay <= 30000) {
+                    autoCompileDelay = delay;
+                }
+            }
+
+            // Set toggle state
+            const toggle = document.getElementById('autoCompileToggle');
+            if (toggle) {
+                toggle.checked = autoCompileEnabled;
+            }
+
+            // Set interval input value
+            const intervalInput = document.getElementById('autoCompileInterval');
+            if (intervalInput) {
+                intervalInput.value = (autoCompileDelay / 1000).toFixed(1);
+            }
+        }
+
+        function updateCompileStatus(state) {
+            const statusEl = document.getElementById('latexPreviewStatus');
+            if (!statusEl) return;
+
+            const states = {
+                'idle': 'Click "Compile PDF" to preview',
+                'pending': `Changes detected, will compile in ${autoCompileDelay/1000}s...`,
+                'compiling': 'Auto-compiling...',
+                'success': 'Preview up to date ✓',
+                'error': 'Compilation error - check syntax'
+            };
+
+            statusEl.textContent = states[state] || states.idle;
+        }
+
         // Core LaTeX Editor Functions
         function openLatexEditor(documentId = null) {
             console.log('=== OPENING LATEX EDITOR ===');
@@ -43770,6 +43903,8 @@ F &= ma \\\\
 
         function continueOpeningLatexEditor(documentId) {
             currentLatexDocumentId = documentId;
+            // Reset initial compile flag for new document
+            hasInitialCompiled = false;
 
             if (documentId) {
                 // Load existing document
@@ -43818,6 +43953,9 @@ F &= ma \\\\
             // Show the editor
             document.getElementById('latexEditor').style.display = 'flex';
 
+            // Initialize autocompile toggle
+            initializeAutoCompileToggle();
+
             // Disable download button (needs compilation first)
             const downloadBtn = document.getElementById('downloadLatexPdfBtn');
             if (downloadBtn) {
@@ -43828,10 +43966,29 @@ F &= ma \\\\
                 downloadBtn.title = 'Compile document first to enable download';
             }
 
-            // Focus the editor
+            // Focus the editor and trigger immediate compile
             setTimeout(() => {
                 if (latexEditor) {
                     latexEditor.focus();
+
+                    // Trigger immediate compilation if document has content
+                    const content = latexEditor.getValue();
+                    console.log('Initial compile check:', { hasContent: !!content.trim(), contentLength: content.length });
+                    if (content.trim()) {
+                        console.log('Triggering immediate compile on document load');
+                        compileLatexToPDF(true).then(() => {
+                            // Mark that initial compile is complete to enable autocompile
+                            console.log('Initial compile completed, enabling autocompile');
+                            hasInitialCompiled = true;
+                        }).catch(error => {
+                            console.error('Initial compile failed:', error);
+                            hasInitialCompiled = true; // Still enable autocompile even if initial compile failed
+                        });
+                    } else {
+                        // No content, so mark initial compile as complete immediately
+                        console.log('No content, marking initial compile as complete immediately');
+                        hasInitialCompiled = true;
+                    }
                 }
             }, 100);
         }
@@ -43929,22 +44086,33 @@ F &= ma \\\\
         // PDF Compilation Functions
         let katexRetryCount = 0;
 
-        async function compileLatexToPDF() {
+        async function compileLatexToPDF(isAutoCompile = false) {
             if (!currentLatexDocumentId || !latexEditor) {
-                alert('No LaTeX document is currently open');
-                return;
+                if (!isAutoCompile) {
+                    alert('No LaTeX document is currently open');
+                }
+                return Promise.resolve();
             }
 
             const content = latexEditor.getValue();
             if (!content.trim()) {
-                alert('Please add some content to compile');
-                return;
+                if (!isAutoCompile) {
+                    alert('Please add some content to compile');
+                }
+                return Promise.resolve();
             }
 
-            const compileBtn = document.querySelector('button[onclick="compileLatexToPDF()"]');
-            const originalText = compileBtn.textContent;
-            compileBtn.textContent = 'Compiling...';
-            compileBtn.disabled = true;
+            // Handle button state only for manual compiles
+            let compileBtn, originalText;
+            if (!isAutoCompile) {
+                compileBtn = document.querySelector('button[onclick="compileLatexToPDF()"]');
+                originalText = compileBtn.textContent;
+                compileBtn.textContent = 'Compiling...';
+                compileBtn.disabled = true;
+            } else {
+                // Update status for auto-compile
+                updateCompileStatus('compiling');
+            }
 
             try {
                 console.log('Starting LaTeX compilation...');
@@ -43956,8 +44124,11 @@ F &= ma \\\\
                 if (!window.katex && katexRetryCount < 2) {
                     console.log(`Waiting briefly for KaTeX... (attempt ${katexRetryCount + 1})`);
                     katexRetryCount++;
-                    setTimeout(() => compileLatexToPDF(), 250);
-                    return;
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            compileLatexToPDF(isAutoCompile).then(resolve).catch(resolve);
+                        }, 250);
+                    });
                 }
 
                 if (!window.katex) {
@@ -44036,7 +44207,11 @@ F &= ma \\\\
                 window.currentLatexPDF = null; // Clear any existing PDF
 
                 console.log('LaTeX compilation to HTML successful');
-                showToast('Document compiled successfully! Use "Print as PDF" from the preview.', 'success');
+                if (!isAutoCompile) {
+                    showToast('Document compiled successfully! Use "Print as PDF" from the preview.', 'success');
+                } else {
+                    updateCompileStatus('success');
+                }
                 katexRetryCount = 0; // Reset retry count on successful compilation
 
                 // Enable the download button
@@ -44072,10 +44247,17 @@ F &= ma \\\\
                     errorMessage += '\n\nCheck your LaTeX syntax. Common issues:\n- Missing \\end{} commands\n- Unclosed braces {}\n- Unknown commands';
                 }
 
-                showToast(errorMessage, 'error');
+                if (!isAutoCompile) {
+                    showToast(errorMessage, 'error');
+                } else {
+                    updateCompileStatus('error');
+                }
             } finally {
-                compileBtn.textContent = originalText;
-                compileBtn.disabled = false;
+                // Only update button state for manual compiles
+                if (!isAutoCompile && compileBtn) {
+                    compileBtn.textContent = originalText;
+                    compileBtn.disabled = false;
+                }
             }
         }
 
@@ -44375,27 +44557,33 @@ Summarize your work here.
 
         // Utility function to show toast messages
         function showToast(message, type = 'info') {
-            // Simple toast implementation
+            // Subtle toast implementation for autocompile context
             const toast = document.createElement('div');
             toast.style.cssText = `
                 position: fixed;
-                top: 20px;
+                top: 70px;
                 right: 20px;
-                padding: 12px 20px;
-                background: ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#0066CC'};
+                padding: 8px 14px;
+                background: ${type === 'success' ? 'rgba(22, 163, 74, 0.9)' : type === 'error' ? 'rgba(220, 38, 38, 0.9)' : 'rgba(0, 102, 204, 0.9)'};
                 color: white;
-                border-radius: 6px;
+                border-radius: 4px;
                 font-family: var(--font-family-ui);
-                font-size: 14px;
+                font-size: 12px;
+                font-weight: 500;
                 z-index: 11000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                backdrop-filter: blur(4px);
+                opacity: 0.95;
+                transition: opacity 0.3s ease;
             `;
             toast.textContent = message;
             document.body.appendChild(toast);
 
+            // Shorter duration for less intrusive experience
             setTimeout(() => {
-                toast.remove();
-            }, 3000);
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 1500); // Reduced from 3000ms to 1500ms
         }
 
         // Initialize on page load
