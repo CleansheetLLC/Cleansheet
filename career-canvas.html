@@ -653,6 +653,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Handle LaTeX tilde (non-breaking space) before processing references
                 html = html.replace(/~/g, '&nbsp;');
 
+                // Merge equation labels into reference table (just the number, formatting handled elsewhere)
+                Object.keys(equationLabels).forEach(label => {
+                    referenceTable[label] = equationLabels[label].toString();
+                    console.log(`Merged equation label: ${label} -> ${equationLabels[label]}`);
+                });
+
                 // Debug: Show all registered labels
                 console.log('LaTeX reference table:', referenceTable);
 
@@ -661,8 +667,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     const cleanLabel = labelName.trim();
                     const refNumber = referenceTable[cleanLabel];
                     if (refNumber) {
-                        console.log('LaTeX reference resolved:', cleanLabel, '->', refNumber);
-                        return refNumber;
+                        // Check if this is an equation reference (starts with 'eq:')
+                        const isEquationRef = cleanLabel.startsWith('eq:');
+                        const formattedRef = isEquationRef ? `(${refNumber})` : refNumber;
+                        console.log('LaTeX reference resolved:', cleanLabel, '->', formattedRef);
+                        return formattedRef;
                     } else {
                         console.warn('LaTeX reference not found:', cleanLabel, 'Available labels:', Object.keys(referenceTable));
                         return `<span style="background: #ffcccc; padding: 2px 4px; border-radius: 3px;">[${cleanLabel}?]</span>`; // Show missing reference with highlighting
@@ -1062,18 +1071,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 html = html.replace(/\\LaTeX\\\//g, 'LaTeX');
                 html = html.replace(/\\LaTeX\{?\}?/g, 'LaTeX');
 
-                // Process equation references
-                console.log('Processing equation references...');
-                html = html.replace(/\\ref\{([^}]+)\}/g, function(match, labelName) {
-                    const equationNum = equationLabels[labelName];
-                    if (equationNum !== undefined) {
-                        console.log(`Found reference to ${labelName} -> equation (${equationNum})`);
-                        return `(${equationNum})`;
-                    } else {
-                        console.warn(`Reference to unknown label: ${labelName}`);
-                        return `[${labelName}?]`;
-                    }
-                });
+                // Equation reference processing moved to unified reference system above
 
                 console.log('Total math expressions found:', mathExpressions.length);
                 mathExpressions.forEach((expr, i) => {
