@@ -472,10 +472,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 });
 
                 // Extract other common math environments
-                html = html.replace(/\\begin\{(gather|multline|split)\*?\}([\s\S]*?)\\end\{\1\*?\}/g, function(match, envName, mathContent) {
+                html = html.replace(/\\begin\{(gather|multline|split|aligned|alignat|flalign|xalignat|xxalignat)\*?\}([\s\S]*?)\\end\{\1\*?\}/g, function(match, envName, mathContent) {
                     const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
                     mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
                     console.log(`Extracted ${envName} math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Handle matrix environments specifically
+                html = html.replace(/\\begin\{(matrix|pmatrix|bmatrix|vmatrix|Vmatrix|smallmatrix)\}([\s\S]*?)\\end\{\1\}/g, function(match, envName, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: `\\begin{${envName}}${mathContent}\\end{${envName}}` };
+                    console.log(`Extracted ${envName} matrix ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
                     mathIndex++;
                     return placeholder;
                 });
@@ -1062,7 +1071,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                         if (window.katex) {
                             try {
-                                const rendered = katex.renderToString(mathExpressions[i].content, {
+                                // Pre-process math content for KaTeX compatibility
+                                let mathContent = mathExpressions[i].content;
+
+                                // KaTeX already handles most math functions and Greek letters correctly
+                                // Just ensure proper spacing and formatting
+                                console.log(`Rendering with KaTeX: "${mathContent}"`);
+
+                                const rendered = katex.renderToString(mathContent, {
                                     displayMode: mathExpressions[i].type === 'display',
                                     throwOnError: false
                                 });
@@ -1166,6 +1182,45 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             formatMathFallback: function(mathContent) {
                 console.log('formatMathFallback called with:', JSON.stringify(mathContent));
                 let formatted = mathContent;
+
+                // Trigonometric and mathematical functions (process before Greek letters)
+                const mathFunctions = {
+                    'sin': '<span style="font-style: normal;">sin</span>',
+                    'cos': '<span style="font-style: normal;">cos</span>',
+                    'tan': '<span style="font-style: normal;">tan</span>',
+                    'sec': '<span style="font-style: normal;">sec</span>',
+                    'csc': '<span style="font-style: normal;">csc</span>',
+                    'cot': '<span style="font-style: normal;">cot</span>',
+                    'arcsin': '<span style="font-style: normal;">arcsin</span>',
+                    'arccos': '<span style="font-style: normal;">arccos</span>',
+                    'arctan': '<span style="font-style: normal;">arctan</span>',
+                    'sinh': '<span style="font-style: normal;">sinh</span>',
+                    'cosh': '<span style="font-style: normal;">cosh</span>',
+                    'tanh': '<span style="font-style: normal;">tanh</span>',
+                    'log': '<span style="font-style: normal;">log</span>',
+                    'ln': '<span style="font-style: normal;">ln</span>',
+                    'exp': '<span style="font-style: normal;">exp</span>',
+                    'max': '<span style="font-style: normal;">max</span>',
+                    'min': '<span style="font-style: normal;">min</span>',
+                    'sup': '<span style="font-style: normal;">sup</span>',
+                    'inf': '<span style="font-style: normal;">inf</span>',
+                    'lim': '<span style="font-style: normal;">lim</span>',
+                    'det': '<span style="font-style: normal;">det</span>'
+                };
+
+                // Apply math functions with proper spacing and parentheses handling
+                Object.keys(mathFunctions).forEach(func => {
+                    const regex = new RegExp(`\\\\${func}(?![a-zA-Z])`, 'g');
+                    formatted = formatted.replace(regex, mathFunctions[func]);
+                });
+
+                // Handle function calls with parentheses (special processing)
+                formatted = formatted.replace(/\\sin\s*\(([^)]+)\)/g, '<span style="font-style: normal;">sin</span>($1)');
+                formatted = formatted.replace(/\\cos\s*\(([^)]+)\)/g, '<span style="font-style: normal;">cos</span>($1)');
+                formatted = formatted.replace(/\\tan\s*\(([^)]+)\)/g, '<span style="font-style: normal;">tan</span>($1)');
+
+                // Handle special spacing after function names
+                formatted = formatted.replace(/(<span style="font-style: normal;">[a-z]+<\/span>)\s+/g, '$1 ');
 
                 // Greek letters
                 const greekLetters = {

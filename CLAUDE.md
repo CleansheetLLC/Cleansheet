@@ -179,66 +179,6 @@ Cleansheet/
 
 ### Rich Text Editing & Diagrams
 
-**Lexical Document Editor**
-
-The platform uses **Lexical.js** (Meta's extensible text editor framework, MIT License) for rich text document editing. Lexical replaced Quill.js which was too limited in functionality.
-
-**Why Lexical:**
-- Full feature set from https://playground.lexical.dev/
-- Extensible architecture with plugins
-- Support for headings, lists, tables, code blocks, links
-- Clean theme integration with design system
-- MIT License (permissive for commercial use)
-
-**Implementation:**
-1. **Bundling:** Created custom UMD bundle using Vite in `/home/paulg/git/Cleansheet/lexical-bundle/`
-   - ES6 module approach failed (esm.run didn't work in browser)
-   - Vite bundles all Lexical packages into single `cleansheet-lexical.umd.js` (254KB, 82KB gzipped)
-   - Exposes `window.CleansheetLexical` global object
-
-2. **Editor Functions:** `shared/lexical-document-editor.js` contains:
-   - `initializeLexicalEditor()` - Creates editor instance, registers plugins
-   - `createLexicalToolbar()` - Builds formatting toolbar with Phosphor icons
-   - `openDocumentByIdLexical(id)` - Loads document from localStorage
-   - `closeDocumentEditorLexical()` - Saves and hides editor
-   - `saveDocumentContentSilentlyLexical()` - Auto-save with 2-second debounce
-
-3. **Integration Pattern:**
-   - Modal editor: Full-screen overlay with dark header
-   - Auto-save: 2-second debounce on content changes
-   - Storage format: JSON EditorState (via `editorState.toJSON()`)
-   - Backwards compatibility: Fallback to plain text if JSON parse fails
-
-4. **Toolbar Features:**
-   - Undo/Redo (Ctrl+Z/Y)
-   - Text formatting: Bold, Italic, Underline, Strikethrough, Code
-   - Headings: H1, H2, H3
-   - Lists: Bullet, Numbered
-   - Block quote
-   - Links, Tables
-   - Indent/Outdent
-
-**Usage in career-canvas.html:**
-```javascript
-// Wrapper functions route to Lexical implementations
-function openDocumentById(id) {
-    openDocumentByIdLexical(id);
-}
-
-function closeDocumentEditor() {
-    closeDocumentEditorLexical();
-}
-
-function saveDocumentContentSilently() {
-    saveDocumentContentSilentlyLexical();
-}
-```
-
-**Quill Legacy Code:**
-Old Quill functions renamed with `_OLD` suffix to prevent conflicts. Not removed for reference purposes.
-
----
-
 **Draw.io Diagram Editor**
 
 The platform integrates **draw.io** (diagrams.net) via iframe embedding for diagram creation and editing.
@@ -919,6 +859,8 @@ Before adding ANY service:
 - **NEVER** create files unless absolutely necessary
 - **ALWAYS** prefer editing existing files over creating new ones
 - **NEVER** proactively create documentation files unless requested
+- **NEVER** change tools underlying tools without confirming with the user
+- **ALWAYS** evaluate license impact when recommending tool changes
 - **ALWAYS** read files before editing to understand context
 - **ALWAYS** use design system (reference DESIGN_GUIDE.md)
 - **ALWAYS** maintain consistent naming conventions
@@ -964,93 +906,6 @@ Before adding ANY service:
 
 ## Known Issues & Troubleshooting
 
-### Excalidraw Whiteboard Isolation Issue (PENDING)
-
-**Status:** Unresolved - Deferred for later investigation
-**Date:** 2025-11-05
-**Location:** `career-canvas.html` - Interview Preparation > Whiteboards
-
-**Problem:**
-All whiteboard instances share the same content. When creating multiple whiteboards, they all display the same drawings regardless of which whiteboard is opened. The content persists even after deleting whiteboards.
-
-**Observed Behavior:**
-1. Create Whiteboard A, draw a circle
-2. Create Whiteboard B, draw a square
-3. Both whiteboards show the same content (both circle and square)
-4. Delete all whiteboards, create new one - still shows old content
-
-**What We Know:**
-- Each whiteboard correctly saves to localStorage with unique IDs
-- Console logs show correct element counts being saved/loaded per whiteboard
-- The `currentWhiteboardId` correctly tracks which whiteboard is active
-- Data isolation in localStorage is working (verified via console logs)
-- The issue is with Excalidraw's iframe state management
-
-**Root Cause Theory:**
-Excalidraw (excalidraw.com) maintains its own autosave in its localStorage under the excalidraw.com domain. When iframes are created, they share the same origin (excalidraw.com) and thus share localStorage. This causes content to leak between whiteboard instances.
-
-**Attempted Solutions:**
-
-1. **Session Isolation** - Added `currentExcalidrawSession` variable and unique session IDs
-   - Result: No effect, content still shared
-
-2. **Cache Busting** - Changed iframe URL to include `#room=` parameter for collaboration
-   - Result: Made it worse (collaboration sync)
-
-3. **Query Parameters** - Used `?timestamp=` instead of `#room=`
-   - Result: No effect on autosave
-
-4. **PostMessage Commands** - Sent `SCENE_UPDATE` with empty elements array
-   - Result: Messages sent but Excalidraw ignored them or restored from autosave
-
-5. **URL Hash Scene Loading** - Encoded scene data as base64 in URL: `#json=<base64>`
-   - For saved whiteboards: Encode elements in URL
-   - For blank whiteboards: Encode empty scene in URL
-   - Result: Still showing shared content (Excalidraw autosave may override URL data)
-
-**Console Output Pattern:**
-```
-=== OPENING WHITEBOARD ===
-Requested ID: 1762357924802
-Found whiteboard: 1
-Has canvasData: false
-Starting new Excalidraw session: 1762357924802_1762357926016
-Created new iframe with src: https://excalidraw.com/?timestamp=...
-Excalidraw iframe loaded for session: ...
-Sent EMPTY scene to clear Excalidraw autosave
-[Still shows old content in UI]
-```
-
-**Code Locations:**
-- Whiteboard initialization: `initializeWhiteboardJS()` around line 14951
-- Save logic: `saveExcalidrawData()` around line 15058
-- Load logic: `openWhiteboardEditor()` around line 14866
-- Message handling: `handleExcalidrawMessage()` around line 15063
-
-**Potential Solutions to Try Later:**
-
-1. **Self-hosted Excalidraw** - Host Excalidraw on own domain to control localStorage
-   - Requires: Deploy Excalidraw instance, manage updates
-   - Benefit: Full control over data isolation
-
-2. **Excalidraw React Component** - Use `@excalidraw/excalidraw` npm package
-   - Requires: Build step, bundler configuration
-   - Benefit: Full programmatic control, no iframe isolation issues
-
-3. **Alternative Whiteboard Library** - Consider tldraw, fabric.js, or konva.js
-   - Requires: Rewrite whiteboard UI
-   - Benefit: Libraries designed for embedding, not iframe issues
-
-4. **Clear Excalidraw Storage** - Use postMessage to trigger localStorage.clear() in iframe
-   - Requires: Finding correct Excalidraw postMessage API
-   - Benefit: Low-effort if API exists
-
-5. **Sandbox Attributes** - Use `sandbox="allow-scripts allow-same-origin"` carefully
-   - Requires: Testing security implications
-   - Benefit: May isolate storage per iframe
-
-**Workaround:**
-None currently. Feature is non-functional pending proper solution.
 
 ---
 
@@ -1138,48 +993,6 @@ None currently. Feature is non-functional pending proper solution.
 ```
 
 ### Recent White Paper Developments
-
-#### 1. Subscription-Viewport Adaptation System (November 2025)
-**Innovation:** Dual-axis UI adaptation based on subscription tier and viewport dimensions
-**Technical Scope:** Dynamic feature rendering, responsive component libraries, performance optimization
-**Market Value:** First integrated approach to subscription-responsive design adaptation
-**Status:** Complete - Published for industry advancement
-
-#### 2. Multi-Modal Career Portfolio Management (November 2025)
-**Innovation:** Career-centric asset management with heterogeneous editor integration
-**Technical Scope:** Dynamic asset type routing, bidirectional career linking, subscription-tiered features
-**Market Value:** Novel approach to professional portfolio development with competency tracking
-**Status:** Complete - Published for industry advancement
-
-#### 3. STAR Evidence Linking Framework (November 2025)
-**Innovation:** Evidence-based professional storytelling with competency validation
-**Technical Scope:** Multi-modal asset relationship mapping, automated impact metrics extraction
-**Market Value:** Revolutionary approach to professional development and interview preparation
-**Status:** Complete - Published for industry advancement
-
-### White Paper Quality Assurance Checklist
-
-**Before Publication:**
-- [ ] Technical template structure compliance (all 10 sections)
-- [ ] Abstract meets 150-250 word requirement with key technical benefits
-- [ ] Technical Field includes Background, Problem Statement, Related Work
-- [ ] Summary of Invention has all 4 required subsections
-- [ ] Detailed Description includes system architecture diagrams
-- [ ] Implementation Examples provide real-world scenarios
-- [ ] Performance specifications with specific metrics
-- [ ] Competitive analysis with comparison tables
-- [ ] Corporate Professional design system implementation
-- [ ] Center-aligned title with publication info block
-- [ ] Mermaid diagrams with professional theme
-- [ ] Pseudocode formatting with proper CSS classes
-- [ ] 15,000+ word comprehensive technical disclosure
-
-**After Publication:**
-- [ ] Add to `whitepapers/index.html` with complete metadata
-- [ ] Verify white paper loads correctly in browser
-- [ ] Test Mermaid diagram rendering
-- [ ] Confirm responsive design across viewports
-- [ ] Document publication date for reference
 
 ---
 
