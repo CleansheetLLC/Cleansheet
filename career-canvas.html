@@ -106,6 +106,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             render: function(doc) {
                 let html = doc.content.trim();
 
+                // Detect document type for CV-specific processing
+                const isCV = html.includes('\\documentclass{altacv}') ||
+                            html.includes('\\cvevent') ||
+                            html.includes('\\cvskill') ||
+                            (doc.type && doc.type === 'cv');
+
+                // Color tracking for CV documents
+                const colorTable = {};
+
+                // CV-specific variables
+                let columnContent = { left: '', right: '' };
+                let currentColumn = 'left';
+                let inTwoColumnMode = false;
 
                 // Store math expressions and other special content
                 const mathExpressions = [];
@@ -113,6 +126,61 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 // Comments first (remove them completely)
                 html = html.replace(/%.*$/gm, '');
+
+                // CV-SPECIFIC PROCESSING
+                if (isCV) {
+                    // Process color definitions first
+                    html = html.replace(/\\definecolor\{([^}]+)\}\{HTML\}\{([^}]+)\}/g, function(match, colorName, hexValue) {
+                        colorTable[colorName] = `#${hexValue}`;
+                        console.log('CV color defined:', colorName, '->', `#${hexValue}`);
+                        return ''; // Remove from output
+                    });
+
+                    html = html.replace(/\\definecolor\{([^}]+)\}\{rgb\}\{([^}]+)\}/g, function(match, colorName, rgbValues) {
+                        const [r, g, b] = rgbValues.split(',').map(v => Math.round(parseFloat(v.trim()) * 255));
+                        colorTable[colorName] = `rgb(${r}, ${g}, ${b})`;
+                        console.log('CV color defined:', colorName, '->', `rgb(${r}, ${g}, ${b})`);
+                        return ''; // Remove from output
+                    });
+
+                    // Process colorlet commands
+                    html = html.replace(/\\colorlet\{([^}]+)\}\{([^}]+)\}/g, function(match, newColor, baseColor) {
+                        if (colorTable[baseColor]) {
+                            colorTable[newColor] = colorTable[baseColor];
+                            console.log('CV color let:', newColor, '->', colorTable[baseColor]);
+                        }
+                        return ''; // Remove from output
+                    });
+
+                    // Add hyperlink support (essential for CVs)
+                    html = html.replace(/\\href\{([^}]+)\}\{([^}]+)\}/g, '<a href="$1" target="_blank" rel="noopener">$2</a>');
+
+                    // Add email support
+                    html = html.replace(/\\email\{([^}]+)\}/g, '<a href="mailto:$1">$1</a>');
+
+                    // Add phone support
+                    html = html.replace(/\\phone\{([^}]+)\}/g, '<span class="cv-phone">$1</span>');
+
+                    // Add location support
+                    html = html.replace(/\\location\{([^}]+)\}/g, '<span class="cv-location">$1</span>');
+
+                    // Two-column layout processing (paracol package)
+                    html = html.replace(/\\columnratio\{([^}]+)\}/g, function(match, ratio) {
+                        const leftRatio = parseFloat(ratio) * 100;
+                        const rightRatio = (1 - parseFloat(ratio)) * 100;
+                        console.log('Column ratio set:', leftRatio + '%', rightRatio + '%');
+                        return `<!-- COLUMN_RATIO:${leftRatio},${rightRatio} -->`;
+                    });
+
+                    // Begin paracol environment
+                    html = html.replace(/\\begin\{paracol\}\{2\}/g, '<!-- BEGIN_PARACOL -->');
+                    html = html.replace(/\\end\{paracol\}/g, '<!-- END_PARACOL -->');
+
+                    // Column switching
+                    html = html.replace(/\\switchcolumn/g, '<!-- SWITCH_COLUMN -->');
+
+                    console.log('CV document detected, applying professional formatting');
+                }
 
                 // ACCENT PROCESSING EARLY - Before title/section extraction
                 // Accent characters (common LaTeX accents)
@@ -557,6 +625,87 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 html = html.replace(/\\section\{([^}]*)\}/g, '\n<h2>$1</h2>\n');
                 html = html.replace(/\\subsection\{([^}]*)\}/g, '\n<h3>$1</h3>\n');
                 html = html.replace(/\\subsubsection\{([^}]*)\}/g, '\n<h4>$1</h4>\n');
+
+                // CV-SPECIFIC COMMANDS
+                if (isCV) {
+                    // \cvsection - CV section headers with professional styling
+                    html = html.replace(/\\cvsection\{([^}]*)\}/g, function(match, title) {
+                        const sectionColor = colorTable['heading'] || '#2E2E2E';
+                        return `\n<h2 style="color: ${sectionColor}; border-bottom: 2px solid ${colorTable['headingrule'] || '#E7D192'}; padding-bottom: 0.3em; margin-top: 1.5em; margin-bottom: 0.8em; font-weight: bold;">${title}</h2>\n`;
+                    });
+
+                    // \cvevent{job title}{company}{date}{location}
+                    html = html.replace(/\\cvevent\{([^}]*)\}\{([^}]*)\}\{([^}]*)\}\{([^}]*)\}/g, function(match, title, company, date, location) {
+                        const accentColor = colorTable['accent'] || '#8F0D0D';
+                        const emphasisColor = colorTable['emphasis'] || '#2E2E2E';
+
+                        return `<div style="margin-bottom: 1em; padding: 0.5em 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3em;">
+                                <div>
+                                    <h3 style="color: ${accentColor}; margin: 0; font-size: 1.1em; font-weight: bold;">${title}</h3>
+                                    <p style="color: ${emphasisColor}; margin: 0.2em 0; font-weight: 600;">${company}</p>
+                                </div>
+                                <div style="text-align: right; font-size: 0.9em; color: ${colorTable['body'] || '#666666'};">
+                                    <div>${date}</div>
+                                    ${location ? `<div>${location}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+
+                    // \cvskill{skill}{level} - skill with rating
+                    html = html.replace(/\\cvskill\{([^}]*)\}\{([^}]*)\}/g, function(match, skill, level) {
+                        const skillLevel = parseFloat(level) || 0;
+                        const maxLevel = 5;
+                        const percentage = (skillLevel / maxLevel) * 100;
+                        const accentColor = colorTable['accent'] || '#8F0D0D';
+
+                        return `<div style="margin-bottom: 0.8em;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2em;">
+                                <span style="font-weight: 600;">${skill}</span>
+                                <span style="font-size: 0.9em; color: ${colorTable['body'] || '#666666'};">${skillLevel}/${maxLevel}</span>
+                            </div>
+                            <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: ${accentColor}; height: 100%; width: ${percentage}%; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>`;
+                    });
+
+                    // \cvtag{skill} - skill tag
+                    html = html.replace(/\\cvtag\{([^}]*)\}/g, function(match, tag) {
+                        const accentColor = colorTable['accent'] || '#8F0D0D';
+                        return `<span style="display: inline-block; background: ${accentColor}; color: white; padding: 0.2em 0.6em; margin: 0.1em 0.2em; border-radius: 12px; font-size: 0.85em; font-weight: 500;">${tag}</span>`;
+                    });
+
+                    // \cvachievement{icon}{title}{description}
+                    html = html.replace(/\\cvachievement\{([^}]*)\}\{([^}]*)\}\{([^}]*)\}/g, function(match, icon, title, description) {
+                        const accentColor = colorTable['accent'] || '#8F0D0D';
+                        const iconText = icon.replace(/\\fa\w+/g, '★'); // Replace FontAwesome with unicode
+
+                        return `<div style="display: flex; align-items: flex-start; margin-bottom: 1em; padding: 0.5em 0;">
+                            <div style="color: ${accentColor}; font-size: 1.2em; margin-right: 0.8em; margin-top: 0.1em;">${iconText}</div>
+                            <div>
+                                <h4 style="color: ${accentColor}; margin: 0 0 0.3em 0; font-size: 1em;">${title}</h4>
+                                <p style="margin: 0; color: ${colorTable['body'] || '#666666'}; line-height: 1.4;">${description}</p>
+                            </div>
+                        </div>`;
+                    });
+
+                    // \divider - visual separator
+                    html = html.replace(/\\divider/g, '<hr style="border: none; border-top: 1px solid #e0e0e0; margin: 1em 0;">');
+
+                    // Apply text colors if defined
+                    if (colorTable['body']) {
+                        html = html.replace(/\\textcolor\{body\}\{([^}]+)\}/g, `<span style="color: ${colorTable['body']}">$1</span>`);
+                    }
+
+                    // Apply accent colors
+                    if (colorTable['accent']) {
+                        html = html.replace(/\\textcolor\{accent\}\{([^}]+)\}/g, `<span style="color: ${colorTable['accent']}">$1</span>`);
+                    }
+
+                    console.log('CV commands processed with colors:', Object.keys(colorTable));
+                }
 
                 // Text formatting
                 html = html.replace(/\\textbf\{([^}]*)\}/g, '<strong>$1</strong>');
@@ -7559,7 +7708,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
                                 Asset Type
                             </label>
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
                                 <button onclick="setUnifiedAssetType('Document')" id="assetTypeDocument" style="padding: 12px; background: var(--color-primary-blue); color: white; border: 2px solid var(--color-primary-blue); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                     <i class="ph ph-file-text" style="font-size: 24px;"></i>
                                     Document
@@ -7567,6 +7716,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <button onclick="setUnifiedAssetType('LaTeX')" id="assetTypeLaTeX" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                     <i class="ph ph-math-operations" style="font-size: 24px;"></i>
                                     LaTeX
+                                </button>
+                                <button onclick="setUnifiedAssetType('CV')" id="assetTypeCV" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <i class="ph ph-user-circle-gear" style="font-size: 24px;"></i>
+                                    CV/Resume
                                 </button>
                                 <button onclick="setUnifiedAssetType('Diagram')" id="assetTypeDiagram" style="padding: 12px; background: white; color: var(--color-dark); border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                     <i class="ph ph-flow-arrow" style="font-size: 24px;"></i>
@@ -7944,6 +8097,24 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <button class="latex-toolbar-btn" onclick="insertLatexCommand('table')" title="Insert Table" style="padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                             <i class="ph ph-table"></i>
                             Table
+                        </button>
+                        <!-- CV-specific commands (shown when editing CV documents) -->
+                        <div style="width: 1px; height: 20px; background: var(--color-neutral-border); margin: 0 4px;" id="cvToolbarDivider" style="display: none;"></div>
+                        <button class="latex-toolbar-btn cv-command" onclick="insertLatexCommand('cvsection')" title="Insert CV Section" style="display: none; padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; cursor: pointer;">
+                            <i class="ph ph-text-h-one" style="color: #8F0D0D;"></i>
+                            CV Section
+                        </button>
+                        <button class="latex-toolbar-btn cv-command" onclick="insertLatexCommand('cvevent')" title="Insert CV Event/Experience" style="display: none; padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; cursor: pointer;">
+                            <i class="ph ph-briefcase" style="color: #8F0D0D;"></i>
+                            Experience
+                        </button>
+                        <button class="latex-toolbar-btn cv-command" onclick="insertLatexCommand('cvskill')" title="Insert CV Skill" style="display: none; padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; cursor: pointer;">
+                            <i class="ph ph-gear" style="color: #8F0D0D;"></i>
+                            Skill
+                        </button>
+                        <button class="latex-toolbar-btn cv-command" onclick="insertLatexCommand('cvtag')" title="Insert CV Tags" style="display: none; padding: 6px 8px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; cursor: pointer;">
+                            <i class="ph ph-tag" style="color: #8F0D0D;"></i>
+                            Tags
                         </button>
                     </div>
 
@@ -20836,7 +21007,11 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 ...code.map(c => ({ ...c, assetType: 'Code', icon: 'ph-code' })),
                 ...mermaid.map(m => ({ ...m, assetType: 'Mermaid', icon: 'ph-fish' })),
                 ...presentations.map(p => ({ ...p, assetType: 'Presentation', icon: 'ph-presentation' })),
-                ...latexDocuments.map(l => ({ ...l, assetType: 'LaTeX', icon: 'ph-math-operations' }))
+                ...latexDocuments.map(l => ({
+                    ...l,
+                    assetType: l.type === 'cv' ? 'CV' : 'LaTeX',
+                    icon: l.type === 'cv' ? 'ph-user-circle-gear' : 'ph-math-operations'
+                }))
             ];
 
             // Apply tier-based filtering (hide advanced asset types for Learner tier)
@@ -21264,7 +21439,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             currentUnifiedAssetType = type;
 
             // Update button styles
-            const types = ['Document', 'LaTeX', 'Diagram', 'Whiteboard', 'Markdown', 'Code', 'Presentation'];
+            const types = ['Document', 'LaTeX', 'CV', 'Diagram', 'Whiteboard', 'Markdown', 'Code', 'Presentation'];
             types.forEach(t => {
                 const btn = document.getElementById(`assetType${t}`);
                 if (btn) { // Check if button exists
@@ -21524,6 +21699,27 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             } else if (currentUnifiedAssetType === 'LaTeX') {
                 asset.content = getDefaultLatexTemplate();  // Default LaTeX template
+                const stored = localStorage.getItem(`user_latex_documents_${currentPersona}`);
+                const latexDocs = stored ? JSON.parse(stored) : [];
+                latexDocs.push(asset);
+                localStorage.setItem(`user_latex_documents_${currentPersona}`, JSON.stringify(latexDocs));
+
+                // Close modal and open editor
+                closeUnifiedAssetModal();
+                openLatexEditor(assetId);
+
+            } else if (currentUnifiedAssetType === 'CV') {
+                // Create CV document with AltaCV template and enhanced schema
+                asset.name = asset.name.replace('New Document', 'New Professional CV');
+                asset.content = getAltaCVTemplate();  // CV template
+                asset.tags = ['cv', 'resume', 'professional'];
+                // Add CV-specific fields
+                asset.type = 'cv';
+                asset.cvTemplate = 'altacv';
+                asset.personalInfo = null;
+                asset.sections = ['experience', 'projects', 'skills', 'education', 'certifications'];
+                asset.colorScheme = { primary: '#8F0D0D', heading: '#2E2E2E', accent: '#E7D192', text: '#666666' };
+
                 const stored = localStorage.getItem(`user_latex_documents_${currentPersona}`);
                 const latexDocs = stored ? JSON.parse(stored) : [];
                 latexDocs.push(asset);
@@ -39838,6 +40034,60 @@ Start typing...`
             html = html.replace(/<p>(<pre>)/g, '$1');
             html = html.replace(/(<\/pre>)<\/p>/g, '$1');
 
+            // Final two-column layout processing for CV documents
+            if (isCV && html.includes('<!-- BEGIN_PARACOL -->')) {
+                console.log('Processing two-column layout for CV document');
+
+                // Extract column ratio if specified
+                let leftRatio = 70; // Default left column percentage
+                let rightRatio = 30; // Default right column percentage
+
+                const ratioMatch = html.match(/<!-- COLUMN_RATIO:([^,]+),([^>]+) -->/);
+                if (ratioMatch) {
+                    leftRatio = parseFloat(ratioMatch[1]);
+                    rightRatio = parseFloat(ratioMatch[2]);
+                    console.log('Using custom column ratios:', leftRatio + '%', rightRatio + '%');
+                }
+
+                // Find the paracol content
+                const paracolRegex = /<!-- BEGIN_PARACOL -->([\s\S]*?)<!-- END_PARACOL -->/;
+                const paracolMatch = html.match(paracolRegex);
+
+                if (paracolMatch) {
+                    const paracolContent = paracolMatch[1];
+
+                    // Split content by column switches
+                    const columns = paracolContent.split('<!-- SWITCH_COLUMN -->');
+                    const leftColumn = columns[0] ? columns[0].trim() : '';
+                    const rightColumn = columns[1] ? columns[1].trim() : '';
+
+                    console.log('Left column content length:', leftColumn.length);
+                    console.log('Right column content length:', rightColumn.length);
+
+                    // Create two-column HTML layout
+                    const twoColumnHTML = `
+                        <div style="display: flex; gap: 2em; margin: 1em 0; align-items: flex-start;">
+                            <div style="flex: 0 0 ${leftRatio}%; min-width: 0;">
+                                ${leftColumn}
+                            </div>
+                            <div style="flex: 0 0 ${rightRatio}%; min-width: 0;">
+                                ${rightColumn}
+                            </div>
+                        </div>
+                    `;
+
+                    // Replace the paracol block with the formatted columns
+                    html = html.replace(paracolRegex, twoColumnHTML);
+
+                    // Clean up any remaining column ratio comments
+                    html = html.replace(/<!-- COLUMN_RATIO:[^>]+ -->/g, '');
+
+                    console.log('Two-column layout processing completed');
+                } else {
+                    console.warn('BEGIN_PARACOL found but no matching END_PARACOL');
+                }
+            }
+
             return html;
         }
 
@@ -43936,7 +44186,13 @@ F &= ma \\\\
                     tags: [],
                     linkedType: '',
                     linkedId: '',
-                    lastModified: new Date().toISOString()
+                    lastModified: new Date().toISOString(),
+                    // CV-specific fields (optional, only populated for CV documents)
+                    type: 'latex', // 'latex' for regular documents, 'cv' for CV documents
+                    cvTemplate: null, // 'altacv', 'moderncv', etc. for CV documents
+                    personalInfo: null, // Object with name, email, phone, location, etc.
+                    sections: null, // Array of CV sections with content
+                    colorScheme: null // Object with CV color preferences
                 };
 
                 const documents = getLatexDocuments();
@@ -43956,6 +44212,32 @@ F &= ma \\\\
 
             // Show the editor
             document.getElementById('latexEditor').style.display = 'flex';
+
+            // Check if this is a CV document and show/hide CV toolbar commands
+            const documents = getLatexDocuments();
+            const currentDoc = documents.find(d => d.id === currentLatexDocumentId);
+            const isCVDocument = currentDoc && currentDoc.type === 'cv';
+
+            // Show/hide CV toolbar commands
+            const cvCommands = document.querySelectorAll('.cv-command');
+            const cvDivider = document.getElementById('cvToolbarDivider');
+
+            cvCommands.forEach(button => {
+                button.style.display = isCVDocument ? 'flex' : 'none';
+            });
+
+            if (cvDivider) {
+                cvDivider.style.display = isCVDocument ? 'block' : 'none';
+            }
+
+            // Update document title to indicate CV vs LaTeX
+            const titleEl = document.getElementById('latex-document-title');
+            if (titleEl && currentDoc) {
+                const prefix = isCVDocument ? '[CV] ' : '';
+                titleEl.textContent = prefix + (currentDoc.name || 'Untitled Document');
+            }
+
+            console.log('CV document detected:', isCVDocument);
 
             // Initialize autocompile toggle
             initializeAutoCompileToggle();
@@ -44062,7 +44344,13 @@ F &= ma \\\\
                 'itemize': '\n\\begin{itemize}\n    \\item First item\n    \\item Second item\n\\end{itemize}\n',
                 'enumerate': '\n\\begin{enumerate}\n    \\item First item\n    \\item Second item\n\\end{enumerate}\n',
                 'table': '\n\\begin{table}[h]\n\\centering\n\\begin{tabular}{|c|c|c|}\n\\hline\nHeader 1 & Header 2 & Header 3 \\\\ \\hline\nRow 1 & Data 1 & Data 2 \\\\ \\hline\nRow 2 & Data 3 & Data 4 \\\\ \\hline\n\\end{tabular}\n\\caption{Table caption}\n\\end{table}\n',
-                'figure': '\n\\begin{figure}[h]\n\\centering\n% Insert figure here\n\\caption{Figure caption}\n\\label{fig:example}\n\\end{figure}\n'
+                'figure': '\n\\begin{figure}[h]\n\\centering\n% Insert figure here\n\\caption{Figure caption}\n\\label{fig:example}\n\\end{figure}\n',
+                // CV-specific templates
+                'cvsection': '\n\\cvsection{Section Title}\n\n',
+                'cvevent': '\n\\cvevent{Job Title}{Company Name}{Month Year -- Present}{City, State}\n\\begin{itemize}\n\\item Achievement or responsibility that demonstrates impact\n\\item Quantifiable accomplishment with specific metrics\n\\item Technical or leadership accomplishment relevant to target role\n\\end{itemize}\n\n\\divider\n\n',
+                'cvskill': '\\cvskill{Skill Name}{4}  % Skill level 1-5\n',
+                'cvtag': '\\cvtag{Skill Tag}\n\\cvtag{Technology}\n\\cvtag{Framework}\n\n',
+                'cvachievement': '\\cvachievement{\\faIcon{star}}{Achievement Title}{Brief description of the accomplishment and its impact}\n\n'
             };
 
             const template = templates[command];
@@ -44557,6 +44845,279 @@ This is an example of a subsection with some math: $E = mc^2$
 Summarize your work here.
 
 \\end{document}`;
+        }
+
+        // AltaCV Template for Professional CVs
+        function getAltaCVTemplate(personalInfo = {}) {
+            const name = personalInfo.name || 'Your Name';
+            const email = personalInfo.email || 'your.email@example.com';
+            const phone = personalInfo.phone || '+1 (555) 123-4567';
+            const location = personalInfo.location || 'Your City, State';
+            const linkedin = personalInfo.linkedin || 'linkedin.com/in/yourprofile';
+            const website = personalInfo.website || 'yourwebsite.com';
+
+            return `\\documentclass{altacv}
+
+% Define colors for professional appearance
+\\definecolor{VividPurple}{HTML}{3E0097}
+\\definecolor{SlateGrey}{HTML}{2E2E2E}
+\\definecolor{LightGrey}{HTML}{666666}
+\\definecolor{DarkGrey}{HTML}{333333}
+\\definecolor{AccentColor}{HTML}{8F0D0D}
+\\definecolor{RuleColor}{HTML}{E7D192}
+
+% Color scheme setup
+\\colorlet{name}{DarkGrey}
+\\colorlet{tagline}{AccentColor}
+\\colorlet{heading}{SlateGrey}
+\\colorlet{headingrule}{RuleColor}
+\\colorlet{subheading}{AccentColor}
+\\colorlet{accent}{AccentColor}
+\\colorlet{emphasis}{DarkGrey}
+\\colorlet{body}{LightGrey}
+
+% Page layout
+\\geometry{left=1.25cm,right=1.25cm,top=1.5cm,bottom=1.5cm,columnsep=1.2cm}
+\\usepackage{paracol}
+
+\\begin{document}
+\\name{${name}}
+\\tagline{Professional Title or Tagline}
+
+% Contact information
+\\personalinfo{%
+    \\email{${email}}
+    \\phone{${phone}}
+    \\location{${location}}
+    \\linkedin{${linkedin}}
+    \\homepage{${website}}
+}
+
+\\makecvheader
+\\AtBeginEnvironment{itemize}{\\small}
+
+% Two column layout
+\\columnratio{0.6}
+\\begin{paracol}{2}
+
+%% LEFT COLUMN %%
+\\cvsection{Experience}
+
+\\cvevent{Job Title}{Company Name}{Month 2023 -- Present}{City, State}
+\\begin{itemize}
+\\item Achievement or responsibility that demonstrates impact
+\\item Quantifiable accomplishment with specific metrics
+\\item Technical or leadership accomplishment relevant to target role
+\\item Collaborative project or team contribution
+\\end{itemize}
+
+\\divider
+
+\\cvevent{Previous Job Title}{Previous Company}{Month 2021 -- Month 2023}{City, State}
+\\begin{itemize}
+\\item Key accomplishment with measurable results
+\\item Process improvement or efficiency gain
+\\item Technology implementation or optimization
+\\item Cross-functional collaboration or leadership
+\\end{itemize}
+
+\\cvsection{Projects}
+
+\\cvachievement{\\faIcon{code}}{Project Name}{Brief description of personal or professional project showcasing relevant skills}
+
+\\cvachievement{\\faIcon{chart-line}}{Data Analysis Project}{Description of analytical work, tools used, and business impact}
+
+%% RIGHT COLUMN %%
+\\switchcolumn
+
+\\cvsection{Skills}
+
+\\cvtag{Programming Language}
+\\cvtag{Technology}
+\\cvtag{Framework}
+\\cvtag{Tool} \\\\
+\\cvtag{Methodology}
+\\cvtag{Platform}
+\\cvtag{Certification}
+
+\\medskip
+
+\\cvskill{Primary Skill Area}{5}
+\\cvskill{Secondary Skill Area}{4}
+\\cvskill{Third Skill Area}{4}
+\\cvskill{Learning Area}{3}
+
+\\cvsection{Education}
+
+\\cvevent{Degree Name}{University Name}{Graduation Year}{City, State}
+\\begin{itemize}
+\\item Relevant coursework or academic projects
+\\item GPA (if strong), honors, or achievements
+\\end{itemize}
+
+\\cvsection{Certifications}
+
+\\cvachievement{\\faIcon{certificate}}{Certification Name}{Issuing Organization, Date}
+\\cvachievement{\\faIcon{award}}{Professional Credential}{Details and validity period}
+
+\\end{paracol}
+
+\\end{document}`;
+        }
+
+        // Function to create a new CV document with AltaCV template
+        function createNewCVDocument(personalInfo = {}) {
+            const newDoc = {
+                id: Date.now(),
+                name: 'New Professional CV',
+                description: 'Professional CV created with AltaCV template',
+                content: getAltaCVTemplate(personalInfo),
+                tags: ['cv', 'resume', 'professional'],
+                linkedType: '',
+                linkedId: '',
+                lastModified: new Date().toISOString(),
+                // CV-specific fields
+                type: 'cv',
+                cvTemplate: 'altacv',
+                personalInfo: personalInfo,
+                sections: ['experience', 'projects', 'skills', 'education', 'certifications'],
+                colorScheme: {
+                    primary: '#8F0D0D',
+                    heading: '#2E2E2E',
+                    accent: '#E7D192',
+                    text: '#666666'
+                }
+            };
+
+            const documents = getLatexDocuments();
+            documents.push(newDoc);
+            saveLatexDocuments(documents);
+
+            return newDoc;
+        }
+
+        // Document type detection and migration function
+        function detectAndMigrateDocumentType(document) {
+            // Don't modify documents that already have explicit type
+            if (document.type && document.type !== 'latex') {
+                return document;
+            }
+
+            const content = document.content || '';
+
+            // Detect CV documents by content patterns
+            const isCVDocument =
+                content.includes('\\documentclass{altacv}') ||
+                content.includes('\\documentclass{moderncv}') ||
+                content.includes('\\cvevent') ||
+                content.includes('\\cvskill') ||
+                content.includes('\\cvsection') ||
+                content.includes('\\cvtag') ||
+                content.includes('\\makecvheader') ||
+                (document.tags && document.tags.some(tag =>
+                    tag.toLowerCase().includes('cv') ||
+                    tag.toLowerCase().includes('resume')
+                ));
+
+            if (isCVDocument) {
+                // Migrate to CV document
+                document.type = 'cv';
+
+                // Detect CV template type
+                if (content.includes('\\documentclass{altacv}')) {
+                    document.cvTemplate = 'altacv';
+                } else if (content.includes('\\documentclass{moderncv}')) {
+                    document.cvTemplate = 'moderncv';
+                } else {
+                    document.cvTemplate = 'custom';
+                }
+
+                // Extract basic personal info from CV content
+                const personalInfo = {};
+
+                // Extract name from \name{} command
+                const nameMatch = content.match(/\\name\{([^}]+)\}/);
+                if (nameMatch) personalInfo.name = nameMatch[1];
+
+                // Extract email from \email{} command
+                const emailMatch = content.match(/\\email\{([^}]+)\}/);
+                if (emailMatch) personalInfo.email = emailMatch[1];
+
+                // Extract phone from \phone{} command
+                const phoneMatch = content.match(/\\phone\{([^}]+)\}/);
+                if (phoneMatch) personalInfo.phone = phoneMatch[1];
+
+                // Extract location from \location{} command
+                const locationMatch = content.match(/\\location\{([^}]+)\}/);
+                if (locationMatch) personalInfo.location = locationMatch[1];
+
+                document.personalInfo = Object.keys(personalInfo).length > 0 ? personalInfo : null;
+
+                // Detect sections from \cvsection{} commands
+                const sectionMatches = content.match(/\\cvsection\{([^}]+)\}/g);
+                if (sectionMatches) {
+                    document.sections = sectionMatches.map(match => {
+                        const sectionMatch = match.match(/\\cvsection\{([^}]+)\}/);
+                        return sectionMatch ? sectionMatch[1].toLowerCase() : null;
+                    }).filter(section => section);
+                } else {
+                    document.sections = ['experience', 'education', 'skills'];
+                }
+
+                // Extract color scheme from color definitions
+                const colorScheme = {};
+                const colorMatches = content.match(/\\definecolor\{([^}]+)\}\{HTML\}\{([^}]+)\}/g);
+                if (colorMatches) {
+                    colorMatches.forEach(colorDef => {
+                        const colorMatch = colorDef.match(/\\definecolor\{([^}]+)\}\{HTML\}\{([^}]+)\}/);
+                        if (colorMatch) {
+                            const colorName = colorMatch[1];
+                            const hexValue = colorMatch[2];
+                            if (colorName.toLowerCase().includes('accent')) {
+                                colorScheme.primary = `#${hexValue}`;
+                            }
+                        }
+                    });
+                }
+                document.colorScheme = Object.keys(colorScheme).length > 0 ? colorScheme : null;
+
+                // Add CV tags if not already present
+                if (!document.tags) document.tags = [];
+                if (!document.tags.includes('cv')) document.tags.push('cv');
+
+                console.log('Migrated document to CV type:', document.name, document.cvTemplate);
+            } else {
+                // Ensure regular LaTeX documents have proper type
+                document.type = 'latex';
+            }
+
+            return document;
+        }
+
+        // Enhanced getLatexDocuments function with type detection
+        function getLatexDocuments() {
+            const key = `user_latex_documents_${currentPersona}`;
+            const stored = localStorage.getItem(key);
+            let documents = stored ? JSON.parse(stored) : [];
+
+            // Detect and migrate document types for existing documents
+            let migrationNeeded = false;
+            documents = documents.map(doc => {
+                const originalType = doc.type;
+                const migratedDoc = detectAndMigrateDocumentType(doc);
+                if (migratedDoc.type !== originalType) {
+                    migrationNeeded = true;
+                }
+                return migratedDoc;
+            });
+
+            // Save migrated documents back to storage
+            if (migrationNeeded) {
+                console.log('Document type migration performed, saving updated documents');
+                localStorage.setItem(key, JSON.stringify(documents));
+            }
+
+            return documents;
         }
 
         // Utility function to show toast messages
