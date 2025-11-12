@@ -1012,8 +1012,32 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     '</span>');
 
                 // Choose notation (alternative binomial) - parse {n \choose k} syntax
-                formatted = formatted.replace(/\{([^{}]+)\\choose([^{}]+)\}/g, function(match, n, k) {
-                    // Trim whitespace from the arguments
+                // Pattern 1: Handle nested braces - complex expressions like {⌊n/2^{h-1}⌋+1 \choose k}
+                formatted = formatted.replace(/\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\s*\\choose\s*([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, function(match, n, k) {
+                    n = n.trim();
+                    k = k.trim();
+                    return '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                           '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                           '<span style="display: block; line-height: 1;">' + n + '</span>' +
+                           '<span style="display: block; line-height: 1;">' + k + '</span>' +
+                           '</span>)' +
+                           '</span>';
+                });
+
+                // Pattern 2: Simple choose notation fallback - handles basic cases
+                formatted = formatted.replace(/\{([^{}]+)\s*\\choose\s*([^{}]+)\}/g, function(match, n, k) {
+                    n = n.trim();
+                    k = k.trim();
+                    return '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                           '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                           '<span style="display: block; line-height: 1;">' + n + '</span>' +
+                           '<span style="display: block; line-height: 1;">' + k + '</span>' +
+                           '</span>)' +
+                           '</span>';
+                });
+
+                // Pattern 3: Minimal fallback for any remaining choose cases
+                formatted = formatted.replace(/\{([^}]*)\s*\\choose\s*([^}]*)\}/g, function(match, n, k) {
                     n = n.trim();
                     k = k.trim();
                     return '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
