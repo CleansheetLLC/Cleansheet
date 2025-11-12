@@ -56,9 +56,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
     <!-- Excalidraw will be embedded via iframe -->
 
-    <!-- Lexical Rich Text Editor (Bundled) -->
-    <script src="shared/cleansheet-lexical.umd.js"></script>
-    <script src="shared/lexical-document-editor.js"></script>
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="shared/quill-document-editor.js"></script>
 
     <!-- Draw.io Diagram Editor -->
     <script src="shared/drawio-diagram-editor.js"></script>
@@ -1212,8 +1213,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             color: #dc3545;
         }
 
-        /* Lexical Editor Styles */
-        #lexicalEditor {
+        /* Quill Editor Styles */
+        #quillEditor {
             outline: none;
         }
 
@@ -1287,42 +1288,139 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-style: italic;
         }
 
-        #lexicalEditor table {
+        #quillEditor table {
             border-collapse: collapse;
             width: 100%;
             margin: 12px 0;
             border: 1px solid var(--color-neutral-border);
         }
 
-        #lexicalEditor table th,
-        #lexicalEditor table td {
+        #quillEditor table th,
+        #quillEditor table td {
             border: 1px solid var(--color-neutral-border);
             padding: 8px 12px;
             text-align: left;
         }
 
-        #lexicalEditor table th {
+        #quillEditor table th {
             background: var(--color-neutral-background);
             font-weight: 600;
         }
 
-        #lexicalEditor a {
+        #quillEditor a {
             color: var(--color-primary-blue);
             text-decoration: underline;
             cursor: pointer;
         }
 
-        #lexicalEditor a:hover {
+        #quillEditor a:hover {
             color: var(--color-accent-blue);
         }
 
-        /* Quill Editor Styles (DEPRECATED - can be removed after testing) */
-        #quillEditor .ql-container {
-            flex: 1;
-            overflow-y: auto;
-            font-family: var(--font-family-body);
-            font-size: 14px;
-            line-height: 1.8;
+        /* Quill Editor Styles */
+        .ql-toolbar {
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-bottom: 1px solid var(--color-neutral-border) !important;
+            background: white !important;
+            padding: 12px 24px !important;
+        }
+
+        .ql-container {
+            border: none !important;
+            font-family: var(--font-family-body) !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            flex: 1 !important;
+        }
+
+        .ql-editor {
+            padding: 40px 24px !important;
+            background: white !important;
+            color: var(--color-dark) !important;
+            overflow-y: auto !important;
+        }
+
+        .ql-editor h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 24px 0 12px 0;
+            color: var(--color-dark);
+        }
+
+        .ql-editor h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+            color: var(--color-dark);
+        }
+
+        .ql-editor h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 16px 0 8px 0;
+            color: var(--color-dark);
+        }
+
+        .ql-editor blockquote {
+            margin: 16px 0;
+            padding: 12px 20px;
+            border-left: 4px solid var(--color-primary-blue);
+            background: #f8f9fa;
+            font-style: italic;
+        }
+
+        .ql-editor a {
+            color: var(--color-primary-blue);
+            text-decoration: underline;
+        }
+
+        .ql-editor a:hover {
+            color: var(--color-accent-blue);
+        }
+
+        .ql-editor pre.ql-syntax {
+            background: #f8f8f8;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+        }
+
+        .ql-editor code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #f1f3f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        /* Quill toolbar button styling */
+        .ql-toolbar .ql-formats {
+            margin-right: 12px;
+        }
+
+        .ql-toolbar button:hover {
+            color: var(--color-primary-blue) !important;
+        }
+
+        .ql-toolbar button.ql-active {
+            color: var(--color-primary-blue) !important;
+        }
+
+        /* Mobile responsive toolbar */
+        @media (max-width: 768px) {
+            .ql-toolbar {
+                padding: 8px 16px !important;
+            }
+
+            .ql-editor {
+                padding: 20px 16px !important;
+                font-size: 16px !important; /* Prevent iOS zoom */
+            }
         }
 
         #quillEditor .ql-editor {
@@ -4325,7 +4423,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             /* Document Editor Toolbar Mobile Optimization */
-            #lexicalToolbar {
+            #quillToolbar {
                 padding: 12px 16px !important;
                 gap: 6px !important;
                 flex-wrap: wrap !important;
@@ -4337,8 +4435,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             /* Toolbar buttons mobile optimization */
-            #lexicalToolbar button,
-            .lexical-toolbar-button {
+            #quillToolbar button,
+            .quill-toolbar-button {
                 min-width: 44px !important;
                 min-height: 44px !important;
                 padding: 10px !important;
@@ -4353,7 +4451,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             /* Toolbar button groups - add visual separation */
-            #lexicalToolbar .toolbar-group {
+            #quillToolbar .toolbar-group {
                 display: flex !important;
                 flex-wrap: wrap !important;
                 gap: 4px !important;
@@ -4364,7 +4462,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             /* Toolbar dropdowns mobile optimization */
-            #lexicalToolbar select {
+            #quillToolbar select {
                 min-height: 44px !important;
                 padding: 10px 12px !important;
                 font-size: 14px !important;
@@ -4374,19 +4472,19 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
             /* Hide less essential toolbar buttons on very small screens */
             @media (max-width: 375px) {
-                #lexicalToolbar {
+                #quillToolbar {
                     padding: 8px 12px !important;
                     max-height: 100px !important;
                 }
 
                 /* Hide advanced formatting on very small screens to save space */
-                #lexicalToolbar .toolbar-advanced {
+                #quillToolbar .toolbar-advanced {
                     display: none !important;
                 }
             }
 
-            /* Lexical editor content mobile optimization */
-            #lexicalEditor {
+            /* Quill editor content mobile optimization */
+            #quillEditor {
                 padding: 20px 16px !important;
                 font-size: 16px !important; /* Prevent iOS zoom */
                 line-height: 1.5 !important;
@@ -4394,7 +4492,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             /* Document editor modal mobile optimization */
-            #documentEditorModal #lexicalEditorContainer {
+            #documentEditorModal #quillEditorContainer {
                 height: calc(100vh - 120px) !important; /* Account for toolbar height */
             }
 
@@ -7011,17 +7109,14 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
-                        Auto-save enabled
+                        <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
                     </span>
                 </div>
             </div>
-            <!-- Lexical Editor Container -->
-            <div id="lexicalEditorContainer" style="flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #fafafa;">
-                <div id="lexicalToolbar" style="background: white; border-bottom: 1px solid var(--color-neutral-border); padding: 8px 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                    <!-- Toolbar buttons will be created by JavaScript -->
-                </div>
-                <div id="lexicalEditor" contenteditable="true" style="flex: 1; overflow-y: auto; background: white; padding: 40px 24px; font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-dark);">
-                    <!-- Lexical editor content -->
+            <!-- Quill Editor Container -->
+            <div id="quillEditorContainer" style="flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #fafafa;">
+                <div id="quillEditor" style="flex: 1; display: flex; flex-direction: column; background: white;">
+                    <!-- Quill editor will be initialized here -->
                 </div>
             </div>
         </div>
@@ -7042,7 +7137,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
-                        Auto-save enabled
+                        <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
                     </span>
                 </div>
             </div>
@@ -7069,7 +7164,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </button>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
-                        Auto-save enabled
+                        <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
                     </span>
                 </div>
             </div>
@@ -7239,7 +7334,7 @@ Your content here...
                     </select>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
-                        Auto-save enabled
+                        <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
                     </span>
                 </div>
             </div>
@@ -7264,7 +7359,7 @@ Your content here...
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
-                        Auto-save enabled
+                        <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
                     </span>
                 </div>
             </div>
@@ -7331,7 +7426,7 @@ Your content here...
                     </button>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
-                        Auto-save enabled
+                        <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
                     </span>
                 </div>
             </div>
@@ -17205,6 +17300,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 localStorage.removeItem(`code_${currentPersona}`);
                 localStorage.removeItem(`mermaid_${currentPersona}`);
                 localStorage.removeItem(`presentations_${currentPersona}`);
+                localStorage.removeItem(`user_latex_documents_${currentPersona}`);
             }
 
             // Import profile data
@@ -17391,6 +17487,18 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 }
             }
 
+            // Import LaTeX documents
+            const newLatex = data.latex || [];
+            if (newLatex.length > 0) {
+                if (!importMode) {
+                    const existingLatex = JSON.parse(localStorage.getItem(`user_latex_documents_${currentPersona}`) || '[]');
+                    const mergedLatex = [...existingLatex, ...newLatex];
+                    localStorage.setItem(`user_latex_documents_${currentPersona}`, JSON.stringify(mergedLatex));
+                } else {
+                    localStorage.setItem(`user_latex_documents_${currentPersona}`, JSON.stringify(newLatex));
+                }
+            }
+
             // Import job opportunities
             const newJobOpportunities = data.jobOpportunities || [];
             if (newJobOpportunities.length > 0) {
@@ -17503,6 +17611,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 const presentationsJson = localStorage.getItem(`presentations_${currentPersona}`);
                 const presentations = presentationsJson ? JSON.parse(presentationsJson) : [];
 
+                // Get LaTeX documents from localStorage
+                const latexJson = localStorage.getItem(`user_latex_documents_${currentPersona}`);
+                const latex = latexJson ? JSON.parse(latexJson) : [];
+
                 // Get job opportunities from localStorage
                 const jobOpportunitiesJson = localStorage.getItem(`jobOpportunities_${currentPersona}`);
                 const jobOpportunities = jobOpportunitiesJson ? JSON.parse(jobOpportunitiesJson) : [];
@@ -17546,9 +17658,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     code: code,
                     mermaid: mermaid,
                     presentations: presentations,
+                    latex: latex,
                     jobOpportunities: jobOpportunities,
                     exportDate: new Date().toISOString(),
-                    version: '4.0'
+                    version: '4.1'
                 };
 
                 // Create download
@@ -17564,7 +17677,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects\n- ${diagrams.length} diagrams\n- ${documents.length} documents\n- ${whiteboards.length} whiteboards\n- ${markdown.length} markdown docs\n- ${plantuml.length} plantuml diagrams\n- ${code.length} code snippets\n- ${mermaid.length} mermaid diagrams\n- ${presentations.length} presentations\n- ${jobOpportunities.length} job opportunities`);
+                alert(`Successfully exported:\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${formattedExperiences.length} experiences\n- ${stories.length} stories\n- ${goals.length} goals\n- ${portfolio.length} portfolio projects\n- ${diagrams.length} diagrams\n- ${documents.length} documents\n- ${whiteboards.length} whiteboards\n- ${markdown.length} markdown docs\n- ${plantuml.length} plantuml diagrams\n- ${code.length} code snippets\n- ${mermaid.length} mermaid diagrams\n- ${presentations.length} presentations\n- ${latex.length} LaTeX documents\n- ${jobOpportunities.length} job opportunities`);
 
             } catch (error) {
                 alert('Error exporting data: ' + error.message);
@@ -20236,7 +20349,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         function openAssetByTypeAndId(assetType, assetId) {
             console.log('Opening asset:', assetType, assetId);
             if (assetType === 'Document') {
-                openDocumentByIdLexical(assetId);
+                openDocumentByIdQuill(assetId);
             } else if (assetType === 'LaTeX') {
                 openLatexEditor(assetId);
             } else if (assetType === 'Diagram') {
@@ -20655,7 +20768,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // Save based on type
             if (currentUnifiedAssetType === 'Document') {
-                asset.content = '';  // Empty Lexical content
+                asset.content = '';  // Empty document content
                 const stored = localStorage.getItem(`interview_documents_${currentPersona}`);
                 const documents = stored ? JSON.parse(stored) : [];
                 documents.push(asset);
@@ -20663,7 +20776,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
                 // Close modal and open editor
                 closeUnifiedAssetModal();
-                openDocumentByIdLexical(assetId);
+                openDocumentByIdQuill(assetId);
 
             } else if (currentUnifiedAssetType === 'LaTeX') {
                 asset.content = getDefaultLatexTemplate();  // Default LaTeX template
@@ -24686,22 +24799,19 @@ Start typing...`
             loadInterviewDocuments();
         }
 
-        // Document editor instance (Lexical)
-        let documentLexicalEditor = null;
-        let currentEditingDocumentId = null;
-        let documentAutoSaveTimer = null;
+        // Document editor variables are now defined in quill-document-editor.js
 
-        // Wrapper functions that use the new Lexical editor
+        // Wrapper functions that use the new Quill editor
         function openDocumentById(id) {
-            openDocumentByIdLexical(id);
+            openDocumentByIdQuill(id);
         }
 
         function closeDocumentEditor() {
-            closeDocumentEditorLexical();
+            closeDocumentEditorQuill();
         }
 
         function saveDocumentContentSilently() {
-            saveDocumentContentSilentlyLexical();
+            saveDocumentContentSilentlyQuill();
         }
 
         // Wrapper functions for Draw.io diagram editor
@@ -24713,173 +24823,11 @@ Start typing...`
             closeDiagramEditorDrawio();
         }
 
-        // OLD QUILL VERSION - DEPRECATED (keeping for reference, can be deleted)
-        function openDocumentById_OLD(id) {
-            console.log('=== OPENING DOCUMENT ===');
-            console.log('Document ID:', id);
+        // Deprecated OLD functions removed to fix AMD conflicts
 
-            const stored = localStorage.getItem(`interview_documents_${currentPersona}`);
-            const documents = stored ? JSON.parse(stored) : [];
-            const doc = documents.find(d => d.id === id);
 
-            if (!doc) {
-                console.error('Document not found with ID:', id);
-                showToast('Document not found', 'error');
-                return;
-            }
 
-            console.log('Found document:', {
-                id: doc.id,
-                name: doc.name,
-                hasContent: !!doc.content,
-                contentLength: doc.content ? doc.content.length : 0
-            });
 
-            currentEditingDocumentId = id;
-
-            // Show editor
-            document.getElementById('documentEditor').style.display = 'flex';
-            document.getElementById('documentEditorTitle').textContent = doc.name || 'Untitled Document';
-
-            // Initialize Lexical if not already done
-            if (!documentLexicalEditor) {
-                console.log('[Quill] Initializing Quill editor with table support...');
-
-                // Register Better Table module
-                Quill.register('modules/better-table', QuillBetterTable);
-
-                documentQuillEditor = new Quill('#quillEditor', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: '#quillToolbar',
-                        table: false,  // disable table module
-                        'better-table': {
-                            operationMenu: {
-                                items: {
-                                    unmergeCells: {
-                                        text: 'Unmerge cells'
-                                    }
-                                }
-                            }
-                        },
-                        keyboard: {
-                            bindings: QuillBetterTable.keyboardBindings
-                        }
-                    },
-                    placeholder: 'Start writing your document...'
-                });
-
-                // Setup auto-save on text change (debounced)
-                documentQuillEditor.on('text-change', function() {
-                    if (documentAutoSaveTimer) {
-                        clearTimeout(documentAutoSaveTimer);
-                    }
-                    documentAutoSaveTimer = setTimeout(() => {
-                        saveDocumentContentSilently();
-                    }, 2000); // Auto-save after 2 seconds of no typing
-                });
-
-                console.log('[Quill] ✅ Editor initialized successfully');
-            }
-
-            // Load document content
-            console.log('[Quill] Loading content for document ID:', id);
-            if (doc.content) {
-                try {
-                    const delta = JSON.parse(doc.content);
-                    documentQuillEditor.setContents(delta);
-                    console.log('[Quill] Content loaded as Delta');
-                } catch (e) {
-                    // If it's HTML or plain text, set it directly
-                    documentQuillEditor.root.innerHTML = doc.content || '';
-                    console.log('[Quill] Content loaded as HTML');
-                }
-            } else {
-                documentQuillEditor.setText('');
-                console.log('[Quill] Empty document');
-            }
-
-            // Scroll to top
-            document.getElementById('quillEditor').scrollTop = 0;
-        }
-
-        function closeDocumentEditor_OLD() {
-            console.log('=== CLOSING DOCUMENT EDITOR ===');
-
-            // Save before closing
-            if (currentEditingDocumentId && documentQuillEditor) {
-                console.log('[Close] Saving document before closing...');
-                saveDocumentContentSilently_OLD();
-            } else {
-                console.warn('[Close] Cannot save: editor not initialized', {
-                    hasDocId: !!currentEditingDocumentId,
-                    hasEditor: !!documentQuillEditor
-                });
-            }
-
-            // Hide editor
-            const editorElement = document.getElementById('documentEditor');
-            if (editorElement) {
-                editorElement.style.display = 'none';
-                console.log('[Close] Editor hidden');
-            }
-            currentEditingDocumentId = null;
-
-            // Reload documents list to show updated last modified time
-            loadInterviewDocuments();
-            console.log('[Close] ✅ Documents list reloaded');
-        }
-
-        function saveDocumentContentSilently_OLD() {
-            console.log('=== SAVING DOCUMENT ===');
-            console.log('[Save] Document ID:', currentEditingDocumentId);
-
-            if (!currentEditingDocumentId) {
-                console.warn('[Save] No document ID to save');
-                return;
-            }
-
-            if (!documentQuillEditor) {
-                console.warn('[Save] Quill editor not initialized, cannot save');
-                return;
-            }
-
-            try {
-                const stored = localStorage.getItem(`interview_documents_${currentPersona}`);
-                let documents = stored ? JSON.parse(stored) : [];
-                console.log('[Save] Total documents in storage:', documents.length);
-
-                const docIndex = documents.findIndex(d => d.id === currentEditingDocumentId);
-                console.log('[Save] Document index:', docIndex);
-
-                if (docIndex === -1) {
-                    console.warn('[Save] Document not found in localStorage with ID:', currentEditingDocumentId);
-                    console.log('[Save] Available document IDs:', documents.map(d => d.id));
-                    return;
-                }
-
-                console.log('[Save] Found document to update:', {
-                    id: documents[docIndex].id,
-                    name: documents[docIndex].name,
-                    oldContentLength: documents[docIndex].content ? documents[docIndex].content.length : 0
-                });
-
-                // Save Quill content as Delta JSON (preserves all formatting including tables)
-                const content = JSON.stringify(documentQuillEditor.getContents());
-                console.log('[Save] New content length:', content.length);
-                console.log('[Save] Content preview:', content.substring(0, 100));
-
-                documents[docIndex].content = content;
-                documents[docIndex].lastModified = new Date().toISOString();
-
-                localStorage.setItem(`interview_documents_${currentPersona}`, JSON.stringify(documents));
-                console.log('[Save] ✅ Document saved successfully to localStorage');
-            } catch (error) {
-                console.error('[Save] ❌ Error saving document:', error);
-                console.error('[Save] Error stack:', error.stack);
-                showToast('Error saving document', 'error');
-            }
-        }
 
         function saveDocumentContent() {
             saveDocumentContentSilently();
@@ -42741,6 +42689,245 @@ F &= ma \\\\
             localStorage.setItem(key, JSON.stringify(documents));
         }
 
+        // Register LaTeX language definition for Monaco Editor
+        function registerLatexLanguage() {
+            try {
+                // Check if language already exists
+                const languages = monaco.languages.getLanguages();
+                const latexExists = languages.some(lang => lang.id === 'latex');
+
+                if (latexExists) {
+                    console.log('LaTeX language already registered, skipping...');
+                    return;
+                }
+
+                // Register the language
+                monaco.languages.register({ id: 'latex' });
+
+            // Define syntax highlighting rules
+            monaco.languages.setMonarchTokensProvider('latex', {
+                tokenizer: {
+                    root: [
+                        // Comments (highest priority)
+                        [/%.*$/, 'comment'],
+
+                        // Math environments - display math
+                        [/\\\[/, 'math-display', '@math_display'],
+                        [/\$\$/, 'math-display', '@math_display_double'],
+
+                        // Math environments - inline math
+                        [/\$/, 'math-inline', '@math_inline'],
+
+                        // Environment blocks (simplified to avoid complex capturing groups)
+                        [/\\begin\{[^}]+\}/, 'environment-begin'],
+                        [/\\end\{[^}]+\}/, 'environment-end'],
+
+                        // LaTeX commands (simplified)
+                        [/\\[a-zA-Z]+\*?/, 'command'],
+
+                        // Special characters and escapes
+                        [/\\\\/, 'line-break'],
+                        [/\\[%$#{}_&]/, 'escape'],
+
+                        // Braces and brackets
+                        [/[{}]/, 'bracket'],
+                        [/[\[\]]/, 'bracket-square'],
+
+                        // Table separators
+                        [/&/, 'table-separator'],
+                        [/\\hline/, 'table-rule'],
+
+                        // Arguments in braces
+                        [/\{[^}]*\}/, 'command-argument'],
+
+                        // Optional arguments in brackets
+                        [/\[[^\]]*\]/, 'command-optional'],
+
+                        // Regular text (catch-all)
+                        [/./, 'text']
+                    ],
+
+                    math_inline: [
+                        [/\$/, 'math-inline', '@pop'],
+                        [/\\[a-zA-Z]+/, 'math-command'],
+                        [/[{}]/, 'math-bracket'],
+                        [/[^$\\{}]+/, 'math-content']
+                    ],
+
+                    math_display: [
+                        [/\\\]/, 'math-display', '@pop'],
+                        [/\\[a-zA-Z]+/, 'math-command'],
+                        [/[{}]/, 'math-bracket'],
+                        [/[^\\\]{}]+/, 'math-content']
+                    ],
+
+                    math_display_double: [
+                        [/\$\$/, 'math-display', '@pop'],
+                        [/\\[a-zA-Z]+/, 'math-command'],
+                        [/[{}]/, 'math-bracket'],
+                        [/[^$\\{}]+/, 'math-content']
+                    ]
+                }
+            });
+
+            // Define custom LaTeX color theme
+            monaco.editor.defineTheme('latex-dark', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    // Comments
+                    { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+
+                    // LaTeX commands
+                    { token: 'command', foreground: '569CD6', fontStyle: 'bold' },
+                    { token: 'command-star', foreground: '569CD6' },
+                    { token: 'command-optional', foreground: 'CE9178' },
+                    { token: 'command-argument', foreground: 'CE9178' },
+
+                    // Environments
+                    { token: 'environment-begin', foreground: 'C586C0', fontStyle: 'bold' },
+                    { token: 'environment-end', foreground: 'C586C0', fontStyle: 'bold' },
+                    { token: 'environment-name', foreground: 'DCDCAA' },
+
+                    // Math
+                    { token: 'math-inline', foreground: '4EC9B0', fontStyle: 'bold' },
+                    { token: 'math-display', foreground: '4EC9B0', fontStyle: 'bold' },
+                    { token: 'math-command', foreground: '9CDCFE' },
+                    { token: 'math-content', foreground: 'B5CEA8' },
+                    { token: 'math-bracket', foreground: 'FFD700' },
+
+                    // Structure
+                    { token: 'bracket', foreground: 'FFD700' },
+                    { token: 'bracket-square', foreground: 'FFD700' },
+                    { token: 'line-break', foreground: 'FF6B6B', fontStyle: 'bold' },
+                    { token: 'escape', foreground: 'FF6B6B' },
+
+                    // Table elements
+                    { token: 'table-separator', foreground: 'FF6B6B', fontStyle: 'bold' },
+                    { token: 'table-rule', foreground: 'C586C0' },
+
+                    // Regular text
+                    { token: 'text', foreground: 'D4D4D4' }
+                ],
+                colors: {
+                    'editor.background': '#1E1E1E',
+                    'editor.foreground': '#D4D4D4'
+                }
+            });
+
+            // Configure language features
+            monaco.languages.setLanguageConfiguration('latex', {
+                comments: {
+                    lineComment: '%'
+                },
+                brackets: [
+                    ['{', '}'],
+                    ['[', ']'],
+                    ['(', ')'],
+                    ['\\(', '\\)'],
+                    ['\\[', '\\]'],
+                    ['$', '$']
+                ],
+                autoClosingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '$', close: '$' },
+                    { open: '$$', close: '$$' }
+                ],
+                surroundingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '$', close: '$' }
+                ]
+            });
+
+            // Add basic LaTeX command completions
+            monaco.languages.registerCompletionItemProvider('latex', {
+                provideCompletionItems: function(model, position) {
+                    const suggestions = [
+                        {
+                            label: 'section',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'section{${1:Section Title}}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Create a section'
+                        },
+                        {
+                            label: 'subsection',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'subsection{${1:Subsection Title}}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Create a subsection'
+                        },
+                        {
+                            label: 'textbf',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'textbf{${1:bold text}}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Bold text'
+                        },
+                        {
+                            label: 'textit',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'textit{${1:italic text}}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Italic text'
+                        },
+                        {
+                            label: 'begin',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'begin{${1:environment}}\n\t${2}\n\\end{${1:environment}}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Begin environment'
+                        },
+                        {
+                            label: 'equation',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'begin{equation}\n\t${1:E = mc^2}\n\\end{equation}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Equation environment'
+                        },
+                        {
+                            label: 'itemize',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'begin{itemize}\n\t\\item ${1:First item}\n\t\\item ${2:Second item}\n\\end{itemize}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Bulleted list'
+                        },
+                        {
+                            label: 'enumerate',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'begin{enumerate}\n\t\\item ${1:First item}\n\t\\item ${2:Second item}\n\\end{enumerate}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Numbered list'
+                        },
+                        {
+                            label: 'table',
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: 'begin{table}[h]\n\\centering\n\\begin{tabular}{|c|c|c|}\n\\hline\n${1:Header 1} & ${2:Header 2} & ${3:Header 3} \\\\ \\hline\n${4:Row 1} & ${5:Data 1} & ${6:Data 2} \\\\ \\hline\n\\end{tabular}\n\\caption{${7:Table caption}}\n\\end{table}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Table with 3 columns'
+                        }
+                    ];
+
+                    return { suggestions: suggestions };
+                }
+            });
+
+                console.log('LaTeX language and theme registered successfully');
+
+            } catch (error) {
+                console.error('Error registering LaTeX language:', error);
+                // Fallback to vs-dark theme if custom theme fails
+                throw error;
+            }
+        }
+
+        // Prevent duplicate language registration
+        let latexLanguageRegistered = false;
+
         // Initialize Monaco LaTeX Editor
         function initializeLatexEditor(callback) {
             const editorContainer = document.getElementById('latex-editor-container');
@@ -42755,13 +42942,27 @@ F &= ma \\\\
                 try {
                     console.log('[LaTeX] Monaco loaded, creating editor');
 
+                    // Register LaTeX language and syntax highlighting (only once)
+                    if (!latexLanguageRegistered) {
+                        try {
+                            registerLatexLanguage();
+                            latexLanguageRegistered = true;
+                        } catch (error) {
+                            console.error('LaTeX language registration failed, falling back to plaintext:', error);
+                            // Continue with plaintext if LaTeX registration fails
+                        }
+                    }
+
                     // Clear any existing content
                     editorContainer.innerHTML = '';
 
+                    // Determine language and theme based on registration success
+                    const useLatexLanguage = latexLanguageRegistered;
+
                     latexEditor = monaco.editor.create(editorContainer, {
                         value: '',
-                        language: 'plaintext', // Monaco doesn't have LaTeX built-in, but we'll use plaintext
-                        theme: 'vs-dark',
+                        language: useLatexLanguage ? 'latex' : 'plaintext',
+                        theme: useLatexLanguage ? 'latex-dark' : 'vs-dark',
                         fontSize: 14,
                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                         lineNumbers: 'on',
@@ -43265,6 +43466,111 @@ F &= ma \\\\
                 showToast('Download failed. Please try again.', 'error');
             }
         }
+
+        // Debug function to test Quill document editor
+        window.testQuillEditor = function() {
+            console.log('=== TESTING QUILL DOCUMENT EDITOR ===');
+            console.log('1. Quill editor initialized:', !!documentQuillEditor);
+            console.log('2. Quill script loaded:', typeof Quill !== 'undefined');
+            console.log('3. Current editing document ID:', currentEditingDocumentId);
+
+            if (typeof Quill === 'undefined') {
+                console.error('❌ Quill not loaded - check CDN connection');
+                return;
+            }
+
+            if (documentQuillEditor) {
+                console.log('4. Editor container:', documentQuillEditor.container);
+                console.log('5. Editor theme:', documentQuillEditor.theme);
+                console.log('6. Current content length:', documentQuillEditor.getLength());
+                console.log('✅ Quill editor is working');
+
+                // Test inserting content
+                const testContent = [
+                    { insert: 'Welcome to Quill Document Editor!\n', attributes: { header: 1 } },
+                    { insert: '\nThis is a ' },
+                    { insert: 'robust', attributes: { bold: true } },
+                    { insert: ' rich text editor with:\n\n' },
+                    { insert: 'Bold and italic text\n', attributes: { list: 'bullet' } },
+                    { insert: 'Headers and formatting\n', attributes: { list: 'bullet' } },
+                    { insert: 'Auto-save functionality\n', attributes: { list: 'bullet' } },
+                    { insert: 'Keyboard shortcuts (Ctrl+S)\n', attributes: { list: 'bullet' } },
+                    { insert: '\nTest completed! ✨\n', attributes: { italic: true } }
+                ];
+
+                documentQuillEditor.setContents(testContent);
+                console.log('✅ Sample content inserted successfully');
+            } else {
+                console.log('ℹ️ Editor not initialized yet - create or open a document to test');
+            }
+        };
+
+        // Debug function to test LaTeX syntax highlighting
+        window.testLatexSyntax = function() {
+            console.log('=== TESTING LATEX SYNTAX HIGHLIGHTING ===');
+            console.log('Language registered:', latexLanguageRegistered);
+            console.log('Editor language:', latexEditor?.getModel()?.getLanguageId());
+            console.log('Editor theme:', 'latex-dark');
+
+            if (latexEditor) {
+                // Insert sample LaTeX code to test highlighting
+                const sampleCode = `% This is a comment
+\\documentclass{article}
+\\usepackage{amsmath}
+
+\\begin{document}
+\\title{Sample Document}
+\\maketitle
+
+\\section{Introduction}
+This is \\textbf{bold} and \\textit{italic} text.
+
+\\subsection{Math Examples}
+Inline math: $E = mc^2$ and display math:
+\\[
+\\int_0^\\infty e^{-x} dx = 1
+\\]
+
+\\begin{equation}
+\\sum_{i=1}^n i = \\frac{n(n+1)}{2}
+\\end{equation}
+
+\\begin{table}[h]
+\\centering
+\\begin{tabular}{|c|c|}
+\\hline
+Header 1 & Header 2 \\\\ \\hline
+Data 1 & Data 2 \\\\ \\hline
+\\end{tabular}
+\\caption{Sample Table}
+\\end{table}
+
+\\end{document}`;
+
+                latexEditor.setValue(sampleCode);
+                console.log('✅ Sample LaTeX code inserted - check editor for syntax highlighting');
+            } else {
+                console.log('❌ LaTeX editor not initialized');
+            }
+        };
+
+        // Debug function to test LaTeX backup integration
+        window.testLatexBackup = function() {
+            console.log('=== TESTING LATEX BACKUP INTEGRATION ===');
+            const latexJson = localStorage.getItem(`user_latex_documents_${currentPersona}`);
+            const latex = latexJson ? JSON.parse(latexJson) : [];
+            console.log('Current LaTeX documents:', latex.length);
+            latex.forEach((doc, index) => {
+                console.log(`  ${index + 1}. ${doc.name} (ID: ${doc.id})`);
+            });
+
+            // Test if export would include LaTeX
+            if (latex.length > 0) {
+                console.log('✅ LaTeX documents exist - will be included in backup');
+            } else {
+                console.log('ℹ️ No LaTeX documents found - create some to test backup');
+            }
+        };
 
         // Debug function to test modal and download functionality
         window.testLatexDownload = function() {
