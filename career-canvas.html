@@ -403,11 +403,34 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // NOW extract math expressions after custom commands have been processed
                 console.log('Extracting math expressions after custom command processing...');
 
+                // Store equation labels for reference processing
+                const equationLabels = {};
+                let equationNumber = 1;
+
                 // Extract and store equation environments (before other math)
                 html = html.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, function(match, mathContent) {
                     const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
-                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
-                    console.log(`Extracted equation math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+
+                    // Check for label
+                    let label = null;
+                    let cleanMathContent = mathContent.trim();
+                    const labelMatch = mathContent.match(/\\label\{([^}]+)\}/);
+                    if (labelMatch) {
+                        label = labelMatch[1];
+                        equationLabels[label] = equationNumber;
+                        cleanMathContent = cleanMathContent.replace(/\\label\{[^}]+\}/g, '');
+                        console.log(`Found equation label: ${label} = equation (${equationNumber})`);
+                    }
+
+                    mathExpressions[mathIndex] = {
+                        type: 'display',
+                        content: cleanMathContent,
+                        label: label,
+                        number: equationNumber
+                    };
+
+                    console.log(`Extracted equation math ${mathIndex}: "${cleanMathContent}" -> placeholder: ${placeholder}`);
+                    equationNumber++;
                     mathIndex++;
                     return placeholder;
                 });
@@ -837,12 +860,108 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return figureHTML;
                 });
 
+                // Center environment
+                html = html.replace(/\\begin\{center\}/g, '\n<div style="text-align: center;">\n');
+                html = html.replace(/\\end\{center\}/g, '\n</div>\n');
+
+                // Verbatim environment (preserve exact formatting)
+                html = html.replace(/\\begin\{verbatim\}([\s\S]*?)\\end\{verbatim\}/g, function(match, content) {
+                    // Escape HTML in verbatim content
+                    const escapedContent = content
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    return `<pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 0.9em; overflow-x: auto; border: 1px solid #ddd;">${escapedContent}</pre>`;
+                });
+
+                // Section commands (with asterisk support)
+                html = html.replace(/\\section\*\{([^}]+)\}/g, '<h2 style="margin-top: 2em; margin-bottom: 1em; font-weight: bold;">$1</h2>');
+                html = html.replace(/\\section\{([^}]+)\}/g, '<h2 style="margin-top: 2em; margin-bottom: 1em; font-weight: bold;">$1</h2>');
+                html = html.replace(/\\subsection\*\{([^}]+)\}/g, '<h3 style="margin-top: 1.5em; margin-bottom: 0.8em; font-weight: bold;">$1</h3>');
+                html = html.replace(/\\subsection\{([^}]+)\}/g, '<h3 style="margin-top: 1.5em; margin-bottom: 0.8em; font-weight: bold;">$1</h3>');
+
+                // Spacing commands
+                html = html.replace(/\\smallskip/g, '<div style="margin: 0.5em 0;"></div>');
+                html = html.replace(/\\medskip/g, '<div style="margin: 1em 0;"></div>');
+                html = html.replace(/\\bigskip/g, '<div style="margin: 1.5em 0;"></div>');
+                html = html.replace(/\\noindent/g, '<span style="text-indent: 0;">');
+
                 // Lists
                 html = html.replace(/\\begin\{itemize\}/g, '\n<ul>\n');
                 html = html.replace(/\\end\{itemize\}/g, '\n</ul>\n');
                 html = html.replace(/\\begin\{enumerate\}/g, '\n<ol>\n');
                 html = html.replace(/\\end\{enumerate\}/g, '\n</ol>\n');
                 html = html.replace(/\\item\s*/g, '<li>');
+
+                // Array environments (matrices)
+                html = html.replace(/\\left\[\s*\\begin\{array\}\{([^}]+)\}([\s\S]*?)\\end\{array\}\s*\\right\]/g, function(match, columnSpec, content) {
+                    // Convert LaTeX array to HTML table
+                    const rows = content.trim().split('\\\\');
+                    let tableHTML = '<table style="display: inline-block; border-collapse: collapse; margin: 0.5em;">';
+
+                    rows.forEach(row => {
+                        if (row.trim()) {
+                            const cells = row.split('&').map(cell => cell.trim());
+                            tableHTML += '<tr>';
+                            cells.forEach(cell => {
+                                tableHTML += `<td style="padding: 4px 8px; text-align: center; border: 1px solid #ddd;">${cell}</td>`;
+                            });
+                            tableHTML += '</tr>';
+                        }
+                    });
+
+                    tableHTML += '</table>';
+                    return `<div style="text-align: center; margin: 1em 0;">[${tableHTML}]</div>`;
+                });
+
+                // Eqnarray environment (multi-line equations)
+                html = html.replace(/\\begin\{eqnarray\*\}([\s\S]*?)\\end\{eqnarray\*\}/g, function(match, content) {
+                    // Convert eqnarray to aligned math display
+                    const alignedContent = content.replace(/&=/g, '&=').replace(/\\\\/g, '\\\\');
+                    return `<div style="text-align: center; margin: 1.5em 0;">$$\\begin{align}${alignedContent}\\end{align}$$</div>`;
+                });
+
+                html = html.replace(/\\begin\{eqnarray\}([\s\S]*?)\\end\{eqnarray\}/g, function(match, content) {
+                    // Convert numbered eqnarray to aligned math display
+                    const alignedContent = content.replace(/&=/g, '&=').replace(/\\\\/g, '\\\\');
+                    return `<div style="text-align: center; margin: 1.5em 0;">$$\\begin{align}${alignedContent}\\end{align}$$</div>`;
+                });
+
+                // Process LaTeX grouping with formatting commands
+                console.log('Processing LaTeX grouping and closing spans...');
+
+                // Fix unclosed spans from size/format commands by processing entire groups
+                html = html.replace(/\{([^{}]*\\(?:Large|large|bf|small|footnotesize|textbf|textit|emph)[^{}]*)\}/g, function(match, content) {
+                    console.log('Processing group:', content);
+
+                    // Apply commands within the group
+                    let processedContent = content;
+
+                    // Size commands
+                    processedContent = processedContent.replace(/\\Large\s*/g, '<span style="font-size: 1.4em;">');
+                    processedContent = processedContent.replace(/\\large\s*/g, '<span style="font-size: 1.2em;">');
+                    processedContent = processedContent.replace(/\\small\s*/g, '<span style="font-size: 0.9em;">');
+                    processedContent = processedContent.replace(/\\footnotesize\s*/g, '<span style="font-size: 0.8em;">');
+
+                    // Bold/italic commands
+                    processedContent = processedContent.replace(/\\bf\s*/g, '<strong>');
+                    processedContent = processedContent.replace(/\\textbf\s*/g, '<strong>');
+                    processedContent = processedContent.replace(/\\textit\s*/g, '<em>');
+                    processedContent = processedContent.replace(/\\emph\s*/g, '<em>');
+
+                    // Count opening tags to close them properly
+                    const spanCount = (processedContent.match(/<span[^>]*>/g) || []).length;
+                    const strongCount = (processedContent.match(/<strong>/g) || []).length;
+                    const emCount = (processedContent.match(/<em>/g) || []).length;
+
+                    // Add closing tags
+                    let closingTags = '';
+                    for (let i = 0; i < emCount; i++) closingTags += '</em>';
+                    for (let i = 0; i < strongCount; i++) closingTags += '</strong>';
+                    for (let i = 0; i < spanCount; i++) closingTags += '</span>';
+
+                    return processedContent + closingTags;
+                });
 
                 // Clean up extra whitespace
                 html = html.replace(/\n\s*\n\s*\n/g, '\n\n');
@@ -867,6 +986,59 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 html = processedParagraphs.join('\n\n');
 
                 // Debug: show all math expressions found
+                // Process preamble commands (before document body processing)
+                console.log('Processing preamble commands...');
+
+                // Remove preamble commands that don't affect HTML output
+                html = html.replace(/\\headers\{[^}]*\}\s*\{[^}]*\}\s*\{[^}]*\}/g, '<!-- Headers removed -->');
+                html = html.replace(/\\footers\{[^}]*\}\s*\{[^}]*\}\s*\{[^}]*\}/g, '<!-- Footers removed -->');
+                html = html.replace(/\\underheadoverfoot/g, '<!-- Page layout command removed -->');
+
+                // Process text formatting commands
+                console.log('Processing text formatting commands...');
+
+                // Font style and size commands that work within braces or until next command
+                html = html.replace(/\{\\Large\\bf\s+([^}]+)\}/g, '<span style="font-size: 1.4em; font-weight: bold;">$1</span>');
+                html = html.replace(/\{\\Large\s+([^}]+)\}/g, '<span style="font-size: 1.4em;">$1</span>');
+                html = html.replace(/\{\\bf\s+([^}]+)\}/g, '<strong>$1</strong>');
+
+                // Individual commands with braces
+                html = html.replace(/\\Large\{([^}]+)\}/g, '<span style="font-size: 1.4em;">$1</span>');
+                html = html.replace(/\\large\{([^}]+)\}/g, '<span style="font-size: 1.2em;">$1</span>');
+                html = html.replace(/\\small\{([^}]+)\}/g, '<span style="font-size: 0.9em;">$1</span>');
+                html = html.replace(/\\footnotesize\{([^}]+)\}/g, '<span style="font-size: 0.8em;">$1</span>');
+
+                // Standalone size commands (apply until next command or end of group)
+                html = html.replace(/\\Large\s*/g, '<span style="font-size: 1.4em;">');
+                html = html.replace(/\\large\s*/g, '<span style="font-size: 1.2em;">');
+                html = html.replace(/\\small\s*/g, '<span style="font-size: 0.9em;">');
+                html = html.replace(/\\footnotesize\s*/g, '<span style="font-size: 0.8em;">');
+
+                // Font style commands (with proper closing)
+                html = html.replace(/\\bf\s+([^\\{}]+)/g, '<strong>$1</strong>');
+                html = html.replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>');
+                html = html.replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>');
+                html = html.replace(/\\emph\{([^}]+)\}/g, '<em>$1</em>');
+                html = html.replace(/\\texttt\{([^}]+)\}/g, '<code>$1</code>');
+                html = html.replace(/\\tt\s+([^\\{}]+)/g, '<code>$1</code>');
+
+                // LaTeX logo command
+                html = html.replace(/\\LaTeX\\\//g, 'LaTeX');
+                html = html.replace(/\\LaTeX\{?\}?/g, 'LaTeX');
+
+                // Process equation references
+                console.log('Processing equation references...');
+                html = html.replace(/\\ref\{([^}]+)\}/g, function(match, labelName) {
+                    const equationNum = equationLabels[labelName];
+                    if (equationNum !== undefined) {
+                        console.log(`Found reference to ${labelName} -> equation (${equationNum})`);
+                        return `(${equationNum})`;
+                    } else {
+                        console.warn(`Reference to unknown label: ${labelName}`);
+                        return `[${labelName}?]`;
+                    }
+                });
+
                 console.log('Total math expressions found:', mathExpressions.length);
                 mathExpressions.forEach((expr, i) => {
                     if (expr) console.log(`Math ${i}:`, expr.type, '|', expr.content);
@@ -894,8 +1066,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     displayMode: mathExpressions[i].type === 'display',
                                     throwOnError: false
                                 });
+
+                                // For numbered equations (with labels), add equation number
+                                let finalRendered = rendered;
+                                if (mathExpressions[i].type === 'display' && mathExpressions[i].number !== undefined) {
+                                    finalRendered = `<div style="display: flex; justify-content: center; align-items: center; margin: 1em 0;">
+                                        <div style="flex: 1; text-align: center;">${rendered}</div>
+                                        <div style="width: 40px; text-align: right; font-size: 0.9em;">(${mathExpressions[i].number})</div>
+                                    </div>`;
+                                }
+
                                 const beforeLength = html.length;
-                                html = html.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), rendered);
+                                html = html.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), finalRendered);
                                 const afterLength = html.length;
                                 console.log(`KaTeX rendered math ${i}: ${beforeLength} -> ${afterLength} chars`);
                             } catch (e) {
