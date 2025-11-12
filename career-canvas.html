@@ -874,11 +874,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 formatted = formatted.replace(/\\perp/g, '⊥');
                 formatted = formatted.replace(/\\parallel/g, '∥');
 
-                // Dots and ellipses
-                formatted = formatted.replace(/\\cdots/g, '⋯');
+                // Dots and ellipses - process early to avoid conflicts
+                formatted = formatted.replace(/\\cdots/g, '…'); // Use regular ellipsis instead of math center dots
                 formatted = formatted.replace(/\\ldots/g, '…');
                 formatted = formatted.replace(/\\vdots/g, '⋮');
                 formatted = formatted.replace(/\\ddots/g, '⋱');
+                // Alternative patterns in case of processing conflicts
+                formatted = formatted.replace(/\\\.\.\./g, '…');  // fallback for dots
 
                 // Superscripts (handle numbers and single characters)
                 formatted = formatted.replace(/\^(\{([^}]+)\}|(\w))/g, function(match, group, braced, single) {
@@ -1088,6 +1090,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 // Direct \N command (fallback if custom commands didn't process)
                 formatted = formatted.replace(/\\N(?![a-zA-Z])/g, 'ℕ');
+
+                // Mathematical operators and functions
+                formatted = formatted.replace(/\\min(?![a-zA-Z])/g, 'min');
+                formatted = formatted.replace(/\\max(?![a-zA-Z])/g, 'max');
+                formatted = formatted.replace(/\\sin(?![a-zA-Z])/g, 'sin');
+                formatted = formatted.replace(/\\cos(?![a-zA-Z])/g, 'cos');
+                formatted = formatted.replace(/\\tan(?![a-zA-Z])/g, 'tan');
+                formatted = formatted.replace(/\\log(?![a-zA-Z])/g, 'log');
+                formatted = formatted.replace(/\\ln(?![a-zA-Z])/g, 'ln');
+                formatted = formatted.replace(/\\exp(?![a-zA-Z])/g, 'exp');
+                formatted = formatted.replace(/\\det(?![a-zA-Z])/g, 'det');
+                formatted = formatted.replace(/\\lim(?![a-zA-Z])/g, 'lim');
+                formatted = formatted.replace(/\\sup(?![a-zA-Z])/g, 'sup');
+                formatted = formatted.replace(/\\inf(?![a-zA-Z])/g, 'inf');
+                formatted = formatted.replace(/\\gcd(?![a-zA-Z])/g, 'gcd');
+                formatted = formatted.replace(/\\lcm(?![a-zA-Z])/g, 'lcm');
 
                 // Additional text styling
                 formatted = formatted.replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>');
