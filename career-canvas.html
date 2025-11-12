@@ -124,40 +124,64 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 const mathExpressions = [];
                 let mathIndex = 0;
 
+                // Variables for document structure tracking
+                let geometryOptions = {};
+
                 // Comments first (remove them completely)
                 html = html.replace(/%.*$/gm, '');
 
-                // Step 1: Basic documentclass processing with options support
+                // Phase 3: Handle eqnarray environments BEFORE math extraction
+                html = html.replace(/\\begin\{eqnarray\*\}([\s\S]*?)\\end\{eqnarray\*\}/g, function(match, content) {
+                    console.log('Converting eqnarray* to align environment');
+                    return `\\begin{align*}${content}\\end{align*}`;
+                });
+                html = html.replace(/\\begin\{eqnarray\}([\s\S]*?)\\end\{eqnarray\}/g, function(match, content) {
+                    console.log('Converting eqnarray to align environment');
+                    return `\\begin{align}${content}\\end{align}`;
+                });
+
+                // Handle \left[ \begin{array}...\end{array} \right] patterns
+                html = html.replace(/\\left\[\s*(\\begin\{array\}[\s\S]*?\\end\{array\})\s*\\right\]/g, function(match, arrayContent) {
+                    console.log('Processing left-right bracketed array');
+                    return `\\begin{bmatrix}${arrayContent.replace(/\\begin\{array\}\{[^}]*\}/, '').replace(/\\end\{array\}/, '')}\\end{bmatrix}`;
+                });
+
+                // Remove preamble commands (log but don't output)
                 html = html.replace(/\\documentclass(\[[^\]]*\])?\{([^}]+)\}/g, function(match, options, className) {
                     const optionsStr = options ? options.slice(1, -1) : '';
                     console.log('Document class detected:', className, 'Options:', optionsStr || '(none)');
-                    return '<!-- Document class: ' + className + (optionsStr ? ' [' + optionsStr + ']' : '') + ' -->';
+                    return '';
                 });
-
-                // Step 2: Basic headers processing
                 html = html.replace(/\\headers\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}/g, function(match, left, center, right) {
                     console.log('Headers detected - Left:', left.trim(), 'Center:', center.trim(), 'Right:', right.trim());
-                    return '<!-- Headers: ' + left.trim() + ' | ' + center.trim() + ' | ' + right.trim() + ' -->';
+                    return '';
                 });
-
-                // Step 3: Basic footers processing
                 html = html.replace(/\\footers\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}/g, function(match, left, center, right) {
                     console.log('Footers detected - Left:', left.trim(), 'Center:', center.trim(), 'Right:', right.trim());
-                    return '<!-- Footers: ' + left.trim() + ' | ' + center.trim() + ' | ' + right.trim() + ' -->';
+                    return '';
                 });
-
-                // Step 5: Additional preamble commands
                 html = html.replace(/\\underheadoverfoot/g, function(match) {
                     console.log('Page layout command detected:', match);
-                    return '<!-- Page layout: underheadoverfoot -->';
+                    return '';
                 });
                 html = html.replace(/\\pagestyle\{([^}]+)\}/g, function(match, style) {
                     console.log('Page style detected:', style);
-                    return '<!-- Page style: ' + style + ' -->';
+                    return '';
                 });
                 html = html.replace(/\\thispagestyle\{([^}]+)\}/g, function(match, style) {
                     console.log('This page style detected:', style);
-                    return '<!-- This page style: ' + style + ' -->';
+                    return '';
+                });
+                html = html.replace(/\\geometry\{([^}]*)\}/g, function(match, settings) {
+                    const settingPairs = settings.split(',').map(s => s.trim());
+                    settingPairs.forEach(pair => {
+                        const [key, value] = pair.split('=').map(s => s.trim());
+                        if (key && value) {
+                            geometryOptions[key] = value;
+                        }
+                    });
+                    console.log('Geometry settings detected:', geometryOptions);
+                    return '';
                 });
 
                 // CV-SPECIFIC PROCESSING
@@ -290,39 +314,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 // POSTPONE math extraction until after custom commands are processed
 
-                // Parse and track document structure commands
-                let documentClass = 'article'; // default
-                let packages = [];
-                let geometryOptions = {};
-
-                // Extract document class
-                html = html.replace(/\\documentclass\{([^}]*)\}/g, function(match, className) {
-                    documentClass = className;
-                    console.log('LaTeX document class:', className);
-                    return '';
-                });
-
-                // Extract and track packages
-                html = html.replace(/\\usepackage(\[[^\]]*\])?\{([^}]*)\}/g, function(match, options, packageName) {
-                    packages.push({name: packageName, options: options});
-                    console.log('LaTeX package found:', packageName, options || '(no options)');
-                    return '';
-                });
-
-                // Extract geometry settings
-                html = html.replace(/\\geometry\{([^}]*)\}/g, function(match, settings) {
-                    // Parse geometry settings like margin=1in
-                    const settingPairs = settings.split(',').map(s => s.trim());
-                    settingPairs.forEach(pair => {
-                        const [key, value] = pair.split('=').map(s => s.trim());
-                        if (key && value) {
-                            geometryOptions[key] = value;
-                        }
-                    });
-                    console.log('LaTeX geometry options:', geometryOptions);
-                    return '';
-                });
-
+                // Remove document structure commands (already processed earlier)
                 html = html.replace(/\\begin\{document\}/g, '');
                 html = html.replace(/\\end\{document\}/g, '');
 
@@ -468,32 +460,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return placeholder;
                 });
 
-                // Extract and store display math \[...\]
-                html = html.replace(/\\\[([\s\S]*?)\\\]/g, function(match, mathContent) {
-                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
-                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
-                    console.log(`Extracted display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
-                    mathIndex++;
-                    return placeholder;
-                });
-
-                // Extract and store display math $$...$$  (enhanced for nested environments)
-                html = html.replace(/\$\$([\s\S]*?)\$\$/g, function(match, mathContent) {
-                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
-                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
-                    console.log(`Extracted $$ display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
-                    mathIndex++;
-                    return placeholder;
-                });
-
-                // Extract and store inline math $...$
-                html = html.replace(/\$([^$\n]+)\$/g, function(match, mathContent) {
-                    const placeholder = `__MATH_INLINE_${mathIndex}__`;
-                    mathExpressions[mathIndex] = { type: 'inline', content: mathContent.trim() };
-                    console.log(`Extracted inline math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
-                    mathIndex++;
-                    return placeholder;
-                });
+                // PHASE 2 FIX: Extract nested environments FIRST (inner to outer)
 
                 // Extract align and align* environments as display math
                 html = html.replace(/\\begin\{align\*?\}([\s\S]*?)\\end\{align\*?\}/g, function(match, mathContent) {
@@ -518,6 +485,44 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
                     mathExpressions[mathIndex] = { type: 'display', content: `\\begin{${envName}}${mathContent}\\end{${envName}}` };
                     console.log(`Extracted ${envName} matrix ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Handle array environments (for custom column formatting)
+                html = html.replace(/\\begin\{array\}\{([^}]+)\}([\s\S]*?)\\end\{array\}/g, function(match, columnSpec, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: `\\begin{array}{${columnSpec}}${mathContent}\\end{array}` };
+                    console.log(`Extracted array ${mathIndex} (${columnSpec}): "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // NOW extract outer delimiters (after inner environments are processed)
+
+                // Extract and store display math \[...\]
+                html = html.replace(/\\\[([\s\S]*?)\\\]/g, function(match, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Extract and store display math $$...$$  (enhanced for nested environments)
+                html = html.replace(/\$\$([\s\S]*?)\$\$/g, function(match, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted $$ display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Extract and store inline math $...$
+                html = html.replace(/\$([^$\n]+)\$/g, function(match, mathContent) {
+                    const placeholder = `__MATH_INLINE_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'inline', content: mathContent.trim() };
+                    console.log(`Extracted inline math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
                     mathIndex++;
                     return placeholder;
                 });
@@ -956,18 +961,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return `<div style="text-align: center; margin: 1em 0;">[${tableHTML}]</div>`;
                 });
 
-                // Eqnarray environment (multi-line equations)
-                html = html.replace(/\\begin\{eqnarray\*\}([\s\S]*?)\\end\{eqnarray\*\}/g, function(match, content) {
-                    // Convert eqnarray to aligned math display
-                    const alignedContent = content.replace(/&=/g, '&=').replace(/\\\\/g, '\\\\');
-                    return `<div style="text-align: center; margin: 1.5em 0;">$$\\begin{align}${alignedContent}\\end{align}$$</div>`;
-                });
-
-                html = html.replace(/\\begin\{eqnarray\}([\s\S]*?)\\end\{eqnarray\}/g, function(match, content) {
-                    // Convert numbered eqnarray to aligned math display
-                    const alignedContent = content.replace(/&=/g, '&=').replace(/\\\\/g, '\\\\');
-                    return `<div style="text-align: center; margin: 1.5em 0;">$$\\begin{align}${alignedContent}\\end{align}$$</div>`;
-                });
+                // Eqnarray processing moved to Phase 3 (before math extraction)
 
                 // Process LaTeX grouping with formatting commands
                 console.log('Processing LaTeX grouping and closing spans...');
