@@ -331,7 +331,9 @@ Cleansheet is developed by a solo technical founder actively working in cloud ar
 - **wordcloud2.js** - HTML5 canvas word cloud library by @timdream (MIT License)
 - **Phosphor Icons** - Icon library (MIT License)
 - **Google Fonts** - Questrial and Barlow typefaces (Open Font License)
-- **Lexical** - Extensible text editor framework by Meta (MIT License)
+- **Quill** - Modern rich text editor framework (BSD 3-Clause License)
+- **Monaco Editor** - Code editor by Microsoft (MIT License)
+- **KaTeX** - Fast math typesetting library (MIT License)
 - **Reveal.js** - HTML presentation framework (MIT License)
 - **draw.io** - Diagramming and whiteboarding tool (Apache License 2.0)
 

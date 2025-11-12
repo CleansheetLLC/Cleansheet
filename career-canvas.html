@@ -94,6 +94,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Basic LaTeX to HTML converter (fallback implementation) -->
     <script>
         // Simple LaTeX to HTML converter for basic document rendering
+        // Debug: Check if we can create the object at all
+        console.log('About to create SimpleLatex object...');
+
+        // Create minimal working version first
         window.SimpleLatex = {
             parse: function(latexContent) {
                 return { content: latexContent };
@@ -109,23 +113,255 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Comments first (remove them completely)
                 html = html.replace(/%.*$/gm, '');
 
+                // ACCENT PROCESSING EARLY - Before title/section extraction
+                // Accent characters (common LaTeX accents)
+                const accentTable = {
+                    // Acute accents
+                    "\\'a": 'á', "\\'e": 'é', "\\'i": 'í', "\\'o": 'ó', "\\'u": 'ú', "\\'y": 'ý',
+                    "\\'A": 'Á', "\\'E": 'É', "\\'I": 'Í', "\\'O": 'Ó', "\\'U": 'Ú', "\\'Y": 'Ý',
+                    // Grave accents
+                    "\\`a": 'à', "\\`e": 'è', "\\`i": 'ì', "\\`o": 'ò', "\\`u": 'ù',
+                    "\\`A": 'À', "\\`E": 'È', "\\`I": 'Ì', "\\`O": 'Ò', "\\`U": 'Ù',
+                    // Circumflex
+                    "\\^a": 'â', "\\^e": 'ê', "\\^i": 'î', "\\^o": 'ô', "\\^u": 'û',
+                    "\\^A": 'Â', "\\^E": 'Ê', "\\^I": 'Î', "\\^O": 'Ô', "\\^U": 'Û',
+                    // Umlaut/diaeresis
+                    '\\"a': 'ä', '\\"e': 'ë', '\\"i': 'ï', '\\"o': 'ö', '\\"u': 'ü',
+                    '\\"A': 'Ä', '\\"E': 'Ë', '\\"I': 'Ï', '\\"O': 'Ö', '\\"U': 'Ü',
+                    // Tilde
+                    "\\~a": 'ã', "\\~n": 'ñ', "\\~o": 'õ',
+                    "\\~A": 'Ã', "\\~N": 'Ñ', "\\~O": 'Õ',
+                    // Cedilla
+                    "\\c{c}": 'ç', "\\c{C}": 'Ç'
+                };
+
+                // Apply accent replacements with multiple approaches
+                // Acute accents (most common) - handle the specific Tur\'an case first
+                html = html.replace(/Tur\\'an/g, 'Turán');  // Specific fix for user's case
+                html = html.replace(/tur\\'an/g, 'turán');  // Lowercase version too
+
+                // General acute accent patterns
+                html = html.replace(/\\\'a/g, 'á');
+                html = html.replace(/\\'a/g, 'á');  // Also try without double backslash
+                html = html.replace(/\\\'e/g, 'é');
+                html = html.replace(/\\'e/g, 'é');
+                html = html.replace(/\\\'i/g, 'í');
+                html = html.replace(/\\'i/g, 'í');
+                html = html.replace(/\\\'o/g, 'ó');
+                html = html.replace(/\\'o/g, 'ó');
+                html = html.replace(/\\\'u/g, 'ú');
+                html = html.replace(/\\'u/g, 'ú');
+                html = html.replace(/\\\'A/g, 'Á');
+                html = html.replace(/\\'A/g, 'Á');
+                html = html.replace(/\\\'E/g, 'É');
+                html = html.replace(/\\'E/g, 'É');
+                html = html.replace(/\\\'I/g, 'Í');
+                html = html.replace(/\\'I/g, 'Í');
+                html = html.replace(/\\\'O/g, 'Ó');
+                html = html.replace(/\\'O/g, 'Ó');
+                html = html.replace(/\\\'U/g, 'Ú');
+                html = html.replace(/\\'U/g, 'Ú');
+
+                console.log('Applied direct accent processing - checking for Tur\\\'an or Tur\'an patterns');
+
+                // Handle braced accent forms like \'{a}
+                html = html.replace(/\\'\{([aeiouAEIOU])\}/g, function(match, letter) {
+                    const accentMap = {'a':'á','e':'é','i':'í','o':'ó','u':'ú','A':'Á','E':'É','I':'Í','O':'Ó','U':'Ú'};
+                    return accentMap[letter] || match;
+                });
+
+                // Apply other accent replacements from table (after direct replacements)
+                for (const [latex, unicode] of Object.entries(accentTable)) {
+                    if (!latex.includes("\\'")) { // Skip acute accents (already handled)
+                        const escapedLatex = latex.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        html = html.replace(new RegExp(escapedLatex, 'g'), unicode);
+                    }
+                }
+
+                console.log('Applied accent processing to LaTeX text');
+
+                // Special LaTeX commands (also moved to early processing)
+                html = html.replace(/\\LaTeX\{\}/g, 'L<sup style="font-size: 0.8em; margin-left: -0.36em; vertical-align: 0.15em;">A</sup>T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
+                html = html.replace(/\\LaTeX(?!\w)/g, 'L<sup style="font-size: 0.8em; margin-left: -0.36em; vertical-align: 0.15em;">A</sup>T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
+                html = html.replace(/\\TeX\{\}/g, 'T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
+                html = html.replace(/\\TeX(?!\w)/g, 'T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
+
+                // POSTPONE math extraction until after custom commands are processed
+
+                // Parse and track document structure commands
+                let documentClass = 'article'; // default
+                let packages = [];
+                let geometryOptions = {};
+
+                // Extract document class
+                html = html.replace(/\\documentclass\{([^}]*)\}/g, function(match, className) {
+                    documentClass = className;
+                    console.log('LaTeX document class:', className);
+                    return '';
+                });
+
+                // Extract and track packages
+                html = html.replace(/\\usepackage(\[[^\]]*\])?\{([^}]*)\}/g, function(match, options, packageName) {
+                    packages.push({name: packageName, options: options});
+                    console.log('LaTeX package found:', packageName, options || '(no options)');
+                    return '';
+                });
+
+                // Extract geometry settings
+                html = html.replace(/\\geometry\{([^}]*)\}/g, function(match, settings) {
+                    // Parse geometry settings like margin=1in
+                    const settingPairs = settings.split(',').map(s => s.trim());
+                    settingPairs.forEach(pair => {
+                        const [key, value] = pair.split('=').map(s => s.trim());
+                        if (key && value) {
+                            geometryOptions[key] = value;
+                        }
+                    });
+                    console.log('LaTeX geometry options:', geometryOptions);
+                    return '';
+                });
+
+                html = html.replace(/\\begin\{document\}/g, '');
+                html = html.replace(/\\end\{document\}/g, '');
+
+                // Parse custom commands and theorem definitions
+                let customCommands = {};
+                let customTheorems = {};
+                let theoremStyle = 'plain';
+
+                // Extract and store \newcommand definitions
+                // Use a manual parsing approach to handle nested braces properly
+                const extractNewcommands = (text) => {
+                    const newcommandRegex = /\\newcommand\{\\([^}]+)\}(?:\[([0-9]+)\])?\{/g;
+                    let match;
+                    const replacements = [];
+
+                    while ((match = newcommandRegex.exec(text)) !== null) {
+                        const cmdName = match[1];
+                        const argCount = match[2];
+                        const startPos = match.index + match[0].length;
+
+                        // Find matching closing brace
+                        let braceCount = 1;
+                        let i = startPos;
+                        let definition = '';
+
+                        while (i < text.length && braceCount > 0) {
+                            if (text[i] === '{') {
+                                braceCount++;
+                            } else if (text[i] === '}') {
+                                braceCount--;
+                            }
+
+                            if (braceCount > 0) {
+                                definition += text[i];
+                            }
+                            i++;
+                        }
+
+                        if (braceCount === 0) {
+                            customCommands[cmdName] = {
+                                definition: definition,
+                                argCount: argCount ? parseInt(argCount) : 0
+                            };
+                            console.log('LaTeX custom command defined:', cmdName, 'with definition:', definition, 'and', argCount || 0, 'arguments');
+
+                            // Store for replacement
+                            const fullMatch = text.substring(match.index, i);
+                            replacements.push({ fullMatch, replacement: '' });
+                        }
+                    }
+
+                    // Apply all replacements
+                    let result = text;
+                    for (const repl of replacements.reverse()) { // reverse to handle overlaps correctly
+                        result = result.replace(repl.fullMatch, repl.replacement);
+                    }
+
+                    return result;
+                };
+
+                html = extractNewcommands(html);
+
+                // Extract \theoremstyle settings
+                html = html.replace(/\\theoremstyle\{([^}]+)\}/g, function(match, style) {
+                    theoremStyle = style;
+                    console.log('LaTeX theorem style set to:', style);
+                    return '';
+                });
+
+                // Extract and store \newtheorem definitions
+                html = html.replace(/\\newtheorem\*?\{([^}]+)\}\{([^}]+)\}(?:\[([^\]]+)\])?/g, function(match, envName, displayName, counter) {
+                    customTheorems[envName] = {
+                        displayName: displayName,
+                        style: theoremStyle,
+                        counter: counter || null,
+                        starred: match.includes('\\newtheorem*')
+                    };
+                    console.log('LaTeX custom theorem defined:', envName, 'as', displayName, 'with style', theoremStyle);
+                    return '';
+                });
+
+                // Apply custom commands throughout the document
+                for (const [cmdName, cmdInfo] of Object.entries(customCommands)) {
+                    if (cmdInfo.argCount === 0) {
+                        // No arguments - simple replacement
+                        const regex = new RegExp('\\\\' + cmdName + '(?![a-zA-Z])', 'g');
+                        html = html.replace(regex, cmdInfo.definition);
+                    } else if (cmdInfo.argCount === 1) {
+                        // Single argument - handle nested braces properly
+                        const regex = new RegExp('\\\\' + cmdName + '\\{([^{}]+)\\}', 'g');
+                        html = html.replace(regex, function(match, arg1) {
+                            return cmdInfo.definition.replace(/#1/g, arg1);
+                        });
+                    } else {
+                        // Multiple arguments - basic support for up to 3 args
+                        let pattern = '\\\\' + cmdName;
+                        for (let i = 0; i < cmdInfo.argCount; i++) {
+                            pattern += '\\{([^{}]+)\\}';
+                        }
+                        const regex = new RegExp(pattern, 'g');
+                        html = html.replace(regex, function(match, ...args) {
+                            let result = cmdInfo.definition;
+                            for (let i = 0; i < Math.min(args.length - 2, cmdInfo.argCount); i++) {
+                                result = result.replace(new RegExp('#' + (i + 1), 'g'), args[i]);
+                            }
+                            return result;
+                        });
+                    }
+                }
+
+                // NOW extract math expressions after custom commands have been processed
+                console.log('Extracting math expressions after custom command processing...');
+
                 // Extract and store equation environments (before other math)
                 html = html.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, function(match, mathContent) {
                     const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
                     mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted equation math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
                     mathIndex++;
                     return placeholder;
                 });
 
-                // Extract and store display math
+                // Extract and store display math \[...\]
                 html = html.replace(/\\\[([\s\S]*?)\\\]/g, function(match, mathContent) {
                     const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
                     mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
                     mathIndex++;
                     return placeholder;
                 });
 
-                // Extract and store inline math
+                // Extract and store display math $$...$$
+                html = html.replace(/\$\$([^$]+)\$\$/g, function(match, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted $$ display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Extract and store inline math $...$
                 html = html.replace(/\$([^$\n]+)\$/g, function(match, mathContent) {
                     const placeholder = `__MATH_INLINE_${mathIndex}__`;
                     mathExpressions[mathIndex] = { type: 'inline', content: mathContent.trim() };
@@ -134,12 +370,123 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return placeholder;
                 });
 
-                // Clean document structure commands
-                html = html.replace(/\\documentclass\{[^}]*\}/g, '');
-                html = html.replace(/\\usepackage(\[[^\]]*\])?\{[^}]*\}/g, '');
-                html = html.replace(/\\geometry\{[^}]*\}/g, '');
-                html = html.replace(/\\begin\{document\}/g, '');
-                html = html.replace(/\\end\{document\}/g, '');
+                // Extract align and align* environments as display math
+                html = html.replace(/\\begin\{align\*?\}([\s\S]*?)\\end\{align\*?\}/g, function(match, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted align math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Extract other common math environments
+                html = html.replace(/\\begin\{(gather|multline|split)\*?\}([\s\S]*?)\\end\{\1\*?\}/g, function(match, envName, mathContent) {
+                    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+                    mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
+                    console.log(`Extracted ${envName} math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
+                    mathIndex++;
+                    return placeholder;
+                });
+
+                // Cross-reference system: Parse labels and build reference table
+                let labelCounter = 1;
+                let sectionCounter = 1;
+                const referenceTable = {};
+
+                // Extract section labels and build reference table
+                html = html.replace(/\\section\{([^}]+)\}(?:\s*\\label\{([^}]+)\})?/g, function(match, sectionTitle, labelName) {
+                    if (labelName) {
+                        referenceTable[labelName] = sectionCounter.toString();
+                        console.log('LaTeX label registered:', labelName, '->', sectionCounter);
+                    }
+                    const result = `<h2 style="font-family: var(--font-family-ui); font-size: 22px; font-weight: 600; color: var(--color-dark); margin: 2em 0 1em 0;">${sectionTitle}</h2>`;
+                    sectionCounter++;
+                    return result;
+                });
+
+                // Extract theorem/definition labels (look for \label inside theorem environments)
+                const theoremTypes = Object.keys(customTheorems).concat(['theorem', 'lemma', 'definition', 'proposition', 'corollary']);
+                theoremTypes.forEach(theoremType => {
+                    // This runs after theorem environments are processed, so we need to look in the processed HTML
+                    // We'll handle this differently by processing labels during theorem replacement
+                });
+
+                // Process theorem labels during theorem environment replacement
+                // Include both custom theorems AND standard theorem types
+                const allTheoremTypes = {
+                    ...customTheorems,
+                    // Add standard theorem types if not already defined
+                    theorem: customTheorems.theorem || {displayName: 'Theorem', style: 'plain'},
+                    lemma: customTheorems.lemma || {displayName: 'Lemma', style: 'plain'},
+                    corollary: customTheorems.corollary || {displayName: 'Corollary', style: 'plain'},
+                    proposition: customTheorems.proposition || {displayName: 'Proposition', style: 'plain'},
+                    definition: customTheorems.definition || {displayName: 'Definition', style: 'definition'},
+                    remark: customTheorems.remark || {displayName: 'Remark', style: 'remark'},
+                    example: customTheorems.example || {displayName: 'Example', style: 'definition'},
+                    proof: customTheorems.proof || {displayName: 'Proof', style: 'plain'}
+                };
+
+                for (const [envName, theoremInfo] of Object.entries(allTheoremTypes)) {
+                    const regex = new RegExp('\\\\begin\\{' + envName + '\\}([\\s\\S]*?)\\\\end\\{' + envName + '\\}', 'g');
+                    html = html.replace(regex, function(match, content) {
+                        let borderColor = '#0066CC';
+                        let backgroundColor = '#f8f9fa';
+                        let textStyle = 'strong';
+                        let labelName = null;
+                        let processedContent = content.trim();
+
+                        // Extract label from content
+                        processedContent = processedContent.replace(/\\label\{([^}]+)\}/g, function(labelMatch, label) {
+                            labelName = label;
+                            referenceTable[label] = labelCounter.toString();
+                            console.log('LaTeX theorem label registered:', label, '->', labelCounter);
+                            labelCounter++;
+                            return '';
+                        });
+
+                        if (theoremInfo.style === 'definition') {
+                            borderColor = '#16a34a';
+                            textStyle = 'strong';
+                        } else if (theoremInfo.style === 'remark') {
+                            borderColor = '#f59e0b';
+                            textStyle = 'em';
+                        }
+
+                        const displayName = theoremInfo.displayName;
+                        const theoremNumber = labelName ? ` ${referenceTable[labelName]}` : '';
+
+                        return `<div style="margin: 1em 0; padding: 1em; border-left: 4px solid ${borderColor}; background: ${backgroundColor};">` +
+                               `<${textStyle}>${displayName}${theoremNumber}:</${textStyle}> ${processedContent}</div>`;
+                    });
+                }
+
+                // (Duplicate theorem processing removed - using first theorem system only)
+
+                // Process proof environments (BEFORE math extraction so math inside proofs works)
+                html = html.replace(/\\begin\{proof\}([\s\S]*?)\\end\{proof\}/g, function(match, content) {
+                    return '<div style="margin: 1em 0; padding: 1em; border: 1px dashed #666; background: #fafafa; font-style: italic;">' +
+                           '<strong>Proof:</strong> ' + content.trim() +
+                           ' <span style="float: right; font-style: normal;">∎</span></div>';
+                });
+
+                // Handle LaTeX tilde (non-breaking space) before processing references
+                html = html.replace(/~/g, '&nbsp;');
+
+                // Debug: Show all registered labels
+                console.log('LaTeX reference table:', referenceTable);
+
+                // Replace all \ref{} commands with reference numbers (BEFORE section processing!)
+                html = html.replace(/\\ref\{([^}]+)\}/g, function(match, labelName) {
+                    const cleanLabel = labelName.trim();
+                    const refNumber = referenceTable[cleanLabel];
+                    if (refNumber) {
+                        console.log('LaTeX reference resolved:', cleanLabel, '->', refNumber);
+                        return refNumber;
+                    } else {
+                        console.warn('LaTeX reference not found:', cleanLabel, 'Available labels:', Object.keys(referenceTable));
+                        return `<span style="background: #ffcccc; padding: 2px 4px; border-radius: 3px;">[${cleanLabel}?]</span>`; // Show missing reference with highlighting
+                    }
+                });
 
                 // Title, author, date (extract and remove from flow)
                 let title = '', author = '', date = '';
@@ -173,11 +520,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 html = html.replace(/\\textit\{([^}]*)\}/g, '<em>$1</em>');
                 html = html.replace(/\\emph\{([^}]*)\}/g, '<em>$1</em>');
 
-                // Special LaTeX commands (more comprehensive)
-                html = html.replace(/\\LaTeX\{\}/g, 'L<sup style="font-size: 0.8em; margin-left: -0.36em; vertical-align: 0.15em;">A</sup>T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
-                html = html.replace(/\\LaTeX(?!\w)/g, 'L<sup style="font-size: 0.8em; margin-left: -0.36em; vertical-align: 0.15em;">A</sup>T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
-                html = html.replace(/\\TeX\{\}/g, 'T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
-                html = html.replace(/\\TeX(?!\w)/g, 'T<sub style="font-size: 0.7em; margin-left: -0.1667em; vertical-align: -0.5ex;">E</sub>X');
+                // (Accent processing moved to early pipeline - no longer needed here)
 
                 // Tables (process before lists to avoid conflicts)
                 html = html.replace(/\\begin\{table\}(?:\[[^\]]*\])?([\s\S]*?)\\end\{table\}/g, function(match, content) {
@@ -244,6 +587,62 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     }
 
                     return htmlTable;
+                });
+
+                // Graphics support (graphicx package)
+                html = html.replace(/\\includegraphics(\[[^\]]*\])?\{([^}]+)\}/g, function(match, options, imagePath) {
+                    let imageStyle = 'max-width: 100%; height: auto; display: block; margin: 1em auto;';
+
+                    // Parse options if present
+                    if (options) {
+                        const optionString = options.slice(1, -1); // Remove square brackets
+                        const optionPairs = optionString.split(',').map(s => s.trim());
+
+                        optionPairs.forEach(pair => {
+                            const [key, value] = pair.split('=').map(s => s.trim());
+                            if (key && value) {
+                                switch(key) {
+                                    case 'width':
+                                        imageStyle = imageStyle.replace('max-width: 100%;', `width: ${value};`);
+                                        break;
+                                    case 'height':
+                                        imageStyle = imageStyle.replace('height: auto;', `height: ${value};`);
+                                        break;
+                                    case 'scale':
+                                        const scale = parseFloat(value);
+                                        imageStyle += ` transform: scale(${scale});`;
+                                        break;
+                                }
+                            }
+                        });
+                    }
+
+                    return `<img src="${imagePath}" style="${imageStyle}" alt="Figure from LaTeX document">`;
+                });
+
+                // Figure environment
+                html = html.replace(/\\begin\{figure\}(\[[^\]]*\])?([\s\S]*?)\\end\{figure\}/g, function(match, position, content) {
+                    let figureContent = content.trim();
+                    let caption = '';
+
+                    // Extract caption
+                    figureContent = figureContent.replace(/\\caption\{([^}]*)\}/g, function(captionMatch, captionText) {
+                        caption = captionText;
+                        return '';
+                    });
+
+                    // Process centering
+                    figureContent = figureContent.replace(/\\centering\s*/g, '');
+
+                    let figureHTML = '<div style="margin: 2em auto; text-align: center;">';
+                    figureHTML += figureContent;
+
+                    if (caption) {
+                        figureHTML += `<div style="margin-top: 1em; font-style: italic; font-size: 14px; color: #666;">Figure: ${caption}</div>`;
+                    }
+
+                    figureHTML += '</div>';
+                    return figureHTML;
                 });
 
                 // Lists
@@ -341,7 +740,52 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Combine title and content
                 const finalHtml = titleSection + html;
 
-                return '<div class="latex-content">' + finalHtml + '</div>';
+                // Apply geometry settings if present
+                let geometryStyles = '';
+                if (Object.keys(geometryOptions).length > 0) {
+                    console.log('Applying geometry settings:', geometryOptions);
+
+                    // Convert LaTeX measurements to CSS
+                    const convertMeasurement = (measurement) => {
+                        if (!measurement) return '';
+                        // Convert common LaTeX units to CSS
+                        return measurement
+                            .replace(/(\d+(?:\.\d+)?)in/g, '$1in')
+                            .replace(/(\d+(?:\.\d+)?)cm/g, '$1cm')
+                            .replace(/(\d+(?:\.\d+)?)mm/g, '$1mm')
+                            .replace(/(\d+(?:\.\d+)?)pt/g, '$1pt')
+                            .replace(/(\d+(?:\.\d+)?)em/g, '$1em');
+                    };
+
+                    // Build CSS styles from geometry options
+                    const styles = [];
+                    if (geometryOptions.margin) {
+                        const margin = convertMeasurement(geometryOptions.margin);
+                        if (margin) styles.push(`margin: ${margin}`);
+                    }
+                    if (geometryOptions.top) {
+                        const top = convertMeasurement(geometryOptions.top);
+                        if (top) styles.push(`margin-top: ${top}`);
+                    }
+                    if (geometryOptions.bottom) {
+                        const bottom = convertMeasurement(geometryOptions.bottom);
+                        if (bottom) styles.push(`margin-bottom: ${bottom}`);
+                    }
+                    if (geometryOptions.left) {
+                        const left = convertMeasurement(geometryOptions.left);
+                        if (left) styles.push(`margin-left: ${left}`);
+                    }
+                    if (geometryOptions.right) {
+                        const right = convertMeasurement(geometryOptions.right);
+                        if (right) styles.push(`margin-right: ${right}`);
+                    }
+
+                    if (styles.length > 0) {
+                        geometryStyles = ` style="${styles.join('; ')}"`;
+                    }
+                }
+
+                return `<div class="latex-content"${geometryStyles}>${finalHtml}</div>`;
             },
 
             // Enhanced math fallback formatting
@@ -385,6 +829,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                 // Arrow symbols
                 formatted = formatted.replace(/\\rightarrow/g, '→');
+                formatted = formatted.replace(/\\to/g, '→');  // shorthand for rightarrow
                 formatted = formatted.replace(/\\leftarrow/g, '←');
                 formatted = formatted.replace(/\\uparrow/g, '↑');
                 formatted = formatted.replace(/\\downarrow/g, '↓');
@@ -415,6 +860,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 formatted = formatted.replace(/\\perp/g, '⊥');
                 formatted = formatted.replace(/\\parallel/g, '∥');
 
+                // Dots and ellipses
+                formatted = formatted.replace(/\\cdots/g, '⋯');
+                formatted = formatted.replace(/\\ldots/g, '…');
+                formatted = formatted.replace(/\\vdots/g, '⋮');
+                formatted = formatted.replace(/\\ddots/g, '⋱');
+
                 // Superscripts (handle numbers and single characters)
                 formatted = formatted.replace(/\^(\{([^}]+)\}|(\w))/g, function(match, group, braced, single) {
                     const content = braced || single;
@@ -434,18 +885,105 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     '<span style="display: block; padding-top: 2px;">$2</span>' +
                     '</span>');
 
+                // Binomial coefficients
+                formatted = formatted.replace(/\\binom\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g,
+                    '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                    '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                    '<span style="display: block; line-height: 1;">$1</span>' +
+                    '<span style="display: block; line-height: 1;">$2</span>' +
+                    '</span>)' +
+                    '</span>');
+
+                // Choose notation (alternative binomial)
+                formatted = formatted.replace(/\\choose/g, function(match, offset, string) {
+                    // This handles the {n \choose k} syntax
+                    return match; // Keep as-is for now, \binom is preferred
+                });
+
                 // Square roots
                 formatted = formatted.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
                 formatted = formatted.replace(/\\sqrt/g, '√');
+
+                // Floor and ceiling functions
+                formatted = formatted.replace(/\\lfloor/g, '⌊');
+                formatted = formatted.replace(/\\rfloor/g, '⌋');
+                formatted = formatted.replace(/\\lceil/g, '⌈');
+                formatted = formatted.replace(/\\rceil/g, '⌉');
+
+                // Floor and ceiling convenience commands (from \newcommand definitions)
+                formatted = formatted.replace(/\\floor\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, '⌊$1⌋');
+                formatted = formatted.replace(/\\ceil\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, '⌈$1⌉');
+
+                // Enhanced amsmath support
+                // Note: align/align* environments are now extracted as display math in main loop
+
+                formatted = formatted.replace(/\\begin\{equation\*?\}([\s\S]*?)\\end\{equation\*?\}/g, function(match, content) {
+                    return '<div style="text-align: center; margin: 1em 0;">' + content.trim() + '</div>';
+                });
+
+                // Enhanced amsthm support
+                formatted = formatted.replace(/\\begin\{theorem\}([\s\S]*?)\\end\{theorem\}/g, function(match, content) {
+                    return '<div style="margin: 1em 0; padding: 1em; border-left: 4px solid #0066CC; background: #f8f9fa;">' +
+                           '<strong>Theorem:</strong> ' + content.trim() + '</div>';
+                });
+
+                formatted = formatted.replace(/\\begin\{lemma\}([\s\S]*?)\\end\{lemma\}/g, function(match, content) {
+                    return '<div style="margin: 1em 0; padding: 1em; border-left: 4px solid #16a34a; background: #f8f9fa;">' +
+                           '<strong>Lemma:</strong> ' + content.trim() + '</div>';
+                });
+
+                // Note: proof environment processing moved to main parsing loop to handle math inside proofs
+
+                // Enhanced amssymb support
+                const amssymbSymbols = {
+                    'mathbb\{R\}': 'ℝ', 'mathbb\{N\}': 'ℕ', 'mathbb\{Z\}': 'ℤ', 'mathbb\{Q\}': 'ℚ', 'mathbb\{C\}': 'ℂ',
+                    'varnothing': '∅', 'backslash': '∖', 'complement': '∁',
+                    'square': '□', 'blacksquare': '■', 'triangle': '△', 'blacktriangle': '▲',
+                    'diamond': '◊', 'blackdiamond': '♦', 'star': '⋆', 'checkmark': '✓'
+                };
+
+                for (const [latex, unicode] of Object.entries(amssymbSymbols)) {
+                    formatted = formatted.replace(new RegExp('\\\\' + latex.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), unicode);
+                }
+
+                // Additional LaTeX commands from document
+                // \mathrm for upright text in math mode
+                formatted = formatted.replace(/\\mathrm\{([^}]+)\}/g, '<span style="font-style: normal;">$1</span>');
+
+                // \text for regular text in math mode (similar to \mathrm)
+                formatted = formatted.replace(/\\text\{([^}]+)\}/g, '<span style="font-family: var(--font-family-body); font-style: normal;">$1</span>');
+
+                // \substack for stacked subscripts (basic support)
+                formatted = formatted.replace(/\\substack\{([^}]+)\}/g, function(match, content) {
+                    const lines = content.split('\\\\').map(line => line.trim()).filter(line => line);
+                    return '<span style="display: inline-block; vertical-align: middle; font-size: 0.8em; line-height: 1.1;">' +
+                           lines.map(line => `<span style="display: block; text-align: center;">${line}</span>`).join('') +
+                           '</span>';
+                });
+
+                // \nth ordinal suffix (handled by custom commands, but fallback)
+                formatted = formatted.replace(/\\nth/g, '<sup>th</sup>');
+
+                // Direct \N command (fallback if custom commands didn't process)
+                formatted = formatted.replace(/\\N(?![a-zA-Z])/g, 'ℕ');
+
+                // Additional text styling
+                formatted = formatted.replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>');
+                formatted = formatted.replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>');
 
                 console.log('formatMathFallback returning:', JSON.stringify(formatted));
                 return formatted;
             }
         };
 
+        // Debug: Check if object was created successfully
+        console.log('SimpleLatex object created successfully');
+
         // Make it available as LaTeX for compatibility
         window.LaTeX = window.SimpleLatex;
         console.log('Simple LaTeX renderer loaded successfully');
+        console.log('window.SimpleLatex:', window.SimpleLatex);
+        console.log('window.LaTeX:', window.LaTeX);
 
         // Backup KaTeX loading if the main CDN fails
         setTimeout(function() {
@@ -3503,22 +4041,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 margin-right: 12px;
             }
 
-            /* Hide profile dropdown positioning on mobile - make it full width */
-            .profile-dropdown {
-                position: fixed !important;
-                top: auto !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100% !important;
-                border-radius: 24px 24px 0 0 !important;
-                max-height: 70vh !important;
-                transform: translateY(100%) !important;
-                transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
-            }
-
-            .profile-dropdown.active {
-                transform: translateY(0) !important;
+            /* Hide profile dropdown and profile circle completely on mobile */
+            .profile-dropdown,
+            .profile-circle {
+                display: none !important;
             }
 
             /* Mobile optimization for story/job form modals */
@@ -7219,7 +7745,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <!-- Monaco Editor will be initialized here -->
                         <textarea id="latexSourceTextarea" placeholder="% Start typing your LaTeX document here...
 \documentclass{article}
-\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=1in}
 
 \title{Your Document Title}
 \author{Your Name}
@@ -43215,9 +43744,7 @@ F &= ma \\\\
                 console.log('Starting LaTeX compilation...');
                 console.log('KaTeX available:', !!window.katex);
 
-                if (!window.LaTeX) {
-                    throw new Error('LaTeX renderer not loaded');
-                }
+                // LaTeX processing function is available inline - no need to check for external library
 
                 // Brief wait for KaTeX if it's not immediately available
                 if (!window.katex && katexRetryCount < 2) {
@@ -43231,11 +43758,23 @@ F &= ma \\\\
                     console.warn('KaTeX not available, using enhanced fallback rendering');
                 }
 
-                // Parse and compile LaTeX to HTML
-                const doc = LaTeX.parse(content);
-                console.log('Parsed LaTeX document');
-                const htmlOutput = LaTeX.render(doc);
-                console.log('Rendered HTML output');
+                // Process LaTeX content to HTML using our full renderer
+                console.log('Processing LaTeX content...');
+                console.log('window.SimpleLatex available:', !!window.SimpleLatex);
+                console.log('window.LaTeX available:', !!window.LaTeX);
+
+                // Force the renderer to be available - if it's not created, there's a JS error we need to fix
+                if (!window.LaTeX && !window.SimpleLatex) {
+                    console.error('LaTeX renderer objects not created - this indicates a JavaScript syntax error in the SimpleLatex definition');
+                    console.error('Check browser developer console for syntax errors in the script block starting around line 95');
+                    throw new Error('LaTeX renderer could not be loaded due to JavaScript syntax error. Check browser console.');
+                }
+
+                // Use our full LaTeX renderer with all the enhancements
+                const latexRenderer = window.LaTeX || window.SimpleLatex;
+                const doc = latexRenderer.parse(content);
+                const htmlOutput = latexRenderer.render(doc);
+                console.log('Rendered HTML output with full LaTeX processor');
 
                 // Create a styled HTML document
                 const styledHtml = `
@@ -43603,7 +44142,7 @@ Data 1 & Data 2 \\\\ \\hline
         // Default LaTeX Template
         function getDefaultLatexTemplate() {
             return `\\documentclass{article}
-\\usepackage{amsmath}
+\\usepackage{amsmath,amsthm,amssymb}
 \\usepackage{graphicx}
 \\usepackage{geometry}
 \\geometry{margin=1in}
