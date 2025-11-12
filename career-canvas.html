@@ -893,6 +893,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 });
 
                 // Delimiter sizing commands - strip \left and \right, keep delimiters
+                // Basic delimiters
                 formatted = formatted.replace(/\\left\(/g, '(');
                 formatted = formatted.replace(/\\right\)/g, ')');
                 formatted = formatted.replace(/\\left\[/g, '[');
@@ -904,11 +905,26 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 formatted = formatted.replace(/\\left\./g, ''); // invisible delimiter
                 formatted = formatted.replace(/\\right\./g, ''); // invisible delimiter
 
-                // Additional \left/\right edge cases
+                // Floor and ceiling delimiters
+                formatted = formatted.replace(/\\left\\lfloor/g, '⌊');
+                formatted = formatted.replace(/\\right\\rfloor/g, '⌋');
+                formatted = formatted.replace(/\\left\\lceil/g, '⌈');
+                formatted = formatted.replace(/\\right\\rceil/g, '⌉');
+
+                // Angle brackets
+                formatted = formatted.replace(/\\left\\langle/g, '⟨');
+                formatted = formatted.replace(/\\right\\rangle/g, '⟩');
+
+                // Additional edge cases
                 formatted = formatted.replace(/\\left</g, '<');
                 formatted = formatted.replace(/\\right>/g, '>');
                 formatted = formatted.replace(/\\left\//g, '/');
                 formatted = formatted.replace(/\\right\\/g, '\\');
+
+                // Generic \left/\right removal (catch any remaining cases)
+                // This removes \left and \right keywords while preserving any following delimiter
+                formatted = formatted.replace(/\\left/g, '');
+                formatted = formatted.replace(/\\right/g, '');
 
                 // \Big family delimiter sizing commands - strip sizing, keep delimiters
                 formatted = formatted.replace(/\\big\(/g, '(');
