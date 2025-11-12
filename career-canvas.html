@@ -846,6 +846,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 formatted = formatted.replace(/\\Leftrightarrow/g, '⇔');
                 formatted = formatted.replace(/\\Updownarrow/g, '⇕');
 
+                // Spacing commands - convert to HTML spacing
+                formatted = formatted.replace(/\\qquad/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // 2em ≈ 4 spaces
+                formatted = formatted.replace(/\\quad/g, '&nbsp;&nbsp;'); // 1em ≈ 2 spaces
+                formatted = formatted.replace(/\\enspace/g, '&nbsp;'); // 0.5em ≈ 1 space
+                formatted = formatted.replace(/\\,/g, '&thinsp;'); // thin space
+                formatted = formatted.replace(/\\:/g, '&nbsp;'); // medium space ≈ normal space
+                formatted = formatted.replace(/\\;/g, '&nbsp;'); // thick space ≈ normal space
+                formatted = formatted.replace(/\\!/g, ''); // negative space - just remove
+                formatted = formatted.replace(/\\hspace\{[^}]+\}/g, '&nbsp;'); // custom space - use normal space
+
                 // Additional mathematical symbols
                 formatted = formatted.replace(/\\in/g, '∈');
                 formatted = formatted.replace(/\\notin/g, '∉');
@@ -893,6 +903,42 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 formatted = formatted.replace(/\\right\|/g, '|');
                 formatted = formatted.replace(/\\left\./g, ''); // invisible delimiter
                 formatted = formatted.replace(/\\right\./g, ''); // invisible delimiter
+
+                // Additional \left/\right edge cases
+                formatted = formatted.replace(/\\left</g, '<');
+                formatted = formatted.replace(/\\right>/g, '>');
+                formatted = formatted.replace(/\\left\//g, '/');
+                formatted = formatted.replace(/\\right\\/g, '\\');
+
+                // \Big family delimiter sizing commands - strip sizing, keep delimiters
+                formatted = formatted.replace(/\\big\(/g, '(');
+                formatted = formatted.replace(/\\Big\(/g, '(');
+                formatted = formatted.replace(/\\bigg\(/g, '(');
+                formatted = formatted.replace(/\\Bigg\(/g, '(');
+                formatted = formatted.replace(/\\big\)/g, ')');
+                formatted = formatted.replace(/\\Big\)/g, ')');
+                formatted = formatted.replace(/\\bigg\)/g, ')');
+                formatted = formatted.replace(/\\Bigg\)/g, ')');
+                formatted = formatted.replace(/\\big\[/g, '[');
+                formatted = formatted.replace(/\\Big\[/g, '[');
+                formatted = formatted.replace(/\\bigg\[/g, '[');
+                formatted = formatted.replace(/\\Bigg\[/g, '[');
+                formatted = formatted.replace(/\\big\]/g, ']');
+                formatted = formatted.replace(/\\Big\]/g, ']');
+                formatted = formatted.replace(/\\bigg\]/g, ']');
+                formatted = formatted.replace(/\\Bigg\]/g, ']');
+                formatted = formatted.replace(/\\big\\{/g, '{');
+                formatted = formatted.replace(/\\Big\\{/g, '{');
+                formatted = formatted.replace(/\\bigg\\{/g, '{');
+                formatted = formatted.replace(/\\Bigg\\{/g, '{');
+                formatted = formatted.replace(/\\big\\}/g, '}');
+                formatted = formatted.replace(/\\Big\\}/g, '}');
+                formatted = formatted.replace(/\\bigg\\}/g, '}');
+                formatted = formatted.replace(/\\Bigg\\}/g, '}');
+                formatted = formatted.replace(/\\big\|/g, '|');
+                formatted = formatted.replace(/\\Big\|/g, '|');
+                formatted = formatted.replace(/\\bigg\|/g, '|');
+                formatted = formatted.replace(/\\Bigg\|/g, '|');
 
                 // Fractions (basic support)
                 formatted = formatted.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g,
