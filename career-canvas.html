@@ -393,23 +393,65 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 let sectionCounter = 1;
                 const referenceTable = {};
 
-                // Extract section labels and build reference table
-                html = html.replace(/\\section\{([^}]+)\}(?:\s*\\label\{([^}]+)\})?/g, function(match, sectionTitle, labelName) {
+                // FIRST: Extract theorem/definition labels (must happen before section processing!)
+                const theoremTypes = Object.keys(customTheorems).concat(['theorem', 'lemma', 'definition', 'proposition', 'corollary']);
+
+                theoremTypes.forEach(theoremType => {
+                    // Pattern 1: Handle immediate labels like \begin{theorem}\label{thm:tree-turan}
+                    const immediateRegex = new RegExp(`\\\\begin\\{${theoremType}\\}\\\\label\\{([^}]+)\\}`, 'g');
+                    html = html.replace(immediateRegex, function(match, labelName) {
+                        referenceTable[labelName] = labelCounter.toString();
+                        console.log('LaTeX theorem label pre-registered (immediate):', labelName, '->', labelCounter);
+                        labelCounter++;
+                        return match; // Keep the original match, just register the label
+                    });
+
+                    // Pattern 2: Handle spaced labels like \begin{theorem} \label{thm:tree-turan}
+                    const spacedRegex = new RegExp(`\\\\begin\\{${theoremType}\\}\\s+\\\\label\\{([^}]+)\\}`, 'g');
+                    html = html.replace(spacedRegex, function(match, labelName) {
+                        if (!referenceTable[labelName]) { // Only register if not already registered
+                            referenceTable[labelName] = labelCounter.toString();
+                            console.log('LaTeX theorem label pre-registered (spaced):', labelName, '->', labelCounter);
+                            labelCounter++;
+                        }
+                        return match; // Keep the original match, just register the label
+                    });
+                });
+
+                // SECOND: Extract section labels and build reference table
+                // Use pattern that handles nested braces in section titles (for \ref{} commands)
+                html = html.replace(/\\section\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}(?:\s*\\label\{([^}]+)\})?/g, function(match, sectionTitle, labelName) {
                     if (labelName) {
                         referenceTable[labelName] = sectionCounter.toString();
                         console.log('LaTeX label registered:', labelName, '->', sectionCounter);
                     }
-                    const result = `<h2 style="font-family: var(--font-family-ui); font-size: 22px; font-weight: 600; color: var(--color-dark); margin: 2em 0 1em 0;">${sectionTitle}</h2>`;
+
+                    // Process references and non-breaking spaces within section title
+                    let processedTitle = sectionTitle;
+
+                    // Handle non-breaking spaces first
+                    processedTitle = processedTitle.replace(/~/g, '&nbsp;');
+
+                    // Handle references within section title
+                    processedTitle = processedTitle.replace(/\\ref\{([^}]+)\}/g, function(refMatch, refLabel) {
+                        const cleanRefLabel = refLabel.trim();
+                        const refNumber = referenceTable[cleanRefLabel];
+                        if (refNumber) {
+                            console.log('Section title reference resolved:', cleanRefLabel, '->', refNumber);
+                            return refNumber;
+                        } else {
+                            console.warn('Section title reference not found:', cleanRefLabel, 'Available:', Object.keys(referenceTable));
+                            return `<span style="background: #ffcccc; padding: 2px 4px; border-radius: 3px;">[${cleanRefLabel}?]</span>`;
+                        }
+                    });
+
+                    // Add white-space: nowrap to prevent awkward line breaks in section titles
+                    const result = `<h2 style="font-family: var(--font-family-ui); font-size: 22px; font-weight: 600; color: var(--color-dark); margin: 2em 0 1em 0; white-space: nowrap;">${processedTitle}</h2>`;
                     sectionCounter++;
                     return result;
                 });
 
-                // Extract theorem/definition labels (look for \label inside theorem environments)
-                const theoremTypes = Object.keys(customTheorems).concat(['theorem', 'lemma', 'definition', 'proposition', 'corollary']);
-                theoremTypes.forEach(theoremType => {
-                    // This runs after theorem environments are processed, so we need to look in the processed HTML
-                    // We'll handle this differently by processing labels during theorem replacement
-                });
+                // Theorem labels are now pre-registered above before section processing
 
                 // Process theorem labels during theorem environment replacement
                 // Include both custom theorems AND standard theorem types
