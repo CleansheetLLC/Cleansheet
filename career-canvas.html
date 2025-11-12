@@ -106,6 +106,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             render: function(doc) {
                 let html = doc.content.trim();
 
+
                 // Store math expressions and other special content
                 const mathExpressions = [];
                 let mathIndex = 0;
@@ -7977,6 +7978,14 @@ Your content here...
                     <!-- Preview toolbar -->
                     <div style="padding: 8px 16px; background: var(--color-neutral-background); border-bottom: 1px solid var(--color-neutral-border); display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="compileLatexBtn" onclick="compileLatexToPDF()" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-file-pdf"></i>
+                                Compile PDF
+                            </button>
+                            <button id="downloadLatexPdfBtn" onclick="downloadLatexPDF()" disabled style="padding: 6px 12px; background: var(--color-neutral-border); color: var(--color-neutral-text); border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: not-allowed; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-download"></i>
+                                Download
+                            </button>
                             <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark);">Preview:</span>
                             <span id="latexPreviewStatus" style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); font-style: italic;">
                                 Click "Compile PDF" to preview
@@ -7991,14 +8000,6 @@ Your content here...
                                 <input type="number" id="autoCompileInterval" value="2.5" min="0.5" max="30" step="0.5" onchange="updateAutoCompileInterval()" style="width: 50px; padding: 2px 4px; border: 1px solid var(--color-neutral-border); border-radius: 3px; font-size: 12px; text-align: center;">
                                 <span>sec</span>
                             </div>
-                            <button id="compileLatexBtn" onclick="compileLatexToPDF()" style="padding: 6px 12px; background: var(--color-primary-blue); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                                <i class="ph ph-file-pdf"></i>
-                                Compile PDF
-                            </button>
-                            <button id="downloadLatexPdfBtn" onclick="downloadLatexPDF()" disabled style="padding: 6px 12px; background: var(--color-neutral-border); color: var(--color-neutral-text); border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: not-allowed; display: flex; align-items: center; gap: 6px;">
-                                <i class="ph ph-download"></i>
-                                Download
-                            </button>
                         </div>
                     </div>
 
@@ -43426,6 +43427,7 @@ F &= ma \\\\
         let autoCompileDelay = 2500; // Default 2.5 seconds, editable by user
         let hasInitialCompiled = false; // Flag to prevent double compilation on initial load
 
+
         // LaTeX Document localStorage schema
         function getLatexDocuments() {
             const key = `user_latex_documents_${currentPersona}`;
@@ -43835,6 +43837,7 @@ F &= ma \\\\
             showToast(`Auto-compile interval set to ${newInterval}s`, 'success');
         }
 
+
         function initializeAutoCompileToggle() {
             // Load preference from localStorage
             const savedPreference = localStorage.getItem('latex_autocompile');
@@ -43863,6 +43866,7 @@ F &= ma \\\\
                 intervalInput.value = (autoCompileDelay / 1000).toFixed(1);
             }
         }
+
 
         function updateCompileStatus(state) {
             const statusEl = document.getElementById('latexPreviewStatus');
