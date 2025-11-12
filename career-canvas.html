@@ -829,6 +829,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 formatted = formatted.replace(/\\sum/g, '∑');
                 formatted = formatted.replace(/\\prod/g, '∏');
                 formatted = formatted.replace(/\\int/g, '∫');
+                formatted = formatted.replace(/\\ell(?![a-zA-Z])/g, 'ℓ'); // Script lowercase L
 
                 // Arrow symbols
                 formatted = formatted.replace(/\\rightarrow/g, '→');
@@ -881,6 +882,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return '<sub>' + content + '</sub>';
                 });
 
+                // Delimiter sizing commands - strip \left and \right, keep delimiters
+                formatted = formatted.replace(/\\left\(/g, '(');
+                formatted = formatted.replace(/\\right\)/g, ')');
+                formatted = formatted.replace(/\\left\[/g, '[');
+                formatted = formatted.replace(/\\right\]/g, ']');
+                formatted = formatted.replace(/\\left\\{/g, '{');
+                formatted = formatted.replace(/\\right\\}/g, '}');
+                formatted = formatted.replace(/\\left\|/g, '|');
+                formatted = formatted.replace(/\\right\|/g, '|');
+                formatted = formatted.replace(/\\left\./g, ''); // invisible delimiter
+                formatted = formatted.replace(/\\right\./g, ''); // invisible delimiter
+
                 // Fractions (basic support)
                 formatted = formatted.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g,
                     '<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
@@ -897,10 +910,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     '</span>)' +
                     '</span>');
 
-                // Choose notation (alternative binomial)
-                formatted = formatted.replace(/\\choose/g, function(match, offset, string) {
-                    // This handles the {n \choose k} syntax
-                    return match; // Keep as-is for now, \binom is preferred
+                // Choose notation (alternative binomial) - parse {n \choose k} syntax
+                formatted = formatted.replace(/\{([^{}]+)\\choose([^{}]+)\}/g, function(match, n, k) {
+                    // Trim whitespace from the arguments
+                    n = n.trim();
+                    k = k.trim();
+                    return '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                           '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                           '<span style="display: block; line-height: 1;">' + n + '</span>' +
+                           '<span style="display: block; line-height: 1;">' + k + '</span>' +
+                           '</span>)' +
+                           '</span>';
                 });
 
                 // Square roots
