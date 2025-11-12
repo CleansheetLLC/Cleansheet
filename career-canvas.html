@@ -127,6 +127,39 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 // Comments first (remove them completely)
                 html = html.replace(/%.*$/gm, '');
 
+                // Step 1: Basic documentclass processing with options support
+                html = html.replace(/\\documentclass(\[[^\]]*\])?\{([^}]+)\}/g, function(match, options, className) {
+                    const optionsStr = options ? options.slice(1, -1) : '';
+                    console.log('Document class detected:', className, 'Options:', optionsStr || '(none)');
+                    return '<!-- Document class: ' + className + (optionsStr ? ' [' + optionsStr + ']' : '') + ' -->';
+                });
+
+                // Step 2: Basic headers processing
+                html = html.replace(/\\headers\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}/g, function(match, left, center, right) {
+                    console.log('Headers detected - Left:', left.trim(), 'Center:', center.trim(), 'Right:', right.trim());
+                    return '<!-- Headers: ' + left.trim() + ' | ' + center.trim() + ' | ' + right.trim() + ' -->';
+                });
+
+                // Step 3: Basic footers processing
+                html = html.replace(/\\footers\{([^}]*)\}\s*\{([^}]*)\}\s*\{([^}]*)\}/g, function(match, left, center, right) {
+                    console.log('Footers detected - Left:', left.trim(), 'Center:', center.trim(), 'Right:', right.trim());
+                    return '<!-- Footers: ' + left.trim() + ' | ' + center.trim() + ' | ' + right.trim() + ' -->';
+                });
+
+                // Step 5: Additional preamble commands
+                html = html.replace(/\\underheadoverfoot/g, function(match) {
+                    console.log('Page layout command detected:', match);
+                    return '<!-- Page layout: underheadoverfoot -->';
+                });
+                html = html.replace(/\\pagestyle\{([^}]+)\}/g, function(match, style) {
+                    console.log('Page style detected:', style);
+                    return '<!-- Page style: ' + style + ' -->';
+                });
+                html = html.replace(/\\thispagestyle\{([^}]+)\}/g, function(match, style) {
+                    console.log('This page style detected:', style);
+                    return '<!-- This page style: ' + style + ' -->';
+                });
+
                 // CV-SPECIFIC PROCESSING
                 if (isCV) {
                     // Process color definitions first
@@ -444,8 +477,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     return placeholder;
                 });
 
-                // Extract and store display math $$...$$
-                html = html.replace(/\$\$([^$]+)\$\$/g, function(match, mathContent) {
+                // Extract and store display math $$...$$  (enhanced for nested environments)
+                html = html.replace(/\$\$([\s\S]*?)\$\$/g, function(match, mathContent) {
                     const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
                     mathExpressions[mathIndex] = { type: 'display', content: mathContent.trim() };
                     console.log(`Extracted $$ display math ${mathIndex}: "${mathContent.trim()}" -> placeholder: ${placeholder}`);
