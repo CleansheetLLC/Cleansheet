@@ -947,8 +947,45 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     '<span style="display: block; padding-top: 2px;">$2</span>' +
                     '</span>');
 
-                // Binomial coefficients
+                // Binomial coefficients - multiple patterns for robustness
+                // Pattern 1: \binom with optional spaces - handles "\binom {n_i}{k}" cases
+                formatted = formatted.replace(/\\binom\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g,
+                    '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                    '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                    '<span style="display: block; line-height: 1;">$1</span>' +
+                    '<span style="display: block; line-height: 1;">$2</span>' +
+                    '</span>)' +
+                    '</span>');
+
+                // Pattern 2: Standard \binom{n}{k} with nested brace support (no spaces)
                 formatted = formatted.replace(/\\binom\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g,
+                    '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                    '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                    '<span style="display: block; line-height: 1;">$1</span>' +
+                    '<span style="display: block; line-height: 1;">$2</span>' +
+                    '</span>)' +
+                    '</span>');
+
+                // Pattern 3: Simple \binom{single_char}{single_char} cases
+                formatted = formatted.replace(/\\binom\{([^{}]+)\}\{([^{}]+)\}/g,
+                    '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                    '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                    '<span style="display: block; line-height: 1;">$1</span>' +
+                    '<span style="display: block; line-height: 1;">$2</span>' +
+                    '</span>)' +
+                    '</span>');
+
+                // Pattern 4: Fallback for any remaining \binom with minimal content
+                formatted = formatted.replace(/\\binom\{([^}]*)\}\{([^}]*)\}/g,
+                    '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
+                    '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
+                    '<span style="display: block; line-height: 1;">$1</span>' +
+                    '<span style="display: block; line-height: 1;">$2</span>' +
+                    '</span>)' +
+                    '</span>');
+
+                // Variants: \dbinom and \tbinom with optional spaces
+                formatted = formatted.replace(/\\[dt]binom\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g,
                     '<span style="display: inline-block; vertical-align: middle; font-size: 1.2em;">' +
                     '(<span style="display: inline-block; text-align: center; vertical-align: middle;">' +
                     '<span style="display: block; line-height: 1;">$1</span>' +
