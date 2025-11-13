@@ -17721,6 +17721,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             const slideout = document.getElementById(slideoutId);
             if (!slideout) return;
 
+            // Track which slideout is currently open
+            if (slideoutId === 'interviewSlideout') {
+                currentSlideout = 'interview-prep';
+            } else {
+                currentSlideout = slideoutId;
+            }
+
             // Create backdrop for small screens
             const isSmallScreen = window.innerWidth <= 480;
             if (isSmallScreen) {
@@ -20774,6 +20781,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         // Interview Prep Slideout Functions
         // ========================================
 
+        let currentSlideout = '';
         let currentInterviewCategory = '';
         let currentEditingStoryId = null;
         let behavioralStories = JSON.parse(localStorage.getItem('behavioralStories') || '[]');
@@ -21528,10 +21536,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         function openAssetByTypeAndId(assetType, assetId) {
-            console.log('Opening asset:', assetType, assetId);
+            console.log('=== OPENING ASSET BY TYPE ===');
+            console.log('Asset Type:', assetType);
+            console.log('Asset ID:', assetId);
             if (assetType === 'Document') {
                 openDocumentByIdQuill(assetId);
             } else if (assetType === 'LaTeX') {
+                openLatexEditor(assetId);
+            } else if (assetType === 'CV') {
                 openLatexEditor(assetId);
             } else if (assetType === 'Diagram') {
                 openDiagramByIdDrawio(assetId);
@@ -24264,6 +24276,7 @@ Start typing...`
 
         // Legacy function (no longer called from mindmap)
         function openInterviewSlideout(category) {
+            currentSlideout = 'interview-prep';
             currentInterviewCategory = category;
             const slideout = document.getElementById('interviewSlideout');
             const titleEl = document.getElementById('slideoutTitle');
@@ -24290,6 +24303,7 @@ Start typing...`
         }
 
         function closeInterviewSlideout() {
+            currentSlideout = '';
             const slideout = document.getElementById('interviewSlideout');
             slideout.classList.remove('active');
 
@@ -25966,6 +25980,12 @@ Start typing...`
             closeDocumentModal();
             console.log('Calling loadInterviewDocuments()...');
             loadInterviewDocuments();
+        }
+
+        function editLatexById(id) {
+            console.log('editLatexById called with id:', id);
+            // Open the LaTeX editor with this document
+            openLatexEditor(id);
         }
 
         function editDocumentById(id) {
