@@ -20,17 +20,11 @@ class CleansheetSync {
         this.autoSyncTimer = null;
         this.listeners = [];
 
-        // Collection schema (maps to your actual data structure)
+        // Collection schema for Phase 1 (core data)
         this.collections = {
-            profile: ['userFirstName', 'userLastName', 'userOccupation', 'userGoals'],
+            core: ['profile', 'currentPersona', 'subscriptionTier'],
             experiences: ['experiences'],
-            stories: ['stories'],
-            portfolio: ['portfolio'],
-            goals: ['goals'],
-            jobs: ['jobOpportunities'],
-            richContent: ['documents', 'diagrams', 'whiteboards', 'presentations'],
-            codeAssets: ['code', 'markdown', 'mermaid', 'plantuml'],
-            latexAssets: ['latex']
+            stories: ['stories']
         };
     }
 
@@ -39,7 +33,7 @@ class CleansheetSync {
     // ========================================
 
     /**
-     * Initialize sync (check for migration, setup auto-sync)
+     * Initialize sync (auto-migrate localStorage on first login, setup auto-sync)
      */
     async initialize() {
         if (!this.auth.isAuthenticated()) {
@@ -48,26 +42,40 @@ class CleansheetSync {
         }
 
         try {
-            // Check if first login (needs migration)
-            const migrationStatus = await this.checkMigrationStatus();
+            // Check if first authenticated login with local data
+            const user = this.auth.getUser();
+            const metadata = await this.downloadBlob(`${user.id}/workspace/sync-metadata.json`);
 
-            if (migrationStatus.needed) {
-                console.log('📦 Migration available from anonymous profile');
-                this.notifyListeners('migration_available', migrationStatus);
+            if (!metadata) {
+                // No cloud workspace exists - check for local data
+                console.log('📦 First authenticated login detected');
 
-                // Auto-migrate if user wants
-                const autoMigrate = confirm(
-                    'We found an existing profile for your email address. ' +
-                    'Would you like to import this data into your account?'
-                );
+                const hasLocalData = this.hasLocalData();
 
-                if (autoMigrate) {
-                    await this.migrateAnonymousProfile();
+                if (hasLocalData) {
+                    console.log('📤 Auto-migrating localStorage to cloud...');
+                    this.notifyListeners('migration_start', { type: 'localStorage' });
+
+                    // Collect and upload local data
+                    await this.syncUp();
+
+                    // Mark migration complete
+                    localStorage.setItem('cleansheet_migration_complete', new Date().toISOString());
+                    localStorage.setItem('cleansheet_migration_source', 'localStorage');
+
+                    console.log('✓ Auto-migration complete');
+                    this.notifyListeners('migration_complete', {
+                        type: 'localStorage',
+                        timestamp: new Date().toISOString()
+                    });
+                } else {
+                    console.log('No local data to migrate - creating new cloud workspace');
                 }
+            } else {
+                // Cloud workspace exists - perform initial sync down
+                console.log('☁️ Existing cloud workspace found');
+                await this.syncDown();
             }
-
-            // Perform initial sync down
-            await this.syncDown();
 
             // Setup auto-sync
             this.startAutoSync();
@@ -82,9 +90,24 @@ class CleansheetSync {
                 }
             });
 
+            console.log('✓ Sync initialized successfully');
+
         } catch (error) {
             console.error('Sync initialization failed:', error);
+            this.notifyListeners('sync_error', { phase: 'initialization', error });
         }
+    }
+
+    /**
+     * Check if there's any Phase 1 data in localStorage
+     */
+    hasLocalData() {
+        const profile = localStorage.getItem('cleansheet_profile');
+        const experiences = localStorage.getItem('cleansheet_experiences');
+        const stories = localStorage.getItem('cleansheet_stories') || localStorage.getItem('behavioralStories');
+
+        // Return true if any Phase 1 data exists
+        return !!(profile || experiences || stories);
     }
 
     /**
@@ -357,36 +380,60 @@ class CleansheetSync {
 
     /**
      * Merge two profiles (LWW + array merge by ID)
+     * Phase 1: Handle profile, experiences, stories
      */
     mergeProfiles(profile1, profile2) {
         const merged = { ...profile1 };
 
-        // Merge array collections by ID
-        const arrayCollections = ['experiences', 'stories', 'portfolio', 'goals', 'jobOpportunities'];
+        // Merge array collections by ID (Phase 1: experiences, stories)
+        const arrayCollections = ['experiences', 'stories'];
 
         arrayCollections.forEach(collection => {
             const arr1 = profile1[collection] || [];
             const arr2 = profile2[collection] || [];
 
-            // Merge by ID, keep most recent
-            const mergedMap = new Map();
+            // Merge by ID if items have IDs, otherwise concatenate
+            if (arr1.length > 0 && arr1[0].id) {
+                const mergedMap = new Map();
 
-            [...arr1, ...arr2].forEach(item => {
-                const existing = mergedMap.get(item.id);
-                if (!existing || this.isMoreRecent(item, existing)) {
-                    mergedMap.set(item.id, item);
-                }
-            });
+                [...arr1, ...arr2].forEach(item => {
+                    const existing = mergedMap.get(item.id);
+                    if (!existing || this.isMoreRecent(item, existing)) {
+                        mergedMap.set(item.id, item);
+                    }
+                });
 
-            merged[collection] = Array.from(mergedMap.values());
-        });
+                merged[collection] = Array.from(mergedMap.values());
+            } else {
+                // No IDs, just concatenate and dedupe by JSON stringify
+                const combined = [...arr1, ...arr2];
+                const unique = [];
+                const seen = new Set();
 
-        // For scalar fields, use most recent
-        ['userFirstName', 'userLastName', 'userOccupation', 'userGoals'].forEach(field => {
-            if (profile2[field]) {
-                merged[field] = profile2[field]; // Prefer local
+                combined.forEach(item => {
+                    const key = JSON.stringify(item);
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        unique.push(item);
+                    }
+                });
+
+                merged[collection] = unique;
             }
         });
+
+        // For profile object, prefer local (profile2)
+        if (profile2.profile) {
+            merged.profile = profile2.profile;
+        }
+
+        // For scalar fields, prefer local (profile2)
+        if (profile2.currentPersona) {
+            merged.currentPersona = profile2.currentPersona;
+        }
+        if (profile2.subscriptionTier) {
+            merged.subscriptionTier = profile2.subscriptionTier;
+        }
 
         return merged;
     }
@@ -512,53 +559,67 @@ class CleansheetSync {
     // ========================================
 
     /**
-     * Collect full profile data from localStorage (reuse existing function)
+     * Collect full profile data from localStorage
+     * Phase 1: Core data only (profile, persona, experiences, stories, subscription)
      */
     collectFullProfileData() {
-        // This should match your existing collectFullProfileData() in career-canvas.html
+        // Parse profile object
+        const profileStr = localStorage.getItem('cleansheet_profile');
+        const profile = profileStr ? JSON.parse(profileStr) : {firstName: '', lastName: '', profession: '', goal: ''};
+
+        // Load stories with fallback to legacy key
+        let storiesStr = localStorage.getItem('cleansheet_stories');
+        if (!storiesStr) {
+            storiesStr = localStorage.getItem('behavioralStories');
+        }
+
         return {
-            userFirstName: localStorage.getItem('cleansheet_profile_firstName') || '',
-            userLastName: localStorage.getItem('cleansheet_profile_lastName') || '',
-            userOccupation: localStorage.getItem('cleansheet_profile_occupation') || '',
-            userGoals: localStorage.getItem('cleansheet_profile_goals') || '',
+            // Phase 1: Core Professional Data
+            profile: profile,
+            currentPersona: localStorage.getItem('cleansheet_currentPersona') || 'default',
             experiences: JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]'),
-            stories: JSON.parse(localStorage.getItem('cleansheet_stories') || '[]'),
-            portfolio: JSON.parse(localStorage.getItem('userPortfolio') || '[]'),
-            goals: JSON.parse(localStorage.getItem('userGoals') || '[]'),
-            jobOpportunities: JSON.parse(localStorage.getItem('jobOpportunities') || '[]'),
-            documents: JSON.parse(localStorage.getItem('user_documents') || '[]'),
-            diagrams: JSON.parse(localStorage.getItem('user_diagrams') || '[]'),
-            whiteboards: JSON.parse(localStorage.getItem('user_whiteboards') || '[]'),
-            presentations: JSON.parse(localStorage.getItem('user_presentations') || '[]'),
-            code: JSON.parse(localStorage.getItem('user_code') || '[]'),
-            markdown: JSON.parse(localStorage.getItem('user_markdown') || '[]'),
-            latex: JSON.parse(localStorage.getItem('user_latex') || '[]'),
-            mermaid: JSON.parse(localStorage.getItem('user_mermaid') || '[]'),
-            plantuml: JSON.parse(localStorage.getItem('user_plantuml') || '[]'),
+            stories: JSON.parse(storiesStr || '[]'),
+            subscriptionTier: localStorage.getItem('subscription_tier') || 'seeker',
+
+            // Metadata
             exportDate: new Date().toISOString(),
-            version: '1.0'
+            version: '2.0', // Phase 1 schema
+            phase: 1
         };
     }
 
-    saveFullProfileData(profile) {
-        localStorage.setItem('cleansheet_profile_firstName', profile.userFirstName || '');
-        localStorage.setItem('cleansheet_profile_lastName', profile.userLastName || '');
-        localStorage.setItem('cleansheet_profile_occupation', profile.userOccupation || '');
-        localStorage.setItem('cleansheet_profile_goals', profile.userGoals || '');
-        localStorage.setItem('cleansheet_experiences', JSON.stringify(profile.experiences || []));
-        localStorage.setItem('cleansheet_stories', JSON.stringify(profile.stories || []));
-        localStorage.setItem('userPortfolio', JSON.stringify(profile.portfolio || []));
-        localStorage.setItem('userGoals', JSON.stringify(profile.goals || []));
-        localStorage.setItem('jobOpportunities', JSON.stringify(profile.jobOpportunities || []));
-        localStorage.setItem('user_documents', JSON.stringify(profile.documents || []));
-        localStorage.setItem('user_diagrams', JSON.stringify(profile.diagrams || []));
-        localStorage.setItem('user_whiteboards', JSON.stringify(profile.whiteboards || []));
-        localStorage.setItem('user_presentations', JSON.stringify(profile.presentations || []));
-        localStorage.setItem('user_code', JSON.stringify(profile.code || []));
-        localStorage.setItem('user_markdown', JSON.stringify(profile.markdown || []));
-        localStorage.setItem('user_latex', JSON.stringify(profile.latex || []));
-        localStorage.setItem('user_mermaid', JSON.stringify(profile.mermaid || []));
-        localStorage.setItem('user_plantuml', JSON.stringify(profile.plantuml || []));
+    /**
+     * Save full profile data to localStorage
+     * Phase 1: Core data only (profile, persona, experiences, stories, subscription)
+     */
+    saveFullProfileData(data) {
+        // Save profile as single JSON object
+        if (data.profile) {
+            localStorage.setItem('cleansheet_profile', JSON.stringify(data.profile));
+        }
+
+        // Save persona
+        if (data.currentPersona) {
+            localStorage.setItem('cleansheet_currentPersona', data.currentPersona);
+        }
+
+        // Save experiences
+        if (data.experiences) {
+            localStorage.setItem('cleansheet_experiences', JSON.stringify(data.experiences));
+        }
+
+        // Save stories (to both keys for backwards compatibility)
+        if (data.stories) {
+            localStorage.setItem('cleansheet_stories', JSON.stringify(data.stories));
+            localStorage.setItem('behavioralStories', JSON.stringify(data.stories));
+        }
+
+        // Save subscription tier
+        if (data.subscriptionTier) {
+            localStorage.setItem('subscription_tier', data.subscriptionTier);
+        }
+
+        // Update last modified timestamp
         localStorage.setItem('cleansheet_last_modified', new Date().toISOString());
     }
 
@@ -575,6 +636,10 @@ class CleansheetSync {
         return collections;
     }
 
+    /**
+     * Merge collection data into localStorage
+     * Phase 1: Handle core, experiences, and stories collections
+     */
     mergeCollectionIntoLocalStorage(collectionName, data) {
         const fields = this.collections[collectionName];
         if (!fields) {
@@ -583,10 +648,28 @@ class CleansheetSync {
         }
 
         fields.forEach(field => {
-            if (Array.isArray(data[field])) {
-                localStorage.setItem(field, JSON.stringify(data[field]));
+            const value = data[field];
+            if (value === undefined || value === null) return;
+
+            if (field === 'profile') {
+                // Profile is a JSON object
+                localStorage.setItem('cleansheet_profile', JSON.stringify(value));
+            } else if (field === 'currentPersona') {
+                localStorage.setItem('cleansheet_currentPersona', value);
+            } else if (field === 'subscriptionTier') {
+                localStorage.setItem('subscription_tier', value);
+            } else if (field === 'experiences') {
+                localStorage.setItem('cleansheet_experiences', JSON.stringify(value));
+            } else if (field === 'stories') {
+                // Save to both keys for backwards compatibility
+                localStorage.setItem('cleansheet_stories', JSON.stringify(value));
+                localStorage.setItem('behavioralStories', JSON.stringify(value));
+            } else if (Array.isArray(value)) {
+                // Generic array field
+                localStorage.setItem(field, JSON.stringify(value));
             } else {
-                localStorage.setItem(`cleansheet_profile_${field}`, data[field] || '');
+                // Generic scalar field
+                localStorage.setItem(field, value);
             }
         });
     }
@@ -618,6 +701,144 @@ class CleansheetSync {
         this.listeners
             .filter(l => l.event === event || l.event === '*')
             .forEach(l => l.callback(data));
+    }
+
+    // ========================================
+    // Hybrid Load/Save Pattern Helpers
+    // ========================================
+
+    /**
+     * Hybrid load: Try cloud first, fall back to localStorage
+     * @param {string} key - localStorage key
+     * @param {*} defaultValue - Default value if not found
+     * @returns {Promise<*>}
+     */
+    async hybridLoad(key, defaultValue = null) {
+        // Try cloud first if authenticated
+        if (this.auth.isAuthenticated()) {
+            try {
+                const cloudData = await this.getWorkspace();
+                if (cloudData && cloudData[key] !== undefined) {
+                    // Cache to localStorage
+                    const value = cloudData[key];
+                    if (typeof value === 'object') {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    } else {
+                        localStorage.setItem(key, value);
+                    }
+                    console.log(`✓ Loaded ${key} from cloud`);
+                    return value;
+                }
+            } catch (error) {
+                console.warn(`Cloud load failed for ${key}, using localStorage:`, error);
+            }
+        }
+
+        // Fallback to localStorage
+        const stored = localStorage.getItem(key);
+        if (stored) {
+            try {
+                return JSON.parse(stored);
+            } catch (e) {
+                return stored; // Not JSON, return as string
+            }
+        }
+
+        return defaultValue;
+    }
+
+    /**
+     * Hybrid save: Save to localStorage immediately, debounced cloud sync
+     * @param {string} key - localStorage key
+     * @param {*} value - Value to save
+     * @param {number} debounceMs - Debounce delay in ms (default: 2000)
+     */
+    async hybridSave(key, value, debounceMs = 2000) {
+        // Always save to localStorage (instant, works offline)
+        if (typeof value === 'object') {
+            localStorage.setItem(key, JSON.stringify(value));
+        } else {
+            localStorage.setItem(key, value);
+        }
+
+        // Update last modified
+        localStorage.setItem('cleansheet_last_modified', new Date().toISOString());
+
+        // Sync to cloud if authenticated (debounced)
+        if (this.auth.isAuthenticated()) {
+            // Clear existing timer for this key
+            if (!this._debouncedSyncs) {
+                this._debouncedSyncs = new Map();
+            }
+
+            const existingTimer = this._debouncedSyncs.get(key);
+            if (existingTimer) {
+                clearTimeout(existingTimer);
+            }
+
+            // Set new timer
+            const timer = setTimeout(async () => {
+                try {
+                    console.log(`⬆️ Syncing ${key} to cloud (debounced)`);
+                    await this.syncUp();
+                    this._debouncedSyncs.delete(key);
+                } catch (error) {
+                    console.error(`Cloud sync failed for ${key}:`, error);
+                    // Data still in localStorage, will sync later
+                }
+            }, debounceMs);
+
+            this._debouncedSyncs.set(key, timer);
+        }
+    }
+
+    /**
+     * Get workspace data (downloads full profile from cloud)
+     * @returns {Promise<Object>}
+     */
+    async getWorkspace() {
+        const user = this.auth.getUser();
+        const metadata = await this.downloadBlob(`${user.id}/workspace/sync-metadata.json`);
+
+        if (!metadata) {
+            return null;
+        }
+
+        // Download all collections
+        const downloads = metadata.collections.map(name =>
+            this.downloadBlob(`${user.id}/workspace/${name}.json`)
+                .then(data => ({ name, data }))
+        );
+
+        const collections = await Promise.all(downloads);
+
+        // Merge collections into single object
+        const workspace = {};
+        collections.forEach(({ name, data }) => {
+            Object.assign(workspace, data);
+        });
+
+        return workspace;
+    }
+
+    /**
+     * Save workspace data (uploads full profile to cloud)
+     * @param {Object} data - Workspace data to save
+     */
+    async saveWorkspace(data) {
+        // This is just an alias for syncUp with optional data override
+        // If data provided, temporarily replace localStorage
+        if (data) {
+            const originalData = this.collectFullProfileData();
+            this.saveFullProfileData(data);
+            await this.syncUp();
+            // Restore original if different
+            if (JSON.stringify(data) !== JSON.stringify(originalData)) {
+                this.saveFullProfileData(originalData);
+            }
+        } else {
+            await this.syncUp();
+        }
     }
 }
 
