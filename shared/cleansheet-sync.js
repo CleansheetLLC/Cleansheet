@@ -22,9 +22,12 @@ class CleansheetSync {
 
         // Collection schema for Phase 1 (core data)
         this.collections = {
-            core: ['profile', 'currentPersona', 'subscriptionTier'],
+            core: ['profile', 'persona', 'subscriptionTier'],
             experiences: ['experiences'],
-            stories: ['stories']
+            stories: ['stories'],
+            jobs: ['jobs'],
+            goals: ['goals'],
+            portfolio: ['portfolio']
         };
     }
 
@@ -102,12 +105,13 @@ class CleansheetSync {
      * Check if there's any Phase 1 data in localStorage
      */
     hasLocalData() {
-        const profile = localStorage.getItem('cleansheet_profile');
-        const experiences = localStorage.getItem('cleansheet_experiences');
-        const stories = localStorage.getItem('cleansheet_stories') || localStorage.getItem('behavioralStories');
+        const profile = localStorage.getItem('userProfile');
+        const experiences = localStorage.getItem('user_experiences');
+        const stories = localStorage.getItem('user_stories');
+        const jobs = localStorage.getItem('user_jobs');
 
         // Return true if any Phase 1 data exists
-        return !!(profile || experiences || stories);
+        return !!(profile || experiences || stories || jobs);
     }
 
     /**
@@ -428,8 +432,8 @@ class CleansheetSync {
         }
 
         // For scalar fields, prefer local (profile2)
-        if (profile2.currentPersona) {
-            merged.currentPersona = profile2.currentPersona;
+        if (profile2.persona) {
+            merged.persona = profile2.persona;
         }
         if (profile2.subscriptionTier) {
             merged.subscriptionTier = profile2.subscriptionTier;
@@ -560,58 +564,75 @@ class CleansheetSync {
 
     /**
      * Collect full profile data from localStorage
-     * Phase 1: Core data only (profile, persona, experiences, stories, subscription)
+     * Phase 1: Core data (profile, persona, experiences, stories, jobs, goals, portfolio, subscription)
      */
     collectFullProfileData() {
-        // Parse profile object
-        const profileStr = localStorage.getItem('cleansheet_profile');
-        const profile = profileStr ? JSON.parse(profileStr) : {firstName: '', lastName: '', profession: '', goal: ''};
+        // Get current persona for persona-specific data
+        const persona = localStorage.getItem('current_persona') || 'member';
 
-        // Load stories with fallback to legacy key
-        let storiesStr = localStorage.getItem('cleansheet_stories');
-        if (!storiesStr) {
-            storiesStr = localStorage.getItem('behavioralStories');
-        }
+        // Parse profile object
+        const profileStr = localStorage.getItem('userProfile');
+        const profile = profileStr ? JSON.parse(profileStr) : null;
 
         return {
             // Phase 1: Core Professional Data
             profile: profile,
-            currentPersona: localStorage.getItem('cleansheet_currentPersona') || 'default',
-            experiences: JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]'),
-            stories: JSON.parse(storiesStr || '[]'),
+            persona: persona,
+            experiences: JSON.parse(localStorage.getItem('user_experiences') || '[]'),
+            stories: JSON.parse(localStorage.getItem('user_stories') || '[]'),
+            jobs: JSON.parse(localStorage.getItem('user_jobs') || '[]'),
+            goals: JSON.parse(localStorage.getItem(`userGoals_${persona}`) || '[]'),
+            portfolio: JSON.parse(localStorage.getItem(`userPortfolio_${persona}`) || '[]'),
             subscriptionTier: localStorage.getItem('subscription_tier') || 'seeker',
 
             // Metadata
             exportDate: new Date().toISOString(),
-            version: '2.0', // Phase 1 schema
+            version: '2.1', // Phase 1 schema with jobs, goals, portfolio
             phase: 1
         };
     }
 
     /**
      * Save full profile data to localStorage
-     * Phase 1: Core data only (profile, persona, experiences, stories, subscription)
+     * Phase 1: Core data plus jobs, goals, portfolio
      */
     saveFullProfileData(data) {
+        // Get persona for persona-specific data
+        const persona = data.persona || localStorage.getItem('current_persona') || 'member';
+
         // Save profile as single JSON object
         if (data.profile) {
-            localStorage.setItem('cleansheet_profile', JSON.stringify(data.profile));
+            localStorage.setItem('userProfile', JSON.stringify(data.profile));
         }
 
         // Save persona
-        if (data.currentPersona) {
-            localStorage.setItem('cleansheet_currentPersona', data.currentPersona);
+        if (data.persona) {
+            localStorage.setItem('current_persona', data.persona);
         }
 
         // Save experiences
         if (data.experiences) {
-            localStorage.setItem('cleansheet_experiences', JSON.stringify(data.experiences));
+            localStorage.setItem('user_experiences', JSON.stringify(data.experiences));
         }
 
-        // Save stories (to both keys for backwards compatibility)
+        // Save stories
         if (data.stories) {
-            localStorage.setItem('cleansheet_stories', JSON.stringify(data.stories));
-            localStorage.setItem('behavioralStories', JSON.stringify(data.stories));
+            localStorage.setItem('user_stories', JSON.stringify(data.stories));
+        }
+
+        // Save jobs
+        if (data.jobs) {
+            localStorage.setItem('user_jobs', JSON.stringify(data.jobs));
+        }
+
+        // Save goals (persona-specific)
+        if (data.goals) {
+            localStorage.setItem(`userGoals_${persona}`, JSON.stringify(data.goals));
+        }
+
+        // Save portfolio (persona-specific)
+        if (data.portfolio) {
+            localStorage.setItem(`userPortfolio_${persona}`, JSON.stringify(data.portfolio));
         }
 
         // Save subscription tier
@@ -638,7 +659,7 @@ class CleansheetSync {
 
     /**
      * Merge collection data into localStorage
-     * Phase 1: Handle core, experiences, and stories collections
+     * Phase 1: Handle core, experiences, stories, jobs, goals, portfolio collections
      */
     mergeCollectionIntoLocalStorage(collectionName, data) {
         const fields = this.collections[collectionName];
@@ -647,23 +668,32 @@ class CleansheetSync {
             return;
         }
 
+        // Get persona for persona-specific data
+        const persona = data.persona || localStorage.getItem('current_persona') || 'member';
+
         fields.forEach(field => {
             const value = data[field];
             if (value === undefined || value === null) return;
 
             if (field === 'profile') {
                 // Profile is a JSON object
-                localStorage.setItem('cleansheet_profile', JSON.stringify(value));
-            } else if (field === 'currentPersona') {
-                localStorage.setItem('cleansheet_currentPersona', value);
+                localStorage.setItem('userProfile', JSON.stringify(value));
+            } else if (field === 'persona') {
+                localStorage.setItem('current_persona', value);
             } else if (field === 'subscriptionTier') {
                 localStorage.setItem('subscription_tier', value);
             } else if (field === 'experiences') {
-                localStorage.setItem('cleansheet_experiences', JSON.stringify(value));
+                localStorage.setItem('user_experiences', JSON.stringify(value));
             } else if (field === 'stories') {
-                // Save to both keys for backwards compatibility
-                localStorage.setItem('cleansheet_stories', JSON.stringify(value));
-                localStorage.setItem('behavioralStories', JSON.stringify(value));
+                localStorage.setItem('user_stories', JSON.stringify(value));
+            } else if (field === 'jobs') {
+                localStorage.setItem('user_jobs', JSON.stringify(value));
+            } else if (field === 'goals') {
+                // Persona-specific
+                localStorage.setItem(`userGoals_${persona}`, JSON.stringify(value));
+            } else if (field === 'portfolio') {
+                // Persona-specific
+                localStorage.setItem(`userPortfolio_${persona}`, JSON.stringify(value));
             } else if (Array.isArray(value)) {
                 // Generic array field
                 localStorage.setItem(field, JSON.stringify(value));

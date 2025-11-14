@@ -6864,9 +6864,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
                         <!-- Cloud Sync Button (Always Visible) -->
-                        <button id="cloudSyncButton" onclick="handleCloudSyncClick()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: white; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+                        <button id="cloudSyncButton" onclick="handleCloudSyncClick()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: white; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; position: relative;" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
                             <i id="cloudSyncIcon" class="ph ph-cloud-arrow-up" style="font-size: 16px;"></i>
                             <span id="cloudSyncText">Sign In</span>
+                            <!-- Subtle sync status indicator -->
+                            <span id="syncStatusIndicator" style="position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: none;"></span>
                         </button>
 
                         <!-- Profile Circle -->
@@ -6899,6 +6901,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <button class="profile-dropdown-item" onclick="window.open('terms-of-service.html', '_blank'); document.getElementById('profileDropdown').classList.remove('active');">
                                         <i class="ph ph-file-text"></i>
                                         <span>Terms of Service</span>
+                                    </button>
+                                    <button class="profile-dropdown-item" onclick="openSupportModal()">
+                                        <i class="ph ph-lifebuoy"></i>
+                                        <span>Support</span>
                                     </button>
                                     <button class="profile-dropdown-item" onclick="openErasureRequestModal()">
                                         <i class="ph ph-trash"></i>
@@ -7740,7 +7746,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <ul style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.6; margin: 0; padding-left: 24px;">
                             <li style="margin-bottom: 8px;"><strong>Access Anywhere:</strong> Your profile, experiences, and stories sync across all your devices</li>
                             <li style="margin-bottom: 8px;"><strong>Never Lose Work:</strong> Automatic cloud backup protects your career data</li>
-                            <li style="margin-bottom: 8px;"><strong>Seamless Updates:</strong> Changes you make on one device appear instantly on others</li>
+                            <li style="margin-bottom: 8px;"><strong>Seamless Updates:</strong> Changes you make on one device appear on others within moments</li>
                             <li style="margin-bottom: 8px;"><strong>Secure Storage:</strong> Your data is encrypted and stored in Microsoft Azure</li>
                         </ul>
                     </div>
@@ -7928,6 +7934,132 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <button onclick="closeMemberTierInfoModal(); openSubscriptionModal();" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                         <i class="ph ph-star"></i>
                         <span>Change Tier</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Modal -->
+        <div class="modal" id="supportModal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Support & Troubleshooting</h2>
+                    <button class="modal-close" onclick="closeSupportModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- Sync Troubleshooting Section -->
+                    <div style="margin-bottom: 32px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-cloud-arrow-up" style="color: var(--color-primary-blue);"></i>
+                            Cloud Sync Troubleshooting
+                        </h3>
+
+                        <!-- Sync Status Info -->
+                        <div id="syncStatusInfo" style="padding: 16px; background: #f5f5f7; border-radius: 8px; margin-bottom: 16px;">
+                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.6;">
+                                <div style="margin-bottom: 8px;"><strong>Status:</strong> <span id="syncAuthStatus">Checking...</span></div>
+                                <div style="margin-bottom: 8px;"><strong>Last Sync:</strong> <span id="syncLastSyncTime">Never</span></div>
+                                <div><strong>Auto-Sync:</strong> <span id="syncAutoStatus">Enabled (every 60s)</span></div>
+                            </div>
+                        </div>
+
+                        <!-- LocalStorage Diagnostics -->
+                        <div style="padding: 16px; background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <i class="ph ph-warning" style="font-size: 20px; color: #f59e0b;"></i>
+                                <strong style="font-family: var(--font-family-ui); font-size: 14px; color: var(--color-dark);">LocalStorage Diagnostics</strong>
+                            </div>
+                            <div id="localStorageDiagnostics"></div>
+                        </div>
+
+                        <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.6; margin: 0 0 16px 0;">
+                            If your data isn't syncing correctly, you can force a manual sync in either direction:
+                        </p>
+
+                        <!-- Sync Direction Options -->
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Sync Down -->
+                            <button onclick="forceSyncDown()" style="padding: 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s; display: flex; gap: 12px; align-items: start;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-cloud-arrow-down" style="font-size: 24px; color: var(--color-primary-blue); flex-shrink: 0;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                        Sync Down (Cloud → This Device)
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.5;">
+                                        Download your data from the cloud and replace local data. Use this if changes from another device aren't appearing here.
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Sync Up -->
+                            <button onclick="forceSyncUp()" style="padding: 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s; display: flex; gap: 12px; align-items: start;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-cloud-arrow-up" style="font-size: 24px; color: var(--color-primary-blue); flex-shrink: 0;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                        Sync Up (This Device → Cloud)
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.5;">
+                                        Upload your local data to the cloud. Use this to ensure your latest changes are saved to the cloud.
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Full Sync -->
+                            <button onclick="forceFullSync()" style="padding: 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s; display: flex; gap: 12px; align-items: start;" onmouseover="this.style.borderColor='var(--color-primary-blue)'; this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                                <i class="ph ph-arrows-clockwise" style="font-size: 24px; color: var(--color-primary-blue); flex-shrink: 0;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                        Full Sync (Bidirectional)
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.5;">
+                                        Sync in both directions. Cloud data will be compared with local data, and the newest version will be kept.
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Data Recovery -->
+                    <div style="margin-top: 24px;">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--color-neutral-border);">
+                            <i class="ph ph-first-aid-kit" style="margin-right: 8px;"></i>Data Recovery
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Recover Old Data -->
+                            <button onclick="recoverOldData()" style="padding: 16px; background: white; border: 2px solid #f59e0b; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s; display: flex; gap: 12px; align-items: start;" onmouseover="this.style.borderColor='#d97706'; this.style.background='#fffbeb';" onmouseout="this.style.borderColor='#f59e0b'; this.style.background='white';">
+                                <i class="ph ph-clock-counter-clockwise" style="font-size: 24px; color: #f59e0b; flex-shrink: 0;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                        Recover Old Data
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.5;">
+                                        Check for data stored under old localStorage keys and migrate it to current keys. Use this if your data disappeared after an update.
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder for future support options -->
+                    <div style="padding: 16px; background: #e3f2fd; border-radius: 8px; margin-top: 24px;">
+                        <div style="display: flex; gap: 12px;">
+                            <i class="ph ph-info" style="font-size: 20px; color: var(--color-primary-blue); flex-shrink: 0;"></i>
+                            <div>
+                                <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-primary-blue); margin-bottom: 4px;">
+                                    Need More Help?
+                                </div>
+                                <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-dark); line-height: 1.5;">
+                                    Additional support options will be available soon, including the ability to submit support requests and chat with our team.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end;">
+                    <button onclick="closeSupportModal()" style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
+                        Close
                     </button>
                 </div>
             </div>
@@ -13926,27 +14058,98 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         // Authentication state
         let isAuthenticated = false;
         let currentUser = null;
+        let isInitializing = true;
+
+        // Force button to default state immediately on script load (before any events)
+        (function() {
+            const button = document.getElementById('cloudSyncButton');
+            const icon = document.getElementById('cloudSyncIcon');
+            const text = document.getElementById('cloudSyncText');
+            if (button && icon && text) {
+                console.log('[Auth Init] Setting button to default state on script load');
+                icon.className = 'ph ph-cloud-arrow-up';
+                text.textContent = 'Sign In';
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            }
+        })();
+
+        // Set button to correct state as soon as DOM is ready (before load event)
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[Auth Init] DOMContentLoaded - updating button, isAuth:', isAuthenticated);
+            updateCloudSyncButton();
+        });
+
+        // Handle Firefox bfcache (back-forward cache)
+        window.addEventListener('pageshow', (event) => {
+            console.log('[Auth Init] pageshow - persisted:', event.persisted);
+            if (event.persisted) {
+                // Page was restored from bfcache, reset button state
+                console.log('[Auth Init] Page restored from bfcache, resetting button state');
+                isAuthenticated = false;
+                currentUser = null;
+                isInitializing = true;
+                updateCloudSyncButton();
+
+                // Re-check auth state
+                if (auth.isAuthenticated()) {
+                    console.log('[Auth Init] User still authenticated after bfcache restore');
+                    isAuthenticated = true;
+                    currentUser = auth.getUser();
+                } else {
+                    console.log('[Auth Init] User not authenticated after bfcache restore');
+                }
+                isInitializing = false;
+                updateCloudSyncButton();
+            }
+        });
 
         // Simple auth initialization on page load
         window.addEventListener('load', async () => {
+            console.log('[Auth Init] load event - starting, isAuth:', isAuthenticated);
+            // Set button to default state immediately (before any async operations)
+            updateCloudSyncButton();
+
             try {
+                console.log('[Auth Init] Calling handleRedirectCallback');
                 await auth.handleRedirectCallback();
 
+                console.log('[Auth Init] Checking if authenticated:', auth.isAuthenticated());
                 if (auth.isAuthenticated()) {
                     isAuthenticated = true;
                     currentUser = auth.getUser();
-                    console.log('✓ User authenticated:', currentUser.email);
+                    console.log('[Auth Init] ✓ User authenticated:', currentUser.email);
 
                     // Initialize sync
+                    console.log('[Auth Init] Initializing sync...');
                     await sync.initialize();
-                    console.log('✓ Workspace sync initialized');
+                    console.log('[Auth Init] ✓ Workspace sync initialized');
+
+                    // IMPORTANT: Mark initialization as complete BEFORE updating button
+                    // This must happen after sync.initialize() completes to block sync events
+                    isInitializing = false;
+                    console.log('[Auth Init] Initialization complete, isAuth:', isAuthenticated);
+
+                    // Update button after successful auth and sync
+                    updateCloudSyncButton();
+                } else {
+                    console.log('[Auth Init] User not authenticated');
+
+                    // Mark initialization as complete for unauthenticated users
+                    isInitializing = false;
+                    console.log('[Auth Init] Initialization complete, isAuth:', isAuthenticated);
+
+                    // Update button for unauthenticated state
+                    updateCloudSyncButton();
                 }
             } catch (error) {
-                console.error('Auth initialization error:', error);
-            }
+                console.error('[Auth Init] Auth initialization error:', error);
 
-            // Update button regardless of auth state
-            updateCloudSyncButton();
+                // Mark initialization as complete even on error
+                isInitializing = false;
+                updateCloudSyncButton();
+            }
         });
 
         // Handle cloud sync button click
@@ -14092,6 +14295,331 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             await auth.signOut();
         }
 
+        // ===================================================================
+        // Data Recovery Functions
+        // ===================================================================
+
+        function checkForOldData() {
+            const oldKeys = {
+                'cleansheet_profile': 'userProfile',
+                'cleansheet_experiences': 'user_experiences',
+                'cleansheet_stories': 'user_stories',
+                'behavioralStories': 'user_stories'
+            };
+
+            const found = [];
+            for (const [oldKey, newKey] of Object.entries(oldKeys)) {
+                const oldData = localStorage.getItem(oldKey);
+                if (oldData && oldData !== '[]' && oldData !== 'null' && oldData !== '{}') {
+                    found.push({ oldKey, newKey, size: oldData.length });
+                }
+            }
+
+            return found;
+        }
+
+        async function recoverOldData() {
+            const oldData = checkForOldData();
+
+            if (oldData.length === 0) {
+                alert('No old data found to recover.');
+                return;
+            }
+
+            const message = `Found data in old localStorage keys:\n${oldData.map(d => `- ${d.oldKey} (${d.size} bytes)`).join('\n')}\n\nRecover this data?`;
+
+            if (!confirm(message)) {
+                return;
+            }
+
+            try {
+                console.log('[Recovery] Starting data recovery...');
+
+                // Copy data from old keys to new keys
+                for (const {oldKey, newKey} of oldData) {
+                    const data = localStorage.getItem(oldKey);
+                    const existing = localStorage.getItem(newKey);
+
+                    if (existing && existing !== '[]' && existing !== 'null' && existing !== '{}') {
+                        if (!confirm(`${newKey} already has data. Overwrite with old data from ${oldKey}?`)) {
+                            continue;
+                        }
+                    }
+
+                    localStorage.setItem(newKey, data);
+                    console.log(`[Recovery] Copied ${oldKey} → ${newKey}`);
+                }
+
+                // Reload UI
+                await loadAllCounts();
+                if (typeof refreshMindmap === 'function') {
+                    refreshMindmap();
+                }
+
+                showToast('Data recovered! Now use "Sync Up" to upload to cloud.', 'success');
+                closeSupportModal();
+
+            } catch (error) {
+                console.error('[Recovery] Recovery failed:', error);
+                alert('Recovery failed: ' + error.message);
+            }
+        }
+
+        // ===================================================================
+        // Support Modal Functions
+        // ===================================================================
+
+        function openSupportModal() {
+            const modal = document.getElementById('supportModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                updateSyncStatusInfo();
+
+                // Close profile dropdown
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown) dropdown.classList.remove('active');
+            }
+        }
+
+        function closeSupportModal() {
+            const modal = document.getElementById('supportModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function updateSyncStatusInfo() {
+            const authStatus = document.getElementById('syncAuthStatus');
+            const lastSyncTime = document.getElementById('syncLastSyncTime');
+            const autoStatus = document.getElementById('syncAutoStatus');
+
+            if (authStatus) {
+                authStatus.textContent = isAuthenticated ? `Authenticated (${currentUser?.email || 'Unknown'})` : 'Not Authenticated';
+                authStatus.style.color = isAuthenticated ? '#16a34a' : '#dc2626';
+            }
+
+            if (autoStatus) {
+                autoStatus.textContent = isAuthenticated ? 'Enabled (every 60 seconds)' : 'Disabled (not signed in)';
+                autoStatus.style.color = isAuthenticated ? '#16a34a' : '#666';
+            }
+
+            // Get last sync time from localStorage
+            if (lastSyncTime) {
+                const lastSync = localStorage.getItem('cleansheet_last_modified');
+                if (lastSync) {
+                    const date = new Date(lastSync);
+                    lastSyncTime.textContent = date.toLocaleString();
+                } else {
+                    lastSyncTime.textContent = 'Never';
+                }
+            }
+
+            // Show localStorage diagnostic info
+            showLocalStorageDiagnostics();
+        }
+
+        function showLocalStorageDiagnostics() {
+            const diagnosticsDiv = document.getElementById('localStorageDiagnostics');
+            if (!diagnosticsDiv) return;
+
+            const persona = currentPersona || localStorage.getItem('current_persona') || 'member';
+
+            const keys = [
+                { label: 'Profile', key: 'userProfile' },
+                { label: 'Experiences', key: 'user_experiences' },
+                { label: 'Stories', key: 'user_stories' },
+                { label: 'Jobs', key: 'user_jobs' },
+                { label: 'Goals', key: `userGoals_${persona}` },
+                { label: 'Portfolio', key: `userPortfolio_${persona}` },
+                { label: 'Persona', key: 'current_persona' },
+                { label: 'Subscription', key: 'subscription_tier' }
+            ];
+
+            let html = '<div style="font-family: monospace; font-size: 11px; max-height: 200px; overflow-y: auto;">';
+
+            for (const {label, key} of keys) {
+                const value = localStorage.getItem(key);
+                let status = '';
+                let color = '';
+
+                if (!value || value === 'null' || value === 'undefined') {
+                    status = '❌ NULL/MISSING';
+                    color = '#dc2626';
+                } else if (value === '[]' || value === '{}') {
+                    status = '⚠️ EMPTY';
+                    color = '#f59e0b';
+                } else {
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed)) {
+                            status = `✓ ${parsed.length} items`;
+                            color = '#16a34a';
+                        } else if (typeof parsed === 'object') {
+                            const propCount = Object.keys(parsed).length;
+                            status = `✓ ${propCount} properties`;
+                            color = '#16a34a';
+                        } else {
+                            status = `✓ ${value}`;
+                            color = '#16a34a';
+                        }
+                    } catch (e) {
+                        status = `✓ ${value.substring(0, 20)}...`;
+                        color = '#16a34a';
+                    }
+                }
+
+                html += `<div style="margin-bottom: 4px; padding: 4px; background: #f5f5f7; border-radius: 4px;">
+                    <strong>${label}:</strong> <span style="color: ${color};">${status}</span>
+                    <br><span style="color: #666; font-size: 10px;">${key}</span>
+                </div>`;
+            }
+
+            html += '</div>';
+            diagnosticsDiv.innerHTML = html;
+        }
+
+        async function forceSyncDown() {
+            if (!isAuthenticated || !sync) {
+                alert('Please sign in to sync');
+                return;
+            }
+
+            if (confirm('Download data from cloud and replace local data?\n\nThis will overwrite any local changes with data from the cloud.')) {
+                try {
+                    console.log('[Force Sync] Starting sync down...');
+
+                    // Get workspace data from cloud
+                    const cloudData = await sync.getWorkspace();
+                    if (cloudData) {
+                        // Save to localStorage
+                        localStorage.setItem('cleansheet_last_modified', cloudData.lastModified || new Date().toISOString());
+
+                        // Save each data type
+                        if (cloudData.profile) {
+                            localStorage.setItem('userProfile', JSON.stringify(cloudData.profile));
+                        }
+                        if (cloudData.experiences) {
+                            localStorage.setItem('user_experiences', JSON.stringify(cloudData.experiences));
+                        }
+                        if (cloudData.stories) {
+                            localStorage.setItem('user_stories', JSON.stringify(cloudData.stories));
+                        }
+                        if (cloudData.jobs) {
+                            localStorage.setItem('user_jobs', JSON.stringify(cloudData.jobs));
+                        }
+                        if (cloudData.goals) {
+                            localStorage.setItem(`userGoals_${currentPersona}`, JSON.stringify(cloudData.goals));
+                        }
+                        if (cloudData.portfolio) {
+                            localStorage.setItem(`userPortfolio_${currentPersona}`, JSON.stringify(cloudData.portfolio));
+                        }
+                        if (cloudData.persona) {
+                            localStorage.setItem('current_persona', cloudData.persona);
+                        }
+                        if (cloudData.subscriptionTier) {
+                            localStorage.setItem('subscription_tier', cloudData.subscriptionTier);
+                        }
+
+                        console.log('[Force Sync] Cloud data saved to localStorage');
+
+                        // Reload UI
+                        await loadAllCounts();
+                        if (typeof refreshMindmap === 'function') {
+                            refreshMindmap();
+                        }
+
+                        showToast('Data synced from cloud successfully', 'success');
+                        updateSyncStatusInfo();
+                    } else {
+                        showToast('No cloud data found', 'info');
+                    }
+                } catch (error) {
+                    console.error('[Force Sync] Sync down failed:', error);
+                    showToast('Sync failed: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function forceSyncUp() {
+            if (!isAuthenticated || !sync) {
+                alert('Please sign in to sync');
+                return;
+            }
+
+            if (confirm('Upload your local data to cloud?\n\nThis will overwrite cloud data with your local changes.')) {
+                try {
+                    console.log('[Force Sync] Starting sync up...');
+                    console.log('[Force Sync] Current persona:', currentPersona);
+
+                    // Gather all local data
+                    const workspaceData = {
+                        profile: JSON.parse(localStorage.getItem('userProfile') || 'null'),
+                        experiences: JSON.parse(localStorage.getItem('user_experiences') || '[]'),
+                        stories: JSON.parse(localStorage.getItem('user_stories') || '[]'),
+                        jobs: JSON.parse(localStorage.getItem('user_jobs') || '[]'),
+                        goals: JSON.parse(localStorage.getItem(`userGoals_${currentPersona}`) || '[]'),
+                        portfolio: JSON.parse(localStorage.getItem(`userPortfolio_${currentPersona}`) || '[]'),
+                        persona: localStorage.getItem('current_persona') || 'member',
+                        subscriptionTier: localStorage.getItem('subscription_tier') || 'seeker',
+                        lastModified: new Date().toISOString()
+                    };
+
+                    // Log what we're uploading
+                    console.log('[Force Sync] Workspace data being uploaded:');
+                    console.log('  - Profile:', workspaceData.profile);
+                    console.log('  - Experiences:', workspaceData.experiences?.length || 0, 'items');
+                    console.log('  - Stories:', workspaceData.stories?.length || 0, 'items');
+                    console.log('  - Jobs:', workspaceData.jobs?.length || 0, 'items');
+                    console.log('  - Goals:', workspaceData.goals?.length || 0, 'items');
+                    console.log('  - Portfolio:', workspaceData.portfolio?.length || 0, 'items');
+                    console.log('  - Persona:', workspaceData.persona);
+                    console.log('  - Subscription:', workspaceData.subscriptionTier);
+
+                    // Upload to cloud
+                    await sync.saveWorkspace(workspaceData);
+                    localStorage.setItem('cleansheet_last_modified', workspaceData.lastModified);
+
+                    console.log('[Force Sync] Local data uploaded to cloud');
+                    showToast('Data uploaded to cloud successfully', 'success');
+                    updateSyncStatusInfo();
+                } catch (error) {
+                    console.error('[Force Sync] Sync up failed:', error);
+                    showToast('Sync failed: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function forceFullSync() {
+            if (!isAuthenticated || !sync) {
+                alert('Please sign in to sync');
+                return;
+            }
+
+            try {
+                console.log('[Force Sync] Starting full bidirectional sync...');
+
+                // Re-initialize sync which does bidirectional sync with conflict resolution
+                await sync.initialize();
+
+                // Reload UI
+                await loadAllCounts();
+                if (typeof refreshMindmap === 'function') {
+                    refreshMindmap();
+                }
+
+                console.log('[Force Sync] Full sync completed');
+                showToast('Full sync completed successfully', 'success');
+                updateSyncStatusInfo();
+            } catch (error) {
+                console.error('[Force Sync] Full sync failed:', error);
+                showToast('Sync failed: ' + error.message, 'error');
+            }
+        }
+
+        // ===================================================================
+        // Cloud Sync Button Management
+        // ===================================================================
+
         // Update cloud sync button appearance
         function updateCloudSyncButton() {
             const button = document.getElementById('cloudSyncButton');
@@ -14099,10 +14627,16 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             const text = document.getElementById('cloudSyncText');
             const subscriptionTier = localStorage.getItem('subscription_tier') || 'seeker';
 
-            if (!button || !icon || !text) return;
+            console.log('[Auth Button] updateCloudSyncButton called - isAuth:', isAuthenticated, 'tier:', subscriptionTier, 'isInitializing:', isInitializing);
+
+            if (!button || !icon || !text) {
+                console.log('[Auth Button] Button elements not found yet');
+                return;
+            }
 
             // Style differently for Member tier (but keep clickable to show info modal)
             if (subscriptionTier === 'member') {
+                console.log('[Auth Button] Setting to Member tier state');
                 button.disabled = false;
                 button.style.opacity = '0.7';
                 button.style.cursor = 'pointer';
@@ -14118,10 +14652,12 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             button.style.cursor = 'pointer';
 
             if (isAuthenticated && currentUser) {
+                console.log('[Auth Button] Setting to authenticated state');
                 icon.className = 'ph ph-cloud-check';
                 text.textContent = 'Signed In';
                 button.title = 'Click to sign out';
             } else {
+                console.log('[Auth Button] Setting to unauthenticated state (Sign In)');
                 icon.className = 'ph ph-cloud-arrow-up';
                 text.textContent = 'Sign In';
                 button.title = 'Sign in to sync your data across devices';
@@ -14132,62 +14668,136 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         // Sync Status UI Management
         // ===================================================================
 
-        // Add spinning animation for syncing icon
+        // Add animations for sync indicator
         const style = document.createElement('style');
         style.textContent = `
             @keyframes spin {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
             }
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                50% {
+                    opacity: 0.5;
+                    transform: scale(1.2);
+                }
+            }
         `;
         document.head.appendChild(style);
 
-        // Setup sync event listeners to update button
+        // Helper function to reload all data and refresh UI
+        async function loadAllCounts() {
+            console.log('[Sync] Reloading all data from localStorage...');
+
+            // Reload jobs
+            if (typeof loadUserJobs === 'function') {
+                loadUserJobs();
+            }
+
+            // Reload stories
+            if (typeof loadStories === 'function') {
+                loadStories();
+            }
+
+            // Reload experiences
+            if (typeof loadUserExperiences === 'function') {
+                loadUserExperiences();
+            }
+
+            // Reload goals
+            if (typeof loadGoals === 'function') {
+                loadGoals();
+            }
+
+            // Reload portfolio
+            if (typeof loadPortfolio === 'function') {
+                loadPortfolio();
+            }
+
+            console.log('[Sync] All data reloaded');
+        }
+
+        // Add subtle sync status indicator (non-interactive)
         if (sync) {
             sync.addEventListener('sync_start', () => {
-                const icon = document.getElementById('cloudSyncIcon');
-                const text = document.getElementById('cloudSyncText');
-                if (icon && text && isAuthenticated) {
-                    icon.className = 'ph ph-circle-notch';
-                    icon.style.animation = 'spin 1s linear infinite';
-                    text.textContent = 'Syncing...';
+                if (isInitializing) return;
+                const indicator = document.getElementById('syncStatusIndicator');
+                if (indicator && isAuthenticated) {
+                    indicator.style.display = 'block';
+                    indicator.style.animation = 'pulse 1.5s ease-in-out infinite';
+                    indicator.style.background = '#3b82f6'; // Blue when syncing
                 }
             });
 
-            sync.addEventListener('sync_complete', () => {
-                const icon = document.getElementById('cloudSyncIcon');
-                const text = document.getElementById('cloudSyncText');
-                if (icon && text && isAuthenticated) {
-                    icon.className = 'ph ph-cloud-check';
-                    icon.style.animation = 'none';
-                    text.textContent = 'Synced';
-                    // Revert to "Signed In" after 2 seconds
+            sync.addEventListener('sync_complete', (data) => {
+                if (isInitializing) return;
+
+                console.log('[Sync] Sync complete:', data);
+
+                // Update subtle indicator
+                const indicator = document.getElementById('syncStatusIndicator');
+                if (indicator && isAuthenticated) {
+                    indicator.style.animation = 'none';
+                    indicator.style.background = '#10b981'; // Green when complete
+                    // Show briefly then fade out
                     setTimeout(() => {
-                        if (isAuthenticated && text) {
-                            text.textContent = 'Signed In';
+                        if (indicator) {
+                            indicator.style.transition = 'opacity 1s';
+                            indicator.style.opacity = '0';
+                            setTimeout(() => {
+                                if (indicator) {
+                                    indicator.style.display = 'none';
+                                    indicator.style.opacity = '1';
+                                    indicator.style.transition = '';
+                                }
+                            }, 1000);
                         }
-                    }, 2000);
+                    }, 1500);
+                }
+
+                // Refresh UI if this was a sync down (data came from cloud)
+                if (data && data.direction === 'down') {
+                    console.log('[Sync] Data synced from cloud - refreshing UI');
+
+                    // Reload counts and refresh mindmap
+                    loadAllCounts().then(() => {
+                        console.log('[Sync] Counts refreshed, updating mindmap');
+                        if (typeof refreshMindmap === 'function') {
+                            refreshMindmap();
+                        }
+                    });
+
+                    // Show a subtle toast notification
+                    if (typeof showToast === 'function') {
+                        showToast('Data synced from cloud', 'success');
+                    }
                 }
             });
 
             sync.addEventListener('sync_error', () => {
-                const icon = document.getElementById('cloudSyncIcon');
-                const text = document.getElementById('cloudSyncText');
-                if (icon && text && isAuthenticated) {
-                    icon.className = 'ph ph-cloud-warning';
-                    icon.style.animation = 'none';
-                    text.textContent = 'Sync Error';
-                    // Revert after 3 seconds
+                if (isInitializing) return;
+                const indicator = document.getElementById('syncStatusIndicator');
+                if (indicator && isAuthenticated) {
+                    indicator.style.animation = 'none';
+                    indicator.style.background = '#ef4444'; // Red on error
+                    // Show briefly then fade out
                     setTimeout(() => {
-                        if (isAuthenticated) {
-                            updateCloudSyncButton();
+                        if (indicator) {
+                            indicator.style.transition = 'opacity 1s';
+                            indicator.style.opacity = '0';
+                            setTimeout(() => {
+                                if (indicator) {
+                                    indicator.style.display = 'none';
+                                    indicator.style.opacity = '1';
+                                    indicator.style.transition = '';
+                                }
+                            }, 1000);
                         }
-                    }, 3000);
+                    }, 2000);
                 }
-            });
-
-            sync.addEventListener('migration_complete', () => {
-                updateCloudSyncButton();
             });
         }
 
