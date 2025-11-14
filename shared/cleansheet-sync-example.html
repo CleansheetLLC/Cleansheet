@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleansheet Sync Integration Example</title>
+    <style>
+        body { font-family: system-ui; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .section { margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 14px; cursor: pointer; }
+        .status { padding: 10px; background: #f5f5f5; border-radius: 4px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Cleansheet Sync Integration Example</h1>
+
+    <div class="section">
+        <h2>Authentication Status</h2>
+        <div id="authStatus" class="status">Not initialized</div>
+        <button onclick="signIn()">Sign In</button>
+        <button onclick="signOut()">Sign Out</button>
+        <button onclick="checkAuth()">Check Status</button>
+        <button onclick="debugToken()" style="background: #16a34a;">Debug Token</button>
+    </div>
+
+    <div class="section">
+        <h2>Sync Operations</h2>
+        <div id="syncStatus" class="status">No sync activity</div>
+        <button onclick="syncUp()">Sync Up</button>
+        <button onclick="syncDown()">Sync Down</button>
+        <button onclick="initSync()">Initialize Sync</button>
+    </div>
+
+    <div class="section">
+        <h2>Migration</h2>
+        <div id="migrationStatus" class="status">Not checked</div>
+        <button onclick="checkMigration()">Check Migration</button>
+        <button onclick="doMigration()">Migrate Now</button>
+    </div>
+
+    <div class="section">
+        <h2>Console Output</h2>
+        <pre id="console"></pre>
+    </div>
+
+    <!-- Load MSAL library -->
+    <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.0/lib/msal-browser.min.js"></script>
+
+    <!-- Load Cleansheet libraries -->
+    <script src="cleansheet-auth-msal.js"></script>
+    <script src="cleansheet-sync.js"></script>
+
+    <script>
+        // Initialize auth and sync
+        let auth, sync;
+
+        // Configuration
+        const config = {
+            clientId: '365cb98b-a67e-48fe-ab87-4b79a91af651',
+            tenantId: 'd0c94b5c-2d4a-4dbc-8690-f7a434b2ffdb',
+            authority: 'https://login.microsoftonline.com/d0c94b5c-2d4a-4dbc-8690-f7a434b2ffdb',
+            redirectUri: window.location.origin + window.location.pathname,
+            tokenEndpoint: 'https://cleansheet-functions-b6dze5ece9d4fefr.eastus2-01.azurewebsites.net/api/user/sas-token',
+            storageAccount: 'storageb681',
+            containerName: 'userworkspaces',
+            anonymousContainer: 'profileblobs'
+        };
+
+        // Initialize
+        auth = new CleansheetAuth(config);
+        sync = new CleansheetSync(auth, config);
+
+        // Event listeners
+        auth.addEventListener('signin', (user) => {
+            log(`User signed in: ${user.email}`);
+            updateAuthStatus();
+            initSync();
+        });
+
+        auth.addEventListener('signout', () => {
+            log('User signed out');
+            updateAuthStatus();
+        });
+
+        auth.addEventListener('migration_available', (data) => {
+            log('Migration available:', data);
+            document.getElementById('migrationStatus').className = 'status success';
+            document.getElementById('migrationStatus').textContent =
+                `Migration available: ${data.blobCount} blobs found`;
+        });
+
+        sync.addEventListener('sync_start', (data) => {
+            log(`Sync started: ${data.direction}`);
+            document.getElementById('syncStatus').textContent = `Syncing ${data.direction}...`;
+        });
+
+        sync.addEventListener('sync_complete', (data) => {
+            log(`Sync complete: ${data.direction}`);
+            document.getElementById('syncStatus').className = 'status success';
+            document.getElementById('syncStatus').textContent =
+                `Sync ${data.direction} complete`;
+        });
+
+        sync.addEventListener('sync_error', (data) => {
+            log(`Sync error: ${data.direction}`, data.error);
+            document.getElementById('syncStatus').className = 'status error';
+            document.getElementById('syncStatus').textContent =
+                `Sync ${data.direction} failed: ${data.error.message}`;
+        });
+
+        sync.addEventListener('migration_complete', (data) => {
+            log('Migration complete:', data);
+            document.getElementById('migrationStatus').className = 'status success';
+            document.getElementById('migrationStatus').textContent = 'Migration complete!';
+        });
+
+        // Handle redirect callback on page load
+        window.addEventListener('load', async () => {
+            log('Page loaded, checking authentication...');
+
+            const handled = await auth.handleRedirectCallback();
+            if (handled) {
+                log('Redirect callback handled, user authenticated');
+            }
+
+            updateAuthStatus();
+
+            // Auto-initialize sync if authenticated
+            if (auth.isAuthenticated()) {
+                await initSync();
+            }
+        });
+
+        // JWT Debugging Function
+        function decodeJWT(token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    return null;
+                }
+                const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+                return { header, payload };
+            } catch (error) {
+                console.error('Failed to decode JWT:', error);
+                return null;
+            }
+        }
+
+        async function debugToken() {
+            try {
+                if (!auth.isAuthenticated()) {
+                    log('Not authenticated - please sign in first');
+                    return;
+                }
+
+                log('Getting access token...');
+                const token = await auth.getAccessToken();
+                log('Token length:', token.length);
+
+                const decoded = decodeJWT(token);
+                if (decoded) {
+                    log('Token Header:', decoded.header);
+                    log('Token Payload:', decoded.payload);
+                    log('Token aud:', decoded.payload.aud);
+                    log('Token iss:', decoded.payload.iss);
+                    log('Token exp:', new Date(decoded.payload.exp * 1000).toISOString());
+                    log('Token iat:', new Date(decoded.payload.iat * 1000).toISOString());
+                    log('Expected CLIENT_ID:', config.clientId);
+                    log('Expected iss:', `https://login.microsoftonline.com/${config.tenantId}/v2.0`);
+                } else {
+                    log('Failed to decode token');
+                }
+            } catch (error) {
+                log('Error getting token:', error);
+            }
+        }
+
+        // UI Functions
+        function signIn() {
+            log('Initiating sign-in...');
+            auth.signIn();
+        }
+
+        function signOut() {
+            log('Signing out...');
+            auth.signOut();
+        }
+
+        function checkAuth() {
+            updateAuthStatus();
+            if (auth.isAuthenticated()) {
+                const user = auth.getUser();
+                log('Authenticated user:', user);
+            } else {
+                log('Not authenticated');
+            }
+        }
+
+        async function initSync() {
+            try {
+                log('Initializing sync...');
+                await sync.initialize();
+                log('Sync initialized');
+            } catch (error) {
+                log('Sync initialization failed:', error);
+            }
+        }
+
+        async function syncUp() {
+            try {
+                log('Starting sync up...');
+                await sync.syncUp();
+                log('Sync up complete');
+            } catch (error) {
+                log('Sync up failed:', error);
+            }
+        }
+
+        async function syncDown() {
+            try {
+                log('Starting sync down...');
+                await sync.syncDown();
+                log('Sync down complete');
+            } catch (error) {
+                log('Sync down failed:', error);
+            }
+        }
+
+        async function checkMigration() {
+            try {
+                log('Checking migration status...');
+                const status = await sync.checkMigrationStatus();
+                log('Migration status:', status);
+
+                document.getElementById('migrationStatus').className =
+                    status.needed ? 'status success' : 'status';
+                document.getElementById('migrationStatus').textContent =
+                    status.needed
+                        ? `Migration available: ${status.blobCount} blobs found`
+                        : 'No migration needed';
+            } catch (error) {
+                log('Migration check failed:', error);
+            }
+        }
+
+        async function doMigration() {
+            try {
+                log('Starting migration...');
+                await sync.migrateAnonymousProfile();
+                log('Migration complete');
+            } catch (error) {
+                log('Migration failed:', error);
+            }
+        }
+
+        function updateAuthStatus() {
+            const authStatusEl = document.getElementById('authStatus');
+            if (auth.isAuthenticated()) {
+                const user = auth.getUser();
+                authStatusEl.className = 'status success';
+                authStatusEl.textContent = `Authenticated: ${user.email} (${user.name})`;
+            } else {
+                authStatusEl.className = 'status';
+                authStatusEl.textContent = 'Not authenticated';
+            }
+        }
+
+        function log(...args) {
+            console.log(...args);
+            const consoleEl = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ');
+            consoleEl.textContent += `[${timestamp}] ${message}\n`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+    </script>
+</body>
+</html>

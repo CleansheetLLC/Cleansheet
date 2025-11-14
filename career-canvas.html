@@ -48,6 +48,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 
+    <!-- MSAL Authentication -->
+    <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.0/lib/msal-browser.min.js"></script>
+
+    <!-- Cleansheet Auth & Sync -->
+    <script src="shared/cleansheet-auth-msal.js"></script>
+    <script src="shared/cleansheet-sync.js"></script>
+
     <!-- Reveal.js for presentations -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/white.css" id="revealTheme">
@@ -13627,6 +13634,78 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         let currentPersona = localStorage.getItem('cleansheet_currentPersona') || 'default';
         let currentViewMode = 'seeker'; // 'seeker' or 'learner'
 
+        // ===================================================================
+        // Authentication & Sync Configuration
+        // ===================================================================
+        const authConfig = {
+            clientId: '365cb98b-a67e-48fe-ab87-4b79a91af651',
+            tenantId: 'd0c94b5c-2d4a-4dbc-8690-f7a434b2ffdb',
+            authority: 'https://login.microsoftonline.com/d0c94b5c-2d4a-4dbc-8690-f7a434b2ffdb',
+            redirectUri: window.location.origin + window.location.pathname,
+            tokenEndpoint: 'https://cleansheet-functions-b6dze5ece9d4fefr.eastus2-01.azurewebsites.net/api/user/sas-token',
+            storageAccount: 'storageb681',
+            containerName: 'userworkspaces'
+        };
+
+        // Initialize auth and sync
+        const auth = new CleansheetAuth(authConfig);
+        const sync = new CleansheetSync(auth, authConfig);
+
+        // Authentication state
+        let isAuthenticated = false;
+        let currentUser = null;
+
+        // Handle redirect callback on page load
+        window.addEventListener('load', async () => {
+            try {
+                await auth.handleRedirectCallback();
+
+                if (auth.isAuthenticated()) {
+                    isAuthenticated = true;
+                    currentUser = auth.getUser();
+                    console.log('✓ User authenticated:', currentUser.email);
+
+                    // Initialize sync
+                    await sync.initialize();
+                    console.log('✓ Workspace sync initialized');
+
+                    // Update UI to show signed-in state
+                    updateAuthUI();
+                }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+            }
+        });
+
+        // Update UI based on auth state
+        function updateAuthUI() {
+            // This will be called to update UI elements when user signs in/out
+            // You can customize this based on your UI needs
+            if (isAuthenticated && currentUser) {
+                console.log('User signed in:', currentUser.email);
+                // TODO: Add UI updates here (e.g., show user profile, hide sign-in button)
+            } else {
+                console.log('User not authenticated');
+                // TODO: Add UI updates here (e.g., show sign-in button)
+            }
+        }
+
+        // Sign in function (call this from your UI)
+        async function signIn() {
+            await auth.signIn();
+        }
+
+        // Sign out function (call this from your UI)
+        async function signOut() {
+            await auth.signOut();
+            isAuthenticated = false;
+            currentUser = null;
+            updateAuthUI();
+        }
+
+        // ===================================================================
+        // Legacy Profile Storage (TO BE DEPRECATED)
+        // ===================================================================
         // Azure Table Storage endpoint for profile requests (write-only SAS token)
         // Direct write to Table Storage - no Azure Function needed
         // SAS token has 'add' permission only (cannot read existing data)

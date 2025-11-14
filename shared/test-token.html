@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Get Token</title>
+    <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.0/lib/msal-browser.min.js"></script>
+</head>
+<body>
+    <button onclick="getToken()">Get Token</button>
+    <pre id="output"></pre>
+    <script>
+        const msalConfig = {
+            auth: {
+                clientId: '365cb98b-a67e-48fe-ab87-4b79a91af651',
+                authority: 'https://login.microsoftonline.com/d0c94b5c-2d4a-4dbc-8690-f7a434b2ffdb',
+                redirectUri: window.location.href
+            }
+        };
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+        
+        async function getToken() {
+            const account = msalInstance.getActiveAccount();
+            if (!account) {
+                await msalInstance.loginRedirect({ scopes: ['openid', 'profile', 'email', 'offline_access'] });
+                return;
+            }
+            
+            try {
+                const response = await msalInstance.acquireTokenSilent({
+                    scopes: ['openid', 'profile', 'email', 'offline_access'],
+                    account: account
+                });
+                document.getElementById('output').textContent = response.accessToken;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        
+        msalInstance.handleRedirectPromise();
+    </script>
+</body>
+</html>
