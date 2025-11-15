@@ -6963,37 +6963,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 12px 0;">
                                 Your personal Career Canvas workspace. Click on any menu item below to access your career management tools and resources.
                             </p>
-                            <div style="display: flex; gap: 12px; font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5; margin-bottom: 16px;">
-                                <div style="flex: 1;">
-                                    <i class="ph ph-user-circle" style="color: var(--color-primary-blue); margin-right: 6px;"></i>
-                                    <strong>Tip:</strong> Set up your profile to personalize your experience
-                                </div>
-                                <div style="flex: 1;">
-                                    <i class="ph ph-download" style="color: var(--color-primary-blue); margin-right: 6px;"></i>
-                                    <strong>Remember:</strong> Export your data regularly to back up your work
-                                </div>
-                            </div>
-
-                            <!-- Privacy & Data Advisory (Inside Welcome) -->
-                            <div style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px; display: flex; align-items: start; gap: 12px;">
-                                <i class="ph ph-info" style="font-size: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
-                                <div style="flex: 1;">
-                                    <h4 style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: #92400e; margin: 0 0 6px 0;">
-                                        Privacy & Data Notice
-                                    </h4>
-                                    <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0 0 8px 0;">
-                                        <strong>Your data is stored locally in your browser.</strong> All information is processed on your device and never sent to our servers without your explicit action.
-                                    </p>
-                                    <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0 0 8px 0;">
-                                        <strong>Data transmission only occurs when you:</strong> (1) Click "Inquire" to request coaching services, (2) Click "Request Profile" to submit a profile building request, or (3) Manually export your data. No data is transmitted automatically, in the background, or without your notification, consent, and explicit button click.
-                                    </p>
-                                    <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0 0 8px 0;">
-                                        We recommend exporting your experiences to JSON frequently to backup your work. Browser data can be lost if you clear your cache or use incognito/private mode.
-                                    </p>
-                                    <p style="font-family: var(--font-family-body); font-size: 11px; line-height: 1.5; color: #92400e; margin: 0;">
-                                        By using this tool, you agree to our <a href="terms-of-service.html" target="_blank" style="color: #f59e0b; text-decoration: underline; font-weight: 500;">Terms of Service</a>.
-                                    </p>
-                                </div>
+                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5; margin-bottom: 16px;">
+                                <i class="ph ph-download" style="color: var(--color-primary-blue); margin-right: 6px;"></i>
+                                <strong>Remember:</strong> Export your data regularly to back up your work
                             </div>
                         </div>
                     </div>
@@ -8148,6 +8120,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 Career Goal
                             </label>
                             <textarea id="profileGoal" placeholder="e.g., Transition to senior engineering role at a tech company" rows="3" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Subscription Management -->
+                        <div style="padding: 16px; background: #f5f5f7; border-radius: 8px; border: 1px solid var(--color-neutral-border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                        Subscription Tier
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text);">
+                                        Manage your subscription plan and features
+                                    </div>
+                                </div>
+                                <button onclick="closeProfileModal(); openSubscriptionModal();" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                    Manage Plan
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -44890,6 +44879,13 @@ F &= ma \\\\
 
             openCanvasModal();
 
+            // Check if this is first load (no saved profile) - if so, load Marcus Thompson example
+            const hasExistingProfile = localStorage.getItem('cleansheet_currentPersona');
+            if (!hasExistingProfile) {
+                console.log('[Init] First load detected - loading Marcus Thompson example profile');
+                loadExampleProfile('career-changer');
+            }
+
             // Initialize profile display
             initializeProfile();
 
@@ -44920,16 +44916,6 @@ F &= ma \\\\
             setTimeout(() => {
                 initializeUIGuidance();
             }, 500);
-
-            // Auto-open subscription modal on FIRST page load only (Member tier selected by default)
-            const hasSeenSubscriptionModal = localStorage.getItem('cleansheet_subscription_modal_seen');
-            if (!hasSeenSubscriptionModal) {
-                setTimeout(() => {
-                    openSubscriptionModal();
-                    // Mark that user has seen the subscription modal
-                    localStorage.setItem('cleansheet_subscription_modal_seen', 'true');
-                }, 1500);
-            }
 
             // Start onboarding tour for new users (disabled - user can click tour button)
             // setTimeout(() => {
