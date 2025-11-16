@@ -55,6 +55,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="shared/cleansheet-auth-msal.js"></script>
     <script src="shared/cleansheet-sync.js"></script>
     <script src="shared/llm-providers.js"></script>
+    <script src="shared/cleansheet-crypto.js"></script>
 
     <!-- Reveal.js for presentations -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
@@ -7436,10 +7437,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <div class="chat-container" id="chatContainer">
                             <!-- Chat Header -->
                             <div class="chat-header">
-                                <h4 style="margin: 0; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">
-                                    <i class="ph ph-robot" style="margin-right: 6px;"></i>
-                                    AI Career Assistant
-                                </h4>
+                                <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+                                    <h4 style="margin: 0; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">
+                                        <i class="ph ph-robot" style="margin-right: 6px;"></i>
+                                        AI Career Assistant
+                                    </h4>
+                                    <label id="autoExecuteLabel" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); cursor: pointer; user-select: none;"
+                                           title="Auto-execute high-confidence canvas actions (>90%) without confirmation. Available for Learner and Job Seeker tiers. Resets to OFF on new sessions.">
+                                        <input type="checkbox" id="autoExecuteActionsCheckbox" onchange="handleAutoExecuteChange()"
+                                               style="width: 14px; height: 14px; cursor: pointer;" />
+                                        <span style="white-space: nowrap;">Allow Canvas interactions</span>
+                                    </label>
+                                </div>
                                 <button onclick="openLLMSettingsModal()" title="Settings"
                                         style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
                                     <i class="ph ph-gear" style="font-size: 18px;"></i>
@@ -7470,15 +7479,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                           rows="2"
                                           style="width: 100%; padding: 10px; font-family: var(--font-family-body); font-size: 13px; border: 1px solid var(--color-neutral-border); border-radius: 6px; resize: none; box-sizing: border-box;"
                                           onkeydown="handleChatInputKeydown(event)"></textarea>
-                                <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <label id="autoExecuteLabel" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); cursor: pointer; user-select: none; flex-shrink: 0;"
-                                           title="Auto-execute high-confidence canvas actions (>90%) without confirmation. Available for Learner and Job Seeker tiers. Resets to OFF on new sessions.">
-                                        <input type="checkbox" id="autoExecuteActionsCheckbox" onchange="handleAutoExecuteChange()"
-                                               style="width: 14px; height: 14px; cursor: pointer;" />
-                                        <span style="white-space: nowrap;">Auto</span>
-                                    </label>
+                                <div style="margin-top: 8px;">
                                     <button onclick="sendChatMessage()" id="sendButton"
-                                            style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; flex: 1; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            style="width: 100%; padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                         <i class="ph ph-paper-plane-tilt"></i> Send
                                     </button>
                                 </div>
@@ -16452,7 +16455,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         let autoExecuteActions = false;
 
         // Initialize LLM system on canvas open
-        function initializeLLM() {
+        async function initializeLLM() {
             // Safety check: ensure required elements exist
             const chatContainer = document.getElementById('chatContainer');
             const chatEmptyState = document.getElementById('chatEmptyState');
@@ -16464,7 +16467,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }
 
             // Load saved configuration
-            loadLLMConfig();
+            await loadLLMConfig();
 
             // AI Assistant is now available to all tiers (no restriction)
             // Show/hide UI based on configuration
@@ -16515,27 +16518,31 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Load LLM configuration from localStorage
-        function loadLLMConfig() {
+        async function loadLLMConfig() {
             try {
                 const encryptedConfig = localStorage.getItem('llm_config_encrypted');
                 if (!encryptedConfig) return;
 
                 const config = JSON.parse(encryptedConfig);
-                // TODO: Decrypt API key using CryptoUtils when implementing encryption
 
+                // Decrypt API key if present
                 if (config.activeProvider === 'openai' && config.openai?.apiKey) {
+                    const decryptedApiKey = await CleansheetCrypto.decrypt(config.openai.apiKey);
                     currentProvider = new LLMProviders.OpenAIProvider(
-                        config.openai.apiKey,
+                        decryptedApiKey,
                         { model: config.openai.model || 'gpt-4o' }
                     );
+                    console.log('[LLM] Configuration loaded and decrypted successfully');
                 }
             } catch (error) {
-                console.error('Failed to load LLM config:', error);
+                console.error('[LLM] Failed to load LLM config:', error);
+                // Clear invalid config
+                localStorage.removeItem('llm_config_encrypted');
             }
         }
 
         // Open LLM settings modal
-        function openLLMSettingsModal() {
+        async function openLLMSettingsModal() {
             const modal = document.getElementById('llmSettingsModal');
             modal.style.display = 'flex';
 
@@ -16546,17 +16553,25 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 document.getElementById('llmProviderSelect').value = config.activeProvider;
                 handleProviderChange();
 
-                if (config.activeProvider === 'openai') {
-                    document.getElementById('openaiApiKey').value = config.openai?.apiKey || '';
-                    document.getElementById('openaiModelSelect').value = config.openai?.model || 'gpt-4o';
+                if (config.activeProvider === 'openai' && config.openai?.apiKey) {
+                    try {
+                        // Decrypt API key before displaying
+                        const decryptedApiKey = await CleansheetCrypto.decrypt(config.openai.apiKey);
+                        document.getElementById('openaiApiKey').value = decryptedApiKey;
+                        document.getElementById('openaiModelSelect').value = config.openai?.model || 'gpt-4o';
 
-                    // Show usage stats if available
-                    const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
-                    if (usage.openai && usage.openai.messages > 0) {
-                        document.getElementById('llmUsageStats').style.display = 'block';
-                        document.getElementById('usageMessages').textContent = usage.openai.messages || 0;
-                        document.getElementById('usageTokens').textContent = (usage.openai.tokens || 0).toLocaleString();
-                        document.getElementById('usageCost').textContent = `$${(usage.openai.cost || 0).toFixed(2)}`;
+                        // Show usage stats if available
+                        const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
+                        if (usage.openai && usage.openai.messages > 0) {
+                            document.getElementById('llmUsageStats').style.display = 'block';
+                            document.getElementById('usageMessages').textContent = usage.openai.messages || 0;
+                            document.getElementById('usageTokens').textContent = (usage.openai.tokens || 0).toLocaleString();
+                            document.getElementById('usageCost').textContent = `$${(usage.openai.cost || 0).toFixed(2)}`;
+                        }
+                    } catch (error) {
+                        console.error('[LLM] Failed to decrypt API key:', error);
+                        // Clear invalid config
+                        document.getElementById('openaiApiKey').value = '';
                     }
                 }
             }
@@ -16615,7 +16630,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Save LLM settings
-        function saveLLMSettings() {
+        async function saveLLMSettings() {
             const provider = document.getElementById('llmProviderSelect').value;
 
             if (!provider) {
@@ -16636,12 +16651,22 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     return;
                 }
 
-                config.openai = {
-                    apiKey: apiKey,  // TODO: Encrypt using CryptoUtils
-                    model: model
-                };
+                try {
+                    // Encrypt API key before storing
+                    const encryptedApiKey = await CleansheetCrypto.encrypt(apiKey);
 
-                currentProvider = new LLMProviders.OpenAIProvider(apiKey, { model });
+                    config.openai = {
+                        apiKey: encryptedApiKey,  // Encrypted
+                        model: model
+                    };
+
+                    currentProvider = new LLMProviders.OpenAIProvider(apiKey, { model });
+                    console.log('[LLM] API key encrypted and saved successfully');
+                } catch (error) {
+                    console.error('[LLM] Failed to encrypt API key:', error);
+                    CleansheetCore.utils.showToast('Failed to encrypt API key', 'error');
+                    return;
+                }
             }
 
             // Save to localStorage
