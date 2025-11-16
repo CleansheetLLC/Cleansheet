@@ -1937,6 +1937,64 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             color: var(--color-primary-blue);
         }
 
+        /* About Dropdown */
+        .about-dropdown {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+        }
+
+        .about-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .about-dropdown-menu {
+            padding: 8px 0;
+        }
+
+        .about-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            color: var(--color-neutral-text);
+            cursor: pointer;
+            transition: all 0.15s;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+        }
+
+        .about-dropdown-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .about-dropdown-item i {
+            font-size: 18px;
+            color: var(--color-primary-blue);
+        }
+
+        .about-dropdown-item .external-link-icon {
+            margin-left: auto;
+            font-size: 14px;
+            color: var(--color-neutral-text-light);
+        }
+
         .canvas-modal-body {
             flex: 1;
             padding: 24px;
@@ -6851,10 +6909,40 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <i class="ph ph-books"></i>
                             <span>Library</span>
                         </button>
-                        <button class="main-menu-item" onclick="openAboutModal()">
-                            <i class="ph ph-info"></i>
-                            <span>About</span>
-                        </button>
+                        <div style="position: relative;">
+                            <button class="main-menu-item" onclick="toggleAboutDropdown()">
+                                <i class="ph ph-info"></i>
+                                <span>About</span>
+                            </button>
+                            <div class="about-dropdown" id="aboutDropdown">
+                                <div class="about-dropdown-menu">
+                                    <button class="about-dropdown-item" onclick="closeInterviewSlideout(); openAboutModal(); document.getElementById('aboutDropdown').classList.remove('active');">
+                                        <i class="ph ph-info"></i>
+                                        <span>About Cleansheet Canvas</span>
+                                    </button>
+                                    <a href="about-cleansheet.html" target="_blank" rel="noopener noreferrer" class="about-dropdown-item" onclick="closeInterviewSlideout(); document.getElementById('aboutDropdown').classList.remove('active');">
+                                        <i class="ph ph-buildings"></i>
+                                        <span>About Cleansheet</span>
+                                        <i class="ph ph-arrow-square-out external-link-icon"></i>
+                                    </a>
+                                    <a href="whitepapers/index.html" target="_blank" rel="noopener noreferrer" class="about-dropdown-item" onclick="closeInterviewSlideout(); document.getElementById('aboutDropdown').classList.remove('active');">
+                                        <i class="ph ph-lightbulb"></i>
+                                        <span>White Papers</span>
+                                        <i class="ph ph-arrow-square-out external-link-icon"></i>
+                                    </a>
+                                    <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" class="about-dropdown-item" onclick="closeInterviewSlideout(); document.getElementById('aboutDropdown').classList.remove('active');">
+                                        <i class="ph ph-lock"></i>
+                                        <span>Privacy Policy</span>
+                                        <i class="ph ph-arrow-square-out external-link-icon"></i>
+                                    </a>
+                                    <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" class="about-dropdown-item" onclick="closeInterviewSlideout(); document.getElementById('aboutDropdown').classList.remove('active');">
+                                        <i class="ph ph-file-text"></i>
+                                        <span>Terms of Service</span>
+                                        <i class="ph ph-arrow-square-out external-link-icon"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Mobile Menu Toggle -->
@@ -6890,10 +6978,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-download-simple"></i>
                                         <span>Install App</span>
                                     </button>
-                                    <button class="profile-dropdown-item" onclick="window.open('terms-of-service.html', '_blank'); document.getElementById('profileDropdown').classList.remove('active');">
-                                        <i class="ph ph-file-text"></i>
-                                        <span>Terms of Service</span>
-                                    </button>
                                     <button class="profile-dropdown-item" onclick="openSupportModal()">
                                         <i class="ph ph-lifebuoy"></i>
                                         <span>Support</span>
@@ -6927,7 +7011,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </button>
                         <button class="main-menu-item" onclick="openAboutModal(); toggleMobileMainMenu()">
                             <i class="ph ph-info"></i>
-                            <span>About</span>
+                            <span>About Cleansheet Canvas</span>
+                        </button>
+                        <button class="main-menu-item" onclick="window.open('about-cleansheet.html', '_blank'); toggleMobileMainMenu()">
+                            <i class="ph ph-buildings"></i>
+                            <span>About Cleansheet</span>
+                        </button>
+                        <button class="main-menu-item" onclick="window.open('whitepapers/index.html', '_blank'); toggleMobileMainMenu()">
+                            <i class="ph ph-lightbulb"></i>
+                            <span>White Papers</span>
+                        </button>
+                        <button class="main-menu-item" onclick="window.open('privacy-policy.html', '_blank'); toggleMobileMainMenu()">
+                            <i class="ph ph-lock"></i>
+                            <span>Privacy Policy</span>
+                        </button>
+                        <button class="main-menu-item" onclick="window.open('terms-of-service.html', '_blank'); toggleMobileMainMenu()">
+                            <i class="ph ph-file-text"></i>
+                            <span>Terms of Service</span>
                         </button>
                     </div>
                 </div>
@@ -7839,7 +7939,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-x"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <!-- Sync Troubleshooting Section -->
                     <div style="margin-bottom: 32px;">
                         <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
@@ -8007,22 +8107,22 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         <i class="ph ph-x"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <!-- First Name -->
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
-                                First Name
-                            </label>
-                            <input type="text" id="profileFirstName" placeholder="Enter your first name" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                        </div>
-
-                        <!-- Last Name -->
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
-                                Last Name
-                            </label>
-                            <input type="text" id="profileLastName" placeholder="Enter your last name" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                        <!-- First Name & Last Name (Same Row) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                    First Name
+                                </label>
+                                <input type="text" id="profileFirstName" placeholder="Enter your first name" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                    Last Name
+                                </label>
+                                <input type="text" id="profileLastName" placeholder="Enter your last name" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
                         </div>
 
                         <!-- Profession -->
@@ -8041,30 +8141,56 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <textarea id="profileGoal" placeholder="e.g., Transition to senior engineering role at a tech company" rows="3" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
                         </div>
 
-                        <!-- Email & Cloud Sync -->
-                        <div style="padding: 16px; background: #e3f2fd; border-radius: 8px; border: 1px solid var(--color-primary-blue);">
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Email & Sign In -->
+                        <div style="display: flex; gap: 8px; align-items: flex-end;">
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                                    Email Address
+                                </label>
+                                <input type="email" id="profileEmail" placeholder="your.email@example.com" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                            </div>
+                            <button id="profileCloudSyncButton" onclick="handleCloudSyncClick()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
+                                <i id="profileCloudSyncIcon" class="ph ph-cloud-arrow-up" style="font-size: 16px;"></i>
+                                <span id="profileCloudSyncText">Sign In</span>
+                            </button>
+                        </div>
+
+                        <!-- Example Profile Notice (shown only for example profiles) -->
+                        <div id="exampleProfileNotice" style="display: none; padding: 16px; background: #fff7ed; border-radius: 8px; border: 2px solid #f97316;">
+                            <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                                <i class="ph ph-info" style="font-size: 24px; color: #f97316; flex-shrink: 0;"></i>
                                 <div>
-                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
-                                        Cloud Sync
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #ea580c; margin-bottom: 4px;">
+                                        Example Profile Loaded
                                     </div>
-                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text);">
-                                        Sign in to sync your data across devices
+                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: #9a3412; line-height: 1.5;">
+                                        You're viewing an example profile. When you're ready, clear this data to start building your own career canvas.
                                     </div>
-                                </div>
-                                <div style="display: flex; gap: 8px; align-items: flex-end;">
-                                    <div style="flex: 1;">
-                                        <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); display: block; margin-bottom: 6px;">
-                                            Email Address
-                                        </label>
-                                        <input type="email" id="profileEmail" placeholder="your.email@example.com" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                                    </div>
-                                    <button id="profileCloudSyncButton" onclick="handleCloudSyncClick()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
-                                        <i id="profileCloudSyncIcon" class="ph ph-cloud-arrow-up" style="font-size: 16px;"></i>
-                                        <span id="profileCloudSyncText">Sign In</span>
-                                    </button>
                                 </div>
                             </div>
+                            <button onclick="clearExampleProfile()" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i class="ph ph-broom"></i>
+                                <span>Ready to Get Started</span>
+                            </button>
+                        </div>
+
+                        <!-- Profile Request Invitation (shown when NOT example profile) -->
+                        <div id="profileRequestInvitation" style="display: none; padding: 16px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 8px; border: 2px solid #f97316;">
+                            <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                                <i class="ph ph-sparkle" style="font-size: 24px; color: #f97316; flex-shrink: 0;"></i>
+                                <div>
+                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #ea580c; margin-bottom: 4px;">
+                                        Skip the Drudgery
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: #9a3412; line-height: 1.5;">
+                                        Let Cleansheet build your professional profile from LinkedIn. We'll create a comprehensive career canvas with your experiences, skills, and accomplishments.
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="closeProfileModal(); openSubscriptionProfileRequestModal();" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i class="ph ph-user-focus"></i>
+                                <span>Request Cleansheet Profile</span>
+                            </button>
                         </div>
 
                         <!-- Subscription Management -->
@@ -8074,8 +8200,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
                                         Subscription Tier
                                     </div>
-                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text);">
+                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin-bottom: 4px;">
                                         Manage your subscription plan and features
+                                    </div>
+                                    <div style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-primary-blue); font-style: italic;">
+                                        All tiers are free during the preview period
                                     </div>
                                 </div>
                                 <button onclick="closeProfileModal(); openSubscriptionModal();" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
@@ -9022,7 +9151,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         <i class="ph ph-x"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
                         <!-- Asset Type -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -9092,7 +9221,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
                                 Include in Prompt
                             </label>
-                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                                     <input type="checkbox" id="includeExperiences" checked style="width: 18px; height: 18px; cursor: pointer;">
                                     <span style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">Work Experiences</span>
@@ -9279,7 +9408,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         <i class="ph ph-x"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 16px 0;">
                         Submit a request to erase all your data from Cleansheet systems. We take your privacy seriously and will process your request in accordance with applicable data protection laws.
                     </p>
@@ -10174,7 +10303,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         <i class="ph ph-x"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 32px 24px;">
+                <div class="modal-body" style="padding: 32px 24px; max-height: 70vh; overflow-y: auto;">
                     <!-- App Icon and Name -->
                     <div style="text-align: center; margin-bottom: 32px;">
                         <img src="assets/high-resolution-logo-files/black-on-transparent.png"
@@ -10400,14 +10529,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
         <!-- About Modal -->
         <div class="modal" id="aboutModal" style="display: none;">
-            <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-content" style="max-width: 800px;">
                 <div class="modal-header">
                     <h2 class="modal-title">About Career Canvas</h2>
                     <button class="modal-close" onclick="closeAboutModal()">
                         <i class="ph ph-x"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <div style="margin-bottom: 24px;">
                         <h3 style="font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: var(--color-dark); margin: 0 0 12px 0;">
                             Your Interactive Career Management Workspace
@@ -11939,7 +12068,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     <button class="add-story-btn" onclick="addExperienceRecord()" style="flex: 0 0 auto; margin-bottom: 0;">
                         <i class="ph ph-plus-circle"></i> Add Experience
                     </button>
-                    <button id="requestProfileButton" class="add-story-btn" onclick="toggleProfileRequestForm()" style="flex: 0 0 auto; margin-bottom: 0; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
+                    <button id="requestProfileButton" class="add-story-btn" onclick="closeInterviewSlideout(); openSubscriptionProfileRequestModal();" style="flex: 0 0 auto; margin-bottom: 0; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none;">
                         <i class="ph ph-user-focus"></i> Request Profile
                     </button>
                 </div>
@@ -16371,8 +16500,30 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 slideout.classList.remove('active');
             }
 
+            // Close about dropdown if open
+            const aboutDropdown = document.getElementById('aboutDropdown');
+            if (aboutDropdown && aboutDropdown.classList.contains('active')) {
+                aboutDropdown.classList.remove('active');
+            }
+
             // Then toggle the profile dropdown
             const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Toggle About dropdown
+        function toggleAboutDropdown() {
+            // Close interview slideout if open
+            closeInterviewSlideout();
+
+            // Close profile dropdown if open
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileDropdown && profileDropdown.classList.contains('active')) {
+                profileDropdown.classList.remove('active');
+            }
+
+            // Toggle the about dropdown
+            const dropdown = document.getElementById('aboutDropdown');
             dropdown.classList.toggle('active');
         }
 
@@ -16409,10 +16560,18 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             const profileDropdown = document.getElementById('profileDropdown');
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
             const mobileMenuDropdown = document.getElementById('mobileMainMenuDropdown');
+            const aboutDropdown = document.getElementById('aboutDropdown');
 
             // Close profile dropdown if clicking outside
             if (profileCircle && !profileCircle.contains(event.target)) {
                 profileDropdown.classList.remove('active');
+            }
+
+            // Close about dropdown if clicking outside
+            const aboutButton = event.target.closest('.main-menu-item');
+            const aboutDropdownElement = event.target.closest('.about-dropdown');
+            if (aboutDropdown && !aboutDropdownElement && (!aboutButton || !aboutButton.onclick || aboutButton.onclick.toString().indexOf('toggleAboutDropdown') === -1)) {
+                aboutDropdown.classList.remove('active');
             }
 
             // Close mobile menu dropdown if clicking outside
@@ -16467,9 +16626,80 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             document.getElementById('profileLastName').value = profile.lastName;
             document.getElementById('profileProfession').value = profile.profession;
             document.getElementById('profileGoal').value = profile.goal;
+            document.getElementById('profileEmail').value = profile.email || '';
+
+            // Check if this is an example profile and show/hide notice
+            checkAndShowExampleProfileNotice(profile);
 
             // Show modal
             document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        function checkAndShowExampleProfileNotice(profile) {
+            const exampleNames = [
+                'Marcus Thompson',
+                'Dr. Sarah Chen',
+                'Sarah Chen',
+                'Sara Chen',
+                'Jordan Kim',
+                'Alex Martinez',
+                'Jamie Rodriguez'
+            ];
+            const isExampleProfile = exampleNames.some(name => {
+                const parts = name.split(' ');
+                // Handle "Dr. Sarah Chen" format
+                if (parts.length === 3 && parts[0] === 'Dr.') {
+                    return profile.firstName === parts[1] && profile.lastName === parts[2];
+                }
+                // Handle "FirstName LastName" format
+                const [firstName, lastName] = parts;
+                return profile.firstName === firstName && profile.lastName === (lastName || '');
+            });
+
+            // Show example profile notice if it's an example profile
+            const notice = document.getElementById('exampleProfileNotice');
+            if (notice) {
+                notice.style.display = isExampleProfile ? 'block' : 'none';
+            }
+
+            // Show profile request invitation if it's NOT an example profile
+            const invitation = document.getElementById('profileRequestInvitation');
+            if (invitation) {
+                invitation.style.display = isExampleProfile ? 'none' : 'block';
+            }
+        }
+
+        function clearExampleProfile() {
+            if (confirm('This will clear the example profile data and all associated experiences, stories, goals, projects, and job opportunities. Are you sure you want to start fresh?')) {
+                // Clear all data
+                localStorage.removeItem('cleansheet_profile');
+                localStorage.removeItem('cleansheet_experiences');
+                localStorage.removeItem('cleansheet_stories');
+                localStorage.removeItem('behavioralStories');
+                localStorage.removeItem(`userGoals_${currentPersona}`);
+                localStorage.removeItem(`userPortfolio_${currentPersona}`);
+                localStorage.removeItem('jobOpportunities');
+                localStorage.removeItem(`jobOpportunities_${currentPersona}`);
+
+                // Clear profile form
+                document.getElementById('profileFirstName').value = '';
+                document.getElementById('profileLastName').value = '';
+                document.getElementById('profileProfession').value = '';
+                document.getElementById('profileGoal').value = '';
+                document.getElementById('profileEmail').value = '';
+
+                // Hide the example profile notice and show the profile request invitation
+                const notice = document.getElementById('exampleProfileNotice');
+                if (notice) notice.style.display = 'none';
+
+                const invitation = document.getElementById('profileRequestInvitation');
+                if (invitation) invitation.style.display = 'block';
+
+                // Refresh the mindmap to show empty state
+                refreshMindmap();
+
+                alert('Example profile cleared! You can now start building your own career canvas.');
+            }
         }
 
         function closeProfileModal() {
@@ -16676,8 +16906,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             const dropdown = document.getElementById('profileDropdown');
             if (dropdown) dropdown.classList.remove('active');
 
-            // Initialize selected plan based on localStorage (default to member)
-            const currentPlan = localStorage.getItem('subscription_tier') || 'member';
+            // Initialize selected plan based on localStorage (default to seeker)
+            const currentPlan = localStorage.getItem('subscription_tier') || 'seeker';
             selectPlan(currentPlan);
         }
 
@@ -18453,6 +18683,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
         // Canvas Tab Navigation
         function switchCanvasTab(tab) {
+            // Close any open slideouts when switching tabs
+            closeInterviewSlideout();
+
             // Remove active class from all tabs (both desktop and mobile)
             document.querySelectorAll('.main-menu-item').forEach(item => {
                 item.classList.remove('active');
@@ -19472,7 +19705,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             summaryDiv.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                     <i class="ph ph-user" style="color: var(--color-primary-blue);"></i>
-                    <strong>Profile:</strong> ${data.userFirstName} ${data.userLastName}
+                    <strong>Profile:</strong> ${data.userFirstName} ${data.userLastName}${data.userEmail ? ` (${data.userEmail})` : ''}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                     <i class="ph ph-briefcase" style="color: var(--color-primary-blue);"></i>
@@ -19546,7 +19779,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 firstName: data.userFirstName,
                 lastName: data.userLastName,
                 profession: data.userOccupation || '',
-                goal: data.userGoals || ''
+                goal: data.userGoals || '',
+                email: data.userEmail || ''
             };
             localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
 
@@ -44740,6 +44974,11 @@ F &= ma \\\\
         // Auto-open Canvas Tour on page load - simple version
         window.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded');
+
+            // Initialize subscription tier to seeker if not set
+            if (!localStorage.getItem('subscription_tier')) {
+                localStorage.setItem('subscription_tier', 'seeker');
+            }
 
             // Apply viewport settings based on subscription tier
             applyViewportForTier();
