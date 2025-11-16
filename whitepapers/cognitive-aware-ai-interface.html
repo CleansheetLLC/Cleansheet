@@ -804,31 +804,23 @@ CLASS: EditorBridge
             <div class="figure">
                 <div class="figure-title">Figure 1: Overall System Architecture</div>
                 <div class="mermaid">
-graph TB
-    subgraph "User Interface Layer"
-        LP[Left Panel<br/>AI Chat Interface]
-        CP[Center Panel<br/>D3.js Visualization]
-        RP[Right Panel<br/>Progressive Slideout]
-    end
+flowchart TB
+    LP[Left Panel - AI Chat]
+    CP[Center Panel - D3 Visualization]
+    RP[Right Panel - Slideout]
 
-    subgraph "Control Layer"
-        LM[Layout Manager]
-        VE[Visualization Engine]
-        CIM[Context Injection Manager]
-        PDS[Progressive Disclosure System]
-        EB[Editor Bridge]
-    end
+    LM[Layout Manager]
+    VE[Visualization Engine]
+    CIM[Context Injection Manager]
+    PDS[Progressive Disclosure System]
+    EB[Editor Bridge]
 
-    subgraph "Data Layer"
-        DS[Data Store]
-        PS[Permission Service]
-        CS[Context Serializer]
-    end
+    DS[Data Store]
+    PS[Permission Service]
+    CS[Context Serializer]
 
-    subgraph "External Services"
-        LLM[LLM Provider<br/>OpenAI/Anthropic/etc]
-        DMS[Document Management<br/>System/Database]
-    end
+    LLM[LLM Provider]
+    DMS[Document Management System]
 
     LP <--> LM
     CP <--> LM
@@ -1477,33 +1469,33 @@ IMPLEMENTATION: MonacoAIIntegration
                 <div class="mermaid">
 sequenceDiagram
     participant User
-    participant Visualization
-    participant ContextManager
-    participant PermissionService
-    participant LLMProvider
+    participant Viz as Visualization
+    participant CM as ContextManager
+    participant PS as PermissionService
+    participant LLM as LLMProvider
 
-    User->>Visualization: Click node (Shift+Click)
-    Visualization->>ContextManager: injectContextFromNode(nodeId)
-    ContextManager->>PermissionService: canUserViewNode(nodeId, userRole)
+    User->>Viz: Click node with Shift key
+    Viz->>CM: injectContextFromNode
+    CM->>PS: canUserViewNode
 
     alt Permission Granted
-        PermissionService-->>ContextManager: true
-        ContextManager->>ContextManager: Extract node data
-        ContextManager->>ContextManager: Apply injection rules
-        ContextManager->>ContextManager: Filter sensitive fields
-        ContextManager->>ContextManager: Serialize for LLM
-        ContextManager->>ContextManager: Add to active context
-        ContextManager-->>Visualization: Context injected
-        Visualization-->>User: Visual feedback (highlight)
+        PS-->>CM: true
+        CM->>CM: Extract node data
+        CM->>CM: Apply injection rules
+        CM->>CM: Filter sensitive fields
+        CM->>CM: Serialize for LLM
+        CM->>CM: Add to active context
+        CM-->>Viz: Context injected
+        Viz-->>User: Visual feedback
 
-        User->>LLMProvider: Ask question in chat
-        LLMProvider->>ContextManager: Get active context
-        ContextManager-->>LLMProvider: Context fragments
-        LLMProvider->>LLMProvider: Build prompt with context
-        LLMProvider-->>User: AI response with context awareness
+        User->>LLM: Ask question in chat
+        LLM->>CM: Get active context
+        CM-->>LLM: Context fragments
+        LLM->>LLM: Build prompt with context
+        LLM-->>User: AI response
     else Permission Denied
-        PermissionService-->>ContextManager: false
-        ContextManager-->>User: Error: Insufficient permissions
+        PS-->>CM: false
+        CM-->>User: Error message
     end
                 </div>
                 <div class="figure-description">Sequence diagram showing the complete context injection workflow from user interaction through permission checking to LLM response generation.</div>
