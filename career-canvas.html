@@ -16686,14 +16686,21 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
                 const config = JSON.parse(encryptedConfig);
 
-                // Decrypt API key if present
+                // Decrypt API key if present and initialize provider
                 if (config.activeProvider === 'openai' && config.openai?.apiKey) {
                     const decryptedApiKey = await CleansheetCrypto.decrypt(config.openai.apiKey);
                     currentProvider = new LLMProviders.OpenAIProvider(
                         decryptedApiKey,
                         { model: config.openai.model || 'gpt-4o' }
                     );
-                    console.log('[LLM] Configuration loaded and decrypted successfully');
+                    console.log('[LLM] OpenAI configuration loaded and decrypted successfully');
+                } else if (config.activeProvider === 'gemini' && config.gemini?.apiKey) {
+                    const decryptedApiKey = await CleansheetCrypto.decrypt(config.gemini.apiKey);
+                    currentProvider = new LLMProviders.GeminiProvider(
+                        decryptedApiKey,
+                        { model: config.gemini.model || 'gemini-2.0-flash-exp' }
+                    );
+                    console.log('[LLM] Gemini configuration loaded and decrypted successfully');
                 }
             } catch (error) {
                 console.error('[LLM] Failed to load LLM config:', error);
@@ -16974,8 +16981,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 // Add complete message to conversation history
                 conversationHistory.push({ role: 'assistant', content: assistantMessage });
 
-                // Track usage
-                trackLLMUsage('openai', assistantMessage);
+                // Track usage with actual provider name
+                const providerName = currentProvider.getName().toLowerCase();
+                trackLLMUsage(providerName, assistantMessage);
 
             } catch (error) {
                 removeTypingIndicator(typingId);
@@ -17218,8 +17226,9 @@ Always explain what you're doing when you take actions. Be helpful and proactive
                 // Parse and execute any actions in the response
                 await executeCanvasActions(assistantMessage);
 
-                // Track usage
-                trackLLMUsage('openai', assistantMessage);
+                // Track usage with actual provider name
+                const providerName = currentProvider.getName().toLowerCase();
+                trackLLMUsage(providerName, assistantMessage);
 
             } catch (error) {
                 removeTypingIndicator(typingId);
@@ -21658,7 +21667,8 @@ Always explain what you're doing when you take actions. Be helpful and proactive
                             // Decrypt and re-encrypt API keys for each provider
                             const apiKeysData = {};
 
-                            if (llmConfig.activeProvider === 'openai' && llmConfig.openai?.apiKey) {
+                            // Process OpenAI keys if configured
+                            if (llmConfig.openai?.apiKey) {
                                 try {
                                     // Decrypt with device key
                                     const decryptedKey = await CleansheetCrypto.decrypt(llmConfig.openai.apiKey);
@@ -21677,8 +21687,27 @@ Always explain what you're doing when you take actions. Be helpful and proactive
                                 }
                             }
 
-                            // Add other providers (Anthropic, Azure, Gemini) when they're implemented
-                            // Similar pattern as above
+                            // Process Gemini keys if configured
+                            if (llmConfig.gemini?.apiKey) {
+                                try {
+                                    // Decrypt with device key
+                                    const decryptedKey = await CleansheetCrypto.decrypt(llmConfig.gemini.apiKey);
+
+                                    // Re-encrypt with password
+                                    const passwordEncryptedKey = await CleansheetCrypto.encryptWithPassword(decryptedKey, password);
+
+                                    apiKeysData.gemini = {
+                                        apiKey: passwordEncryptedKey,
+                                        model: llmConfig.gemini.model
+                                    };
+                                    providers.push('gemini');
+                                    console.log('[Backup] Included Gemini API key');
+                                } catch (error) {
+                                    console.error('[Backup] Failed to process Gemini key:', error);
+                                }
+                            }
+
+                            // Add other providers (Anthropic, Azure) when they're implemented
 
                             if (providers.length > 0) {
                                 exportData.apiKeysEncrypted = {
