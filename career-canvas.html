@@ -2070,8 +2070,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: #f8f9fa;
             border-bottom: 1px solid var(--color-neutral-border);
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: row;
+            gap: 12px;
             flex-shrink: 0;
         }
 
@@ -2082,6 +2082,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             padding: 8px;
             border-radius: 6px;
             transition: background 0.2s;
+            flex: 1;
+            min-width: 0;
         }
 
         .status-item i {
@@ -16106,6 +16108,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             document.getElementById('canvasModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
+            // Restore left panel collapsed/expanded state
+            restoreLeftPanelState();
+
             // Initialize left panel user name and status bar
             updateLeftPanelUserName();
             updateLeftPanelStatusBar();
@@ -17136,6 +17141,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
         function closeSubscriptionModal() {
             document.getElementById('subscriptionModal').style.display = 'none';
+
+            // Update left panel status bar when modal closes (in case tier changed)
+            updateLeftPanelUserName();
+            updateLeftPanelSyncStatus();
         }
 
         function closeSubscriptionModalOnOutsideClick(event) {
@@ -25844,12 +25853,30 @@ Start typing...`
             if (leftPanelCollapsed) {
                 body.classList.add('left-collapsed');
                 icon.className = 'ph ph-caret-right';
+                localStorage.setItem('leftPanelCollapsed', 'true');
             } else {
                 body.classList.remove('left-collapsed');
                 icon.className = 'ph ph-caret-left';
+                localStorage.setItem('leftPanelCollapsed', 'false');
                 // Update user name and status bar when expanding
                 updateLeftPanelUserName();
                 updateLeftPanelStatusBar();
+            }
+        }
+
+        // Restore left panel state on page load
+        function restoreLeftPanelState() {
+            const isCollapsed = localStorage.getItem('leftPanelCollapsed') === 'true';
+            if (isCollapsed) {
+                const body = document.getElementById('canvasBody');
+                const toggle = document.getElementById('leftPanelToggle');
+                const icon = toggle.querySelector('i');
+
+                if (body && toggle && icon) {
+                    leftPanelCollapsed = true;
+                    body.classList.add('left-collapsed');
+                    icon.className = 'ph ph-caret-right';
+                }
             }
         }
 
