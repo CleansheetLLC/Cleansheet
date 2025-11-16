@@ -54,6 +54,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Cleansheet Auth & Sync -->
     <script src="shared/cleansheet-auth-msal.js"></script>
     <script src="shared/cleansheet-sync.js"></script>
+    <script src="shared/llm-providers.js"></script>
 
     <!-- Reveal.js for presentations -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
@@ -2201,6 +2202,162 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
             50% {
                 opacity: 0.5;
+            }
+        }
+
+        /* Chat Container Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: white;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-neutral-border);
+            flex-shrink: 0;
+            background: white;
+        }
+
+        .chat-header button:hover {
+            background: #f5f5f7;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: white;
+        }
+
+        .chat-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            animation: fadeInMessage 0.3s ease;
+            max-width: 100%;
+        }
+
+        @keyframes fadeInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+            color: white;
+        }
+
+        .chat-message.user .chat-message-avatar {
+            background: var(--color-primary-blue);
+        }
+
+        .chat-message.assistant .chat-message-avatar {
+            background: #16a34a;
+        }
+
+        .chat-message.system .chat-message-avatar {
+            background: #ea580c;
+        }
+
+        .chat-message-content {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .chat-message.user .chat-message-content {
+            background: var(--color-primary-blue);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.assistant .chat-message-content {
+            background: #f5f5f7;
+            color: var(--color-dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.system .chat-message-content {
+            background: #fef2f2;
+            color: #dc2626;
+            border-left: 3px solid #dc2626;
+        }
+
+        .chat-input-container {
+            padding: 12px 16px;
+            border-top: 1px solid var(--color-neutral-border);
+            flex-shrink: 0;
+            background: white;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 12px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-neutral-text);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-8px);
             }
         }
 
@@ -7274,9 +7431,59 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         </div>
                     </div>
 
-                    <div class="left-panel-body">
-                        <!-- Placeholder content -->
-                        <p style="font-family: var(--font-family-body); color: var(--color-neutral-text);">Content coming soon...</p>
+                    <div class="left-panel-body" id="leftPanelBody">
+                        <!-- Chat Container -->
+                        <div class="chat-container" id="chatContainer">
+                            <!-- Chat Header -->
+                            <div class="chat-header">
+                                <h4 style="margin: 0; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark);">
+                                    <i class="ph ph-robot" style="margin-right: 6px;"></i>
+                                    AI Career Assistant
+                                </h4>
+                                <button onclick="openLLMSettingsModal()" title="Settings"
+                                        style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
+                                    <i class="ph ph-gear" style="font-size: 18px;"></i>
+                                </button>
+                            </div>
+
+                            <!-- Messages Area -->
+                            <div class="chat-messages" id="chatMessages">
+                                <!-- Empty state -->
+                                <div id="chatEmptyState" class="chat-empty-state">
+                                    <i class="ph ph-robot" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 12px;"></i>
+                                    <p style="font-family: var(--font-family-body); color: var(--color-neutral-text); text-align: center; margin: 0 0 16px 0; line-height: 1.5;">
+                                        Configure your AI assistant to get started
+                                    </p>
+                                    <button onclick="openLLMSettingsModal()"
+                                            style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                                        <i class="ph ph-gear"></i>
+                                        Set Up Now
+                                    </button>
+                                </div>
+
+                                <!-- Messages will be appended here dynamically -->
+                            </div>
+
+                            <!-- Input Area -->
+                            <div class="chat-input-container" id="chatInputContainer" style="display: none;">
+                                <textarea id="chatInput" placeholder="Ask about your career, experiences, or goals..."
+                                          rows="2"
+                                          style="width: 100%; padding: 10px; font-family: var(--font-family-body); font-size: 13px; border: 1px solid var(--color-neutral-border); border-radius: 6px; resize: none; box-sizing: border-box;"
+                                          onkeydown="handleChatInputKeydown(event)"></textarea>
+                                <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <label id="autoExecuteLabel" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); cursor: pointer; user-select: none; flex-shrink: 0;"
+                                           title="Auto-execute high-confidence canvas actions (>90%) without confirmation. Available for Learner and Job Seeker tiers. Resets to OFF on new sessions.">
+                                        <input type="checkbox" id="autoExecuteActionsCheckbox" onchange="handleAutoExecuteChange()"
+                                               style="width: 14px; height: 14px; cursor: pointer;" />
+                                        <span style="white-space: nowrap;">Auto</span>
+                                    </label>
+                                    <button onclick="sendChatMessage()" id="sendButton"
+                                            style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; flex: 1; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <i class="ph ph-paper-plane-tilt"></i> Send
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -10674,6 +10881,126 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     <button onclick="closeInstallAppModal()"
                             style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer;">
                         Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LLM Settings Modal -->
+        <div class="modal" id="llmSettingsModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeLLMSettingsModal()"></div>
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600;">
+                        <i class="ph ph-robot" style="margin-right: 8px;"></i>
+                        AI Assistant Settings
+                    </h2>
+                    <button class="modal-close" onclick="closeLLMSettingsModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+                    <!-- Provider Selection -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                            Select Provider
+                        </label>
+                        <select id="llmProviderSelect" onchange="handleProviderChange()"
+                                style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: border-color 0.2s;">
+                            <option value="">-- Select Provider --</option>
+                            <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
+                            <option value="anthropic" disabled>Anthropic (Coming Soon)</option>
+                            <option value="azure" disabled>Azure OpenAI (Coming Soon)</option>
+                            <option value="gemini" disabled>Google Gemini (Coming Soon)</option>
+                        </select>
+                        <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
+                            ℹ️ Choose which AI provider you'd like to use. You'll need your own API key.
+                        </p>
+                    </div>
+
+                    <!-- OpenAI Configuration -->
+                    <div id="openaiConfig" style="display: none;">
+                        <div style="background: #f5f5f7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    OpenAI API Key
+                                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer"
+                                       style="font-weight: 400; color: var(--color-primary-blue); margin-left: 8px; text-decoration: none; font-size: 13px;">
+                                        <i class="ph ph-arrow-square-out" style="font-size: 12px;"></i> Get API Key
+                                    </a>
+                                </label>
+                                <input type="password" id="openaiApiKey" placeholder="sk-proj-..." autocomplete="off"
+                                       style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white;" />
+                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
+                                    🔒 Your API key is encrypted and stored locally in your browser. It's never sent to Cleansheet servers.
+                                </p>
+                            </div>
+
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    Model
+                                </label>
+                                <select id="openaiModelSelect"
+                                        style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer;">
+                                    <option value="gpt-4o">GPT-4o (Recommended) - ~$0.005/1k tokens</option>
+                                    <option value="gpt-4o-mini">GPT-4o Mini (Fast & Cheap) - ~$0.00015/1k tokens</option>
+                                    <option value="gpt-4-turbo">GPT-4 Turbo - ~$0.01/1k tokens</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget) - ~$0.0005/1k tokens</option>
+                                </select>
+                            </div>
+
+                            <button onclick="testOpenAIConnection()"
+                                    style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ph-check-circle"></i>
+                                Test Connection
+                            </button>
+                            <span id="connectionStatus" style="margin-left: 12px; font-family: var(--font-family-body); font-size: 13px; vertical-align: middle;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Usage Stats (if configured) -->
+                    <div id="llmUsageStats" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-neutral-border);">
+                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-dark);">
+                            <i class="ph ph-chart-line" style="margin-right: 6px;"></i>
+                            Usage This Month
+                        </h3>
+                        <div style="background: #f5f5f7; border-radius: 12px; padding: 16px;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 12px;">
+                                <div>
+                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
+                                    <div style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-primary-blue);" id="usageMessages">0</div>
+                                </div>
+                                <div>
+                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Tokens</div>
+                                    <div style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-primary-blue);" id="usageTokens">0</div>
+                                </div>
+                                <div>
+                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
+                                    <div style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-primary-blue);" id="usageCost">$0.00</div>
+                                </div>
+                            </div>
+                            <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 12px 0 8px 0; line-height: 1.5;">
+                                💡 This shows your usage through Cleansheet only. Check your OpenAI dashboard for total account usage.
+                            </p>
+                            <a href="https://platform.openai.com/usage" target="_blank" rel="noopener noreferrer"
+                               style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;">
+                                <i class="ph ph-arrow-square-out"></i>
+                                View OpenAI Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeLLMSettingsModal()"
+                            style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer; transition: all 0.2s;">
+                        Cancel
+                    </button>
+                    <button onclick="saveLLMSettings()"
+                            style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-check"></i>
+                        Save Settings
                     </button>
                 </div>
             </div>
@@ -16116,6 +16443,404 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             };
         }
 
+        // ============================================
+        // LLM Integration Functions
+        // ============================================
+
+        let currentProvider = null;
+        let conversationHistory = [];
+        let autoExecuteActions = false;
+
+        // Initialize LLM system on canvas open
+        function initializeLLM() {
+            // Safety check: ensure required elements exist
+            const chatContainer = document.getElementById('chatContainer');
+            const chatEmptyState = document.getElementById('chatEmptyState');
+            const chatInputContainer = document.getElementById('chatInputContainer');
+
+            if (!chatContainer || !chatEmptyState || !chatInputContainer) {
+                console.warn('[LLM Init] Required elements not found, skipping initialization');
+                return;
+            }
+
+            // Load saved configuration
+            loadLLMConfig();
+
+            // AI Assistant is now available to all tiers (no restriction)
+            // Show/hide UI based on configuration
+            if (currentProvider) {
+                chatEmptyState.style.display = 'none';
+                chatInputContainer.style.display = 'block';
+            } else {
+                chatEmptyState.style.display = 'flex';
+                chatInputContainer.style.display = 'none';
+            }
+
+            // Configure auto-execute checkbox based on tier
+            const autoCheckbox = document.getElementById('autoExecuteActionsCheckbox');
+            const autoLabel = document.getElementById('autoExecuteLabel');
+            const currentTier = localStorage.getItem('subscription_tier') || 'member';
+
+            if (autoCheckbox && autoLabel) {
+                // Auto-execute actions resets to false on new session
+                autoExecuteActions = false;
+                autoCheckbox.checked = false;
+
+                // Enable for learner and seeker, disable for member
+                if (currentTier === 'learner' || currentTier === 'seeker') {
+                    autoCheckbox.disabled = false;
+                    autoLabel.style.opacity = '1';
+                    autoLabel.style.cursor = 'pointer';
+                    autoCheckbox.style.cursor = 'pointer';
+                } else {
+                    autoCheckbox.disabled = true;
+                    autoLabel.style.opacity = '0.5';
+                    autoLabel.style.cursor = 'not-allowed';
+                    autoCheckbox.style.cursor = 'not-allowed';
+                    autoLabel.title = 'Auto-execute is available for Learner and Job Seeker tiers only';
+                }
+            }
+        }
+
+        // Check if user can access LLM features
+        function canUseLLM() {
+            // Safety check: ensure FeatureFlags is loaded
+            if (typeof FeatureFlags === 'undefined' || !FeatureFlags.isEnabled) {
+                console.warn('[LLM] FeatureFlags not loaded, defaulting to false');
+                return false;
+            }
+
+            const tier = localStorage.getItem('subscription_tier') || 'member';
+            return FeatureFlags.isEnabled('llm-chat-byok', tier);
+        }
+
+        // Load LLM configuration from localStorage
+        function loadLLMConfig() {
+            try {
+                const encryptedConfig = localStorage.getItem('llm_config_encrypted');
+                if (!encryptedConfig) return;
+
+                const config = JSON.parse(encryptedConfig);
+                // TODO: Decrypt API key using CryptoUtils when implementing encryption
+
+                if (config.activeProvider === 'openai' && config.openai?.apiKey) {
+                    currentProvider = new LLMProviders.OpenAIProvider(
+                        config.openai.apiKey,
+                        { model: config.openai.model || 'gpt-4o' }
+                    );
+                }
+            } catch (error) {
+                console.error('Failed to load LLM config:', error);
+            }
+        }
+
+        // Open LLM settings modal
+        function openLLMSettingsModal() {
+            const modal = document.getElementById('llmSettingsModal');
+            modal.style.display = 'flex';
+
+            // Load current configuration
+            const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
+
+            if (config.activeProvider) {
+                document.getElementById('llmProviderSelect').value = config.activeProvider;
+                handleProviderChange();
+
+                if (config.activeProvider === 'openai') {
+                    document.getElementById('openaiApiKey').value = config.openai?.apiKey || '';
+                    document.getElementById('openaiModelSelect').value = config.openai?.model || 'gpt-4o';
+
+                    // Show usage stats if available
+                    const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
+                    if (usage.openai && usage.openai.messages > 0) {
+                        document.getElementById('llmUsageStats').style.display = 'block';
+                        document.getElementById('usageMessages').textContent = usage.openai.messages || 0;
+                        document.getElementById('usageTokens').textContent = (usage.openai.tokens || 0).toLocaleString();
+                        document.getElementById('usageCost').textContent = `$${(usage.openai.cost || 0).toFixed(2)}`;
+                    }
+                }
+            }
+
+            // Load auto-execute setting (session-based, defaults to false)
+            document.getElementById('autoExecuteActions').checked = autoExecuteActions;
+        }
+
+        // Close LLM settings modal
+        function closeLLMSettingsModal() {
+            document.getElementById('llmSettingsModal').style.display = 'none';
+        }
+
+        // Handle provider selection change
+        function handleProviderChange() {
+            const provider = document.getElementById('llmProviderSelect').value;
+
+            // Hide all provider configs
+            document.getElementById('openaiConfig').style.display = 'none';
+
+            // Show selected provider config
+            if (provider === 'openai') {
+                document.getElementById('openaiConfig').style.display = 'block';
+            }
+        }
+
+        // Test OpenAI connection
+        async function testOpenAIConnection() {
+            const apiKey = document.getElementById('openaiApiKey').value.trim();
+            const statusEl = document.getElementById('connectionStatus');
+
+            if (!apiKey) {
+                statusEl.textContent = '⚠️ Please enter an API key';
+                statusEl.style.color = '#ea580c';
+                return;
+            }
+
+            statusEl.textContent = '⏳ Testing connection...';
+            statusEl.style.color = 'var(--color-neutral-text)';
+
+            try {
+                const provider = new LLMProviders.OpenAIProvider(apiKey);
+                const result = await provider.validateApiKey();
+
+                if (result.valid) {
+                    statusEl.textContent = '✅ Connection successful!';
+                    statusEl.style.color = '#16a34a';
+                } else {
+                    statusEl.textContent = `❌ ${result.error}`;
+                    statusEl.style.color = '#dc2626';
+                }
+            } catch (error) {
+                statusEl.textContent = `❌ ${error.message}`;
+                statusEl.style.color = '#dc2626';
+            }
+        }
+
+        // Save LLM settings
+        function saveLLMSettings() {
+            const provider = document.getElementById('llmProviderSelect').value;
+
+            if (!provider) {
+                CleansheetCore.utils.showToast('Please select a provider', 'error');
+                return;
+            }
+
+            const config = {
+                activeProvider: provider
+            };
+
+            if (provider === 'openai') {
+                const apiKey = document.getElementById('openaiApiKey').value.trim();
+                const model = document.getElementById('openaiModelSelect').value;
+
+                if (!apiKey) {
+                    CleansheetCore.utils.showToast('Please enter an API key', 'error');
+                    return;
+                }
+
+                config.openai = {
+                    apiKey: apiKey,  // TODO: Encrypt using CryptoUtils
+                    model: model
+                };
+
+                currentProvider = new LLMProviders.OpenAIProvider(apiKey, { model });
+            }
+
+            // Save to localStorage
+            localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
+
+            // Update UI
+            document.getElementById('chatEmptyState').style.display = 'none';
+            document.getElementById('chatInputContainer').style.display = 'block';
+
+            closeLLMSettingsModal();
+            CleansheetCore.utils.showToast('AI Assistant configured!', 'success');
+        }
+
+        // Handle auto-execute toggle
+        function handleAutoExecuteChange() {
+            autoExecuteActions = document.getElementById('autoExecuteActions').checked;
+
+            if (autoExecuteActions) {
+                CleansheetCore.utils.showToast('Auto-execution enabled for this session', 'info');
+            }
+        }
+
+        // Send chat message
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+            if (!currentProvider) {
+                CleansheetCore.utils.showToast('Please configure AI Assistant first', 'error');
+                openLLMSettingsModal();
+                return;
+            }
+
+            // Clear input
+            input.value = '';
+
+            // Add user message to UI
+            addMessageToUI('user', message);
+
+            // Add to conversation history
+            conversationHistory.push({ role: 'user', content: message });
+
+            // Show typing indicator
+            const typingId = addTypingIndicator();
+
+            try {
+                let assistantMessage = '';
+
+                // Stream response
+                await currentProvider.streamChat(
+                    conversationHistory,
+                    (chunk) => {
+                        assistantMessage += chunk;
+                        updateStreamingMessage(typingId, assistantMessage);
+                    }
+                );
+
+                // Remove typing indicator
+                removeTypingIndicator(typingId);
+
+                // Add complete message to conversation history
+                conversationHistory.push({ role: 'assistant', content: assistantMessage });
+
+                // Track usage
+                trackLLMUsage('openai', assistantMessage);
+
+            } catch (error) {
+                removeTypingIndicator(typingId);
+                addMessageToUI('system', `Error: ${error.message}`);
+                console.error('LLM chat error:', error);
+            }
+        }
+
+        // Add message to UI
+        function addMessageToUI(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${role}`;
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'chat-message-avatar';
+            avatarDiv.innerHTML = role === 'user' ? '<i class="ph ph-user"></i>' :
+                                  role === 'assistant' ? '<i class="ph ph-robot"></i>' :
+                                  '<i class="ph ph-warning"></i>';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'chat-message-content';
+            contentDiv.textContent = content;
+
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Add typing indicator
+        function addTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const id = 'typing-' + Date.now();
+
+            const messageDiv = document.createElement('div');
+            messageDiv.id = id;
+            messageDiv.className = 'chat-message assistant';
+            messageDiv.innerHTML = `
+                <div class="chat-message-avatar">
+                    <i class="ph ph-robot"></i>
+                </div>
+                <div class="chat-message-content">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            return id;
+        }
+
+        // Update streaming message
+        function updateStreamingMessage(typingId, content) {
+            const messageEl = document.getElementById(typingId);
+            if (!messageEl) {
+                // Create new message element
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.id = typingId;
+                messageDiv.className = 'chat-message assistant';
+                messageDiv.innerHTML = `
+                    <div class="chat-message-avatar">
+                        <i class="ph ph-robot"></i>
+                    </div>
+                    <div class="chat-message-content">${content}</div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+            } else {
+                // Update existing typing indicator with content
+                const contentDiv = messageEl.querySelector('.chat-message-content');
+                contentDiv.textContent = content;
+            }
+
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator(typingId) {
+            const messageEl = document.getElementById(typingId);
+            if (messageEl) {
+                messageEl.removeAttribute('id'); // Keep the message, just remove the ID
+            }
+        }
+
+        // Handle Enter key in chat input
+        function handleChatInputKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        }
+
+        // Track LLM usage (informational only)
+        function trackLLMUsage(provider, response) {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
+
+            if (usage.month !== currentMonth) {
+                usage.month = currentMonth;
+                usage[provider] = { messages: 0, tokens: 0, cost: 0 };
+            }
+
+            if (!usage[provider]) {
+                usage[provider] = { messages: 0, tokens: 0, cost: 0 };
+            }
+
+            // Increment message count
+            usage[provider].messages++;
+
+            // Estimate tokens (rough: ~4 chars per token)
+            const estimatedTokens = Math.ceil(response.length / 4);
+            usage[provider].tokens += estimatedTokens;
+
+            // Estimate cost (OpenAI GPT-4o: $0.005 per 1k tokens output)
+            const costPer1k = 0.005;
+            usage[provider].cost += (estimatedTokens / 1000) * costPer1k;
+
+            localStorage.setItem('llm_usage', JSON.stringify(usage));
+        }
+
+        // ============================================
+        // End LLM Integration Functions
+        // ============================================
+
         // Canvas Modal Functions
         function showPremiumAlert(featureName, description) {
             alert(`${featureName} (Premium Feature)\n\n${description}\n\nUpgrade to premium to unlock this feature.`);
@@ -16131,6 +16856,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // Initialize left panel user name and status bar
             updateLeftPanelUserName();
             updateLeftPanelStatusBar();
+
+            // Initialize LLM system (wrapped in try-catch to prevent blocking mindmap)
+            try {
+                initializeLLM();
+            } catch (error) {
+                console.error('[LLM Init] Error initializing LLM:', error);
+            }
 
             // FIXED: Load all user data and counts BEFORE initializing mindmap
             console.log('[Canvas Init] Loading user data and counts first...');
@@ -44920,6 +45652,11 @@ F &= ma \\\\
                 }
             },
             // Step 5: Industry Tab
+
+
+
+
+
             {
                 title: 'Industry Insights',
                 icon: 'ph-buildings',

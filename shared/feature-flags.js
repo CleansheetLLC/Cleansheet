@@ -149,6 +149,13 @@ const FeatureFlags = {
             comingSoon: true,
             premium: true
         },
+        'llm-chat-byok': {
+            enabled: true,
+            roles: ['member', 'learner', 'seeker'],
+            description: 'Bring Your Own API Key for LLM chat assistant',
+            environments: ['development', 'staging', 'production'],
+            requiresAuth: false  // Works with localStorage profiles
+        },
         'community-forums': {
             enabled: false,
             roles: ['learner', 'job-seeker', 'professional'],
