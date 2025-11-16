@@ -15233,42 +15233,66 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             if (confirm('Download data from cloud and replace local data?\n\nThis will overwrite any local changes with data from the cloud.')) {
                 try {
                     console.log('[Force Sync] Starting sync down...');
+                    console.log('[Force Sync] User:', auth.getUser());
+                    console.log('[Force Sync] Workspace path:', `${auth.getUser().id}/workspace/`);
 
                     // Get workspace data from cloud
                     const cloudData = await sync.getWorkspace();
+
+                    console.log('[Force Sync] Cloud data received:', cloudData ? 'YES' : 'NO');
                     if (cloudData) {
+                        console.log('[Force Sync] Cloud data contents:', {
+                            profile: !!cloudData.profile,
+                            experiences: cloudData.experiences?.length || 0,
+                            stories: cloudData.stories?.length || 0,
+                            jobs: cloudData.jobs?.length || 0,
+                            goals: cloudData.goals?.length || 0,
+                            portfolio: cloudData.portfolio?.length || 0,
+                            persona: cloudData.persona,
+                            subscriptionTier: cloudData.subscriptionTier
+                        });
+
                         // Save to localStorage
                         localStorage.setItem('cleansheet_last_modified', cloudData.lastModified || new Date().toISOString());
 
                         // Save each data type
                         if (cloudData.profile) {
                             localStorage.setItem('userProfile', JSON.stringify(cloudData.profile));
+                            console.log('[Force Sync] Saved profile to localStorage');
                         }
                         if (cloudData.experiences) {
                             localStorage.setItem('user_experiences', JSON.stringify(cloudData.experiences));
+                            console.log('[Force Sync] Saved', cloudData.experiences.length, 'experiences to localStorage');
                         }
                         if (cloudData.stories) {
                             localStorage.setItem('user_stories', JSON.stringify(cloudData.stories));
+                            console.log('[Force Sync] Saved', cloudData.stories.length, 'stories to localStorage');
                         }
                         if (cloudData.jobs) {
                             localStorage.setItem('user_jobs', JSON.stringify(cloudData.jobs));
+                            console.log('[Force Sync] Saved', cloudData.jobs.length, 'jobs to localStorage');
                         }
                         if (cloudData.goals) {
                             localStorage.setItem(`userGoals_${currentPersona}`, JSON.stringify(cloudData.goals));
+                            console.log('[Force Sync] Saved', cloudData.goals.length, 'goals to localStorage');
                         }
                         if (cloudData.portfolio) {
                             localStorage.setItem(`userPortfolio_${currentPersona}`, JSON.stringify(cloudData.portfolio));
+                            console.log('[Force Sync] Saved', cloudData.portfolio.length, 'portfolio items to localStorage');
                         }
                         if (cloudData.persona) {
                             localStorage.setItem('current_persona', cloudData.persona);
+                            console.log('[Force Sync] Saved persona:', cloudData.persona);
                         }
                         if (cloudData.subscriptionTier) {
                             localStorage.setItem('subscription_tier', cloudData.subscriptionTier);
+                            console.log('[Force Sync] Saved subscription tier:', cloudData.subscriptionTier);
                         }
 
                         console.log('[Force Sync] Cloud data saved to localStorage');
 
                         // Reload UI
+                        console.log('[Force Sync] Reloading UI...');
                         await loadAllCounts();
                         if (typeof refreshMindmap === 'function') {
                             refreshMindmap();
@@ -15276,11 +15300,18 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
                         showToast('Data synced from cloud successfully', 'success');
                         updateSyncStatusInfo();
+                        console.log('[Force Sync] Sync down complete');
                     } else {
+                        console.warn('[Force Sync] No cloud data returned from getWorkspace()');
                         showToast('No cloud data found', 'info');
                     }
                 } catch (error) {
                     console.error('[Force Sync] Sync down failed:', error);
+                    console.error('[Force Sync] Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        status: error.status
+                    });
                     showToast('Sync failed: ' + error.message, 'error');
                 }
             }
