@@ -299,31 +299,202 @@ class AnthropicProvider extends LLMProvider {
         this.apiVersion = config.apiVersion || '2023-06-01';
     }
 
+    /**
+     * Convert OpenAI-style messages to Anthropic format
+     * @param {Array} messages - OpenAI-style messages
+     * @returns {Object} - { system: string, messages: Array }
+     */
+    convertMessages(messages) {
+        let systemMessage = null;
+        const anthropicMessages = [];
+
+        for (const msg of messages) {
+            if (msg.role === 'system') {
+                // Anthropic handles system messages separately
+                systemMessage = msg.content;
+            } else {
+                anthropicMessages.push({
+                    role: msg.role, // Anthropic uses same 'user' and 'assistant' roles
+                    content: msg.content
+                });
+            }
+        }
+
+        return { system: systemMessage, messages: anthropicMessages };
+    }
+
     async chat(messages, options = {}) {
-        throw new Error('Anthropic provider not yet implemented. Coming in Phase 2.');
+        const model = options.model || this.defaultModel;
+        const { system, messages: anthropicMessages } = this.convertMessages(messages);
+
+        const requestBody = {
+            model: model,
+            messages: anthropicMessages,
+            max_tokens: options.maxTokens || 1000,
+            temperature: options.temperature !== undefined ? options.temperature : 0.7,
+            stream: false
+        };
+
+        if (system) {
+            requestBody.system = system;
+        }
+
+        const response = await fetch(`${this.baseUrl}/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': this.apiKey,
+                'anthropic-version': this.apiVersion
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.error?.message || `Anthropic API error: ${response.status} ${response.statusText}`;
+            throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+
+        if (!data.content || !data.content[0]) {
+            throw new Error('No response from Anthropic API');
+        }
+
+        const content = data.content.map(block => block.text).join('');
+
+        return {
+            content: content,
+            usage: data.usage || null,
+            rateLimits: null,
+            model: data.model,
+            finishReason: data.stop_reason
+        };
     }
 
     async streamChat(messages, onChunk, options = {}) {
-        throw new Error('Anthropic provider not yet implemented. Coming in Phase 2.');
+        const model = options.model || this.defaultModel;
+        const { system, messages: anthropicMessages } = this.convertMessages(messages);
+
+        const requestBody = {
+            model: model,
+            messages: anthropicMessages,
+            max_tokens: options.maxTokens || 1000,
+            temperature: options.temperature !== undefined ? options.temperature : 0.7,
+            stream: true
+        };
+
+        if (system) {
+            requestBody.system = system;
+        }
+
+        const response = await fetch(`${this.baseUrl}/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': this.apiKey,
+                'anthropic-version': this.apiVersion
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.error?.message || `Anthropic API error: ${response.status} ${response.statusText}`;
+            throw new Error(errorMessage);
+        }
+
+        // Parse Server-Sent Events (SSE) stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6).trim();
+
+                        if (data === '[DONE]') {
+                            continue;
+                        }
+
+                        try {
+                            const json = JSON.parse(data);
+
+                            // Anthropic streaming events
+                            if (json.type === 'content_block_delta' && json.delta?.text) {
+                                onChunk(json.delta.text);
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse Anthropic SSE data:', e, 'Line:', data);
+                        }
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock();
+        }
+
+        return { rateLimits: null };
     }
 
     getModels() {
         return [
             {
                 id: 'claude-3-5-sonnet-20241022',
-                name: 'Claude 3.5 Sonnet (Recommended)',
-                description: 'Best balance of intelligence and speed',
+                name: 'Claude 3.5 Sonnet (New)',
+                description: 'Best balance of intelligence, speed, and cost',
+                costPer1k: 0.003,
+                contextWindow: 200000
+            },
+            {
+                id: 'claude-3-5-haiku-20241022',
+                name: 'Claude 3.5 Haiku (New)',
+                description: 'Fast and efficient for most tasks',
+                costPer1k: 0.0008,
+                contextWindow: 200000
+            },
+            {
+                id: 'claude-3-opus-20240229',
+                name: 'Claude 3 Opus',
+                description: 'Most capable model, best for complex tasks',
+                costPer1k: 0.015,
+                contextWindow: 200000
+            },
+            {
+                id: 'claude-3-sonnet-20240229',
+                name: 'Claude 3 Sonnet',
+                description: 'Balanced performance and cost',
                 costPer1k: 0.003,
                 contextWindow: 200000
             },
             {
                 id: 'claude-3-haiku-20240307',
-                name: 'Claude 3 Haiku (Fast)',
-                description: 'Fast and affordable',
+                name: 'Claude 3 Haiku',
+                description: 'Fastest and most affordable',
                 costPer1k: 0.00025,
                 contextWindow: 200000
             }
         ];
+    }
+
+    estimateTokens(text) {
+        // Rough estimation (similar to OpenAI)
+        return Math.ceil(text.length / 4);
+    }
+
+    estimateCost(tokens, modelId = null) {
+        const model = this.getModels().find(m => m.id === (modelId || this.defaultModel));
+        const costPer1k = model ? model.costPer1k : 0.003;
+        return (tokens / 1000) * costPer1k;
     }
 }
 

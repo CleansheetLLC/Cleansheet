@@ -7442,12 +7442,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-robot" style="margin-right: 6px;"></i>
                                         AI Career Assistant
                                     </h4>
-                                    <label id="autoExecuteLabel" style="display: flex; align-items: center; gap: 6px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); cursor: pointer; user-select: none;"
-                                           title="Auto-execute high-confidence canvas actions (>90%) without confirmation. Available for Learner and Job Seeker tiers. Resets to OFF on new sessions.">
-                                        <input type="checkbox" id="autoExecuteActionsCheckbox" onchange="handleAutoExecuteChange()"
-                                               style="width: 14px; height: 14px; cursor: pointer;" />
-                                        <span style="white-space: nowrap;">Allow Canvas interactions</span>
-                                    </label>
+                                    <div id="providerModelBadge" style="display: none; padding: 4px 10px; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; white-space: nowrap; transition: all 0.2s;">
+                                        <!-- Populated by updateProviderBadge() -->
+                                    </div>
                                 </div>
                                 <button onclick="openLLMSettingsModal()" title="Settings"
                                         style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
@@ -11030,9 +11027,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         <select id="llmProviderSelect" onchange="handleProviderChange()"
                                 style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: border-color 0.2s;">
                             <option value="">-- Select Provider --</option>
-                            <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-                            <option value="gemini">Google Gemini (Gemini 2.0, 1.5 Pro)</option>
-                            <option value="anthropic" disabled>Anthropic (Coming Soon)</option>
+                            <option value="openai">OpenAI (GPT-4, GPT-3.5) ✓ Browser Compatible</option>
+                            <option value="anthropic">Anthropic (Claude 3.5, Claude 3) ⚠️ Requires Proxy</option>
+                            <option value="gemini">Google Gemini (Gemini 2.0, 1.5 Pro) ✓ Browser Compatible</option>
                             <option value="azure" disabled>Azure OpenAI (Coming Soon)</option>
                         </select>
                         <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
@@ -11077,6 +11074,70 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 Test Connection
                             </button>
                             <span id="connectionStatus" style="margin-left: 12px; font-family: var(--font-family-body); font-size: 13px; vertical-align: middle;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Anthropic Configuration -->
+                    <div id="anthropicConfig" style="display: none;">
+                        <!-- CORS Warning -->
+                        <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                            <div style="display: flex; gap: 12px; align-items: start;">
+                                <i class="ph ph-warning-circle" style="font-size: 24px; color: #dc2626; flex-shrink: 0; margin-top: 2px;"></i>
+                                <div>
+                                    <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #dc2626; margin: 0 0 8px 0;">
+                                        Browser Limitation - Proxy Required
+                                    </h4>
+                                    <p style="font-family: var(--font-family-body); font-size: 13px; color: #991b1b; margin: 0; line-height: 1.5;">
+                                        <strong>Anthropic's API blocks direct browser calls</strong> due to CORS security restrictions.
+                                        Unlike OpenAI and Gemini, Claude requires a backend proxy server to work.
+                                    </p>
+                                    <p style="font-family: var(--font-family-body); font-size: 13px; color: #991b1b; margin: 8px 0 0 0; line-height: 1.5;">
+                                        ⚠️ <strong>You will see CORS errors</strong> if you try to use Claude without a proxy.
+                                        Please use OpenAI or Gemini for direct browser access.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #f5f5f7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    Anthropic API Key
+                                    <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer"
+                                       style="font-weight: 400; color: var(--color-primary-blue); margin-left: 8px; text-decoration: none; font-size: 13px;">
+                                        <i class="ph ph-arrow-square-out" style="font-size: 12px;"></i> Get API Key
+                                    </a>
+                                </label>
+                                <input type="password" id="anthropicApiKey" placeholder="sk-ant-..." autocomplete="off"
+                                       style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white;" />
+                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
+                                    🔒 Your API key is encrypted and stored locally in your browser. It's never sent to Cleansheet servers.
+                                </p>
+                            </div>
+
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-family: var(--font-family-ui); font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
+                                    Model
+                                </label>
+                                <select id="anthropicModelSelect"
+                                        style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer;">
+                                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (New) - Best Overall</option>
+                                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (New) - Fast & Efficient</option>
+                                    <option value="claude-3-opus-20240229">Claude 3 Opus - Most Capable</option>
+                                    <option value="claude-3-sonnet-20240229">Claude 3 Sonnet - Balanced</option>
+                                    <option value="claude-3-haiku-20240307">Claude 3 Haiku - Fastest</option>
+                                </select>
+                                <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
+                                    💡 Claude 3.5 Sonnet offers the best balance of intelligence, speed, and cost. All models have 200K token context.
+                                </p>
+                            </div>
+
+                            <button onclick="testAnthropicConnection()"
+                                    style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ph-check-circle"></i>
+                                Test Connection
+                            </button>
+                            <span id="anthropicConnectionStatus" style="margin-left: 12px; font-family: var(--font-family-body); font-size: 13px; vertical-align: middle;"></span>
                         </div>
                     </div>
 
@@ -11127,32 +11188,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     <div id="llmUsageStats" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-neutral-border);">
                         <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-dark);">
                             <i class="ph ph-chart-line" style="margin-right: 6px;"></i>
-                            Usage This Month
+                            Usage This Month (All Providers)
                         </h3>
-                        <div style="background: #f5f5f7; border-radius: 12px; padding: 16px;">
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 12px;">
-                                <div>
-                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
-                                    <div style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-primary-blue);" id="usageMessages">0</div>
-                                </div>
-                                <div>
-                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Tokens</div>
-                                    <div style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-primary-blue);" id="usageTokens">0</div>
-                                </div>
-                                <div>
-                                    <div style="font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
-                                    <div style="font-family: var(--font-family-ui); font-size: 24px; font-weight: 600; color: var(--color-primary-blue);" id="usageCost">$0.00</div>
-                                </div>
-                            </div>
-                            <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 12px 0 8px 0; line-height: 1.5;">
-                                💡 This shows your usage through Cleansheet only. Check your OpenAI dashboard for total account usage.
-                            </p>
-                            <a href="https://platform.openai.com/usage" target="_blank" rel="noopener noreferrer"
-                               style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;">
-                                <i class="ph ph-arrow-square-out"></i>
-                                View OpenAI Dashboard
-                            </a>
-                        </div>
+                        <!-- Container for all provider usage stats (populated dynamically) -->
+                        <div id="usageStatsContainer"></div>
+                        <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 16px 0 0 0; line-height: 1.5;">
+                            💡 This shows your usage through Cleansheet only. Check each provider's dashboard for total account usage.
+                        </p>
                     </div>
                 </div>
 
@@ -16613,7 +16655,90 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
         let currentProvider = null;
         let conversationHistory = [];
-        let autoExecuteActions = false;
+
+        // Update provider badge with cost-based color coding
+        function updateProviderBadge() {
+            const badge = document.getElementById('providerModelBadge');
+            if (!badge) return;
+
+            const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
+
+            if (!config.activeProvider || !currentProvider) {
+                badge.style.display = 'none';
+                return;
+            }
+
+            const provider = config.activeProvider;
+            const model = config[provider]?.model || 'Unknown';
+
+            // Get cost per 1K tokens from provider
+            const models = currentProvider.getModels();
+            const modelInfo = models.find(m => m.id === model);
+            const costPer1k = modelInfo ? modelInfo.costPer1k : 0;
+
+            // Provider display names
+            const providerNames = {
+                'openai': 'OpenAI',
+                'anthropic': 'Claude',
+                'gemini': 'Gemini'
+            };
+
+            // Model short names
+            const modelShortNames = {
+                'gpt-4o': 'GPT-4o',
+                'gpt-4o-mini': '4o-mini',
+                'gpt-4-turbo': '4-Turbo',
+                'gpt-3.5-turbo': '3.5',
+                'claude-3-5-sonnet-20241022': '3.5 Sonnet',
+                'claude-3-5-haiku-20241022': '3.5 Haiku',
+                'claude-3-opus-20240229': '3 Opus',
+                'claude-3-sonnet-20240229': '3 Sonnet',
+                'claude-3-haiku-20240307': '3 Haiku',
+                'gemini-2.0-flash-exp': '2.0 Flash',
+                'gemini-1.5-flash': '1.5 Flash',
+                'gemini-1.5-flash-8b': '1.5-8B',
+                'gemini-1.5-pro': '1.5 Pro'
+            };
+
+            const providerName = providerNames[provider] || provider;
+            const modelShort = modelShortNames[model] || model;
+
+            // Color coding based on cost
+            let bgColor, textColor, borderColor;
+            if (costPer1k === 0) {
+                // Free
+                bgColor = '#dcfce7';
+                textColor = '#15803d';
+                borderColor = '#86efac';
+            } else if (costPer1k < 0.001) {
+                // Very low cost (< $0.001)
+                bgColor = '#d1fae5';
+                textColor = '#065f46';
+                borderColor = '#6ee7b7';
+            } else if (costPer1k < 0.003) {
+                // Low cost ($0.001-$0.003)
+                bgColor = '#dbeafe';
+                textColor = '#1e40af';
+                borderColor = '#93c5fd';
+            } else if (costPer1k < 0.01) {
+                // Medium cost ($0.003-$0.01)
+                bgColor = '#e0e7ff';
+                textColor = '#4338ca';
+                borderColor = '#a5b4fc';
+            } else {
+                // High cost (> $0.01)
+                bgColor = '#ffedd5';
+                textColor = '#c2410c';
+                borderColor = '#fdba74';
+            }
+
+            badge.textContent = `${providerName} · ${modelShort}`;
+            badge.style.display = 'block';
+            badge.style.background = bgColor;
+            badge.style.color = textColor;
+            badge.style.border = `1px solid ${borderColor}`;
+            badge.title = `Using ${providerName} ${modelShort} (~$${costPer1k.toFixed(4)}/1K tokens)`;
+        }
 
         // Initialize LLM system on canvas open
         async function initializeLLM() {
@@ -16638,31 +16763,6 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             } else {
                 chatEmptyState.style.display = 'flex';
                 chatInputContainer.style.display = 'none';
-            }
-
-            // Configure auto-execute checkbox based on tier
-            const autoCheckbox = document.getElementById('autoExecuteActionsCheckbox');
-            const autoLabel = document.getElementById('autoExecuteLabel');
-            const currentTier = localStorage.getItem('subscription_tier') || 'member';
-
-            if (autoCheckbox && autoLabel) {
-                // Auto-execute actions resets to false on new session
-                autoExecuteActions = false;
-                autoCheckbox.checked = false;
-
-                // Enable for learner and seeker, disable for member
-                if (currentTier === 'learner' || currentTier === 'seeker') {
-                    autoCheckbox.disabled = false;
-                    autoLabel.style.opacity = '1';
-                    autoLabel.style.cursor = 'pointer';
-                    autoCheckbox.style.cursor = 'pointer';
-                } else {
-                    autoCheckbox.disabled = true;
-                    autoLabel.style.opacity = '0.5';
-                    autoLabel.style.cursor = 'not-allowed';
-                    autoCheckbox.style.cursor = 'not-allowed';
-                    autoLabel.title = 'Auto-execute is available for Learner and Job Seeker tiers only';
-                }
             }
         }
 
@@ -16694,6 +16794,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         { model: config.openai.model || 'gpt-4o' }
                     );
                     console.log('[LLM] OpenAI configuration loaded and decrypted successfully');
+                } else if (config.activeProvider === 'anthropic' && config.anthropic?.apiKey) {
+                    const decryptedApiKey = await CleansheetCrypto.decrypt(config.anthropic.apiKey);
+                    currentProvider = new LLMProviders.AnthropicProvider(
+                        decryptedApiKey,
+                        { model: config.anthropic.model || 'claude-3-5-sonnet-20241022' }
+                    );
+                    console.log('[LLM] Anthropic configuration loaded and decrypted successfully');
                 } else if (config.activeProvider === 'gemini' && config.gemini?.apiKey) {
                     const decryptedApiKey = await CleansheetCrypto.decrypt(config.gemini.apiKey);
                     currentProvider = new LLMProviders.GeminiProvider(
@@ -16702,6 +16809,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     );
                     console.log('[LLM] Gemini configuration loaded and decrypted successfully');
                 }
+
+                // Update provider badge
+                updateProviderBadge();
             } catch (error) {
                 console.error('[LLM] Failed to load LLM config:', error);
                 // Clear invalid config
@@ -16710,6 +16820,103 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Open LLM settings modal
+        // Populate usage stats for all providers
+        function populateAllProviderUsageStats() {
+            const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
+            const container = document.getElementById('usageStatsContainer');
+            const statsSection = document.getElementById('llmUsageStats');
+
+            if (!container) return;
+
+            // Clear container
+            container.innerHTML = '';
+
+            // Provider display info
+            const providerInfo = {
+                openai: { name: 'OpenAI', color: '#10a37f', dashboardUrl: 'https://platform.openai.com/usage' },
+                anthropic: { name: 'Claude', color: '#d97757', dashboardUrl: 'https://console.anthropic.com/settings/logs' },
+                gemini: { name: 'Gemini', color: '#4285f4', dashboardUrl: 'https://aistudio.google.com/app/apikey' }
+            };
+
+            let hasAnyUsage = false;
+            let totalMessages = 0;
+            let totalTokens = 0;
+            let totalCost = 0;
+
+            // Create stats card for each provider with usage
+            for (const provider in providerInfo) {
+                if (usage[provider] && usage[provider].messages > 0) {
+                    hasAnyUsage = true;
+                    const info = providerInfo[provider];
+                    const providerUsage = usage[provider];
+
+                    totalMessages += providerUsage.messages || 0;
+                    totalTokens += providerUsage.tokens || 0;
+                    totalCost += providerUsage.cost || 0;
+
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background: #f5f5f7; border-radius: 12px; padding: 16px; margin-bottom: 12px;';
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color}; margin: 0;">
+                                ${info.name}
+                            </h4>
+                            <a href="${info.dashboardUrl}" target="_blank" rel="noopener noreferrer"
+                               style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; text-decoration: none; transition: all 0.2s;">
+                                <i class="ph ph-arrow-square-out" style="font-size: 12px;"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${providerUsage.messages || 0}</div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Tokens</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${(providerUsage.tokens || 0).toLocaleString()}</div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">$${(providerUsage.cost || 0).toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            }
+
+            // Show total if multiple providers have usage
+            const providersWithUsage = Object.keys(providerInfo).filter(p => usage[p] && usage[p].messages > 0);
+            if (providersWithUsage.length > 1) {
+                const totalCard = document.createElement('div');
+                totalCard.style.cssText = 'background: var(--color-primary-blue); border-radius: 12px; padding: 16px; margin-top: 4px;';
+                totalCard.innerHTML = `
+                    <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white; margin: 0 0 12px 0;">
+                        Total (All Providers)
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div>
+                            <div style="font-family: var(--font-family-body); font-size: 10px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
+                            <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">${totalMessages}</div>
+                        </div>
+                        <div>
+                            <div style="font-family: var(--font-family-body); font-size: 10px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Tokens</div>
+                            <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">${totalTokens.toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <div style="font-family: var(--font-family-body); font-size: 10px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
+                            <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">$${totalCost.toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(totalCard);
+            }
+
+            // Show/hide stats section based on whether there's any usage
+            statsSection.style.display = hasAnyUsage ? 'block' : 'none';
+        }
+
         async function openLLMSettingsModal() {
             const modal = document.getElementById('llmSettingsModal');
             modal.style.display = 'flex';
@@ -16720,49 +16927,52 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             if (config.activeProvider) {
                 document.getElementById('llmProviderSelect').value = config.activeProvider;
                 handleProviderChange();
+            }
 
-                if (config.activeProvider === 'openai' && config.openai?.apiKey) {
-                    try {
-                        // Decrypt API key before displaying
-                        const decryptedApiKey = await CleansheetCrypto.decrypt(config.openai.apiKey);
-                        document.getElementById('openaiApiKey').value = decryptedApiKey;
-                        document.getElementById('openaiModelSelect').value = config.openai?.model || 'gpt-4o';
+            // Populate ALL provider fields that have keys stored (not just active provider)
+            // This allows users to see and manage all configured providers
 
-                        // Show usage stats if available
-                        const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
-                        if (usage.openai && usage.openai.messages > 0) {
-                            document.getElementById('llmUsageStats').style.display = 'block';
-                            document.getElementById('usageMessages').textContent = usage.openai.messages || 0;
-                            document.getElementById('usageTokens').textContent = (usage.openai.tokens || 0).toLocaleString();
-                            document.getElementById('usageCost').textContent = `$${(usage.openai.cost || 0).toFixed(2)}`;
-                        }
-                    } catch (error) {
-                        console.error('[LLM] Failed to decrypt API key:', error);
-                        // Clear invalid config
-                        document.getElementById('openaiApiKey').value = '';
-                    }
-                } else if (config.activeProvider === 'gemini' && config.gemini?.apiKey) {
-                    try {
-                        // Decrypt API key before displaying
-                        const decryptedApiKey = await CleansheetCrypto.decrypt(config.gemini.apiKey);
-                        document.getElementById('geminiApiKey').value = decryptedApiKey;
-                        document.getElementById('geminiModelSelect').value = config.gemini?.model || 'gemini-2.0-flash-exp';
-
-                        // Show usage stats if available
-                        const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
-                        if (usage.gemini && usage.gemini.messages > 0) {
-                            document.getElementById('llmUsageStats').style.display = 'block';
-                            document.getElementById('usageMessages').textContent = usage.gemini.messages || 0;
-                            document.getElementById('usageTokens').textContent = (usage.gemini.tokens || 0).toLocaleString();
-                            document.getElementById('usageCost').textContent = `$${(usage.gemini.cost || 0).toFixed(2)}`;
-                        }
-                    } catch (error) {
-                        console.error('[LLM] Failed to decrypt API key:', error);
-                        // Clear invalid config
-                        document.getElementById('geminiApiKey').value = '';
-                    }
+            if (config.openai?.apiKey) {
+                try {
+                    // Decrypt API key before displaying
+                    const decryptedApiKey = await CleansheetCrypto.decrypt(config.openai.apiKey);
+                    document.getElementById('openaiApiKey').value = decryptedApiKey;
+                    document.getElementById('openaiModelSelect').value = config.openai?.model || 'gpt-4o';
+                } catch (error) {
+                    console.error('[LLM] Failed to decrypt OpenAI API key:', error);
+                    // Clear invalid config
+                    document.getElementById('openaiApiKey').value = '';
                 }
             }
+
+            if (config.anthropic?.apiKey) {
+                try {
+                    // Decrypt API key before displaying
+                    const decryptedApiKey = await CleansheetCrypto.decrypt(config.anthropic.apiKey);
+                    document.getElementById('anthropicApiKey').value = decryptedApiKey;
+                    document.getElementById('anthropicModelSelect').value = config.anthropic?.model || 'claude-3-5-sonnet-20241022';
+                } catch (error) {
+                    console.error('[LLM] Failed to decrypt Anthropic API key:', error);
+                    // Clear invalid config
+                    document.getElementById('anthropicApiKey').value = '';
+                }
+            }
+
+            if (config.gemini?.apiKey) {
+                try {
+                    // Decrypt API key before displaying
+                    const decryptedApiKey = await CleansheetCrypto.decrypt(config.gemini.apiKey);
+                    document.getElementById('geminiApiKey').value = decryptedApiKey;
+                    document.getElementById('geminiModelSelect').value = config.gemini?.model || 'gemini-2.0-flash-exp';
+                } catch (error) {
+                    console.error('[LLM] Failed to decrypt Gemini API key:', error);
+                    // Clear invalid config
+                    document.getElementById('geminiApiKey').value = '';
+                }
+            }
+
+            // Populate usage stats for ALL providers with usage data
+            populateAllProviderUsageStats();
 
             // Load auto-execute setting (session-based, defaults to false)
             const autoExecuteCheckbox = document.getElementById('autoExecuteActions');
@@ -16782,11 +16992,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // Hide all provider configs
             document.getElementById('openaiConfig').style.display = 'none';
+            document.getElementById('anthropicConfig').style.display = 'none';
             document.getElementById('geminiConfig').style.display = 'none';
 
             // Show selected provider config
             if (provider === 'openai') {
                 document.getElementById('openaiConfig').style.display = 'block';
+            } else if (provider === 'anthropic') {
+                document.getElementById('anthropicConfig').style.display = 'block';
             } else if (provider === 'gemini') {
                 document.getElementById('geminiConfig').style.display = 'block';
             }
@@ -16854,25 +17067,59 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }
         }
 
+        // Test Anthropic connection
+        async function testAnthropicConnection() {
+            const apiKey = document.getElementById('anthropicApiKey').value.trim();
+            const statusEl = document.getElementById('anthropicConnectionStatus');
+
+            if (!apiKey) {
+                statusEl.textContent = '⚠️ Please enter an API key';
+                statusEl.style.color = '#ea580c';
+                return;
+            }
+
+            statusEl.textContent = '⏳ Testing connection...';
+            statusEl.style.color = 'var(--color-neutral-text)';
+
+            try {
+                const provider = new LLMProviders.AnthropicProvider(apiKey);
+                const result = await provider.validateApiKey();
+
+                if (result.valid) {
+                    statusEl.textContent = '✅ Connection successful!';
+                    statusEl.style.color = '#16a34a';
+                } else {
+                    statusEl.textContent = `❌ ${result.error}`;
+                    statusEl.style.color = '#dc2626';
+                }
+            } catch (error) {
+                statusEl.textContent = `❌ ${error.message}`;
+                statusEl.style.color = '#dc2626';
+            }
+        }
+
         // Save LLM settings
         async function saveLLMSettings() {
             const provider = document.getElementById('llmProviderSelect').value;
 
             if (!provider) {
-                CleansheetCore.utils.showToast('Please select a provider', 'error');
+                showToast('Please select a provider', 'error');
                 return;
             }
 
-            const config = {
-                activeProvider: provider
-            };
+            // Load existing config to preserve other providers
+            const existingConfig = localStorage.getItem('llm_config_encrypted');
+            const config = existingConfig ? JSON.parse(existingConfig) : {};
+
+            // Update active provider
+            config.activeProvider = provider;
 
             if (provider === 'openai') {
                 const apiKey = document.getElementById('openaiApiKey').value.trim();
                 const model = document.getElementById('openaiModelSelect').value;
 
                 if (!apiKey) {
-                    CleansheetCore.utils.showToast('Please enter an API key', 'error');
+                    showToast('Please enter an API key', 'error');
                     return;
                 }
 
@@ -16889,7 +17136,32 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     console.log('[LLM] API key encrypted and saved successfully');
                 } catch (error) {
                     console.error('[LLM] Failed to encrypt API key:', error);
-                    CleansheetCore.utils.showToast('Failed to encrypt API key', 'error');
+                    showToast('Failed to encrypt API key', 'error');
+                    return;
+                }
+            } else if (provider === 'anthropic') {
+                const apiKey = document.getElementById('anthropicApiKey').value.trim();
+                const model = document.getElementById('anthropicModelSelect').value;
+
+                if (!apiKey) {
+                    showToast('Please enter an API key', 'error');
+                    return;
+                }
+
+                try {
+                    // Encrypt API key before storing
+                    const encryptedApiKey = await CleansheetCrypto.encrypt(apiKey);
+
+                    config.anthropic = {
+                        apiKey: encryptedApiKey,  // Encrypted
+                        model: model
+                    };
+
+                    currentProvider = new LLMProviders.AnthropicProvider(apiKey, { model });
+                    console.log('[LLM] Anthropic API key encrypted and saved successfully');
+                } catch (error) {
+                    console.error('[LLM] Failed to encrypt Anthropic API key:', error);
+                    showToast('Failed to encrypt API key', 'error');
                     return;
                 }
             } else if (provider === 'gemini') {
@@ -16897,7 +17169,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 const model = document.getElementById('geminiModelSelect').value;
 
                 if (!apiKey) {
-                    CleansheetCore.utils.showToast('Please enter an API key', 'error');
+                    showToast('Please enter an API key', 'error');
                     return;
                 }
 
@@ -16914,7 +17186,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     console.log('[LLM] Gemini API key encrypted and saved successfully');
                 } catch (error) {
                     console.error('[LLM] Failed to encrypt Gemini API key:', error);
-                    CleansheetCore.utils.showToast('Failed to encrypt API key', 'error');
+                    showToast('Failed to encrypt API key', 'error');
                     return;
                 }
             }
@@ -16926,17 +17198,11 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             document.getElementById('chatEmptyState').style.display = 'none';
             document.getElementById('chatInputContainer').style.display = 'block';
 
+            // Update provider badge
+            updateProviderBadge();
+
             closeLLMSettingsModal();
-            CleansheetCore.utils.showToast('AI Assistant configured!', 'success');
-        }
-
-        // Handle auto-execute toggle
-        function handleAutoExecuteChange() {
-            autoExecuteActions = document.getElementById('autoExecuteActions').checked;
-
-            if (autoExecuteActions) {
-                CleansheetCore.utils.showToast('Auto-execution enabled for this session', 'info');
-            }
+            showToast('AI Assistant configured!', 'success');
         }
 
         // Send chat message
@@ -16946,7 +17212,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             if (!message) return;
             if (!currentProvider) {
-                CleansheetCore.utils.showToast('Please configure AI Assistant first', 'error');
+                showToast('Please configure AI Assistant first', 'error');
                 openLLMSettingsModal();
                 return;
             }
@@ -17173,7 +17439,7 @@ Always explain what you're doing when you take actions. Be helpful and proactive
 
             if (!message) return;
             if (!currentProvider) {
-                CleansheetCore.utils.showToast('Please configure AI Assistant first', 'error');
+                showToast('Please configure AI Assistant first', 'error');
                 openLLMSettingsModal();
                 return;
             }
@@ -21687,6 +21953,26 @@ Always explain what you're doing when you take actions. Be helpful and proactive
                                 }
                             }
 
+                            // Process Anthropic keys if configured
+                            if (llmConfig.anthropic?.apiKey) {
+                                try {
+                                    // Decrypt with device key
+                                    const decryptedKey = await CleansheetCrypto.decrypt(llmConfig.anthropic.apiKey);
+
+                                    // Re-encrypt with password
+                                    const passwordEncryptedKey = await CleansheetCrypto.encryptWithPassword(decryptedKey, password);
+
+                                    apiKeysData.anthropic = {
+                                        apiKey: passwordEncryptedKey,
+                                        model: llmConfig.anthropic.model
+                                    };
+                                    providers.push('anthropic');
+                                    console.log('[Backup] Included Anthropic API key');
+                                } catch (error) {
+                                    console.error('[Backup] Failed to process Anthropic key:', error);
+                                }
+                            }
+
                             // Process Gemini keys if configured
                             if (llmConfig.gemini?.apiKey) {
                                 try {
@@ -21707,7 +21993,7 @@ Always explain what you're doing when you take actions. Be helpful and proactive
                                 }
                             }
 
-                            // Add other providers (Anthropic, Azure) when they're implemented
+                            // Add other providers (Azure) when they're implemented
 
                             if (providers.length > 0) {
                                 exportData.apiKeysEncrypted = {
