@@ -368,27 +368,199 @@ class GeminiProvider extends LLMProvider {
     constructor(apiKey, config = {}) {
         super(apiKey, config);
         this.baseUrl = config.baseUrl || 'https://generativelanguage.googleapis.com/v1beta';
-        this.defaultModel = config.model || 'gemini-pro';
+        this.defaultModel = config.model || 'gemini-2.0-flash-exp';
+    }
+
+    /**
+     * Convert OpenAI-style messages to Gemini format
+     * @param {Array} messages - OpenAI-style messages
+     * @returns {Array} - Gemini-style contents
+     */
+    convertMessages(messages) {
+        const geminiContents = [];
+        let systemInstruction = null;
+
+        for (const msg of messages) {
+            if (msg.role === 'system') {
+                // Gemini handles system messages separately
+                systemInstruction = msg.content;
+            } else {
+                geminiContents.push({
+                    role: msg.role === 'assistant' ? 'model' : 'user',
+                    parts: [{ text: msg.content }]
+                });
+            }
+        }
+
+        return { contents: geminiContents, systemInstruction };
     }
 
     async chat(messages, options = {}) {
-        throw new Error('Gemini provider not yet implemented. Coming in Phase 4.');
+        const model = options.model || this.defaultModel;
+        const { contents, systemInstruction } = this.convertMessages(messages);
+
+        const requestBody = {
+            contents: contents,
+            generationConfig: {
+                maxOutputTokens: options.maxTokens || 1000,
+                temperature: options.temperature !== undefined ? options.temperature : 0.7
+            }
+        };
+
+        if (systemInstruction) {
+            requestBody.systemInstruction = {
+                parts: [{ text: systemInstruction }]
+            };
+        }
+
+        const url = `${this.baseUrl}/models/${model}:generateContent?key=${this.apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.error?.message || `Gemini API error: ${response.status} ${response.statusText}`;
+            throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+            throw new Error('No response from Gemini API');
+        }
+
+        const content = data.candidates[0].content.parts.map(p => p.text).join('');
+
+        return {
+            content: content,
+            usage: data.usageMetadata || null,
+            rateLimits: null,
+            model: model,
+            finishReason: data.candidates[0].finishReason
+        };
     }
 
     async streamChat(messages, onChunk, options = {}) {
-        throw new Error('Gemini provider not yet implemented. Coming in Phase 4.');
+        const model = options.model || this.defaultModel;
+        const { contents, systemInstruction } = this.convertMessages(messages);
+
+        const requestBody = {
+            contents: contents,
+            generationConfig: {
+                maxOutputTokens: options.maxTokens || 1000,
+                temperature: options.temperature !== undefined ? options.temperature : 0.7
+            }
+        };
+
+        if (systemInstruction) {
+            requestBody.systemInstruction = {
+                parts: [{ text: systemInstruction }]
+            };
+        }
+
+        const url = `${this.baseUrl}/models/${model}:streamGenerateContent?key=${this.apiKey}&alt=sse`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.error?.message || `Gemini API error: ${response.status} ${response.statusText}`;
+            throw new Error(errorMessage);
+        }
+
+        // Parse Server-Sent Events (SSE) stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6).trim();
+
+                        try {
+                            const json = JSON.parse(data);
+                            if (json.candidates && json.candidates[0] && json.candidates[0].content) {
+                                const parts = json.candidates[0].content.parts;
+                                if (parts && parts[0] && parts[0].text) {
+                                    onChunk(parts[0].text);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse Gemini SSE data:', e, 'Line:', data);
+                        }
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock();
+        }
+
+        return { rateLimits: null };
     }
 
     getModels() {
         return [
             {
-                id: 'gemini-pro',
-                name: 'Gemini Pro',
-                description: 'Free tier available, multimodal support',
-                costPer1k: 0.0005,
-                contextWindow: 32000
+                id: 'gemini-2.0-flash-exp',
+                name: 'Gemini 2.0 Flash (Experimental)',
+                description: 'Latest and fastest, experimental features',
+                costPer1k: 0, // Currently free in preview
+                contextWindow: 1048576 // 1M tokens
+            },
+            {
+                id: 'gemini-1.5-flash',
+                name: 'Gemini 1.5 Flash',
+                description: 'Fast and efficient for most tasks',
+                costPer1k: 0.000075,
+                contextWindow: 1048576 // 1M tokens
+            },
+            {
+                id: 'gemini-1.5-flash-8b',
+                name: 'Gemini 1.5 Flash-8B',
+                description: 'Optimized for high volume, lower cost',
+                costPer1k: 0.0000375,
+                contextWindow: 1048576 // 1M tokens
+            },
+            {
+                id: 'gemini-1.5-pro',
+                name: 'Gemini 1.5 Pro',
+                description: 'Most capable model, best for complex tasks',
+                costPer1k: 0.00125,
+                contextWindow: 2097152 // 2M tokens
             }
         ];
+    }
+
+    estimateTokens(text) {
+        // Rough estimation for Gemini (similar to OpenAI)
+        return Math.ceil(text.length / 4);
+    }
+
+    estimateCost(tokens, modelId = null) {
+        const model = this.getModels().find(m => m.id === (modelId || this.defaultModel));
+        const costPer1k = model ? model.costPer1k : 0;
+        return (tokens / 1000) * costPer1k;
     }
 }
 
