@@ -16577,7 +16577,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }
 
             // Load auto-execute setting (session-based, defaults to false)
-            document.getElementById('autoExecuteActions').checked = autoExecuteActions;
+            const autoExecuteCheckbox = document.getElementById('autoExecuteActions');
+            if (autoExecuteCheckbox) {
+                autoExecuteCheckbox.checked = autoExecuteActions;
+            }
         }
 
         // Close LLM settings modal
@@ -16861,6 +16864,259 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             localStorage.setItem('llm_usage', JSON.stringify(usage));
         }
+
+        // ============================================
+        // Canvas Interaction API for LLM
+        // ============================================
+
+        // Get current canvas state for LLM context
+        function getCanvasContext() {
+            const context = {
+                viewMode: currentViewMode,
+                activeTab: document.querySelector('.canvas-tab.active')?.dataset.tab || 'home',
+                canvasVisible: document.getElementById('canvasModal')?.classList.contains('active') || false
+            };
+
+            // Add view-specific context
+            if (currentViewMode === 'seeker') {
+                context.jobs = {
+                    total: userJobs?.length || 0,
+                    active: userJobs?.filter(j => j.status !== 'rejected' && j.status !== 'not-interested').length || 0
+                };
+            } else if (currentViewMode === 'learner') {
+                context.bookmarks = {
+                    total: userBookmarks?.length || 0
+                };
+            }
+
+            return context;
+        }
+
+        // System prompt with canvas interaction capabilities
+        const CANVAS_SYSTEM_PROMPT = `You are an AI assistant integrated into Career Canvas, an interactive career management platform. You can help users by providing advice AND by directly interacting with their canvas.
+
+CURRENT CAPABILITIES:
+1. View canvas state (what's currently displayed)
+2. Navigate between views (Job Seeker, Learner, Professional, Personal)
+3. Access user data (jobs, experiences, documents)
+4. Provide career guidance and advice
+
+RESPONSE FORMAT:
+You can include actions in your responses using JSON code blocks:
+\`\`\`json
+{
+  "action": "navigate",
+  "params": {"view": "learner"}
+}
+\`\`\`
+
+AVAILABLE ACTIONS:
+- navigate: Switch canvas views {"view": "seeker"|"learner"|"professional"|"personal"}
+- showToast: Display notification {"message": "text", "type": "success"|"info"|"error"}
+- openModal: Open a specific modal {"modal": "addJob"|"addExperience"|"addStory"|"addGoal"|"addDocument"}
+
+Always explain what you're doing when you take actions. Be helpful and proactive.`;
+
+        // Enhanced sendChatMessage with canvas context
+        const originalSendChatMessage = sendChatMessage;
+        sendChatMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+            if (!currentProvider) {
+                CleansheetCore.utils.showToast('Please configure AI Assistant first', 'error');
+                openLLMSettingsModal();
+                return;
+            }
+
+            // Clear input
+            input.value = '';
+
+            // Add user message to UI
+            addMessageToUI('user', message);
+
+            // Inject canvas context into conversation
+            const canvasContext = getCanvasContext();
+            const contextMessage = `[CANVAS CONTEXT: View=${canvasContext.viewMode}, Tab=${canvasContext.activeTab}]`;
+
+            // Build messages array with system prompt and context
+            const messages = [
+                { role: 'system', content: CANVAS_SYSTEM_PROMPT }
+            ];
+
+            // Add conversation history (skip old system prompts)
+            messages.push(...conversationHistory.filter(m => m.role !== 'system'));
+
+            // Add current user message with context
+            messages.push({ role: 'user', content: `${contextMessage}\n\n${message}` });
+
+            // Update conversation history (without system prompt)
+            conversationHistory.push({ role: 'user', content: message });
+
+            // Show typing indicator
+            const typingId = addTypingIndicator();
+
+            try {
+                let assistantMessage = '';
+
+                // Stream response
+                await currentProvider.streamChat(
+                    messages,
+                    (chunk) => {
+                        assistantMessage += chunk;
+                        updateStreamingMessage(typingId, assistantMessage);
+                    }
+                );
+
+                // Remove typing indicator
+                removeTypingIndicator(typingId);
+
+                // Add complete message to conversation history
+                conversationHistory.push({ role: 'assistant', content: assistantMessage });
+
+                // Parse and execute any actions in the response
+                await executeCanvasActions(assistantMessage);
+
+                // Track usage
+                trackLLMUsage('openai', assistantMessage);
+
+            } catch (error) {
+                removeTypingIndicator(typingId);
+                addMessageToUI('system', `Error: ${error.message}`);
+                console.error('LLM chat error:', error);
+            }
+        };
+
+        // Parse and execute canvas actions from LLM response
+        async function executeCanvasActions(message) {
+            console.log('[Canvas Action] Parsing message for actions...');
+
+            // Look for JSON code blocks with actions (more flexible regex)
+            const jsonBlockRegex = /```json\s*([\s\S]*?)```/g;
+            let match;
+            let foundActions = false;
+
+            while ((match = jsonBlockRegex.exec(message)) !== null) {
+                try {
+                    const jsonText = match[1].trim();
+                    console.log('[Canvas Action] Found JSON block:', jsonText);
+
+                    const actionData = JSON.parse(jsonText);
+
+                    if (actionData.action) {
+                        foundActions = true;
+                        console.log('[Canvas Action] Executing:', actionData.action, actionData.params);
+
+                        switch (actionData.action) {
+                            case 'navigate':
+                                if (actionData.params?.view) {
+                                    const validViews = ['seeker', 'learner', 'professional', 'personal'];
+                                    if (validViews.includes(actionData.params.view)) {
+                                        console.log('[Canvas Action] Navigating to:', actionData.params.view);
+                                        // Safe view switching with error handling
+                                        try {
+                                            // Check if persona button exists
+                                            const personaBtn = document.querySelector(`[data-persona="${actionData.params.view}"]`);
+
+                                            if (personaBtn) {
+                                                // Click the button to trigger normal flow
+                                                personaBtn.click();
+                                                addMessageToUI('system', `✓ Switched to ${actionData.params.view} view`);
+                                                showToast(`Switched to ${actionData.params.view} view`, 'success');
+                                            } else {
+                                                // Fallback: Direct persona switch
+                                                console.warn('[Canvas Action] Persona button not found, using direct switch');
+                                                currentPersona = actionData.params.view;
+                                                currentViewMode = actionData.params.view;
+
+                                                // Reload mindmap with new persona
+                                                d3.select('#canvas-mindmap').selectAll('*').remove();
+                                                initializeMindmap(actionData.params.view);
+
+                                                addMessageToUI('system', `✓ Switched to ${actionData.params.view} view`);
+                                                showToast(`Switched to ${actionData.params.view} view`, 'success');
+                                            }
+                                        } catch (error) {
+                                            console.error('[Canvas Action] Navigation failed:', error);
+                                            addMessageToUI('system', `✗ Failed to switch view: ${error.message}`);
+                                        }
+                                    } else {
+                                        console.warn('[Canvas Action] Invalid view:', actionData.params.view);
+                                    }
+                                }
+                                break;
+
+                            case 'showToast':
+                                if (actionData.params?.message) {
+                                    const type = actionData.params.type || 'info';
+                                    showToast(actionData.params.message, type);
+                                }
+                                break;
+
+                            case 'openModal':
+                                if (actionData.params?.modal) {
+                                    console.log('[Canvas Action] Opening modal:', actionData.params.modal);
+                                    try {
+                                        switch (actionData.params.modal) {
+                                            case 'addJob':
+                                                if (typeof addJobOpportunity === 'function') {
+                                                    addJobOpportunity();
+                                                    addMessageToUI('system', `✓ Opened add job modal`);
+                                                    showToast('Add Job modal opened', 'success');
+                                                } else {
+                                                    throw new Error('addJobOpportunity function not found');
+                                                }
+                                                break;
+
+                                            case 'addExperience':
+                                                if (typeof showExperienceForm === 'function') {
+                                                    showExperienceForm();
+                                                    addMessageToUI('system', `✓ Opened add experience form`);
+                                                    showToast('Add Experience form opened', 'success');
+                                                } else {
+                                                    throw new Error('showExperienceForm function not found');
+                                                }
+                                                break;
+
+                                            case 'addStory':
+                                                if (typeof showStoryForm === 'function') {
+                                                    showStoryForm();
+                                                    addMessageToUI('system', `✓ Opened add story form`);
+                                                    showToast('Add Story form opened', 'success');
+                                                } else {
+                                                    throw new Error('showStoryForm function not found');
+                                                }
+                                                break;
+
+                                            default:
+                                                console.warn('[Canvas Action] Unknown modal:', actionData.params.modal);
+                                                addMessageToUI('system', `✗ Unknown modal: ${actionData.params.modal}`);
+                                        }
+                                    } catch (error) {
+                                        console.error('[Canvas Action] Failed to open modal:', error);
+                                        addMessageToUI('system', `✗ Failed to open modal: ${error.message}`);
+                                    }
+                                }
+                                break;
+
+                            default:
+                                console.warn('[Canvas Action] Unknown action:', actionData.action);
+                        }
+                    }
+                } catch (error) {
+                    console.error('[Canvas Action] Failed to parse action:', error, 'JSON text:', match[1]);
+                }
+            }
+
+            if (!foundActions) {
+                console.log('[Canvas Action] No actions found in message');
+            }
+        }
+
+        // ============================================
+        // End Canvas Interaction API
+        // ============================================
 
         // ============================================
         // End LLM Integration Functions
