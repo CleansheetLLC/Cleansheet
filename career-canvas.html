@@ -2114,6 +2114,23 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             text-overflow: ellipsis;
         }
 
+        /* Clickable Status Items */
+        .status-item.clickable {
+            cursor: pointer;
+        }
+
+        .status-item.clickable:hover {
+            background: rgba(0, 102, 204, 0.08);
+        }
+
+        .status-item.clickable:hover i {
+            color: var(--color-primary-blue);
+        }
+
+        .status-item.clickable:hover .status-label {
+            color: var(--color-primary-blue);
+        }
+
         /* Auth Status States */
         .status-item.auth-authenticated i {
             color: #16a34a;
@@ -25912,6 +25929,19 @@ Start typing...`
             }
         }
 
+        // Handle auth status click in left panel
+        async function handleAuthStatusClick() {
+            const authenticated = typeof isAuthenticated !== 'undefined' && isAuthenticated;
+
+            if (authenticated) {
+                // Open sign out confirmation modal
+                openSignOutModal();
+            } else {
+                // Sign in directly
+                await auth.signIn();
+            }
+        }
+
         // Update authentication status in left panel
         function updateLeftPanelAuthStatus() {
             const authStatusEl = document.getElementById('leftPanelAuthStatus');
@@ -25924,6 +25954,10 @@ Start typing...`
             // Check if authenticated
             const authenticated = typeof isAuthenticated !== 'undefined' && isAuthenticated;
             const user = typeof currentUser !== 'undefined' ? currentUser : null;
+
+            // Make clickable and add handler
+            authStatusEl.classList.add('clickable');
+            authStatusEl.onclick = handleAuthStatusClick;
 
             // Remove all auth state classes
             authStatusEl.classList.remove('auth-authenticated', 'auth-not-authenticated');
