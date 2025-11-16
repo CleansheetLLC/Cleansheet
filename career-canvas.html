@@ -2000,10 +2000,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             padding: 24px;
             overflow: hidden;
             background: var(--color-neutral-background);
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 30% 70%;
+            gap: 24px;
+            transition: grid-template-columns 0.3s ease;
             min-height: 0;
             position: relative;
+        }
+
+        .canvas-modal-body.left-collapsed {
+            grid-template-columns: 0px 1fr;
+            gap: 0;
         }
 
         #canvas-mindmap {
@@ -2023,7 +2030,69 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             /* FIXED: Removed min-width/min-height to prevent overflow */
         }
 
+        /* Left Panel */
+        .left-panel {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
 
+        .canvas-modal-body.left-collapsed .left-panel {
+            opacity: 0;
+            transform: translateX(-20px);
+            pointer-events: none;
+        }
+
+        .left-panel-header {
+            padding: 20px;
+            background: var(--color-dark);
+            color: white;
+            border-bottom: 1px solid var(--color-neutral-border);
+            flex-shrink: 0;
+        }
+
+        .left-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        /* Left Panel Toggle Button */
+        .left-panel-toggle {
+            position: absolute;
+            top: 50%;
+            left: calc(30% + 24px);
+            transform: translateY(-50%);
+            z-index: 1001;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 0 8px 8px 0;
+            padding: 12px 8px;
+            cursor: pointer;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            color: var(--color-dark);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .canvas-modal-body.left-collapsed .left-panel-toggle {
+            left: 0;
+        }
+
+        .left-panel-toggle:hover {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
 
         /* Interview Prep Slideout (60% width) - Inside Canvas Modal */
         .interview-slideout {
@@ -7034,38 +7103,27 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             </div>
 
             <!-- Page Description & Privacy Notice -->
-            <div class="canvas-description" style="padding: 24px 24px 16px 24px; background: var(--color-neutral-background);">
-                <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;">
-                    <!-- Welcome Header (Collapsible) -->
-                    <div onclick="toggleWelcomePanel()" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
-                        <div style="flex: 1; display: flex; align-items: center; gap: 12px;">
-                            <h3 id="welcomeMessage" style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin: 0;">
-                                Welcome!
-                            </h3>
-                            <span id="subscriptionTierBadge" onclick="event.stopPropagation(); openSubscriptionModal();" style="padding: 4px 12px; background: var(--color-primary-blue); color: white; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 2px 8px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                                Member
-                            </span>
+            <div class="canvas-modal-body" id="canvasBody">
+                <!-- Left Panel -->
+                <div class="left-panel" id="leftPanel">
+                    <div class="left-panel-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 style="margin: 0; font-family: var(--font-family-ui); font-size: 18px; font-weight: 600;">Welcome, <span id="leftPanelUserName"></span></h3>
+                            <span id="leftPanelTierBadge" onclick="openSubscriptionModal();" style="padding: 4px 12px; background: var(--color-primary-blue); color: white; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 2px 8px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">Seeker</span>
                         </div>
-                        <i id="welcomeToggleIcon" class="ph ph-caret-up" style="font-size: 20px; color: var(--color-neutral-text); transition: transform 0.3s;"></i>
                     </div>
-
-                    <!-- Welcome Content (Collapsible) -->
-                    <div id="welcomeContent" style="border-top: 1px solid var(--color-neutral-border);">
-                        <div style="padding: 20px;">
-                            <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 12px 0;">
-                                Your personal Career Canvas workspace. Click on any menu item below to access your career management tools and resources.
-                            </p>
-                            <div style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5; margin-bottom: 16px;">
-                                <i class="ph ph-download" style="color: var(--color-primary-blue); margin-right: 6px;"></i>
-                                <strong>Remember:</strong> Export your data regularly to back up your work
-                            </div>
-                        </div>
+                    <div class="left-panel-body">
+                        <!-- Placeholder content -->
+                        <p style="font-family: var(--font-family-body); color: var(--color-neutral-text);">Content coming soon...</p>
                     </div>
                 </div>
-            </div>
 
-            <div class="canvas-modal-body" id="canvasBody">
                 <div id="canvas-mindmap"></div>
+
+                <!-- Left Panel Toggle Button -->
+                <button class="left-panel-toggle" id="leftPanelToggle" onclick="toggleLeftPanel()">
+                    <i class="ph ph-caret-left"></i>
+                </button>
 
                 <!-- Mobile Menu (visible only on mobile) -->
                 <div id="mobile-menu" class="mobile-menu">
@@ -15886,6 +15944,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         function openCanvasModal() {
             document.getElementById('canvasModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            // Initialize left panel user name
+            updateLeftPanelUserName();
 
             // FIXED: Load all user data and counts BEFORE initializing mindmap
             console.log('[Canvas Init] Loading user data and counts first...');
@@ -25600,6 +25661,60 @@ Start typing...`
             const profileRequestForm = document.getElementById('profileRequestFormContainer');
             if (profileRequestForm) {
                 profileRequestForm.style.display = 'none';
+            }
+        }
+
+        // Left panel collapse state - start expanded
+        let leftPanelCollapsed = false;
+
+        // Toggle Left Panel
+        function toggleLeftPanel() {
+            const body = document.getElementById('canvasBody');
+            const toggle = document.getElementById('leftPanelToggle');
+            const icon = toggle.querySelector('i');
+
+            leftPanelCollapsed = !leftPanelCollapsed;
+
+            if (leftPanelCollapsed) {
+                body.classList.add('left-collapsed');
+                icon.className = 'ph ph-caret-right';
+            } else {
+                body.classList.remove('left-collapsed');
+                icon.className = 'ph ph-caret-left';
+                // Update user name when expanding
+                updateLeftPanelUserName();
+            }
+        }
+
+        // Update user name in left panel
+        function updateLeftPanelUserName() {
+            const profileData = JSON.parse(localStorage.getItem('cleansheet_profile') || '{}');
+            const firstName = profileData.firstName || 'User';
+
+            const userNameEl = document.getElementById('leftPanelUserName');
+            if (userNameEl) {
+                userNameEl.textContent = firstName;
+            }
+
+            // Update subscription tier badge
+            const currentTier = localStorage.getItem('subscription_tier') || 'seeker';
+            const tierBadge = document.getElementById('leftPanelTierBadge');
+
+            if (tierBadge) {
+                const tierNames = {
+                    member: 'Member',
+                    learner: 'Learner',
+                    seeker: 'Job Seeker'
+                };
+
+                const tierColors = {
+                    member: '#16a34a',     // Green for free tier
+                    learner: '#0066CC',    // Primary blue for learner
+                    seeker: '#ea580c'      // Orange for job seeker
+                };
+
+                tierBadge.textContent = tierNames[currentTier] || 'Job Seeker';
+                tierBadge.style.background = tierColors[currentTier] || '#ea580c';
             }
         }
 
