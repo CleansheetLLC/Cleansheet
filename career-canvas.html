@@ -2064,6 +2064,127 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: white;
         }
 
+        /* Left Panel Status Bar */
+        .left-panel-status-bar {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--color-neutral-border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .status-item i {
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .status-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .status-label {
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            transition: color 0.2s;
+        }
+
+        .status-detail {
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            color: var(--color-neutral-text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Auth Status States */
+        .status-item.auth-authenticated i {
+            color: #16a34a;
+        }
+
+        .status-item.auth-authenticated .status-label {
+            color: #16a34a;
+        }
+
+        .status-item.auth-not-authenticated i {
+            color: #94a3b8;
+        }
+
+        .status-item.auth-not-authenticated .status-label {
+            color: #64748b;
+        }
+
+        /* Sync Status States */
+        .status-item.sync-syncing i {
+            color: #3b82f6;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-item.sync-syncing .status-label {
+            color: #3b82f6;
+        }
+
+        .status-item.sync-synced i {
+            color: #16a34a;
+        }
+
+        .status-item.sync-synced .status-label {
+            color: #16a34a;
+        }
+
+        .status-item.sync-error i {
+            color: #ef4444;
+        }
+
+        .status-item.sync-error .status-label {
+            color: #ef4444;
+        }
+
+        .status-item.sync-disabled i {
+            color: #94a3b8;
+        }
+
+        .status-item.sync-disabled .status-label {
+            color: #64748b;
+        }
+
+        /* Member Tier Disabled State */
+        .status-item.member-disabled {
+            opacity: 0.6;
+        }
+
+        .status-item.member-disabled .status-label::after {
+            content: " - Upgrade required";
+            font-weight: 400;
+            font-style: italic;
+            color: #ea580c;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
         /* Left Panel Toggle Button */
         .left-panel-toggle {
             position: absolute;
@@ -7112,6 +7233,28 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <span id="leftPanelTierBadge" onclick="openSubscriptionModal();" style="padding: 4px 12px; background: var(--color-primary-blue); color: white; border-radius: 12px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 2px 8px rgba(0, 102, 204, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">Seeker</span>
                         </div>
                     </div>
+
+                    <!-- Status Bar -->
+                    <div class="left-panel-status-bar" id="leftPanelStatusBar">
+                        <!-- Auth Status -->
+                        <div class="status-item" id="leftPanelAuthStatus" data-action="auth">
+                            <i class="ph ph-user-circle" id="leftPanelAuthIcon"></i>
+                            <div class="status-text">
+                                <div class="status-label" id="leftPanelAuthLabel">Not signed in</div>
+                                <div class="status-detail" id="leftPanelAuthDetail"></div>
+                            </div>
+                        </div>
+
+                        <!-- Sync Status -->
+                        <div class="status-item" id="leftPanelSyncStatus" data-action="sync">
+                            <i class="ph ph-cloud-slash" id="leftPanelSyncIcon"></i>
+                            <div class="status-text">
+                                <div class="status-label" id="leftPanelSyncLabel">Sync disabled</div>
+                                <div class="status-detail" id="leftPanelSyncDetail"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="left-panel-body">
                         <!-- Placeholder content -->
                         <p style="font-family: var(--font-family-body); color: var(--color-neutral-text);">Content coming soon...</p>
@@ -14222,6 +14365,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     console.log('[Auth Init] User not authenticated after bfcache restore');
                 }
                 isInitializing = false;
+
+                // Update left panel status after bfcache restore
+                updateLeftPanelStatusBar();
                 updateCloudSyncButton();
             }
         });
@@ -14241,6 +14387,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     isAuthenticated = true;
                     currentUser = auth.getUser();
                     console.log('[Auth Init] ✓ User authenticated:', currentUser.email);
+
+                    // Update left panel auth status
+                    updateLeftPanelAuthStatus();
 
                     // Initialize sync
                     console.log('[Auth Init] Initializing sync...');
@@ -14332,6 +14481,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             isAuthenticated = false;
             currentUser = null;
             updateCloudSyncButton();
+
+            // Update left panel auth and sync status
+            updateLeftPanelAuthStatus();
+            updateLeftPanelSyncStatus();
 
             await auth.signOut();
         }
@@ -14771,6 +14924,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     indicator.style.animation = 'pulse 1.5s ease-in-out infinite';
                     indicator.style.background = '#3b82f6'; // Blue when syncing
                 }
+                // Update left panel sync status
+                updateLeftPanelSyncStatus('syncing');
             });
 
             sync.addEventListener('sync_complete', (data) => {
@@ -14816,6 +14971,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         showToast('Data synced from cloud', 'success');
                     }
                 }
+
+                // Update left panel sync status
+                updateLeftPanelSyncStatus('synced');
             });
 
             sync.addEventListener('sync_error', () => {
@@ -14839,6 +14997,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         }
                     }, 2000);
                 }
+
+                // Update left panel sync status
+                updateLeftPanelSyncStatus('error');
             });
         }
 
@@ -15945,8 +16106,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             document.getElementById('canvasModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Initialize left panel user name
+            // Initialize left panel user name and status bar
             updateLeftPanelUserName();
+            updateLeftPanelStatusBar();
 
             // FIXED: Load all user data and counts BEFORE initializing mindmap
             console.log('[Canvas Init] Loading user data and counts first...');
@@ -17632,6 +17794,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // Update the subscription tier badge in the welcome header
             updateSubscriptionTierDisplay();
+
+            // Update left panel status bar (tier badge and sync status)
+            updateLeftPanelUserName();
+            updateLeftPanelSyncStatus();
 
             // Refresh the mindmap to show/hide nodes based on new tier
             if (typeof currentViewMode !== 'undefined' && currentViewMode) {
@@ -25681,8 +25847,9 @@ Start typing...`
             } else {
                 body.classList.remove('left-collapsed');
                 icon.className = 'ph ph-caret-left';
-                // Update user name when expanding
+                // Update user name and status bar when expanding
                 updateLeftPanelUserName();
+                updateLeftPanelStatusBar();
             }
         }
 
@@ -25716,6 +25883,119 @@ Start typing...`
                 tierBadge.textContent = tierNames[currentTier] || 'Job Seeker';
                 tierBadge.style.background = tierColors[currentTier] || '#ea580c';
             }
+        }
+
+        // Update authentication status in left panel
+        function updateLeftPanelAuthStatus() {
+            const authStatusEl = document.getElementById('leftPanelAuthStatus');
+            const authIconEl = document.getElementById('leftPanelAuthIcon');
+            const authLabelEl = document.getElementById('leftPanelAuthLabel');
+            const authDetailEl = document.getElementById('leftPanelAuthDetail');
+
+            if (!authStatusEl || !authIconEl || !authLabelEl || !authDetailEl) return;
+
+            // Check if authenticated
+            const authenticated = typeof isAuthenticated !== 'undefined' && isAuthenticated;
+            const user = typeof currentUser !== 'undefined' ? currentUser : null;
+
+            // Remove all auth state classes
+            authStatusEl.classList.remove('auth-authenticated', 'auth-not-authenticated');
+
+            if (authenticated && user) {
+                // Authenticated state
+                authStatusEl.classList.add('auth-authenticated');
+                authIconEl.className = 'ph ph-check-circle';
+                authLabelEl.textContent = 'Signed in';
+                authDetailEl.textContent = user.email || '';
+            } else {
+                // Not authenticated state
+                authStatusEl.classList.add('auth-not-authenticated');
+                authIconEl.className = 'ph ph-user-circle';
+                authLabelEl.textContent = 'Not signed in';
+                authDetailEl.textContent = '';
+            }
+        }
+
+        // Update sync status in left panel
+        function updateLeftPanelSyncStatus(state = null) {
+            const syncStatusEl = document.getElementById('leftPanelSyncStatus');
+            const syncIconEl = document.getElementById('leftPanelSyncIcon');
+            const syncLabelEl = document.getElementById('leftPanelSyncLabel');
+            const syncDetailEl = document.getElementById('leftPanelSyncDetail');
+
+            if (!syncStatusEl || !syncIconEl || !syncLabelEl || !syncDetailEl) return;
+
+            // Check subscription tier
+            const currentTier = localStorage.getItem('subscription_tier') || 'seeker';
+            const isMember = currentTier === 'member';
+
+            // Check if authenticated
+            const authenticated = typeof isAuthenticated !== 'undefined' && isAuthenticated;
+
+            // Remove all sync state classes
+            syncStatusEl.classList.remove('sync-syncing', 'sync-synced', 'sync-error', 'sync-disabled', 'member-disabled');
+
+            // Member tier - show disabled state
+            if (isMember) {
+                syncStatusEl.classList.add('sync-disabled', 'member-disabled');
+                syncIconEl.className = 'ph ph-cloud-slash';
+                syncLabelEl.textContent = 'Cloud sync';
+                syncDetailEl.textContent = '';
+                return;
+            }
+
+            // Not authenticated - show disabled state
+            if (!authenticated) {
+                syncStatusEl.classList.add('sync-disabled');
+                syncIconEl.className = 'ph ph-cloud-slash';
+                syncLabelEl.textContent = 'Sync disabled';
+                syncDetailEl.textContent = 'Sign in to enable';
+                return;
+            }
+
+            // Authenticated - show sync state
+            if (state === 'syncing') {
+                syncStatusEl.classList.add('sync-syncing');
+                syncIconEl.className = 'ph ph-cloud-arrow-up';
+                syncLabelEl.textContent = 'Syncing...';
+                syncDetailEl.textContent = '';
+            } else if (state === 'error') {
+                syncStatusEl.classList.add('sync-error');
+                syncIconEl.className = 'ph ph-cloud-warning';
+                syncLabelEl.textContent = 'Sync failed';
+                syncDetailEl.textContent = 'Retry available';
+            } else {
+                // Synced or idle state
+                syncStatusEl.classList.add('sync-synced');
+                syncIconEl.className = 'ph ph-cloud-check';
+                syncLabelEl.textContent = 'Synced';
+
+                // Get last sync time
+                const lastSync = localStorage.getItem('cleansheet_last_modified');
+                if (lastSync) {
+                    const syncDate = new Date(lastSync);
+                    const now = new Date();
+                    const diffMs = now - syncDate;
+                    const diffMins = Math.floor(diffMs / 60000);
+
+                    if (diffMins < 1) {
+                        syncDetailEl.textContent = 'Just now';
+                    } else if (diffMins < 60) {
+                        syncDetailEl.textContent = `${diffMins}m ago`;
+                    } else {
+                        const diffHours = Math.floor(diffMins / 60);
+                        syncDetailEl.textContent = `${diffHours}h ago`;
+                    }
+                } else {
+                    syncDetailEl.textContent = '';
+                }
+            }
+        }
+
+        // Update all status indicators in left panel
+        function updateLeftPanelStatusBar() {
+            updateLeftPanelAuthStatus();
+            updateLeftPanelSyncStatus();
         }
 
         // Track selected experience filters
