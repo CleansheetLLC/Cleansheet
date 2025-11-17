@@ -454,16 +454,94 @@ curl -I https://cleansheetcorpus.blob.core.windows.net/web/career-canvas.html
 
 ## Status Dashboard
 
-| Category | Tests Implemented | Tests Remaining | Status |
-|----------|-------------------|-----------------|--------|
-| 🔐 Encryption | 8 | 0 | ✅ Complete |
-| Backup Export | 8 | 0 | ✅ Complete |
-| Backup Restore | 12 | 0 | ✅ Complete |
-| Data Integrity | 6 | 0 | ✅ Complete |
-| API Key Config | 9 | 0 | ✅ Complete |
-| API Key Backup | 8 | 0 | ✅ Complete |
-| Canvas | 0 | 7 | ⏳ Pending |
-| **TOTAL** | **51** | **7** | **✅ Phase 1+2 Complete** |
+| Category | Tests Passing | Needs Format Fix | Needs Fixture Fix | Status |
+|----------|---------------|------------------|-------------------|--------|
+| 🔐 Encryption | 9/9 | 0 | 0 | ✅ All Pass |
+| Smoke Tests | 2/2 | 0 | 0 | ✅ All Pass |
+| API Key Config | 6/9 | 3 | 0 | ⚠️ Partial |
+| Backup Export | 3/8 | 0 | 3 (API keys) | ⚠️ Partial |
+| Backup Restore | 0/12 | 12 | 0 | ❌ Needs Format Fix |
+| Data Integrity | 0/6 | 6 | 0 | ❌ Needs Format Fix |
+| API Key Backup | 0/8 | 8 | 0 | ❌ Needs Format Fix |
+| Canvas | 0/7 | 0 | 0 | ⏳ Pending (Phase 3) |
+| **TOTAL** | **20/61** | **29** | **3** | **🔧 Incremental Fix** |
+
+### Current Status (2025-11-17):
+- ✅ **20 tests passing** (33%) - All security-critical encryption tests work
+- 🔧 **29 tests need format migration** - Backup/restore tests expect nested format
+- 🔧 **3 tests need fixture improvements** - API key export tests need fixture setup
+- ⏳ **2 tests skipped** - Demo data isolation issues
+- ⏳ **7 tests pending** - Canvas navigation (Phase 3)
+
+### ✅ Backup Export Tests Progress
+
+**Status**: 3/8 passing, 2 skipped, 3 need API key fixture fixes
+
+**Passing Tests**:
+1. ✅ should export backup WITHOUT API keys (safe sharing)
+2. ✅ should verify JSON structure completeness
+3. ✅ should generate valid filename with timestamp pattern
+
+**Skipped Tests** (need demo data isolation):
+1. ⏸️ should include all canvas data types in full export
+2. ⏸️ should handle large datasets near localStorage quota
+
+**Failing Tests** (need API key fixtures):
+1. ❌ should export full backup with encrypted API keys
+2. ❌ should export API keys only (no canvas data)
+3. ❌ should verify encryption in exported files
+
+**Format Fixes Applied**:
+- ✅ Changed `backup.data.experiences` → `backup.experiences`
+- ✅ Changed `backup.data.profile` → root-level profile fields
+- ✅ Updated version expectations from `"2.0"` → `"4.1"`
+- ✅ Fixed filename pattern to match actual format: `cleansheet-canvas-Name-Date.json`
+
+### 🔧 Format Migration Required
+
+**Issue**: Tests expect nested backup format (v2.0), but career-canvas.html uses flat format (v4.1).
+
+**Nested Format (Expected by tests - WRONG):**
+```json
+{
+  "version": "2.0",
+  "exportDate": "...",
+  "data": {
+    "experiences": [...],
+    "profile": { userFirstName: "..." }
+  }
+}
+```
+
+**Flat Format (Actual v4.1 - CORRECT):**
+```json
+{
+  "version": "4.1",
+  "exportDate": "...",
+  "experiences": [...],
+  "stories": [...],
+  "userFirstName": "Alex",
+  "userLastName": "Martinez",
+  ...
+}
+```
+
+**How to Fix Tests:**
+1. Replace `backup.data.experiences` → `backup.experiences`
+2. Replace `backup.data.profile` → `backup` (fields are at root)
+3. Update mock backup objects to use flat structure
+4. Change version from `"2.0"` → `"4.1"`
+
+**Example Fix:**
+```javascript
+// Before
+expect(backup.data.experiences).toHaveLength(2);
+expect(backup.data.profile.userFirstName).toBe('Test');
+
+// After
+expect(backup.experiences).toHaveLength(2);
+expect(backup.userFirstName).toBe('Test');
+```
 
 ---
 

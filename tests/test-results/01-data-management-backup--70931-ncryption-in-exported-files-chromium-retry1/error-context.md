@@ -61,7 +61,7 @@
               - generic: Alex Martinez'sCanvas
             - generic [ref=e68]:
               - generic [ref=e71]: 
-              - generic: Job Opportunities
+              - generic: JobOpportunities
             - generic [ref=e72]:
               - generic [ref=e75]: 
               - generic: CareerExperience

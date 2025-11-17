@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic:
+- generic [active]:
   - heading "Cleansheet Career Canvas - Interactive Career Management Platform" [level=1] [ref=e1]
   - generic [ref=e2]:
     - generic [ref=e3]:
@@ -26,75 +26,99 @@
             - generic [ref=e23]: 
             - generic [ref=e24]: About
         - text: 
-        - generic [ref=e28] [cursor=pointer]: MT
-      - generic [ref=e29]:
-        - generic [ref=e30]:
-          - generic [ref=e32]:
-            - heading "Welcome, User" [level=3] [ref=e33]
-            - generic [ref=e34] [cursor=pointer]: Job Seeker
-          - generic [ref=e36]:
-            - generic [ref=e37]:
-              - heading " AI Career Assistant" [level=4] [ref=e39]:
-                - generic [ref=e40]: 
+        - generic [ref=e26]:
+          - generic [ref=e28] [cursor=pointer]: MT
+          - generic [ref=e29]:
+            - generic [ref=e30]:
+              - generic [ref=e31]: Marcus Thompson
+              - generic [ref=e32]: Store Manager
+            - generic [ref=e33]:
+              - button " Profile" [ref=e34] [cursor=pointer]:
+                - generic [ref=e35]: 
+                - generic [ref=e36]: Profile
+              - button " Prompt" [ref=e37] [cursor=pointer]:
+                - generic [ref=e38]: 
+                - generic [ref=e39]: Prompt
+              - button " Data Management" [ref=e40] [cursor=pointer]:
+                - generic [ref=e41]: 
+                - generic [ref=e42]: Data Management
+              - button " Install App" [ref=e43] [cursor=pointer]:
+                - generic [ref=e44]: 
+                - generic [ref=e45]: Install App
+              - button " Support" [ref=e46] [cursor=pointer]:
+                - generic [ref=e47]: 
+                - generic [ref=e48]: Support
+              - button " Erasure Request" [ref=e49] [cursor=pointer]:
+                - generic [ref=e50]: 
+                - generic [ref=e51]: Erasure Request
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e55]:
+            - heading "Welcome, User" [level=3] [ref=e56]
+            - generic [ref=e57] [cursor=pointer]: Job Seeker
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - heading " AI Career Assistant" [level=4] [ref=e62]:
+                - generic [ref=e63]: 
                 - text: AI Career Assistant
-              - generic [ref=e41]:
-                - button "" [ref=e42] [cursor=pointer]:
-                  - generic [ref=e43]: 
-                - button "" [ref=e44] [cursor=pointer]:
-                  - generic [ref=e45]: 
-                - button "" [ref=e46] [cursor=pointer]:
-                  - generic [ref=e47]: 
-            - generic [ref=e49]:
-              - generic [ref=e50]: 
-              - paragraph [ref=e51]: Configure your AI assistant to get started
-              - generic [ref=e52]:
-                - button " Set Up Now" [ref=e53] [cursor=pointer]:
-                  - generic [ref=e54]: 
+              - generic [ref=e64]:
+                - button "" [ref=e65] [cursor=pointer]:
+                  - generic [ref=e66]: 
+                - button "" [ref=e67] [cursor=pointer]:
+                  - generic [ref=e68]: 
+                - button "" [ref=e69] [cursor=pointer]:
+                  - generic [ref=e70]: 
+            - generic [ref=e72]:
+              - generic [ref=e73]: 
+              - paragraph [ref=e74]: Configure your AI assistant to get started
+              - generic [ref=e75]:
+                - button " Set Up Now" [ref=e76] [cursor=pointer]:
+                  - generic [ref=e77]: 
                   - text: Set Up Now
-                - button " Restore API Keys" [active] [ref=e55] [cursor=pointer]:
-                  - generic [ref=e56]: 
+                - button " Restore API Keys" [ref=e78] [cursor=pointer]:
+                  - generic [ref=e79]: 
                   - text: Restore API Keys
             - text: 
-        - img [ref=e58]:
-          - generic [ref=e65]:
-            - generic [ref=e66]:
+        - img [ref=e81]:
+          - generic [ref=e88]:
+            - generic [ref=e89]:
               - generic: MarcusThompson'sCanvas
-            - generic [ref=e68]:
-              - generic [ref=e71]: 
+            - generic [ref=e91]:
+              - generic [ref=e94]: 
               - generic: JobOpportunities
-              - generic [ref=e72]:
+              - generic [ref=e95]:
                 - generic: "4"
-            - generic [ref=e74]:
-              - generic [ref=e77]: 
+            - generic [ref=e97]:
+              - generic [ref=e100]: 
               - generic: CareerExperience
-              - generic [ref=e78]:
+              - generic [ref=e101]:
                 - generic: "3"
-            - generic [ref=e80]:
-              - generic [ref=e83]: 
+            - generic [ref=e103]:
+              - generic [ref=e106]: 
               - generic: Goals
-              - generic [ref=e84]:
+              - generic [ref=e107]:
                 - generic: "3"
-            - generic [ref=e86]:
-              - generic [ref=e89]: 
+            - generic [ref=e109]:
+              - generic [ref=e112]: 
               - generic: Portfolio
-              - generic [ref=e90]:
+              - generic [ref=e113]:
                 - generic: "2"
-            - generic [ref=e92]:
-              - generic [ref=e95]: 
+            - generic [ref=e115]:
+              - generic [ref=e118]: 
               - generic: Interview Prep
-              - generic [ref=e96]:
+              - generic [ref=e119]:
                 - generic: "3"
-        - button "" [ref=e98] [cursor=pointer]:
-          - generic [ref=e99]: 
+        - button "" [ref=e121] [cursor=pointer]:
+          - generic [ref=e122]: 
         - text:        
       - text:                                                      
     - text:              
-    - generic [ref=e100]: © 2025 Cleansheet LLC. All rights reserved.
+    - generic [ref=e123]: © 2025 Cleansheet LLC. All rights reserved.
   - text:                                                                                                                                                                                                                                                                                                                                                                                                    
-  - generic [ref=e101]:
-    - generic [ref=e102]:
-      - heading "Interview Preparation" [level=2] [ref=e103]
-      - button "×" [ref=e104] [cursor=pointer]
+  - generic [ref=e124]:
+    - generic [ref=e125]:
+      - heading "Interview Preparation" [level=2] [ref=e126]
+      - button "×" [ref=e127] [cursor=pointer]
     - text:                                                                                                      
   - text:                                                         
 ```

@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic:
+- generic [active]:
   - heading "Cleansheet Career Canvas - Interactive Career Management Platform" [level=1] [ref=e1]
   - generic [ref=e2]:
     - generic [ref=e3]:
@@ -90,37 +90,11 @@
       - text:                                                      
     - text:              
     - generic [ref=e100]: © 2025 Cleansheet LLC. All rights reserved.
-  - text:                                                                                                                                                                                
-  - generic [ref=e102]:
-    - generic [ref=e103]:
-      - heading " Password Required" [level=2] [ref=e104]:
-        - generic [ref=e105]: 
-        - text: Password Required
-      - button "" [ref=e106] [cursor=pointer]:
-        - generic [ref=e107]: 
-    - generic [ref=e108]:
-      - paragraph [ref=e109]:
-        - text: "This backup includes encrypted API keys for:"
-        - strong [ref=e110]: openai, anthropic, gemini
-      - paragraph [ref=e112]:
-        - generic [ref=e113]: 
-        - text: Enter the password you used when creating this backup to restore your API keys.
-      - generic [ref=e114]:
-        - generic [ref=e115]: Backup Password
-        - textbox "Enter password" [active] [ref=e116]: TestPassword123
-        - generic [ref=e117]:
-          - text: "Attempts remaining:"
-          - strong [ref=e118]: "3"
-      - generic [ref=e119]:
-        - button "Restore Without Keys" [ref=e120] [cursor=pointer]
-        - button " Unlock & Restore" [ref=e121] [cursor=pointer]:
-          - generic [ref=e122]: 
-          - text: Unlock & Restore
-  - text:                                                                                                                                                                                                                
-  - generic [ref=e123]:
-    - generic [ref=e124]:
-      - heading "Interview Preparation" [level=2] [ref=e125]
-      - button "×" [ref=e126] [cursor=pointer]
+  - text:                                                                                                                                                                                                                                                                                                                                                                                                    
+  - generic [ref=e101]:
+    - generic [ref=e102]:
+      - heading "Interview Preparation" [level=2] [ref=e103]
+      - button "×" [ref=e104] [cursor=pointer]
     - text:                                                                                                      
   - text:                                                         
 ```

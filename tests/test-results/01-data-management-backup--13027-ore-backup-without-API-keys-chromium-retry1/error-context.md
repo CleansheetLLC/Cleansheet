@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic:
+- generic [active]:
   - heading "Cleansheet Career Canvas - Interactive Career Management Platform" [level=1] [ref=e1]
   - generic [ref=e2]:
     - generic [ref=e3]:
@@ -51,7 +51,7 @@
                 - button " Set Up Now" [ref=e53] [cursor=pointer]:
                   - generic [ref=e54]: 
                   - text: Set Up Now
-                - button " Restore API Keys" [active] [ref=e55] [cursor=pointer]:
+                - button " Restore API Keys" [ref=e55] [cursor=pointer]:
                   - generic [ref=e56]: 
                   - text: Restore API Keys
             - text: 
