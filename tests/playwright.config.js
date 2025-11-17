@@ -1,5 +1,23 @@
 // Playwright Test Configuration - Cleansheet Career Canvas
 // Enhanced for encryption testing, multi-browser support, and complex workflows
+//
+// TESTING MODES:
+// 1. Local Testing (DEFAULT):
+//    - Run: npx playwright test
+//    - Uses: http://localhost:8000
+//    - Auto-starts Python HTTP server
+//    - No authentication required
+//
+// 2. Azure Production Testing (EXPLICIT):
+//    - Run: AZURE_TEST=1 npx playwright test
+//    - Uses: https://cleansheetcorpus.blob.core.windows.net
+//    - Requires: Azure Blob Storage anonymous public access enabled
+//    - WARNING: Will fail if authentication is required
+//
+// 3. CI Testing:
+//    - Run: CI=1 npx playwright test
+//    - Uses: Local testing (default)
+//    - Serial execution, 2 retries, full traces
 
 const { defineConfig, devices } = require('@playwright/test');
 
@@ -35,8 +53,12 @@ module.exports = defineConfig({
 
   // Shared settings for all projects
   use: {
-    // Base URL for tests
-    baseURL: 'https://cleansheetcorpus.blob.core.windows.net',
+    // Base URL for tests - LOCAL by default, Azure only when explicitly testing production
+    baseURL: process.env.LOCAL_TEST
+      ? 'http://localhost:8000'
+      : process.env.AZURE_TEST
+        ? 'https://cleansheetcorpus.blob.core.windows.net'
+        : 'http://localhost:8000', // Default to local
 
     // Collect trace on failure (critical for debugging encryption issues)
     trace: 'on-first-retry',
@@ -85,11 +107,14 @@ module.exports = defineConfig({
     // }
   ],
 
-  // Web server configuration (for local testing)
-  webServer: process.env.LOCAL_TEST ? {
-    command: 'python -m http.server 8000',
+  // Web server configuration (auto-start for local testing)
+  // Only skip if explicitly testing against Azure
+  webServer: !process.env.AZURE_TEST ? {
+    command: 'cd .. && python -m http.server 8000',
     port: 8000,
     reuseExistingServer: !process.env.CI,
-    timeout: 120000
+    timeout: 120000,
+    stdout: 'pipe',
+    stderr: 'pipe'
   } : undefined
 });

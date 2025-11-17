@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- generic [active]:
+  - heading "Cleansheet Career Canvas - Interactive Career Management Platform" [level=1] [ref=e1]
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - link "Cleansheet Logo" [ref=e6] [cursor=pointer]:
+          - /url: index.html
+          - img "Cleansheet Logo" [ref=e7]
+        - generic [ref=e8]:
+          - button " Canvas" [ref=e9] [cursor=pointer]:
+            - generic [ref=e10]: 
+            - generic [ref=e11]: Canvas
+          - button " Paths" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]: 
+            - generic [ref=e14]: Paths
+          - button " Industry" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 
+            - generic [ref=e17]: Industry
+          - button " Library" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: 
+            - generic [ref=e20]: Library
+          - button " About" [ref=e22] [cursor=pointer]:
+            - generic [ref=e23]: 
+            - generic [ref=e24]: About
+        - text: 
+        - generic [ref=e28] [cursor=pointer]: AM
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e32]:
+            - heading "Welcome, User" [level=3] [ref=e33]
+            - generic [ref=e34] [cursor=pointer]: Job Seeker
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - heading " AI Career Assistant" [level=4] [ref=e39]:
+                - generic [ref=e40]: 
+                - text: AI Career Assistant
+              - generic [ref=e41]:
+                - button "" [ref=e42] [cursor=pointer]:
+                  - generic [ref=e43]: 
+                - button "" [ref=e44] [cursor=pointer]:
+                  - generic [ref=e45]: 
+                - button "" [ref=e46] [cursor=pointer]:
+                  - generic [ref=e47]: 
+            - generic [ref=e49]:
+              - generic [ref=e50]: 
+              - paragraph [ref=e51]: Configure your AI assistant to get started
+              - generic [ref=e52]:
+                - button " Set Up Now" [ref=e53] [cursor=pointer]:
+                  - generic [ref=e54]: 
+                  - text: Set Up Now
+                - button " Restore API Keys" [ref=e55] [cursor=pointer]:
+                  - generic [ref=e56]: 
+                  - text: Restore API Keys
+            - text: 
+        - img [ref=e58]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic: Alex Martinez'sCanvas
+            - generic [ref=e68]:
+              - generic [ref=e71]: 
+              - generic: Job Opportunities
+            - generic [ref=e72]:
+              - generic [ref=e75]: 
+              - generic: CareerExperience
+            - generic [ref=e76]:
+              - generic [ref=e79]: 
+              - generic: Goals
+            - generic [ref=e80]:
+              - generic [ref=e83]: 
+              - generic: Portfolio
+            - generic [ref=e84]:
+              - generic [ref=e87]: 
+              - generic: Interview Prep
+              - generic [ref=e88]:
+                - generic: "3"
+        - button "" [ref=e90] [cursor=pointer]:
+          - generic [ref=e91]: 
+        - text:        
+      - text:                                                      
+    - text:              
+    - generic [ref=e92]: © 2025 Cleansheet LLC. All rights reserved.
+  - text:                                                                                                                                                                                                                                                                                                                                                                                                    
+  - generic [ref=e93]:
+    - generic [ref=e94]:
+      - heading "Interview Preparation" [level=2] [ref=e95]
+      - button "×" [ref=e96] [cursor=pointer]
+    - text:                                                                                                      
+  - text:                                                         
+```
