@@ -17373,6 +17373,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             let totalMessages = 0;
             let totalTokens = 0;
             let totalCost = 0;
+            let totalTruncations = 0;
+            let totalContinuations = 0;
+            let totalContextOptimizations = 0;
+            let totalResponseLength = 0;
 
             // Create stats card for ALL providers (showing usage across all)
             for (const provider in providerInfo) {
@@ -17387,6 +17391,20 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 totalMessages += providerUsage.messages || 0;
                 totalTokens += providerUsage.tokens || 0;
                 totalCost += providerUsage.cost || 0;
+                totalTruncations += providerUsage.truncations || 0;
+                totalContinuations += providerUsage.continuations || 0;
+                totalContextOptimizations += providerUsage.contextOptimizations || 0;
+                totalResponseLength += providerUsage.totalResponseLength || 0;
+
+                // Calculate average response length
+                const avgResponseLength = providerUsage.messages > 0
+                    ? Math.round((providerUsage.totalResponseLength || 0) / providerUsage.messages)
+                    : 0;
+
+                // Calculate truncation rate
+                const truncationRate = providerUsage.messages > 0
+                    ? Math.round(((providerUsage.truncations || 0) / providerUsage.messages) * 100)
+                    : 0;
 
                 const card = document.createElement('div');
                 card.style.cssText = 'background: #f5f5f7; border-radius: 12px; padding: 16px; margin-bottom: 12px;';
@@ -17401,7 +17419,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             Dashboard
                         </a>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;">
                         <div>
                             <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
                             <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${providerUsage.messages || 0}</div>
@@ -17415,6 +17433,31 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">$${(providerUsage.cost || 0).toFixed(2)}</div>
                         </div>
                     </div>
+                    <div style="border-top: 1px solid var(--color-neutral-border); padding-top: 12px;">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Token Management
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-bottom: 2px;">Truncations</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${truncationRate > 20 ? '#f59e0b' : info.color};">
+                                    ${providerUsage.truncations || 0} <span style="font-size: 10px; font-weight: 400;">(${truncationRate}%)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-bottom: 2px;">Continuations</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color};">${providerUsage.continuations || 0}</div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-bottom: 2px;">Context Opt.</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color};">${providerUsage.contextOptimizations || 0}</div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-bottom: 2px;">Avg Length</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color};">${avgResponseLength.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
                 `;
                 container.appendChild(card);
             }
@@ -17422,13 +17465,21 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // Show total if multiple providers have usage
             const providersWithUsage = Object.keys(providerInfo).filter(p => usage[p] && usage[p].messages > 0);
             if (providersWithUsage.length > 1) {
+                // Calculate overall averages
+                const totalAvgResponseLength = totalMessages > 0
+                    ? Math.round(totalResponseLength / totalMessages)
+                    : 0;
+                const totalTruncationRate = totalMessages > 0
+                    ? Math.round((totalTruncations / totalMessages) * 100)
+                    : 0;
+
                 const totalCard = document.createElement('div');
                 totalCard.style.cssText = 'background: var(--color-primary-blue); border-radius: 12px; padding: 16px; margin-top: 4px;';
                 totalCard.innerHTML = `
                     <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white; margin: 0 0 12px 0;">
                         Total (All Providers)
                     </h4>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;">
                         <div>
                             <div style="font-family: var(--font-family-body); font-size: 10px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
                             <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">${totalMessages}</div>
@@ -17440,6 +17491,31 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         <div>
                             <div style="font-family: var(--font-family-body); font-size: 10px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
                             <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">$${totalCost.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px;">
+                        <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Token Management
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">Truncations</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white;">
+                                    ${totalTruncations} <span style="font-size: 10px; font-weight: 400;">(${totalTruncationRate}%)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">Continuations</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white;">${totalContinuations}</div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">Context Opt.</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white;">${totalContextOptimizations}</div>
+                            </div>
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">Avg Length</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white;">${totalAvgResponseLength.toLocaleString()}</div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -17878,6 +17954,233 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             showToast('AI Assistant configured!', 'success');
         }
 
+        // ==========================================
+        // TOKEN MANAGEMENT & CONTEXT TRIMMING
+        // ==========================================
+
+        /**
+         * Estimate token count for text (approximate, conservative)
+         * Formula: tokens ≈ (characters / 4) + (words × 0.3)
+         * Works across OpenAI, Anthropic, and Gemini
+         */
+        function estimateTokens(text) {
+            if (!text) return 0;
+            const charCount = text.length;
+            const wordCount = text.trim().split(/\s+/).length;
+            return Math.ceil((charCount / 4) + (wordCount * 0.3));
+        }
+
+        /**
+         * Get model's context window size
+         */
+        function getModelContextWindow() {
+            if (!currentProvider) return 128000; // Default to GPT-4o
+
+            const providerName = currentProvider.getName().toLowerCase();
+            const models = currentProvider.getModels();
+            const currentModel = currentProvider.config.model || currentProvider.defaultModel;
+            const modelInfo = models.find(m => m.id === currentModel);
+
+            if (modelInfo && modelInfo.contextWindow) {
+                return modelInfo.contextWindow;
+            }
+
+            // Fallback defaults by provider
+            if (providerName === 'anthropic') return 200000;
+            if (providerName === 'gemini') return 1000000;
+            return 128000; // OpenAI default
+        }
+
+        /**
+         * Analyze question complexity and determine optimal token budget split
+         * Returns { contextBudget, responseBudget } in tokens
+         */
+        function calculateTokenBudget(question) {
+            const contextWindow = getModelContextWindow();
+            const safeLimit = Math.floor(contextWindow * 0.8); // Use 80% of context window
+
+            // Get user's response length preference
+            const contextControl = JSON.parse(localStorage.getItem('llm_context_preferences') || '{}');
+            const maxResponseTokens = contextControl.responseLength || 4096;
+
+            // Analyze question complexity
+            const lowerQuestion = question.toLowerCase();
+
+            // Context-heavy keywords (need more input context)
+            const contextHeavyKeywords = ['review', 'analyze', 'look at', 'check', 'evaluate', 'assess', 'critique'];
+            const isContextHeavy = contextHeavyKeywords.some(kw => lowerQuestion.includes(kw));
+
+            // Simple questions (need more response space)
+            const simpleKeywords = ['what', 'how', 'why', 'explain', 'tell me', 'describe'];
+            const isSimple = simpleKeywords.some(kw => lowerQuestion.includes(kw)) && question.length < 100;
+
+            // Complex generation tasks (balanced)
+            const complexKeywords = ['create', 'generate', 'write', 'develop', 'build', 'design', 'plan'];
+            const isComplex = complexKeywords.some(kw => lowerQuestion.includes(kw));
+
+            let contextBudget, responseBudget;
+
+            if (isContextHeavy) {
+                // 70% context, 30% response
+                responseBudget = Math.min(maxResponseTokens, Math.floor(safeLimit * 0.3));
+                contextBudget = safeLimit - responseBudget;
+            } else if (isSimple) {
+                // 30% context, 70% response
+                responseBudget = Math.min(maxResponseTokens, Math.floor(safeLimit * 0.7));
+                contextBudget = safeLimit - responseBudget;
+            } else {
+                // 50% context, 50% response (balanced - default)
+                responseBudget = Math.min(maxResponseTokens, Math.floor(safeLimit * 0.5));
+                contextBudget = safeLimit - responseBudget;
+            }
+
+            return {
+                contextBudget: contextBudget,
+                responseBudget: responseBudget,
+                totalBudget: safeLimit
+            };
+        }
+
+        /**
+         * Intelligently trim context to fit within budget
+         * Prioritizes: 1) Recency, 2) Relevance to question
+         * Returns trimmed context object and stats
+         */
+        function trimContextToFit(contextData, question, budgetTokens) {
+            const trimmedContext = { ...contextData };
+            let stats = {
+                originalItems: 0,
+                trimmedItems: 0,
+                originalTokens: 0,
+                trimmedTokens: 0,
+                removed: []
+            };
+
+            // Helper: Calculate relevance score (0-1)
+            function calculateRelevance(text, question) {
+                if (!text || !question) return 0;
+                const keywords = question.toLowerCase().split(/\s+/);
+                const textLower = text.toLowerCase();
+                const matches = keywords.filter(kw => kw.length > 3 && textLower.includes(kw)).length;
+                return matches / keywords.length;
+            }
+
+            // Helper: Sort by recency (newer first)
+            function sortByRecency(items, dateField = 'date') {
+                return [...items].sort((a, b) => {
+                    const dateA = new Date(a[dateField] || a.startDate || a.createdDate || 0);
+                    const dateB = new Date(b[dateField] || b.startDate || b.createdDate || 0);
+                    return dateB - dateA;
+                });
+            }
+
+            // Trim experiences (keep 5 most recent + relevant)
+            if (trimmedContext.experiences && Array.isArray(trimmedContext.experiences)) {
+                stats.originalItems += trimmedContext.experiences.length;
+
+                const scoredExperiences = trimmedContext.experiences.map(exp => ({
+                    ...exp,
+                    relevanceScore: calculateRelevance(
+                        `${exp.role} ${exp.company} ${exp.description} ${exp.skills?.join(' ')}`,
+                        question
+                    ),
+                    recencyScore: new Date(exp.endDate || Date.now()).getTime()
+                }));
+
+                // Sort by combined score (50% relevance, 50% recency)
+                scoredExperiences.sort((a, b) => {
+                    const scoreA = (a.relevanceScore * 0.5) + ((a.recencyScore / Date.now()) * 0.5);
+                    const scoreB = (b.relevanceScore * 0.5) + ((b.recencyScore / Date.now()) * 0.5);
+                    return scoreB - scoreA;
+                });
+
+                trimmedContext.experiences = scoredExperiences.slice(0, 5).map(({ relevanceScore, recencyScore, ...exp }) => exp);
+                stats.trimmedItems += trimmedContext.experiences.length;
+
+                if (scoredExperiences.length > 5) {
+                    stats.removed.push(`${scoredExperiences.length - 5} older experiences`);
+                }
+            }
+
+            // Trim goals (keep 3 most recent active goals)
+            if (trimmedContext.goals && Array.isArray(trimmedContext.goals)) {
+                stats.originalItems += trimmedContext.goals.length;
+
+                const activeGoals = trimmedContext.goals.filter(g => g.status !== 'Completed');
+                const sortedGoals = sortByRecency(activeGoals, 'targetDate');
+
+                trimmedContext.goals = sortedGoals.slice(0, 3);
+                stats.trimmedItems += trimmedContext.goals.length;
+
+                if (trimmedContext.goals.length < activeGoals.length) {
+                    stats.removed.push(`${activeGoals.length - trimmedContext.goals.length} older goals`);
+                }
+            }
+
+            // Trim STAR stories (keep 3 most relevant)
+            if (trimmedContext.stories && Array.isArray(trimmedContext.stories)) {
+                stats.originalItems += trimmedContext.stories.length;
+
+                const scoredStories = trimmedContext.stories.map(story => ({
+                    ...story,
+                    relevanceScore: calculateRelevance(
+                        `${story.situation} ${story.task} ${story.action} ${story.result} ${story.competencies?.join(' ')}`,
+                        question
+                    )
+                }));
+
+                scoredStories.sort((a, b) => b.relevanceScore - a.relevanceScore);
+                trimmedContext.stories = scoredStories.slice(0, 3).map(({ relevanceScore, ...story }) => story);
+                stats.trimmedItems += trimmedContext.stories.length;
+
+                if (scoredStories.length > 3) {
+                    stats.removed.push(`${scoredStories.length - 3} less relevant stories`);
+                }
+            }
+
+            // Trim portfolio projects (keep 3 most recent + relevant)
+            if (trimmedContext.portfolio && Array.isArray(trimmedContext.portfolio)) {
+                stats.originalItems += trimmedContext.portfolio.length;
+
+                const scoredProjects = trimmedContext.portfolio.map(proj => ({
+                    ...proj,
+                    relevanceScore: calculateRelevance(
+                        `${proj.name} ${proj.description} ${proj.technologies?.join(' ')} ${proj.skills?.join(' ')}`,
+                        question
+                    ),
+                    recencyScore: new Date(proj.endDate || proj.createdDate || Date.now()).getTime()
+                }));
+
+                scoredProjects.sort((a, b) => {
+                    const scoreA = (a.relevanceScore * 0.6) + ((a.recencyScore / Date.now()) * 0.4);
+                    const scoreB = (b.relevanceScore * 0.6) + ((b.recencyScore / Date.now()) * 0.4);
+                    return scoreB - scoreA;
+                });
+
+                trimmedContext.portfolio = scoredProjects.slice(0, 3).map(({ relevanceScore, recencyScore, ...proj }) => proj);
+                stats.trimmedItems += trimmedContext.portfolio.length;
+
+                if (scoredProjects.length > 3) {
+                    stats.removed.push(`${scoredProjects.length - 3} older projects`);
+                }
+            }
+
+            // Documents: Force metadata-only if still over budget
+            if (trimmedContext.documents && trimmedContext.documents.detail === 'full') {
+                const fullTokens = estimateTokens(JSON.stringify(trimmedContext));
+                if (fullTokens > budgetTokens) {
+                    trimmedContext.documents.detail = 'metadata';
+                    stats.removed.push('Full document content (using metadata only)');
+                }
+            }
+
+            // Calculate final token counts
+            stats.originalTokens = estimateTokens(JSON.stringify(contextData));
+            stats.trimmedTokens = estimateTokens(JSON.stringify(trimmedContext));
+
+            return { context: trimmedContext, stats };
+        }
+
         // Send chat message
         async function sendChatMessage() {
             const input = document.getElementById('chatInput');
@@ -17889,6 +18192,31 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 openLLMSettingsModal();
                 return;
             }
+
+            // Calculate token budget based on question complexity
+            const budget = calculateTokenBudget(message);
+            console.log('[Token Management] Budget calculated:', budget);
+
+            // TODO: When context data is fully integrated, uncomment this:
+            // const contextData = collectCareerContext(); // Get from localStorage based on Context Control settings
+            // const contextTokens = estimateTokens(JSON.stringify(contextData));
+            //
+            // if (contextTokens > budget.contextBudget) {
+            //     const { context: trimmedContext, stats } = trimContextToFit(contextData, message, budget.contextBudget);
+            //
+            //     // Show optimization notification
+            //     if (stats.removed.length > 0) {
+            //         console.log('[Token Management] Context optimized:', stats);
+            //         showToast(`Context optimized (${stats.originalItems} → ${stats.trimmedItems} items)`, 'info');
+            //
+            //         // Track context optimization event
+            //         const providerName = currentProvider.getName().toLowerCase();
+            //         trackLLMUsage(providerName, null, 'contextOptimization');
+            //     }
+            //
+            //     // Use trimmed context
+            //     contextData = trimmedContext;
+            // }
 
             // Clear input
             input.value = '';
@@ -17904,18 +18232,32 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             try {
                 let assistantMessage = '';
+                let finishReason = null;
 
-                // Stream response
-                await currentProvider.streamChat(
+                // Stream response with calculated token budget
+                const result = await currentProvider.streamChat(
                     conversationHistory,
                     (chunk) => {
                         assistantMessage += chunk;
                         updateStreamingMessage(typingId, assistantMessage);
-                    }
+                    },
+                    { maxTokens: budget.responseBudget } // Use dynamic budget
                 );
+
+                finishReason = result?.finishReason;
 
                 // Remove typing indicator
                 removeTypingIndicator(typingId);
+
+                // Check for truncation
+                if (finishReason === 'length' || finishReason === 'max_tokens' || finishReason === 'MAX_TOKENS') {
+                    console.warn('[Token Management] Response truncated. Finish reason:', finishReason);
+                    addTruncationWarning();
+
+                    // Track truncation event
+                    const providerName = currentProvider.getName().toLowerCase();
+                    trackLLMUsage(providerName, null, 'truncation');
+                }
 
                 // Add complete message to conversation history
                 conversationHistory.push({ role: 'assistant', content: assistantMessage });
@@ -17928,6 +18270,167 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 removeTypingIndicator(typingId);
                 addMessageToUI('system', `Error: ${error.message}`);
                 console.error('LLM chat error:', error);
+            }
+        }
+
+        /**
+         * Add truncation warning banner to last message
+         */
+        function addTruncationWarning() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const lastMessage = messagesContainer.querySelector('.chat-message.assistant:last-child');
+
+            if (!lastMessage) return;
+
+            const contentDiv = lastMessage.querySelector('.chat-message-content');
+            if (!contentDiv) return;
+
+            // Check if warning already exists
+            if (contentDiv.querySelector('.truncation-warning')) return;
+
+            // Add warning banner
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'truncation-warning';
+            warningDiv.style.cssText = 'margin-top: 12px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px;';
+            warningDiv.innerHTML = `
+                <div style="display: flex; align-items: start; gap: 10px;">
+                    <i class="ph ph-warning" style="font-size: 20px; color: #f59e0b; flex-shrink: 0;"></i>
+                    <div style="flex: 1;">
+                        <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 4px;">
+                            Response Truncated
+                        </div>
+                        <div style="font-family: var(--font-family-body); font-size: 12px; color: #78350f; line-height: 1.4; margin-bottom: 8px;">
+                            The AI's response was cut off due to length limits. Click below to continue the response.
+                        </div>
+                        <button onclick="continueResponse()"
+                                style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                            <i class="ph ph-arrow-right" style="margin-right: 4px;"></i> Continue Response
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            contentDiv.appendChild(warningDiv);
+        }
+
+        /**
+         * Continue a truncated response
+         */
+        async function continueResponse() {
+            // Find the last assistant message
+            const messagesContainer = document.getElementById('chatMessages');
+            const lastMessage = messagesContainer.querySelector('.chat-message.assistant:last-child');
+
+            if (!lastMessage) {
+                showToast('No message to continue', 'error');
+                return;
+            }
+
+            const contentDiv = lastMessage.querySelector('.chat-message-content');
+            const currentContent = contentDiv.dataset.originalContent || contentDiv.textContent;
+
+            // Remove the truncation warning
+            const warningDiv = lastMessage.querySelector('.truncation-warning');
+            if (warningDiv) {
+                warningDiv.remove();
+            }
+
+            // Track continuation event
+            const providerName = currentProvider.getName().toLowerCase();
+            trackLLMUsage(providerName, null, 'continuation');
+
+            // Add continuation request to conversation
+            conversationHistory.push({
+                role: 'user',
+                content: "Please continue your previous response from where you left off. Do not repeat what you already said, just continue."
+            });
+
+            // Show typing indicator on the same message
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = `
+                <span></span>
+                <span></span>
+                <span></span>
+            `;
+            contentDiv.appendChild(typingIndicator);
+
+            try {
+                let continuedContent = '';
+                let finishReason = null;
+
+                // Calculate budget
+                const budget = calculateTokenBudget("continue previous response");
+
+                // Stream continuation
+                const result = await currentProvider.streamChat(
+                    conversationHistory,
+                    (chunk) => {
+                        continuedContent += chunk;
+
+                        // Update the same message, appending new content
+                        if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+                            const fullContent = currentContent + '\n\n' + continuedContent;
+                            contentDiv.dataset.originalContent = fullContent;
+                            contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(fullContent));
+
+                            // Re-add typing indicator
+                            contentDiv.appendChild(typingIndicator);
+                        }
+                    },
+                    { maxTokens: budget.responseBudget }
+                );
+
+                finishReason = result?.finishReason;
+
+                // Remove typing indicator
+                if (typingIndicator.parentNode) {
+                    typingIndicator.remove();
+                }
+
+                // Final update
+                const fullContent = currentContent + '\n\n' + continuedContent;
+                contentDiv.dataset.originalContent = fullContent;
+                if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+                    contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(fullContent));
+                }
+
+                // Add copy button back
+                if (!contentDiv.querySelector('.copy-message-btn')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-message-btn';
+                    copyBtn.innerHTML = '<i class="ph ph-copy"></i><span>Copy</span>';
+                    copyBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        copyMessageToClipboard(fullContent, copyBtn);
+                    };
+                    contentDiv.appendChild(copyBtn);
+                }
+
+                // Check for truncation again
+                if (finishReason === 'length' || finishReason === 'max_tokens' || finishReason === 'MAX_TOKENS') {
+                    addTruncationWarning();
+
+                    // Track truncation event
+                    const providerName = currentProvider.getName().toLowerCase();
+                    trackLLMUsage(providerName, null, 'truncation');
+                } else {
+                    showToast('Response continued successfully', 'success');
+                }
+
+                // Update conversation history with full content
+                conversationHistory.push({ role: 'assistant', content: fullContent });
+
+                // Track usage
+                const providerName = currentProvider.getName().toLowerCase();
+                trackLLMUsage(providerName, continuedContent);
+
+            } catch (error) {
+                if (typingIndicator.parentNode) {
+                    typingIndicator.remove();
+                }
+                addMessageToUI('system', `Error continuing response: ${error.message}`);
+                console.error('LLM continuation error:', error);
             }
         }
 
@@ -18121,32 +18624,44 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Track LLM usage (informational only)
-        function trackLLMUsage(provider, response) {
+        function trackLLMUsage(provider, response, eventType = 'message') {
             const currentMonth = new Date().toISOString().slice(0, 7);
             const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
 
             // If new month, reset ALL providers
             if (usage.month !== currentMonth) {
                 usage.month = currentMonth;
-                usage.openai = { messages: 0, tokens: 0, cost: 0 };
-                usage.anthropic = { messages: 0, tokens: 0, cost: 0 };
-                usage.gemini = { messages: 0, tokens: 0, cost: 0 };
+                usage.openai = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
+                usage.anthropic = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
+                usage.gemini = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
             }
 
             if (!usage[provider]) {
-                usage[provider] = { messages: 0, tokens: 0, cost: 0 };
+                usage[provider] = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
             }
 
-            // Increment message count
-            usage[provider].messages++;
+            // Handle different event types
+            if (eventType === 'truncation') {
+                usage[provider].truncations = (usage[provider].truncations || 0) + 1;
+            } else if (eventType === 'continuation') {
+                usage[provider].continuations = (usage[provider].continuations || 0) + 1;
+            } else if (eventType === 'contextOptimization') {
+                usage[provider].contextOptimizations = (usage[provider].contextOptimizations || 0) + 1;
+            } else if (eventType === 'message') {
+                // Increment message count
+                usage[provider].messages++;
 
-            // Estimate tokens (rough: ~4 chars per token)
-            const estimatedTokens = Math.ceil(response.length / 4);
-            usage[provider].tokens += estimatedTokens;
+                // Estimate tokens (rough: ~4 chars per token)
+                const estimatedTokens = Math.ceil(response.length / 4);
+                usage[provider].tokens += estimatedTokens;
 
-            // Estimate cost (OpenAI GPT-4o: $0.005 per 1k tokens output)
-            const costPer1k = 0.005;
-            usage[provider].cost += (estimatedTokens / 1000) * costPer1k;
+                // Track total response length for averaging
+                usage[provider].totalResponseLength = (usage[provider].totalResponseLength || 0) + response.length;
+
+                // Estimate cost (OpenAI GPT-4o: $0.005 per 1k tokens output)
+                const costPer1k = 0.005;
+                usage[provider].cost += (estimatedTokens / 1000) * costPer1k;
+            }
 
             localStorage.setItem('llm_usage', JSON.stringify(usage));
         }

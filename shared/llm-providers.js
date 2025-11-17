@@ -103,7 +103,7 @@ class OpenAIProvider extends LLMProvider {
         const requestBody = {
             model: options.model || this.defaultModel,
             messages: messages,
-            max_tokens: options.maxTokens || 1000,
+            max_tokens: options.maxTokens || 4096,
             temperature: options.temperature !== undefined ? options.temperature : 0.7,
             stream: false
         };
@@ -145,7 +145,7 @@ class OpenAIProvider extends LLMProvider {
         const requestBody = {
             model: options.model || this.defaultModel,
             messages: messages,
-            max_tokens: options.maxTokens || 1000,
+            max_tokens: options.maxTokens || 4096,
             temperature: options.temperature !== undefined ? options.temperature : 0.7,
             stream: true
         };
@@ -166,6 +166,7 @@ class OpenAIProvider extends LLMProvider {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let finishReason = null; // Track finish reason
 
         try {
             while (true) {
@@ -191,6 +192,11 @@ class OpenAIProvider extends LLMProvider {
                             if (content) {
                                 onChunk(content);
                             }
+
+                            // Capture finish reason
+                            if (json.choices[0]?.finish_reason) {
+                                finishReason = json.choices[0].finish_reason;
+                            }
                         } catch (e) {
                             console.error('Failed to parse SSE data:', e, 'Line:', data);
                         }
@@ -202,7 +208,7 @@ class OpenAIProvider extends LLMProvider {
         }
 
         const rateLimits = this.parseRateLimits(response.headers);
-        return { rateLimits };
+        return { rateLimits, finishReason };
     }
 
     parseRateLimits(headers) {
@@ -330,7 +336,7 @@ class AnthropicProvider extends LLMProvider {
         const requestBody = {
             model: model,
             messages: anthropicMessages,
-            max_tokens: options.maxTokens || 1000,
+            max_tokens: options.maxTokens || 4096,
             temperature: options.temperature !== undefined ? options.temperature : 0.7,
             stream: false
         };
@@ -380,7 +386,7 @@ class AnthropicProvider extends LLMProvider {
         const requestBody = {
             model: model,
             messages: anthropicMessages,
-            max_tokens: options.maxTokens || 1000,
+            max_tokens: options.maxTokens || 4096,
             temperature: options.temperature !== undefined ? options.temperature : 0.7,
             stream: true
         };
@@ -410,6 +416,7 @@ class AnthropicProvider extends LLMProvider {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let finishReason = null; // Track finish reason
 
         try {
             while (true) {
@@ -435,6 +442,11 @@ class AnthropicProvider extends LLMProvider {
                             if (json.type === 'content_block_delta' && json.delta?.text) {
                                 onChunk(json.delta.text);
                             }
+
+                            // Capture finish reason from message_stop event
+                            if (json.type === 'message_delta' && json.delta?.stop_reason) {
+                                finishReason = json.delta.stop_reason;
+                            }
                         } catch (e) {
                             console.error('Failed to parse Anthropic SSE data:', e, 'Line:', data);
                         }
@@ -445,7 +457,7 @@ class AnthropicProvider extends LLMProvider {
             reader.releaseLock();
         }
 
-        return { rateLimits: null };
+        return { rateLimits: null, finishReason };
     }
 
     getModels() {
@@ -575,7 +587,7 @@ class GeminiProvider extends LLMProvider {
         const requestBody = {
             contents: contents,
             generationConfig: {
-                maxOutputTokens: options.maxTokens || 1000,
+                maxOutputTokens: options.maxTokens || 4096,
                 temperature: options.temperature !== undefined ? options.temperature : 0.7
             }
         };
@@ -626,7 +638,7 @@ class GeminiProvider extends LLMProvider {
         const requestBody = {
             contents: contents,
             generationConfig: {
-                maxOutputTokens: options.maxTokens || 1000,
+                maxOutputTokens: options.maxTokens || 4096,
                 temperature: options.temperature !== undefined ? options.temperature : 0.7
             }
         };
@@ -657,6 +669,7 @@ class GeminiProvider extends LLMProvider {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let finishReason = null; // Track finish reason
 
         try {
             while (true) {
@@ -673,10 +686,18 @@ class GeminiProvider extends LLMProvider {
 
                         try {
                             const json = JSON.parse(data);
-                            if (json.candidates && json.candidates[0] && json.candidates[0].content) {
-                                const parts = json.candidates[0].content.parts;
-                                if (parts && parts[0] && parts[0].text) {
-                                    onChunk(parts[0].text);
+                            if (json.candidates && json.candidates[0]) {
+                                // Extract content
+                                if (json.candidates[0].content) {
+                                    const parts = json.candidates[0].content.parts;
+                                    if (parts && parts[0] && parts[0].text) {
+                                        onChunk(parts[0].text);
+                                    }
+                                }
+
+                                // Capture finish reason
+                                if (json.candidates[0].finishReason) {
+                                    finishReason = json.candidates[0].finishReason;
                                 }
                             }
                         } catch (e) {
@@ -689,7 +710,7 @@ class GeminiProvider extends LLMProvider {
             reader.releaseLock();
         }
 
-        return { rateLimits: null };
+        return { rateLimits: null, finishReason };
     }
 
     getModels() {
