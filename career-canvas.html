@@ -17728,6 +17728,139 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             return context;
         }
 
+        // Get Cleansheet platform information for LLM context
+        function getCleansheetPlatformContext() {
+            return {
+                platform: {
+                    name: "Cleansheet",
+                    mission: "Career security through diverse experience (upskilling + sideskilling)",
+                    approach: "Navigation over content, Quality over quantity, Privacy over profit",
+                    status: "Experimental development (no SLAs, best-effort security)",
+                    contentLibrary: "189 curated articles, 9 career paths, 100% privacy-focused"
+                },
+
+                subscriptions: {
+                    member: {
+                        price: "Free (Always free)",
+                        features: [
+                            "Career Experience Management",
+                            "Behavioral Story Journal (STAR format)",
+                            "LLM Prompt Generation",
+                            "Local Storage (Browser-based)",
+                            "Cleansheet Library Access (189 articles)",
+                            "Career Path Navigator (9 career paths)",
+                            "Job Role to Industry Decoder"
+                        ]
+                    },
+                    learner: {
+                        price: "Free (Limited time, normally $9/mo)",
+                        features: [
+                            "All Member features",
+                            "LLM Integration (Bring Your Own API Key)",
+                            "Cleansheet Profile Service",
+                            "Mobile-Responsive Viewport",
+                            "Goal Management & Tracking",
+                            "Centralized Portfolio Management",
+                            "Diagrams & Documents",
+                            "Portfolio Coaching (inquire for details)"
+                        ]
+                    },
+                    seeker: {
+                        price: "Free (Limited time, normally $19/mo)",
+                        features: [
+                            "All Learner features",
+                            "Job Opportunity Management",
+                            "LLM Prompt Management",
+                            "Whiteboards and Presentations",
+                            "Mock Interviews (inquire for details)"
+                        ]
+                    },
+                    note: "All subscription tiers are FREE during preview period. No credit card required."
+                },
+
+                coaching: {
+                    name: "Cleansheet Quarter",
+                    duration: "12 weeks",
+                    price: "Free during preview (normally $1199)",
+                    description: "Structured coaching engagement with Cleansheet Success Manager",
+                    includes: [
+                        "Success Manager consultation - Initial consultation to understand career aspirations",
+                        "Goal Setting - Define clear, measurable objectives for the 12-week quarter",
+                        "Capstone Project Planning - Plan concrete projects that build real capabilities",
+                        "4 synchronous virtual meetings (30-45 minutes each)",
+                        "Personalized guidance tailored to individual objectives",
+                        "Asynchronous collaboration - Ongoing support between meetings"
+                    ],
+                    matching: "Success Manager matched based on your profile and goals",
+                    access: "Access to Cleansheet Library and comprehensive coach resources"
+                },
+
+                privacy: {
+                    core: "Privacy-first platform - Privacy is our top priority, not a feature",
+                    commitments: [
+                        "Ad-Free Experience - No advertising, no tracking pixels, no behavioral profiling",
+                        "No Data Sharing - We categorically do NOT share user data with partners, advertisers, or third parties",
+                        "No AI Training - Your content and interactions are NEVER used to train LLM models",
+                        "Anonymized Analytics Only - We only collect anonymized usage data to optimize the platform"
+                    ],
+                    byok: {
+                        description: "Bring Your Own API Key (BYOK) - Privacy-first LLM integration",
+                        howItWorks: [
+                            "API keys encrypted locally in browser (AES-GCM 256-bit encryption)",
+                            "Keys NEVER transmitted to Cleansheet servers",
+                            "Messages sent directly from browser to AI provider (OpenAI, Anthropic, Gemini)",
+                            "Cleansheet servers NOT involved in conversations",
+                            "Conversation history held temporarily in browser memory during session only",
+                            "Conversations automatically cleared when browser closes",
+                            "Never saved to localStorage or persisted",
+                            "Never transmitted to Cleansheet servers"
+                        ],
+                        userControl: "Users choose which AI provider to use and what data to share",
+                        supportedProviders: ["OpenAI (GPT-4o, GPT-4o mini)", "Anthropic (Claude Sonnet 4.5, Haiku 4.5, Opus 4.1)", "Google Gemini (2.0 Flash, 1.5 Pro, 1.5 Flash)"]
+                    },
+                    dataShared: {
+                        description: "Data shared with AI is entirely under user control",
+                        categories: [
+                            "Career Experiences (work history, roles, skills, technologies)",
+                            "Interview Stories (STAR format stories)",
+                            "Career Goals (SMART goals and tracking)",
+                            "Job Applications (if Job Seeker tier)",
+                            "Conversation Context (current session only)"
+                        ]
+                    },
+                    prohibited: [
+                        "NO selling or renting personal information",
+                        "NO sharing with partners/advertisers",
+                        "NO using content for AI/LLM training",
+                        "NO targeted advertising",
+                        "NO cross-site tracking",
+                        "NO behavioral profiling for commercial purposes"
+                    ]
+                },
+
+                legal: {
+                    experimental: "Platform in experimental development status - functionality may be incomplete, unstable, or subject to change",
+                    warranties: "Provided AS IS with no warranties of any kind (merchantability, fitness, accuracy, security)",
+                    liability: "Maximum liability: $0 (zero dollars) - Users assume all risks",
+                    security: "Best-effort security, no absolute guarantee for experimental systems",
+                    userResponsibility: "Users should NOT submit highly sensitive information (SSN, financial accounts, health records)",
+                    dataRetention: "Account data retained during account lifetime, deleted within 90 days of account deletion"
+                },
+
+                careerPaths: [
+                    "Citizen Developer",
+                    "Cloud Computing",
+                    "Cloud Operations",
+                    "Network Operations",
+                    "Security Operations",
+                    "Project Management",
+                    "Full Stack Developer",
+                    "AI/ML Engineering",
+                    "Data Analytics"
+                ]
+            };
+        }
+
         // System prompt with canvas interaction capabilities
         const CANVAS_SYSTEM_PROMPT = `You are an AI assistant for Career Canvas, a career management platform.
 
@@ -17759,6 +17892,42 @@ This context is COMPLETE and ACCURATE. Trust this data - don't assume or halluci
 
 IMPORTANT: When asked about skills or experience with specific technologies (e.g., "How many years of Excel experience?"),
 scan through ALL experiences and their technologies arrays to calculate accurate totals based on date ranges.
+
+ABOUT CLEANSHEET PLATFORM:
+You are part of Cleansheet, a privacy-first career development platform.
+
+**Mission:** Career security through diverse experience (upskilling + sideskilling)
+**Philosophy:** Navigation over content, Quality over quantity, Privacy over profit
+**Status:** Experimental development (no SLAs, best-effort security)
+
+**Current Pricing:** All features FREE during preview period (no credit card required)
+
+**Subscription Tiers:**
+- **Member (Free):** Experience management, STAR stories, Library access (189 articles), Career Path Navigator (9 career paths)
+- **Learner (Free, normally $9/mo):** + LLM integration (BYOK), Goal management, Portfolio management, Documents & Diagrams, Coaching inquiries
+- **Job Seeker (Free, normally $19/mo):** + Job opportunity tracking, Mock interviews, Whiteboards & Presentations
+
+**Cleansheet Quarter Coaching:**
+- **12-week coaching engagement** with Success Manager (FREE preview, normally $1199)
+- Includes: Goal setting, Capstone project planning, 4 virtual meetings (30-45 min), Personalized guidance
+- Success Manager matched based on profile and goals
+
+**Privacy Commitments (CRITICAL):**
+- **No AI Training:** User data NEVER used to train AI models
+- **BYOK LLM:** Conversations go direct from browser to AI provider (OpenAI, Anthropic, Gemini), NOT through Cleansheet servers
+- **Session-Only:** Conversation history held in browser memory during session, cleared when browser closes, never persisted
+- **No Data Sharing:** No selling data, no behavioral profiling, no third-party tracking, no targeted ads
+- **Anonymized Analytics:** Only anonymized usage data collected to optimize platform
+- **User Control:** Users choose which AI provider to use and what career data to share
+
+**Platform Status:**
+- Experimental platform (may be incomplete, unstable, or subject to change)
+- Provided AS IS with no warranties
+- Best-effort security, users assume all risks
+
+**Career Paths Available:** Citizen Developer, Cloud Computing, Cloud Operations, Network Operations, Security Operations, Project Management, Full Stack Developer, AI/ML Engineering, Data Analytics
+
+When users ask about Cleansheet subscriptions, coaching, privacy, platform features, or pricing, provide accurate information from this context.
 
 AVAILABLE ACTIONS (use sparingly):
 You can include actions in your responses using JSON code blocks:
@@ -17806,13 +17975,18 @@ Your role is to assist with career advice and answer questions about the user's 
             // Add user message to UI
             addMessageToUI('user', message);
 
-            // Inject canvas context into conversation
+            // Inject canvas context and platform context into conversation
             const canvasContext = getCanvasContext();
+            const platformContext = getCleansheetPlatformContext();
 
             // Format context as structured JSON for LLM
-            const contextMessage = `[CANVAS CONTEXT]
+            const contextMessage = `[USER CANVAS CONTEXT]
 ${JSON.stringify(canvasContext, null, 2)}
-[END CONTEXT]`;
+[END USER CONTEXT]
+
+[CLEANSHEET PLATFORM CONTEXT]
+${JSON.stringify(platformContext, null, 2)}
+[END PLATFORM CONTEXT]`;
 
             // Build messages array with system prompt and context
             const messages = [
