@@ -14857,6 +14857,11 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         let currentPersona = localStorage.getItem('cleansheet_currentPersona') || 'default';
         let currentViewMode = 'seeker'; // 'seeker' or 'learner'
 
+        // DIAGNOSTIC: Log initial state at page load
+        console.log('[DIAGNOSTIC] Page initialization:');
+        console.log('[DIAGNOSTIC] currentPersona variable initialized to:', currentPersona);
+        console.log('[DIAGNOSTIC] localStorage cleansheet_currentPersona:', localStorage.getItem('cleansheet_currentPersona'));
+
         // ===================================================================
         // Authentication & Sync Configuration
         // ===================================================================
@@ -15264,8 +15269,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             console.log('[Force Sync] Saved profile to localStorage');
                         }
                         if (cloudData.experiences) {
-                            localStorage.setItem('user_experiences', JSON.stringify(cloudData.experiences));
-                            console.log('[Force Sync] Saved', cloudData.experiences.length, 'experiences to localStorage');
+                            // FIXED: Save to cleansheet_experiences (not user_experiences) to match loadUserExperiences
+                            localStorage.setItem('cleansheet_experiences', JSON.stringify(cloudData.experiences));
+                            console.log('[Force Sync] Saved', cloudData.experiences.length, 'experiences to cleansheet_experiences');
                         }
                         if (cloudData.stories) {
                             localStorage.setItem('user_stories', JSON.stringify(cloudData.stories));
@@ -15294,7 +15300,51 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
                         // Set flag to prevent demo data from loading on next page load
                         localStorage.setItem('cleansheet_currentPersona', cloudData.persona || 'member');
-                        console.log('[Force Sync] Set cleansheet_currentPersona flag to prevent demo data');
+
+                        // FIXED: Update global currentPersona variable to match localStorage
+                        currentPersona = cloudData.persona || 'member';
+                        console.log('[Force Sync] Set cleansheet_currentPersona flag and updated currentPersona variable to:', currentPersona);
+
+                        // FIXED: Clear conflicting demo data and old keys
+                        const keysToClean = [
+                            'user_experiences',  // Old wrong key from before fix
+                            'careerExperiences_career-changer',  // Marcus Thompson demo
+                            'careerExperiences_default',
+                            'careerExperiences_member',
+                            'careerExperiences_learner'
+                        ];
+                        let cleanedKeys = [];
+                        keysToClean.forEach(key => {
+                            if (localStorage.getItem(key)) {
+                                localStorage.removeItem(key);
+                                cleanedKeys.push(key);
+                            }
+                        });
+                        if (cleanedKeys.length > 0) {
+                            console.log('[Force Sync] Cleaned up conflicting keys:', cleanedKeys.join(', '));
+                        }
+
+                        // DIAGNOSTIC: Log all localStorage keys and currentPersona variable state
+                        console.log('[DIAGNOSTIC] After forceSyncDown:');
+                        console.log('[DIAGNOSTIC] currentPersona variable:', currentPersona);
+                        console.log('[DIAGNOSTIC] localStorage cleansheet_currentPersona:', localStorage.getItem('cleansheet_currentPersona'));
+                        console.log('[DIAGNOSTIC] localStorage current_persona:', localStorage.getItem('current_persona'));
+
+                        // Log all experience-related keys
+                        const expKeys = ['user_experiences', 'cleansheet_experiences', 'careerExperiences_career-changer', 'careerExperiences_member', 'careerExperiences_default'];
+                        expKeys.forEach(key => {
+                            const data = localStorage.getItem(key);
+                            if (data) {
+                                try {
+                                    const parsed = JSON.parse(data);
+                                    console.log(`[DIAGNOSTIC] localStorage ${key}: ${parsed.length} items`);
+                                } catch(e) {
+                                    console.log(`[DIAGNOSTIC] localStorage ${key}: exists but not JSON`);
+                                }
+                            } else {
+                                console.log(`[DIAGNOSTIC] localStorage ${key}: null/undefined`);
+                            }
+                        });
 
                         console.log('[Force Sync] Cloud data saved to localStorage');
 
@@ -16517,7 +16567,12 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         function getFilteredPersonaData(persona) {
-            const data = personaData[persona];
+            let data = personaData[persona];
+            // FIXED: Fallback to 'default' if persona doesn't exist in personaData
+            if (!data) {
+                console.warn(`[Mindmap] Persona '${persona}' not found in personaData, falling back to 'default'`);
+                data = personaData['default'];
+            }
             if (!data) return null;
 
             // Apply feature flag filtering based on subscription tier and user preference
@@ -17425,35 +17480,177 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         function getCanvasContext() {
             const context = {
                 viewMode: currentViewMode,
+                persona: currentPersona,
                 activeTab: document.querySelector('.canvas-tab.active')?.dataset.tab || 'home',
                 canvasVisible: document.getElementById('canvasModal')?.classList.contains('active') || false
             };
 
-            // Add view-specific context
-            if (currentViewMode === 'seeker') {
-                context.jobs = {
-                    total: userJobs?.length || 0,
-                    active: userJobs?.filter(j => j.status !== 'rejected' && j.status !== 'not-interested').length || 0
-                };
-            } else if (currentViewMode === 'learner') {
-                context.bookmarks = {
-                    total: userBookmarks?.length || 0
-                };
+            // Safely access data arrays from localStorage or global scope
+            // These might not be in scope, so we read directly from localStorage
+
+            // Job Opportunities
+            try {
+                const jobs = typeof userJobs !== 'undefined' ? userJobs :
+                    JSON.parse(localStorage.getItem('cleansheet_jobs') || '[]');
+
+                if (jobs && jobs.length > 0) {
+                    context.jobOpportunities = jobs.map(j => ({
+                        id: j.id,
+                        title: j.title || 'Untitled',
+                        company: j.company || 'Unknown Company',
+                        status: j.status || 'active',
+                        dateApplied: j.dateApplied || null
+                    }));
+                } else {
+                    context.jobOpportunities = [];
+                }
+            } catch (e) {
+                console.warn('[Canvas Context] Error loading jobs:', e);
+                context.jobOpportunities = [];
+            }
+
+            // Experiences (FULL proof chain context)
+            try {
+                const experiences = typeof userExperiences !== 'undefined' ? userExperiences :
+                    JSON.parse(localStorage.getItem('cleansheet_experiences') || '[]');
+
+                if (experiences && experiences.length > 0) {
+                    context.experiences = experiences.map(e => ({
+                        id: e.id,
+                        role: e.role || e.title || 'Untitled',
+                        company: e.organizationName || e.company || 'Unknown',
+                        location: e.location || null,
+                        startDate: e.startDate || null,
+                        endDate: e.endDate || null,
+                        isCurrent: e.endDate === 'Present' || !e.endDate,
+                        description: e.description || null,
+                        // Proof chain elements - critical for skill/achievement tracking
+                        technologies: e.technologies || [],      // Array of {name, type} or strings
+                        keySkills: e.keySkills || [],            // Array of soft/professional skills
+                        competencies: e.competencies || [],      // Array of competency areas
+                        achievements: e.achievements || []       // Array of measurable accomplishments
+                    }));
+                } else {
+                    context.experiences = [];
+                }
+            } catch (e) {
+                console.warn('[Canvas Context] Error loading experiences:', e);
+                context.experiences = [];
+            }
+
+            // Goals
+            try {
+                const goals = typeof userGoals !== 'undefined' ? userGoals :
+                    JSON.parse(localStorage.getItem('cleansheet_goals') || '[]');
+
+                if (goals && goals.length > 0) {
+                    context.goals = goals.map(g => ({
+                        id: g.id,
+                        title: g.title || 'Untitled',
+                        status: g.status || 'active',
+                        targetDate: g.targetDate || null
+                    }));
+                } else {
+                    context.goals = [];
+                }
+            } catch (e) {
+                console.warn('[Canvas Context] Error loading goals:', e);
+                context.goals = [];
+            }
+
+            // Stories/Portfolio (STAR format - critical proof chain elements)
+            try {
+                // Try multiple storage keys for compatibility
+                let stories = typeof allStories !== 'undefined' ? allStories : null;
+
+                if (!stories) {
+                    const storiesData = localStorage.getItem('cleansheet_stories') ||
+                                       localStorage.getItem('userStories') ||
+                                       localStorage.getItem('behavioralStories') ||
+                                       localStorage.getItem('user_stories');
+                    stories = storiesData ? JSON.parse(storiesData) : [];
+                }
+
+                if (stories && stories.length > 0) {
+                    context.stories = stories.map((s, index) => ({
+                        id: s.id || index,
+                        title: s.title || 'Untitled Story',
+                        linkedExperience: s.experience || s.experienceName || null,
+                        // STAR format - essential proof elements
+                        situation: s.situation || null,
+                        task: s.task || null,
+                        action: s.action || null,
+                        result: s.result || null,
+                        competencies: s.competencies || [],
+                        createdAt: s.createdAt || null,
+                        updatedAt: s.updatedAt || null
+                    }));
+                } else {
+                    context.stories = [];
+                }
+            } catch (e) {
+                console.warn('[Canvas Context] Error loading stories:', e);
+                context.stories = [];
+            }
+
+            // Counts for quick reference
+            context.counts = {
+                jobs: context.jobOpportunities.length,
+                activeJobs: context.jobOpportunities.filter(j => j.status !== 'rejected' && j.status !== 'not-interesting').length,
+                experiences: context.experiences.length,
+                goals: context.goals.length,
+                stories: context.stories.length
+            };
+
+            // Bookmarks for learner view
+            try {
+                if (currentViewMode === 'learner') {
+                    const bookmarks = typeof userBookmarks !== 'undefined' ? userBookmarks :
+                        JSON.parse(localStorage.getItem('cleansheet_bookmarks') || '[]');
+                    context.bookmarks = {
+                        total: bookmarks.length || 0
+                    };
+                }
+            } catch (e) {
+                console.warn('[Canvas Context] Error loading bookmarks:', e);
             }
 
             return context;
         }
 
         // System prompt with canvas interaction capabilities
-        const CANVAS_SYSTEM_PROMPT = `You are an AI assistant integrated into Career Canvas, an interactive career management platform. You can help users by providing advice AND by directly interacting with their canvas.
+        const CANVAS_SYSTEM_PROMPT = `You are an AI assistant for Career Canvas, a career management platform.
 
-CURRENT CAPABILITIES:
-1. View canvas state (what's currently displayed)
-2. Navigate between views (Job Seeker, Learner, Professional, Personal)
-3. Access user data (jobs, experiences, documents)
-4. Provide career guidance and advice
+CONTEXT PROVIDED TO YOU:
+With each user message, you receive comprehensive structured data including:
 
-RESPONSE FORMAT:
+**Job Opportunities:** id, title, company, status, dateApplied
+
+**Experiences (FULL PROOF CHAIN):**
+- Basic: id, role, company, location, dates, description
+- Technologies: Array of technical skills/tools (e.g., Python, Excel, AWS) with proficiency levels
+- Key Skills: Array of soft/professional skills (e.g., Leadership, Communication)
+- Competencies: Array of competency areas (e.g., Project Management, Data Analysis)
+- Achievements: Array of measurable accomplishments and outcomes
+
+**Portfolio Stories (STAR FORMAT):**
+- Title and linked experience
+- Situation: Context and background
+- Task: Objective and challenge
+- Action: Specific steps taken
+- Result: Measurable outcomes
+- Competencies demonstrated
+
+**Goals:** id, title, status, targetDate
+
+**Summary Counts:** Quick reference for all categories
+
+This context is COMPLETE and ACCURATE. Trust this data - don't assume or hallucinate information.
+
+IMPORTANT: When asked about skills or experience with specific technologies (e.g., "How many years of Excel experience?"),
+scan through ALL experiences and their technologies arrays to calculate accurate totals based on date ranges.
+
+AVAILABLE ACTIONS (use sparingly):
 You can include actions in your responses using JSON code blocks:
 \`\`\`json
 {
@@ -17462,12 +17659,23 @@ You can include actions in your responses using JSON code blocks:
 }
 \`\`\`
 
-AVAILABLE ACTIONS:
-- navigate: Switch canvas views {"view": "seeker"|"learner"|"professional"|"personal"}
-- showToast: Display notification {"message": "text", "type": "success"|"info"|"error"}
-- openModal: Open a specific modal {"modal": "addJob"|"addExperience"|"addStory"|"addGoal"|"addDocument"}
+Action types:
+- navigate: Switch views ONLY if user explicitly requests it {"view": "seeker"|"learner"}
+  * "seeker" = Job search view (job opportunities, applications, interview prep)
+  * "learner" = Learning view (goals, portfolio, skill development)
+  * Note: Other views are not yet implemented and will be blocked
+- showToast: Display brief notifications {"message": "text", "type": "success"|"info"|"error"}
+- openModal: Open forms ONLY when user asks to create something {"modal": "addJob"|"addExperience"|"addStory"|"addGoal"|"addDocument"}
 
-Always explain what you're doing when you take actions. Be helpful and proactive.`;
+CRITICAL GUIDELINES:
+1. Answer questions using the context data provided - it contains everything you need
+2. Only execute actions (navigate, openModal) when the user explicitly requests them
+3. Don't navigate between views unless the user uses words like "switch to", "show me", "go to"
+4. If you lack information to answer, ask clarifying questions - don't guess
+5. Focus on providing advice and answering questions rather than taking actions
+6. Be conversational and helpful, but don't proactively manipulate the interface
+
+Your role is to assist with career advice and answer questions about the user's canvas data.`;
 
         // Enhanced sendChatMessage with canvas context
         const originalSendChatMessage = sendChatMessage;
@@ -17490,7 +17698,11 @@ Always explain what you're doing when you take actions. Be helpful and proactive
 
             // Inject canvas context into conversation
             const canvasContext = getCanvasContext();
-            const contextMessage = `[CANVAS CONTEXT: View=${canvasContext.viewMode}, Tab=${canvasContext.activeTab}]`;
+
+            // Format context as structured JSON for LLM
+            const contextMessage = `[CANVAS CONTEXT]
+${JSON.stringify(canvasContext, null, 2)}
+[END CONTEXT]`;
 
             // Build messages array with system prompt and context
             const messages = [
@@ -17541,6 +17753,73 @@ Always explain what you're doing when you take actions. Be helpful and proactive
             }
         };
 
+        // Validate if an action should be executed based on context and user intent
+        function canExecuteAction(actionType, params, currentContext) {
+            console.log('[Action Guard] Validating action:', actionType, params);
+
+            if (actionType === 'navigate') {
+                // Check if target view is valid
+                const validViews = ['seeker', 'learner'];
+                if (!validViews.includes(params.view)) {
+                    console.warn('[Action Guard] BLOCKED - Invalid view:', params.view, '(only seeker and learner are implemented)');
+                    addMessageToUI('system', `⚠ Navigation to "${params.view}" is not available. Valid views: seeker, learner`);
+                    return false;
+                }
+
+                // Don't navigate if already in the requested view
+                if (currentContext.viewMode === params.view) {
+                    console.warn('[Action Guard] BLOCKED - Already in requested view:', params.view);
+                    addMessageToUI('system', `ℹ Already in ${params.view} view`);
+                    return false;
+                }
+
+                // Check last user message for explicit navigation intent
+                const lastUserMessage = conversationHistory.length > 0
+                    ? conversationHistory[conversationHistory.length - 1].content.toLowerCase()
+                    : '';
+                const navigationKeywords = ['switch', 'show me', 'go to', 'navigate', 'open', 'view', 'take me to', 'move to'];
+                const hasNavigationIntent = navigationKeywords.some(kw => lastUserMessage.includes(kw));
+
+                if (!hasNavigationIntent) {
+                    console.warn('[Action Guard] BLOCKED - No explicit navigation intent in user message');
+                    addMessageToUI('system', `ℹ Navigation requires explicit user request (use words like "switch to" or "show me")`);
+                    return false;
+                }
+
+                console.log('[Action Guard] APPROVED - Navigation to:', params.view);
+                return true;
+            }
+
+            if (actionType === 'openModal') {
+                // Check if modal function exists
+                const modalFunctions = {
+                    'addJob': 'addJobOpportunity',
+                    'addExperience': 'showExperienceForm',
+                    'addStory': 'showStoryForm',
+                    'addGoal': 'showGoalForm',
+                    'addDocument': 'showDocumentForm'
+                };
+
+                const functionName = modalFunctions[params.modal];
+                if (!functionName || typeof window[functionName] !== 'function') {
+                    console.warn('[Action Guard] BLOCKED - Modal function not available:', params.modal);
+                    addMessageToUI('system', `⚠ Cannot open "${params.modal}" - function not available`);
+                    return false;
+                }
+
+                console.log('[Action Guard] APPROVED - Open modal:', params.modal);
+                return true;
+            }
+
+            // Allow showToast actions (minimal risk)
+            if (actionType === 'showToast') {
+                return true;
+            }
+
+            console.log('[Action Guard] APPROVED - Action type:', actionType);
+            return true;
+        }
+
         // Parse and execute canvas actions from LLM response
         async function executeCanvasActions(message) {
             console.log('[Canvas Action] Parsing message for actions...');
@@ -17561,41 +17840,27 @@ Always explain what you're doing when you take actions. Be helpful and proactive
                         foundActions = true;
                         console.log('[Canvas Action] Executing:', actionData.action, actionData.params);
 
+                        // Get current context for validation
+                        const currentContext = getCanvasContext();
+
+                        // Validate action before executing
+                        if (!canExecuteAction(actionData.action, actionData.params || {}, currentContext)) {
+                            console.warn('[Canvas Action] Action blocked by guard');
+                            continue; // Skip this action and continue with next
+                        }
+
                         switch (actionData.action) {
                             case 'navigate':
                                 if (actionData.params?.view) {
-                                    const validViews = ['seeker', 'learner', 'professional', 'personal'];
-                                    if (validViews.includes(actionData.params.view)) {
-                                        console.log('[Canvas Action] Navigating to:', actionData.params.view);
-                                        // Safe view switching with error handling
-                                        try {
-                                            // Check if persona button exists
-                                            const personaBtn = document.querySelector(`[data-persona="${actionData.params.view}"]`);
-
-                                            if (personaBtn) {
-                                                // Click the button to trigger normal flow
-                                                personaBtn.click();
-                                                addMessageToUI('system', `✓ Switched to ${actionData.params.view} view`);
-                                                showToast(`Switched to ${actionData.params.view} view`, 'success');
-                                            } else {
-                                                // Fallback: Direct persona switch
-                                                console.warn('[Canvas Action] Persona button not found, using direct switch');
-                                                currentPersona = actionData.params.view;
-                                                currentViewMode = actionData.params.view;
-
-                                                // Reload mindmap with new persona
-                                                d3.select('#canvas-mindmap').selectAll('*').remove();
-                                                initializeMindmap(actionData.params.view);
-
-                                                addMessageToUI('system', `✓ Switched to ${actionData.params.view} view`);
-                                                showToast(`Switched to ${actionData.params.view} view`, 'success');
-                                            }
-                                        } catch (error) {
-                                            console.error('[Canvas Action] Navigation failed:', error);
-                                            addMessageToUI('system', `✗ Failed to switch view: ${error.message}`);
-                                        }
-                                    } else {
-                                        console.warn('[Canvas Action] Invalid view:', actionData.params.view);
+                                    console.log('[Canvas Action] Navigating to:', actionData.params.view);
+                                    // Use switchViewMode function for proper view switching
+                                    try {
+                                        switchViewMode(actionData.params.view);
+                                        addMessageToUI('system', `✓ Switched to ${actionData.params.view} view`);
+                                        showToast(`Switched to ${actionData.params.view} view`, 'success');
+                                    } catch (error) {
+                                        console.error('[Canvas Action] Navigation failed:', error);
+                                        addMessageToUI('system', `✗ Failed to switch view: ${error.message}`);
                                     }
                                 }
                                 break;
@@ -17714,9 +17979,20 @@ Always explain what you're doing when you take actions. Be helpful and proactive
             loadUserPortfolio();
 
             // Update all counts in personaData BEFORE rendering mindmap
-            const allStories = JSON.parse(localStorage.getItem('userStories') || '[]');
+            let allStories = [];
+            try {
+                allStories = JSON.parse(localStorage.getItem('userStories') || '[]');
+            } catch(e) {
+                console.warn('[Canvas Init] Invalid userStories JSON, using empty array');
+            }
+
             const storedExperiences = localStorage.getItem('cleansheet_experiences');
-            const experiencesCount = storedExperiences ? JSON.parse(storedExperiences).length : 0;
+            let experiencesCount = 0;
+            try {
+                experiencesCount = storedExperiences ? JSON.parse(storedExperiences).length : 0;
+            } catch(e) {
+                console.warn('[Canvas Init] Invalid cleansheet_experiences JSON, count = 0');
+            }
 
             console.log('[Canvas Init] Counts before mindmap:', {
                 jobs: activeJobsCount,
@@ -33608,10 +33884,36 @@ Start typing...`
         };
 
         function loadUserExperiences() {
+            // DIAGNOSTIC: Log what we're looking for
+            console.log('[DIAGNOSTIC] loadUserExperiences called');
+            console.log('[DIAGNOSTIC] currentPersona variable:', currentPersona);
+
             // Load from cleansheet_experiences (imported data) or fall back to legacy key
             let stored = localStorage.getItem('cleansheet_experiences');
+            try {
+                console.log('[DIAGNOSTIC] Checking cleansheet_experiences:', stored ? `Found ${JSON.parse(stored).length} items` : 'null/undefined');
+            } catch(e) {
+                console.log('[DIAGNOSTIC] Checking cleansheet_experiences: Invalid JSON');
+            }
+
             if (!stored) {
-                stored = localStorage.getItem('careerExperiences_' + currentPersona);
+                const legacyKey = 'careerExperiences_' + currentPersona;
+                stored = localStorage.getItem(legacyKey);
+                try {
+                    console.log(`[DIAGNOSTIC] Checking ${legacyKey}:`, stored ? `Found ${JSON.parse(stored).length} items` : 'null/undefined');
+                } catch(e) {
+                    console.log(`[DIAGNOSTIC] Checking ${legacyKey}: Invalid JSON`);
+                }
+            }
+
+            // Also check user_experiences key that forceSyncDown might have used
+            const userExpData = localStorage.getItem('user_experiences');
+            if (userExpData) {
+                try {
+                    console.log('[DIAGNOSTIC] WARNING: user_experiences key exists with', JSON.parse(userExpData).length, 'items but was not checked!');
+                } catch(e) {
+                    console.log('[DIAGNOSTIC] WARNING: user_experiences key exists but contains invalid JSON');
+                }
             }
 
             if (stored) {
