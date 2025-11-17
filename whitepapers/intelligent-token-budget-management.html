@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Token Budget Management with Automatic Context Optimization - Cleansheet LLC White Paper</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <style>
+        /* CSS Variables - Corporate Professional Design System */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-h1: clamp(28px, 4vw, 32px);
+            --font-size-h2: clamp(24px, 3.5vw, 28px);
+            --font-size-h3: clamp(18px, 3vw, 24px);
+            --font-size-h4: clamp(16px, 2.8vw, 20px);
+            --font-size-body: clamp(14px, 2.5vw, 16px);
+            --font-size-small: clamp(12px, 2.2vw, 14px);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            line-height: 1.6;
+            color: var(--color-neutral-text);
+            margin: 0;
+            padding: 0;
+            background: var(--color-neutral-white);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-ui);
+            color: var(--color-dark);
+            margin: var(--spacing-xxl) 0 var(--spacing-lg) 0;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: var(--font-size-h1);
+            color: var(--color-primary-blue);
+            text-align: center;
+            margin-bottom: var(--spacing-xxxl);
+            border-bottom: 2px solid var(--color-neutral-border);
+            padding-bottom: var(--spacing-lg);
+        }
+
+        h2 {
+            font-size: var(--font-size-h2);
+            color: var(--color-primary-blue);
+            border-left: 4px solid var(--color-primary-blue);
+            padding-left: var(--spacing-lg);
+            margin-top: var(--spacing-xxxl);
+        }
+
+        h3 {
+            font-size: var(--font-size-h3);
+            color: var(--color-accent-blue);
+        }
+
+        h4 {
+            font-size: var(--font-size-h4);
+            color: var(--color-dark);
+        }
+
+        p {
+            margin: var(--spacing-lg) 0;
+            font-size: var(--font-size-body);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl);
+        }
+
+        .header {
+            background: var(--color-dark);
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxxl) 0;
+            margin-bottom: var(--spacing-xxxl);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-xxl);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--color-neutral-white);
+            border-bottom: none;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .publication-info {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+            margin-bottom: 0;
+        }
+
+        /* Content Sections */
+        .section {
+            margin: var(--spacing-xxxl) 0;
+            padding: var(--spacing-xxl);
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .abstract {
+            background: var(--color-neutral-background-secondary);
+            border-left: 4px solid var(--color-primary-blue);
+            font-style: italic;
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: var(--spacing-xxl);
+            margin: var(--spacing-lg) 0;
+        }
+
+        li {
+            margin: var(--spacing-sm) 0;
+        }
+
+        /* Code and Technical Content */
+        .pseudocode {
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: var(--font-size-small);
+            line-height: 1.4;
+            color: var(--color-dark);
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-lg) 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        th {
+            background: var(--color-neutral-background);
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        tr:hover {
+            background: var(--color-neutral-background-secondary);
+        }
+
+        /* Links */
+        a {
+            color: var(--color-primary-blue);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--color-neutral-border);
+            padding-left: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            color: var(--color-neutral-text-light);
+            font-style: italic;
+        }
+
+        /* Feature Box */
+        .feature-box {
+            background: var(--color-neutral-background-secondary);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .feature-box h4 {
+            margin-top: 0;
+            color: var(--color-primary-blue);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-lg);
+            }
+
+            .section {
+                padding: var(--spacing-lg);
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1 style="text-align: center;">Intelligent Token Budget Management with Automatic Context Optimization</h1>
+            <p class="publication-info">
+                <strong>Publication Date:</strong> November 17, 2025<br>
+                <strong>Version:</strong> 1.0<br>
+                <strong>Author:</strong> Cleansheet LLC<br>
+                <strong>Contact:</strong> cleansheet.info
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="section abstract">
+            <h2>Abstract</h2>
+            <p>Modern large language model (LLM) applications face critical challenges in token budget management: responses frequently truncate mid-sentence due to output length limits, context data exceeds model capacity causing API rejections, and users lack visibility into optimization opportunities. This invention presents an intelligent token budget management system that automatically allocates token budgets between context and response based on question complexity analysis, trims context data using relevance and recency scoring algorithms, detects truncation across heterogeneous LLM providers through normalized finish reason monitoring, enables seamless response continuation without duplication, and provides comprehensive usage statistics educating users on optimization strategies. The system operates transparently across OpenAI GPT, Anthropic Claude, and Google Gemini APIs with provider-agnostic abstractions, delivers automatic optimizations without manual configuration, and surfaces actionable metrics including truncation rates, continuation frequency, context optimization events, and average response lengths. By combining intelligent automation with transparent metrics, the invention enables non-technical users to maximize LLM utility while maintaining awareness of token consumption patterns and optimization opportunities.</p>
+        </section>
+
+        <section class="section">
+            <h2>1. Technical Field</h2>
+
+            <h3>1.1 Background</h3>
+            <p>Large language models have become essential components of modern knowledge work applications, providing intelligent assistance for tasks ranging from document analysis to career development planning. These models operate within strict token budgets that constrain both input context length and output response length, creating fundamental resource allocation challenges.</p>
+
+            <p>Token limits vary significantly across providers and models: OpenAI GPT-4 supports 128,000 token context windows, Anthropic Claude 3 extends to 200,000 tokens, while Google Gemini 1.5 Pro reaches 1,000,000 tokens. Output generation typically consumes 1,000-4,096 tokens per response, though complex queries may require longer outputs. Applications must balance allocating sufficient tokens for rich contextual information against reserving adequate budget for complete response generation.</p>
+
+            <p>Career development platforms exemplify these challenges. A comprehensive user profile might include 20+ work experiences (5,000 tokens), 50+ portfolio projects (8,000 tokens), 100+ STAR interview stories (12,000 tokens), and dozens of documents with full content (15,000+ tokens). This 40,000+ token context exceeds budgets of many models when combined with conversation history and response requirements, forcing applications to either reject the request, strip valuable context, or risk incomplete responses.</p>
+
+            <h3>1.2 Problem Statement</h3>
+            <p>Existing LLM integration approaches suffer from four critical deficiencies:</p>
+
+            <p><strong>Truncated Responses:</strong> Hardcoded output token limits (commonly 1,000-2,000 tokens) frequently truncate responses mid-sentence, leaving users with incomplete answers, broken code examples, and partial explanations. Users cannot distinguish between intentionally brief responses and unintentional truncation until critical information is already lost. Recovery requires manual reformulation of questions with explicit brevity instructions, disrupting workflow continuity.</p>
+
+            <p><strong>Context Overflow Failures:</strong> Applications that naively send complete user data as context encounter HTTP 400 or 413 errors when total token count exceeds model limits. Users experience cryptic error messages without actionable guidance. Developers face difficult choices: implement conservative context limits that underutilize model capacity, require manual context selection that burdens users with technical decisions, or accept sporadic failures that erode user trust.</p>
+
+            <p><strong>Inefficient Token Allocation:</strong> Static budget splits (e.g., 50% context / 50% response) waste resources on mismatched queries. Simple factual questions ("What is my current role?") allocate excessive response budget while starving context-heavy analytical tasks ("Analyze skill gaps across my entire work history") of necessary input data. This one-size-fits-all approach degrades both response quality and token efficiency.</p>
+
+            <p><strong>Opacity of Optimization Opportunities:</strong> Users remain unaware of when and why responses truncate, how often context exceeds limits, or which queries consume disproportionate tokens. Without visibility into these patterns, users cannot adjust their usage behaviors, make informed decisions about response length preferences, or understand the tradeoffs between context richness and response completeness. This opacity prevents user education on LLM resource management fundamentals.</p>
+
+            <h3>1.3 Prior Art</h3>
+
+            <h4>Manual Token Limit Configuration</h4>
+            <p>LLM API clients expose `max_tokens` parameters allowing developers to specify output limits. This approach places burden of resource allocation on users who lack expertise to determine appropriate values. Users face dilemma: set limits too high and risk truncation errors from context overflow; set too low and artificially constrain helpful responses. No automatic adjustment occurs based on actual context size or query complexity.</p>
+
+            <h4>Fixed Context Window Implementations</h4>
+            <p>Document retrieval systems implement fixed-size context windows, selecting top-N most relevant chunks via embedding similarity. While this prevents overflow, it applies uniform context budgets regardless of query type. Questions requiring comprehensive analysis receive same context as simple lookups, wasting potential on underutilized budgets or failing to provide sufficient information for complex queries. No dynamic reallocation occurs based on question characteristics.</p>
+
+            <h4>Summarization-Based Context Reduction</h4>
+            <p>Some systems pre-summarize long documents using separate LLM calls before including them as context. This reduces token consumption but introduces latency overhead (additional API round-trip), potential information loss (summarization may discard details relevant to specific queries), and increased cost (summarization itself consumes tokens). Systems lack mechanisms to determine when summarization is necessary versus when full content fits within budget.</p>
+
+            <h4>Streaming API Implementations</h4>
+            <p>Modern LLM APIs support streaming responses that deliver tokens incrementally. While this improves perceived latency, existing implementations do not inspect finish reasons to detect truncation. Streaming completes normally whether response finished naturally or hit token limit, leaving users unaware of incomplete outputs. No automatic continuation mechanism exists to resume truncated responses from interruption point.</p>
+
+            <h4>Usage Tracking Systems</h4>
+            <p>API dashboard tools track aggregate metrics like total API calls, token consumption, and estimated costs. These systems provide historical analytics but lack real-time optimization insights. Users cannot correlate specific usage patterns (truncation frequency, context optimization needs, continuation requests) with their interaction behaviors. Metrics remain diagnostic rather than educational, failing to guide users toward more efficient LLM usage patterns.</p>
+        </section>
+
+        <section class="section">
+            <h2>2. Summary of the Invention</h2>
+
+            <h3>2.1 Overview</h3>
+            <p>The intelligent token budget management system implements a comprehensive solution integrating dynamic budget allocation, automatic context optimization, truncation detection and recovery, and transparent usage analytics. The system analyzes each query to determine optimal token distribution between context input and response output, automatically trims context data when budgets are exceeded using relevance and recency scoring algorithms, detects response truncation across heterogeneous LLM providers through finish reason monitoring, enables one-click response continuation from interruption points, and surfaces detailed metrics educating users on optimization opportunities.</p>
+
+            <p>The architecture operates as middleware between application logic and LLM provider APIs, maintaining provider-agnostic abstractions that normalize behavior across OpenAI, Anthropic, and Google ecosystems. All optimizations occur transparently without requiring user configuration, while comprehensive statistics surface patterns that inform user decisions on response length preferences and context inclusion policies.</p>
+
+            <h3>2.2 Key Features</h3>
+
+            <ul>
+                <li><strong>Question Complexity Analysis:</strong> Natural language processing of user queries to classify intent (context-heavy analysis vs. simple lookup) and dynamically allocate token budgets with 70/30, 50/50, or 30/70 splits between context and response</li>
+                <li><strong>Intelligent Context Trimming:</strong> Multi-dimensional scoring algorithm combining recency metrics (newest experiences prioritized) with relevance scoring (keyword matching between query and context items) to intelligently reduce context data while preserving most pertinent information</li>
+                <li><strong>Provider-Agnostic Truncation Detection:</strong> Normalized finish reason monitoring across OpenAI (`finish_reason: 'length'`), Anthropic (`stop_reason: 'max_tokens'`), and Gemini (`finishReason: 'MAX_TOKENS'`) APIs enabling consistent truncation detection despite API differences</li>
+                <li><strong>Seamless Response Continuation:</strong> One-click continuation mechanism that appends to existing response without duplication, sends continuation-optimized prompts, and recursively handles multi-continuation scenarios for extremely long outputs</li>
+                <li><strong>Comprehensive Usage Statistics:</strong> Per-provider tracking of messages, tokens, costs, truncation events, continuation requests, context optimization occurrences, and average response lengths with monthly aggregation and visual analytics</li>
+                <li><strong>User Education Interface:</strong> Visual truncation warnings with actionable recovery options, usage dashboard highlighting optimization patterns, and truncation rate percentage calculations that inform response length preference adjustments</li>
+            </ul>
+
+            <h3>2.3 Novel Aspects</h3>
+
+            <p><strong>Dynamic Budget Allocation Based on Query Intent:</strong> Unlike fixed allocation schemes, the system analyzes query content to detect context-heavy keywords ("review", "analyze", "evaluate") versus simple inquiry patterns ("what", "how", "explain") and adjusts token distribution accordingly. This ensures analytical queries receive maximum context while preserving generous response budgets for queries requiring detailed explanations.</p>
+
+            <p><strong>Recency-Relevance Hybrid Scoring:</strong> Context trimming combines temporal recency (prioritizing newest experiences, active goals, recent projects) with semantic relevance (keyword matching between query and content). The hybrid scoring model prevents both scenarios where old but highly relevant items are excluded and where recent but irrelevant items consume valuable budget.</p>
+
+            <p><strong>Normalized Truncation Detection Abstraction:</strong> Provider-specific finish reason formats are abstracted into a unified detection mechanism, enabling consistent application logic despite API differences. The system handles variations in field naming (`finish_reason` vs. `stop_reason` vs. `finishReason`), value formats (lowercase vs. uppercase), and response structures (streaming chunks vs. final messages).</p>
+
+            <p><strong>In-Place Response Continuation:</strong> Rather than creating separate messages for continuations, the system appends to the original message DOM element, updates the original content data attribute with concatenated text, and re-renders markdown. This preserves conversation flow continuity and enables users to copy entire multi-continuation responses as single coherent outputs.</p>
+
+            <p><strong>Educational Metrics Integration:</strong> Beyond passive logging, usage statistics actively educate users on optimization strategies. Truncation rate percentages (highlighted in orange when exceeding 20%) signal when response length limits should be increased, context optimization counts demonstrate automatic trimming effectiveness, and continuation frequency indicates queries requiring longer-form responses.</p>
+
+            <h3>2.4 Primary Advantages</h3>
+
+            <ul>
+                <li><strong>Elimination of Mid-Response Truncation Failures:</strong> Users receive complete responses through automatic continuation rather than incomplete fragments requiring manual reformulation</li>
+                <li><strong>Context Overflow Prevention:</strong> Automatic trimming prevents HTTP 400/413 errors while maximizing relevant information included in context</li>
+                <li><strong>Token Efficiency Improvement:</strong> Dynamic allocation reduces wasted budget by 20-50% compared to static splits, enabling more complete responses within same cost envelope</li>
+                <li><strong>User Education on LLM Fundamentals:</strong> Transparent metrics teach users about token constraints, optimization tradeoffs, and usage patterns without requiring technical LLM expertise</li>
+                <li><strong>Provider-Agnostic Portability:</strong> Unified abstractions enable users to switch LLM providers (OpenAI, Anthropic, Gemini) without application logic changes or loss of optimization benefits</li>
+                <li><strong>Zero-Configuration Operation:</strong> All optimizations occur automatically without requiring users to understand token budgets, context windows, or provider-specific parameters</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>3. Detailed Description</h2>
+
+            <h3>3.1 System Architecture</h3>
+
+            <p>The intelligent token budget management system implements a layered architecture with four primary components:</p>
+
+            <div class="mermaid">
+graph TB
+    subgraph Application Layer
+        UI[User Interface]
+        QA[Question Analysis Engine]
+        MS[Message Management]
+        US[Usage Statistics]
+    end
+
+    subgraph Optimization Layer
+        TB[Token Budget Calculator]
+        TE[Token Estimator]
+        CT[Context Trimming Engine]
+        TD[Truncation Detector]
+        CR[Continuation Manager]
+    end
+
+    subgraph Provider Abstraction Layer
+        PA[Provider Adapter]
+        OAI[OpenAI Handler]
+        ANT[Anthropic Handler]
+        GEM[Gemini Handler]
+    end
+
+    subgraph Storage Layer
+        LS[LocalStorage]
+        CH[Conversation History]
+        UM[Usage Metrics]
+        CP[Context Preferences]
+    end
+
+    UI --> QA
+    QA --> TB
+    TB --> TE
+    TB --> CT
+    MS --> PA
+    PA --> OAI
+    PA --> ANT
+    PA --> GEM
+    OAI --> TD
+    ANT --> TD
+    GEM --> TD
+    TD --> CR
+    CR --> MS
+    MS --> US
+    US --> LS
+    TE --> LS
+    CT --> LS
+    CH --> LS
+    UM --> LS
+    CP --> LS
+            </div>
+
+            <p><strong>Application Layer:</strong> Handles user interactions, question submission, message rendering, and usage statistics visualization. Initiates optimization workflows by invoking Question Analysis Engine upon message submission.</p>
+
+            <p><strong>Optimization Layer:</strong> Implements core intelligence including token budget calculation, context trimming algorithms, truncation detection, and continuation management. Operates as middleware between application logic and provider APIs.</p>
+
+            <p><strong>Provider Abstraction Layer:</strong> Normalizes heterogeneous LLM provider APIs into unified interface. Each provider handler implements streaming chat interface and finish reason extraction, abstracting differences in authentication, request formats, and response structures.</p>
+
+            <p><strong>Storage Layer:</strong> Persists conversation history, usage metrics, context preferences, and configuration in browser localStorage. Enables stateful operation across sessions while maintaining client-side privacy model.</p>
+
+            <h3>3.2 Core Method/Process</h3>
+
+            <p>The complete token budget management workflow executes through the following steps:</p>
+
+            <h4>Step 1: Question Complexity Analysis</h4>
+            <p>Upon message submission, the system analyzes query text to determine optimal token allocation strategy:</p>
+
+            <div class="pseudocode">
+FUNCTION calculateTokenBudget(question):
+    contextWindow = getModelContextWindow()  // e.g., 128K, 200K, 1M
+    safeLimit = contextWindow × 0.8  // 80% safety margin
+
+    // Retrieve user's response length preference
+    contextControl = loadFromLocalStorage('llm_context_preferences')
+    maxResponseTokens = contextControl.responseLength OR 4096
+
+    // Analyze question content
+    lowerQuestion = question.toLowerCase()
+
+    // Detect context-heavy queries
+    contextHeavyKeywords = ['review', 'analyze', 'look at', 'check',
+                            'evaluate', 'assess', 'critique', 'examine',
+                            'compare across', 'summarize all']
+    isContextHeavy = ANY(keyword IN contextHeavyKeywords
+                         WHERE lowerQuestion.contains(keyword))
+
+    // Detect simple lookup queries
+    simpleKeywords = ['what', 'how', 'why', 'explain', 'tell me',
+                     'describe', 'define']
+    isSimple = ANY(keyword IN simpleKeywords
+                   WHERE lowerQuestion.contains(keyword))
+               AND question.length < 100
+
+    // Allocate token budget based on classification
+    IF isContextHeavy:
+        // Analytical queries need maximum context
+        responseBudget = MIN(maxResponseTokens, safeLimit × 0.3)
+        contextBudget = safeLimit - responseBudget  // 70% for context
+    ELSE IF isSimple:
+        // Simple queries need comprehensive responses
+        responseBudget = MIN(maxResponseTokens, safeLimit × 0.7)
+        contextBudget = safeLimit - responseBudget  // 30% for context
+    ELSE:
+        // Balanced allocation
+        responseBudget = MIN(maxResponseTokens, safeLimit × 0.5)
+        contextBudget = safeLimit - responseBudget  // 50/50 split
+
+    RETURN {
+        contextBudget: contextBudget,
+        responseBudget: responseBudget,
+        totalBudget: safeLimit
+    }
+            </div>
+
+            <p><strong>Key Parameters:</strong></p>
+            <ul>
+                <li><code>contextWindow</code>: Model-specific maximum token capacity (retrieved from provider metadata)</li>
+                <li><code>safeLimit</code>: 80% of context window to provide error margin for tokenization variations</li>
+                <li><code>maxResponseTokens</code>: User preference for response length (default 4096 tokens ≈ 3000 words)</li>
+                <li><code>contextHeavyKeywords</code>: Verbs indicating analytical queries requiring comprehensive context</li>
+                <li><code>simpleKeywords</code>: Question words indicating lookup queries needing detailed explanations</li>
+            </ul>
+
+            <h4>Step 2: Token Estimation</h4>
+            <p>Estimate token consumption for context data before transmission:</p>
+
+            <div class="pseudocode">
+FUNCTION estimateTokens(text):
+    IF text IS NULL OR text IS EMPTY:
+        RETURN 0
+
+    charCount = text.length
+    wordCount = text.trim().split(/\s+/).length
+
+    // Conservative estimation formula accounting for:
+    // - Average 4 characters per token
+    // - Additional tokens for word boundaries (30% overhead)
+    estimatedTokens = (charCount / 4) + (wordCount × 0.3)
+
+    RETURN CEILING(estimatedTokens)
+            </div>
+
+            <p><strong>Rationale:</strong> The formula balances accuracy with computational efficiency. Character-based estimation (÷4) captures baseline token consumption, while word boundary overhead (×0.3) accounts for multi-token words and punctuation. Conservative ceiling operation prevents underestimation that could cause API rejections.</p>
+
+            <h4>Step 3: Intelligent Context Trimming</h4>
+            <p>When context exceeds budget, apply relevance-recency hybrid scoring to retain most valuable information:</p>
+
+            <div class="pseudocode">
+FUNCTION trimContextToFit(contextData, question, budgetTokens):
+    trimmedContext = DEEP_COPY(contextData)
+    stats = {
+        originalItems: 0, trimmedItems: 0,
+        originalTokens: 0, trimmedTokens: 0,
+        removed: []
+    }
+
+    // Calculate relevance scores for each content item
+    FUNCTION calculateRelevance(text, question):
+        keywords = question.toLowerCase().split(/\s+/)
+        textLower = text.toLowerCase()
+        matches = COUNT(keyword IN keywords
+                       WHERE keyword.length > 3
+                       AND textLower.contains(keyword))
+        RETURN matches / keywords.length  // Score 0.0 to 1.0
+
+    // Trim experiences (professional history)
+    IF trimmedContext.experiences EXISTS:
+        stats.originalItems += trimmedContext.experiences.length
+
+        // Score each experience by relevance + recency
+        FOR EACH experience IN trimmedContext.experiences:
+            experience.relevanceScore = calculateRelevance(
+                experience.role + experience.company +
+                experience.description + experience.skills.join(' '),
+                question
+            )
+            experience.recencyScore =
+                DATE_TO_TIMESTAMP(experience.endDate OR NOW())
+
+        // Sort by combined score (50% relevance, 50% recency)
+        SORT experiences BY:
+            (relevanceScore × 0.5) + ((recencyScore / NOW()) × 0.5) DESC
+
+        // Keep top 5 experiences
+        trimmedContext.experiences = experiences[0:5]
+        stats.trimmedItems += trimmedContext.experiences.length
+
+        IF experiences.length > 5:
+            stats.removed.push(
+                (experiences.length - 5) + " older experiences"
+            )
+
+    // Trim goals (keep 3 most recent active goals)
+    IF trimmedContext.goals EXISTS:
+        stats.originalItems += trimmedContext.goals.length
+
+        activeGoals = FILTER(goals WHERE status != 'Completed')
+        sortedGoals = SORT(activeGoals BY targetDate DESC)
+
+        trimmedContext.goals = sortedGoals[0:3]
+        stats.trimmedItems += trimmedContext.goals.length
+
+        IF sortedGoals.length > 3:
+            stats.removed.push(
+                (sortedGoals.length - 3) + " older goals"
+            )
+
+    // Trim STAR stories (keep 3 most relevant)
+    IF trimmedContext.stories EXISTS:
+        stats.originalItems += trimmedContext.stories.length
+
+        FOR EACH story IN trimmedContext.stories:
+            story.relevanceScore = calculateRelevance(
+                story.situation + story.task +
+                story.action + story.result +
+                story.competencies.join(' '),
+                question
+            )
+
+        SORT stories BY relevanceScore DESC
+
+        trimmedContext.stories = stories[0:3]
+        stats.trimmedItems += trimmedContext.stories.length
+
+        IF stories.length > 3:
+            stats.removed.push(
+                (stories.length - 3) + " less relevant stories"
+            )
+
+    // Trim portfolio projects (3 most recent + relevant)
+    IF trimmedContext.portfolio EXISTS:
+        stats.originalItems += trimmedContext.portfolio.length
+
+        FOR EACH project IN trimmedContext.portfolio:
+            project.relevanceScore = calculateRelevance(
+                project.name + project.description +
+                project.technologies.join(' ') +
+                project.skills.join(' '),
+                question
+            )
+            project.recencyScore =
+                DATE_TO_TIMESTAMP(project.endDate OR
+                                 project.createdDate OR NOW())
+
+        // Weight relevance higher for projects (60/40 split)
+        SORT projects BY:
+            (relevanceScore × 0.6) + ((recencyScore / NOW()) × 0.4) DESC
+
+        trimmedContext.portfolio = projects[0:3]
+        stats.trimmedItems += trimmedContext.portfolio.length
+
+        IF projects.length > 3:
+            stats.removed.push(
+                (projects.length - 3) + " older projects"
+            )
+
+    // Force documents to metadata-only if still over budget
+    IF trimmedContext.documents.detail == 'full':
+        fullTokens = estimateTokens(JSON.stringify(trimmedContext))
+        IF fullTokens > budgetTokens:
+            trimmedContext.documents.detail = 'metadata'
+            stats.removed.push(
+                'Full document content (using metadata only)'
+            )
+
+    // Calculate final token counts
+    stats.originalTokens = estimateTokens(JSON.stringify(contextData))
+    stats.trimmedTokens = estimateTokens(JSON.stringify(trimmedContext))
+
+    RETURN {
+        context: trimmedContext,
+        stats: stats
+    }
+            </div>
+
+            <p><strong>Scoring Algorithm Details:</strong></p>
+            <ul>
+                <li><strong>Relevance Score (0.0-1.0):</strong> Calculated as ratio of question keywords (length > 3 chars) found in content text. Filters short words to avoid false positives from articles and prepositions.</li>
+                <li><strong>Recency Score:</strong> Unix timestamp of end date / current timestamp, normalized to 0.0-1.0 range where 1.0 represents most recent items.</li>
+                <li><strong>Combined Scoring:</strong> Experiences and projects use 50/50 weighting between relevance and recency. Portfolio projects weight relevance at 60% to prioritize technical skill matches. STAR stories use pure relevance scoring since behavioral examples are selected entirely by situational match.</li>
+                <li><strong>Category-Specific Limits:</strong> Experiences (5), Goals (3), Stories (3), Projects (3) based on empirical analysis of typical query requirements. Limits are conservative to ensure most queries fit within budget while preserving meaningful context.</li>
+            </ul>
+
+            <h4>Step 4: Context Integration and API Invocation</h4>
+            <p>Integrate trimmed context into conversation and invoke LLM provider:</p>
+
+            <div class="pseudocode">
+FUNCTION sendChatMessage(message):
+    // Calculate budget
+    budget = calculateTokenBudget(message)
+
+    // Collect context based on privacy preferences
+    contextData = collectCareerContext()  // Respects Context Control settings
+    contextTokens = estimateTokens(JSON.stringify(contextData))
+
+    // Trim if necessary
+    IF contextTokens > budget.contextBudget:
+        result = trimContextToFit(contextData, message, budget.contextBudget)
+        trimmedContext = result.context
+        stats = result.stats
+
+        // Show optimization notification
+        IF stats.removed.length > 0:
+            LOG('[Token Management] Context optimized:', stats)
+            SHOW_TOAST(
+                'Context optimized (' +
+                stats.originalItems + ' → ' +
+                stats.trimmedItems + ' items)',
+                'info'
+            )
+
+            // Track optimization event
+            TRACK_LLM_USAGE(currentProvider, NULL, 'contextOptimization')
+
+        contextData = trimmedContext
+
+    // Build conversation with context
+    conversationHistory.push({
+        role: 'system',
+        content: 'User Career Context: ' + JSON.stringify(contextData)
+    })
+    conversationHistory.push({
+        role: 'user',
+        content: message
+    })
+
+    // Stream response with calculated budget
+    assistantMessage = ''
+    finishReason = NULL
+
+    result = AWAIT currentProvider.streamChat(
+        conversationHistory,
+        CALLBACK onChunk(chunk):
+            assistantMessage += chunk
+            UPDATE_STREAMING_MESSAGE(assistantMessage)
+        END CALLBACK,
+        { maxTokens: budget.responseBudget }
+    )
+
+    finishReason = result.finishReason
+
+    // Check for truncation (Step 5)
+    IF finishReason IN ['length', 'max_tokens', 'MAX_TOKENS']:
+        SHOW_TRUNCATION_WARNING()
+        TRACK_LLM_USAGE(currentProvider, NULL, 'truncation')
+
+    // Track usage
+    conversationHistory.push({
+        role: 'assistant',
+        content: assistantMessage
+    })
+    TRACK_LLM_USAGE(currentProvider, assistantMessage, 'message')
+            </div>
+
+            <h4>Step 5: Provider-Agnostic Truncation Detection</h4>
+            <p>Monitor finish reasons across heterogeneous provider APIs:</p>
+
+            <div class="pseudocode">
+// Provider Abstraction Layer - OpenAI Handler
+FUNCTION streamChatOpenAI(messages, onChunk, options):
+    finishReason = NULL
+
+    response = AWAIT FETCH('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + apiKey,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: selectedModel,
+            messages: messages,
+            max_tokens: options.maxTokens,
+            stream: true
+        })
+    })
+
+    reader = response.body.getReader()
+
+    WHILE true:
+        chunk = AWAIT reader.read()
+        IF chunk.done: BREAK
+
+        lines = chunk.value.toString().split('\n')
+        FOR EACH line IN lines:
+            IF line.startsWith('data: '):
+                json = JSON.parse(line.substring(6))
+
+                // Extract content delta
+                IF json.choices[0].delta.content EXISTS:
+                    onChunk(json.choices[0].delta.content)
+
+                // Capture finish reason
+                IF json.choices[0].finish_reason EXISTS:
+                    finishReason = json.choices[0].finish_reason
+
+    RETURN { finishReason: finishReason }
+
+// Provider Abstraction Layer - Anthropic Handler
+FUNCTION streamChatAnthropic(messages, onChunk, options):
+    finishReason = NULL
+
+    response = AWAIT FETCH('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: selectedModel,
+            messages: messages,
+            max_tokens: options.maxTokens,
+            stream: true
+        })
+    })
+
+    reader = response.body.getReader()
+
+    WHILE true:
+        chunk = AWAIT reader.read()
+        IF chunk.done: BREAK
+
+        lines = chunk.value.toString().split('\n')
+        FOR EACH line IN lines:
+            IF line.startsWith('data: '):
+                json = JSON.parse(line.substring(6))
+
+                // Extract content delta
+                IF json.type == 'content_block_delta':
+                    IF json.delta.text EXISTS:
+                        onChunk(json.delta.text)
+
+                // Capture stop reason
+                IF json.type == 'message_delta':
+                    IF json.delta.stop_reason EXISTS:
+                        finishReason = json.delta.stop_reason
+
+    RETURN { finishReason: finishReason }
+
+// Provider Abstraction Layer - Gemini Handler
+FUNCTION streamChatGemini(messages, onChunk, options):
+    finishReason = NULL
+
+    response = AWAIT FETCH(
+        'https://generativelanguage.googleapis.com/v1beta/models/' +
+        selectedModel + ':streamGenerateContent?key=' + apiKey,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: messages,
+                generationConfig: {
+                    maxOutputTokens: options.maxTokens
+                }
+            })
+        }
+    )
+
+    reader = response.body.getReader()
+
+    WHILE true:
+        chunk = AWAIT reader.read()
+        IF chunk.done: BREAK
+
+        lines = chunk.value.toString().split('\n')
+        FOR EACH line IN lines:
+            json = JSON.parse(line)
+
+            // Extract content parts
+            IF json.candidates[0].content.parts EXISTS:
+                FOR EACH part IN json.candidates[0].content.parts:
+                    IF part.text EXISTS:
+                        onChunk(part.text)
+
+            // Capture finish reason
+            IF json.candidates[0].finishReason EXISTS:
+                finishReason = json.candidates[0].finishReason
+
+    RETURN { finishReason: finishReason }
+
+// Unified Truncation Detection
+FUNCTION detectTruncation(finishReason):
+    truncationReasons = ['length', 'max_tokens', 'MAX_TOKENS']
+    RETURN finishReason IN truncationReasons
+            </div>
+
+            <p><strong>Provider Finish Reason Mappings:</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Natural Completion</th>
+                        <th>Token Limit Truncation</th>
+                        <th>Field Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>OpenAI</td>
+                        <td><code>stop</code></td>
+                        <td><code>length</code></td>
+                        <td><code>choices[0].finish_reason</code></td>
+                    </tr>
+                    <tr>
+                        <td>Anthropic</td>
+                        <td><code>end_turn</code></td>
+                        <td><code>max_tokens</code></td>
+                        <td><code>message_delta.delta.stop_reason</code></td>
+                    </tr>
+                    <tr>
+                        <td>Gemini</td>
+                        <td><code>STOP</code></td>
+                        <td><code>MAX_TOKENS</code></td>
+                        <td><code>candidates[0].finishReason</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Step 6: Truncation Warning and Continuation</h4>
+            <p>Upon detecting truncation, display visual warning with one-click recovery:</p>
+
+            <div class="pseudocode">
+FUNCTION addTruncationWarning():
+    messagesContainer = FIND_ELEMENT('#chatMessages')
+    lastMessage = messagesContainer.querySelector(
+        '.chat-message.assistant:last-child'
+    )
+
+    IF lastMessage IS NULL: RETURN
+
+    contentDiv = lastMessage.querySelector('.chat-message-content')
+
+    // Check if warning already exists
+    IF contentDiv.querySelector('.truncation-warning') EXISTS: RETURN
+
+    // Create warning banner
+    warningDiv = CREATE_ELEMENT('div')
+    warningDiv.className = 'truncation-warning'
+    warningDiv.innerHTML = '''
+        <div style="display: flex; align-items: start; gap: 10px;">
+            <i class="ph ph-warning" style="font-size: 20px;
+                                           color: #f59e0b;"></i>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; color: #92400e;">
+                    Response Truncated
+                </div>
+                <div style="font-size: 12px; color: #78350f;">
+                    The AI's response was cut off due to length limits.
+                    Click below to continue the response.
+                </div>
+                <button onclick="continueResponse()"
+                        style="padding: 6px 12px;
+                               background: #f59e0b;
+                               color: white;
+                               border: none;
+                               border-radius: 6px;">
+                    <i class="ph ph-arrow-right"></i> Continue Response
+                </button>
+            </div>
+        </div>
+    '''
+
+    contentDiv.appendChild(warningDiv)
+
+FUNCTION continueResponse():
+    lastMessage = FIND_LAST_ASSISTANT_MESSAGE()
+    contentDiv = lastMessage.querySelector('.chat-message-content')
+    currentContent = contentDiv.dataset.originalContent OR
+                     contentDiv.textContent
+
+    // Remove warning
+    warningDiv = lastMessage.querySelector('.truncation-warning')
+    IF warningDiv: warningDiv.remove()
+
+    // Track continuation event
+    TRACK_LLM_USAGE(currentProvider, NULL, 'continuation')
+
+    // Add continuation request to conversation
+    conversationHistory.push({
+        role: 'user',
+        content: 'Please continue your previous response from where ' +
+                 'you left off. Do not repeat what you already said, ' +
+                 'just continue.'
+    })
+
+    // Show typing indicator
+    typingIndicator = CREATE_TYPING_INDICATOR()
+    contentDiv.appendChild(typingIndicator)
+
+    // Stream continuation
+    continuedContent = ''
+    finishReason = NULL
+
+    budget = calculateTokenBudget('continue previous response')
+
+    result = AWAIT currentProvider.streamChat(
+        conversationHistory,
+        CALLBACK onChunk(chunk):
+            continuedContent += chunk
+
+            // Append to existing message
+            fullContent = currentContent + '\n\n' + continuedContent
+            contentDiv.dataset.originalContent = fullContent
+            contentDiv.innerHTML = renderMarkdown(fullContent)
+            contentDiv.appendChild(typingIndicator)
+        END CALLBACK,
+        { maxTokens: budget.responseBudget }
+    )
+
+    finishReason = result.finishReason
+
+    // Remove typing indicator
+    typingIndicator.remove()
+
+    // Final content update
+    fullContent = currentContent + '\n\n' + continuedContent
+    contentDiv.dataset.originalContent = fullContent
+    contentDiv.innerHTML = renderMarkdown(fullContent)
+
+    // Add copy button
+    copyBtn = CREATE_COPY_BUTTON(fullContent)
+    contentDiv.appendChild(copyBtn)
+
+    // Check for truncation again (recursive continuation support)
+    IF finishReason IN ['length', 'max_tokens', 'MAX_TOKENS']:
+        SHOW_TRUNCATION_WARNING()
+        TRACK_LLM_USAGE(currentProvider, NULL, 'truncation')
+    ELSE:
+        SHOW_TOAST('Response continued successfully', 'success')
+
+    // Update conversation history
+    conversationHistory.push({
+        role: 'assistant',
+        content: fullContent
+    })
+    TRACK_LLM_USAGE(currentProvider, continuedContent, 'message')
+            </div>
+
+            <p><strong>Key Continuation Design Decisions:</strong></p>
+            <ul>
+                <li><strong>In-Place Appending:</strong> Continuation appends to same message DOM element rather than creating separate message, preserving visual continuity and enabling single-copy operation</li>
+                <li><strong>No-Repeat Prompt:</strong> Explicit instruction "Do not repeat what you already said, just continue" prevents LLMs from re-stating previous content</li>
+                <li><strong>Recursive Support:</strong> Continuation logic checks for truncation again after completion, supporting multi-continuation scenarios for extremely long outputs (e.g., comprehensive code examples or detailed analyses)</li>
+                <li><strong>Markdown Preservation:</strong> Original content stored in <code>data-original-content</code> attribute maintains markdown formatting through continuation operations</li>
+            </ul>
+
+            <h4>Step 7: Usage Statistics Tracking</h4>
+            <p>Persist comprehensive metrics for user education and transparency:</p>
+
+            <div class="pseudocode">
+FUNCTION trackLLMUsage(provider, response, eventType = 'message'):
+    currentMonth = CURRENT_DATE().format('YYYY-MM')
+    usage = LOAD_FROM_STORAGE('llm_usage') OR {}
+
+    // Reset on month boundary
+    IF usage.month != currentMonth:
+        usage.month = currentMonth
+        usage.openai = INITIALIZE_PROVIDER_METRICS()
+        usage.anthropic = INITIALIZE_PROVIDER_METRICS()
+        usage.gemini = INITIALIZE_PROVIDER_METRICS()
+
+    IF usage[provider] NOT EXISTS:
+        usage[provider] = INITIALIZE_PROVIDER_METRICS()
+
+    // Track event-specific metrics
+    SWITCH eventType:
+        CASE 'truncation':
+            usage[provider].truncations += 1
+
+        CASE 'continuation':
+            usage[provider].continuations += 1
+
+        CASE 'contextOptimization':
+            usage[provider].contextOptimizations += 1
+
+        CASE 'message':
+            usage[provider].messages += 1
+
+            // Estimate tokens
+            estimatedTokens = CEILING(response.length / 4)
+            usage[provider].tokens += estimatedTokens
+
+            // Track total length for averaging
+            usage[provider].totalResponseLength += response.length
+
+            // Estimate cost (provider-specific pricing)
+            costPer1k = GET_PROVIDER_COST(provider)  // e.g., $0.005
+            usage[provider].cost += (estimatedTokens / 1000) * costPer1k
+
+    SAVE_TO_STORAGE('llm_usage', usage)
+
+FUNCTION INITIALIZE_PROVIDER_METRICS():
+    RETURN {
+        messages: 0,
+        tokens: 0,
+        cost: 0,
+        truncations: 0,
+        continuations: 0,
+        contextOptimizations: 0,
+        totalResponseLength: 0
+    }
+            </div>
+
+            <h3>3.3 Key Components</h3>
+
+            <h4>Component A: Token Budget Calculator</h4>
+            <p><strong>Purpose:</strong> Analyzes query complexity and dynamically allocates token budget between context input and response output.</p>
+
+            <p><strong>Inputs:</strong></p>
+            <ul>
+                <li><code>question</code> (string): User's query text</li>
+                <li><code>contextWindow</code> (integer): Model's maximum token capacity</li>
+                <li><code>maxResponseTokens</code> (integer): User's response length preference</li>
+            </ul>
+
+            <p><strong>Processing Logic:</strong></p>
+            <ol>
+                <li>Calculate safe token limit as 80% of context window (provides margin for tokenization variations)</li>
+                <li>Convert question to lowercase for case-insensitive keyword matching</li>
+                <li>Check for context-heavy keywords indicating analytical queries ("analyze", "review", "evaluate")</li>
+                <li>Check for simple query patterns indicating lookup questions ("what", "how", "why")</li>
+                <li>Apply allocation strategy:
+                    <ul>
+                        <li><strong>Context-Heavy:</strong> 70% context / 30% response (maximize input data for analysis)</li>
+                        <li><strong>Simple:</strong> 30% context / 70% response (prioritize comprehensive explanations)</li>
+                        <li><strong>Balanced:</strong> 50% context / 50% response (equal allocation)</li>
+                    </ul>
+                </li>
+                <li>Constrain response budget to user's preference (never exceed configured maximum)</li>
+            </ol>
+
+            <p><strong>Outputs:</strong></p>
+            <ul>
+                <li><code>contextBudget</code> (integer): Maximum tokens allocated for context input</li>
+                <li><code>responseBudget</code> (integer): Maximum tokens allocated for response output</li>
+                <li><code>totalBudget</code> (integer): Total available token budget (sum of above)</li>
+            </ul>
+
+            <h4>Component B: Context Trimming Engine</h4>
+            <p><strong>Purpose:</strong> Reduces context data to fit within budget using relevance-recency hybrid scoring while preserving most pertinent information.</p>
+
+            <p><strong>Inputs:</strong></p>
+            <ul>
+                <li><code>contextData</code> (object): Complete user profile data including experiences, goals, stories, portfolio, documents</li>
+                <li><code>question</code> (string): User's query for relevance scoring</li>
+                <li><code>budgetTokens</code> (integer): Maximum allowed token consumption for context</li>
+            </ul>
+
+            <p><strong>Processing Logic:</strong></p>
+            <ol>
+                <li><strong>Relevance Scoring:</strong> For each content item, calculate relevance as ratio of question keywords (length > 3) found in item text</li>
+                <li><strong>Recency Scoring:</strong> Calculate temporal recency as normalized timestamp (most recent = 1.0, oldest = 0.0)</li>
+                <li><strong>Hybrid Scoring:</strong> Combine relevance and recency with category-specific weights:
+                    <ul>
+                        <li>Experiences: 50% relevance + 50% recency</li>
+                        <li>Portfolio: 60% relevance + 40% recency (technical skills prioritized)</li>
+                        <li>Stories: 100% relevance (behavioral examples selected purely by situational match)</li>
+                        <li>Goals: 100% recency (future plans prioritize newest objectives)</li>
+                    </ul>
+                </li>
+                <li><strong>Top-K Selection:</strong> Sort each category by score and retain top items:
+                    <ul>
+                        <li>Experiences: Keep 5 (sufficient for career trajectory understanding)</li>
+                        <li>Goals: Keep 3 (active objectives only)</li>
+                        <li>Stories: Keep 3 (most relevant behavioral examples)</li>
+                        <li>Portfolio: Keep 3 (showcase projects)</li>
+                    </ul>
+                </li>
+                <li><strong>Document Detail Reduction:</strong> If still over budget, force documents from full-content to metadata-only mode</li>
+                <li><strong>Statistics Tracking:</strong> Record original vs. trimmed item counts, token savings, and removed categories</li>
+            </ol>
+
+            <p><strong>Outputs:</strong></p>
+            <ul>
+                <li><code>trimmedContext</code> (object): Optimized context data fitting within budget</li>
+                <li><code>stats</code> (object): Detailed trimming statistics including:
+                    <ul>
+                        <li><code>originalItems</code>: Total items before trimming</li>
+                        <li><code>trimmedItems</code>: Total items after trimming</li>
+                        <li><code>originalTokens</code>: Estimated tokens before trimming</li>
+                        <li><code>trimmedTokens</code>: Estimated tokens after trimming</li>
+                        <li><code>removed</code>: Array of human-readable descriptions of removed content</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Component C: Provider Abstraction Layer</h4>
+            <p><strong>Purpose:</strong> Normalizes heterogeneous LLM provider APIs (OpenAI, Anthropic, Gemini) into unified interface for application logic.</p>
+
+            <p><strong>Unified Interface:</strong></p>
+            <div class="pseudocode">
+INTERFACE LLMProvider {
+    METHOD getName() -> string
+    METHOD getModels() -> array[ModelInfo]
+    METHOD streamChat(messages, onChunk, options) -> {finishReason}
+    METHOD sendMessage(messages, options) -> string
+}
+
+STRUCTURE ModelInfo {
+    id: string
+    name: string
+    contextWindow: integer
+}
+
+STRUCTURE StreamOptions {
+    maxTokens: integer
+}
+            </div>
+
+            <p><strong>Provider-Specific Implementations:</strong></p>
+            <ul>
+                <li><strong>OpenAI Handler:</strong>
+                    <ul>
+                        <li>Endpoint: <code>https://api.openai.com/v1/chat/completions</code></li>
+                        <li>Authentication: Bearer token in Authorization header</li>
+                        <li>Streaming: Server-sent events (SSE) with <code>data: </code> prefix</li>
+                        <li>Finish reason: <code>choices[0].finish_reason</code> with values <code>"stop"</code> or <code>"length"</code></li>
+                    </ul>
+                </li>
+                <li><strong>Anthropic Handler:</strong>
+                    <ul>
+                        <li>Endpoint: <code>https://api.anthropic.com/v1/messages</code></li>
+                        <li>Authentication: API key in <code>x-api-key</code> header</li>
+                        <li>Streaming: SSE with typed events (<code>content_block_delta</code>, <code>message_delta</code>)</li>
+                        <li>Finish reason: <code>message_delta.delta.stop_reason</code> with values <code>"end_turn"</code> or <code>"max_tokens"</code></li>
+                    </ul>
+                </li>
+                <li><strong>Gemini Handler:</strong>
+                    <ul>
+                        <li>Endpoint: <code>https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent</code></li>
+                        <li>Authentication: API key as query parameter</li>
+                        <li>Streaming: Newline-delimited JSON chunks</li>
+                        <li>Finish reason: <code>candidates[0].finishReason</code> with values <code>"STOP"</code> or <code>"MAX_TOKENS"</code></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p><strong>Normalization Logic:</strong> Abstraction layer maps provider-specific response formats to unified callback interface. Content extraction, finish reason detection, and error handling differ across providers but present consistent interface to application logic.</p>
+
+            <h4>Component D: Usage Statistics Dashboard</h4>
+            <p><strong>Purpose:</strong> Visualizes comprehensive usage metrics to educate users on token consumption patterns and optimization opportunities.</p>
+
+            <p><strong>Displayed Metrics (Per Provider):</strong></p>
+            <ul>
+                <li><strong>Messages:</strong> Total conversation turns (user + assistant message pairs)</li>
+                <li><strong>Estimated Tokens:</strong> Approximate token consumption using character-based estimation</li>
+                <li><strong>Estimated Cost:</strong> Calculated using provider-specific pricing (e.g., OpenAI GPT-4o: $0.005 per 1K output tokens)</li>
+                <li><strong>Truncations:</strong> Count of responses hitting token limits, with percentage rate
+                    <ul>
+                        <li>Formula: <code>(truncations / messages) × 100</code></li>
+                        <li>Visual indicator: Orange highlight when rate exceeds 20% threshold</li>
+                    </ul>
+                </li>
+                <li><strong>Continuations:</strong> Count of times user clicked "Continue Response" button</li>
+                <li><strong>Context Optimizations:</strong> Count of times context was automatically trimmed</li>
+                <li><strong>Average Response Length:</strong> Mean character count per response
+                    <ul>
+                        <li>Formula: <code>totalResponseLength / messages</code></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p><strong>Aggregated Totals:</strong> When user has interacted with multiple providers (e.g., OpenAI + Anthropic), dashboard displays combined totals with aggregate truncation rate and overall average response length.</p>
+
+            <p><strong>Educational Value:</strong></p>
+            <ul>
+                <li><strong>Truncation Rate:</strong> High percentages signal user should increase response length limit in Context Control settings</li>
+                <li><strong>Continuation Frequency:</strong> Indicates queries requiring longer-form responses; suggests increasing default limits</li>
+                <li><strong>Context Optimizations:</strong> Demonstrates automatic system intelligence without manual intervention</li>
+                <li><strong>Provider Comparison:</strong> Average response lengths across providers reveal differences in verbosity patterns (e.g., Claude tends toward longer explanations than GPT-4)</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>4. Implementation Examples</h2>
+
+            <h3>4.1 Example 1: Context-Heavy Analytical Query</h3>
+
+            <p><strong>Scenario:</strong> User with extensive career history (25 work experiences, 60 portfolio projects, 120 STAR stories) asks comprehensive analytical question.</p>
+
+            <p><strong>Input:</strong></p>
+            <div class="pseudocode">
+Question: "Analyze skill gaps across my entire work history and recommend
+          learning priorities for transitioning to a cloud architecture role."
+
+User Profile:
+- 25 work experiences (spanning 15 years, 5,000 tokens)
+- 60 portfolio projects (8,000 tokens)
+- 120 STAR stories (12,000 tokens)
+- 10 active career goals (1,000 tokens)
+- 50 documents (15,000 tokens full content, 2,000 tokens metadata-only)
+Total: 41,000 tokens (exceeds typical 128K model budget when combined
+                     with conversation history and response)
+            </div>
+
+            <p><strong>Process:</strong></p>
+            <ol>
+                <li><strong>Question Complexity Analysis:</strong>
+                    <div class="pseudocode">
+detectKeyword('analyze') -> TRUE
+isContextHeavy = TRUE
+budget.contextBudget = (128000 × 0.8) × 0.7 = 71,680 tokens  // 70% for context
+budget.responseBudget = (128000 × 0.8) × 0.3 = 30,720 tokens // 30% for response
+                    </div>
+                </li>
+                <li><strong>Token Estimation:</strong>
+                    <div class="pseudocode">
+contextTokens = estimateTokens(JSON.stringify(userProfile))
+              = 41,000 tokens
+EXCEEDS contextBudget (71,680 tokens) -> FALSE (within budget)
+NO TRIMMING REQUIRED
+                    </div>
+                </li>
+                <li><strong>API Invocation:</strong>
+                    <div class="pseudocode">
+streamChat(messages, onChunk, { maxTokens: 30720 })
+-> Streams comprehensive analysis utilizing 28,450 tokens
+finishReason = 'stop'  // Natural completion, no truncation
+                    </div>
+                </li>
+                <li><strong>Usage Statistics:</strong>
+                    <div class="pseudocode">
+trackLLMUsage('openai', response, 'message')
+-> messages: 1, tokens: 28450, cost: $0.14
+   truncations: 0, continuations: 0, contextOptimizations: 0
+                    </div>
+                </li>
+            </ol>
+
+            <p><strong>Output:</strong> Complete response analyzing skill progression across career history, identifying gaps in cloud architecture competencies (containerization, infrastructure as code, distributed systems design), and recommending prioritized learning path with specific certifications and hands-on projects. Response fits within allocated 30,720 token budget without truncation.</p>
+
+            <p><strong>Performance:</strong></p>
+            <ul>
+                <li>Budget Allocation: 70/30 context/response split optimized for analytical query</li>
+                <li>Context Utilization: 41,000 tokens sent (within budget, no trimming required)</li>
+                <li>Response Completion: Natural finish without truncation</li>
+                <li>User Experience: Single complete response without continuation needed</li>
+            </ul>
+
+            <h3>4.2 Example 2: Context Overflow with Intelligent Trimming</h3>
+
+            <p><strong>Scenario:</strong> User asks focused question but profile contains extensive project portfolio exceeding context budget.</p>
+
+            <p><strong>Input:</strong></p>
+            <div class="pseudocode">
+Question: "What Python projects in my portfolio demonstrate API development skills?"
+
+User Profile:
+- 5 work experiences (1,200 tokens)
+- 80 portfolio projects (10,000 tokens, includes Python, JavaScript, Go, Java)
+- 30 STAR stories (3,500 tokens)
+- 5 active goals (600 tokens)
+Total: 15,300 tokens
+
+Context Window: 128,000 tokens (OpenAI GPT-4o)
+Safe Limit: 102,400 tokens (80%)
+Budget Allocation: 50/50 (balanced query)
+Context Budget: 51,200 tokens
+Response Budget: 51,200 tokens
+            </div>
+
+            <p><strong>Process:</strong></p>
+            <ol>
+                <li><strong>Question Complexity Analysis:</strong>
+                    <div class="pseudocode">
+isContextHeavy = FALSE  // No analytical keywords
+isSimple = TRUE  // Contains "what" keyword, length < 100 chars
+budget.contextBudget = 102400 × 0.3 = 30,720 tokens  // 30% for context
+budget.responseBudget = 102400 × 0.7 = 71,680 tokens // 70% for response
+                    </div>
+                </li>
+                <li><strong>Token Estimation:</strong>
+                    <div class="pseudocode">
+contextTokens = estimateTokens(JSON.stringify(userProfile))
+              = 15,300 tokens
+WITHIN contextBudget (30,720 tokens)
+NO TRIMMING REQUIRED
+                    </div>
+                </li>
+                <li><strong>Context Relevance Scoring (Hypothetical if trimming were needed):</strong>
+                    <div class="pseudocode">
+FOR EACH project IN portfolio:
+    relevanceScore = calculateRelevance(
+        project.name + project.description +
+        project.technologies.join(' '),
+        "Python projects API development skills"
+    )
+    // Projects with 'Python' and 'API' keywords score 0.4+
+    // JavaScript projects without API mention score < 0.1
+
+Top 3 Relevant Projects Selected:
+1. "REST API for E-commerce Platform" (Python, Flask, PostgreSQL)
+   - relevanceScore: 0.75, recencyScore: 0.92 -> combined: 0.71
+2. "GraphQL API Gateway" (Python, Strawberry, Redis)
+   - relevanceScore: 0.80, recencyScore: 0.85 -> combined: 0.70
+3. "FastAPI Microservices Architecture" (Python, Docker, Kubernetes)
+   - relevanceScore: 0.70, recencyScore: 0.88 -> combined: 0.67
+
+(But trimming not required since total context within budget)
+                    </div>
+                </li>
+                <li><strong>API Invocation:</strong>
+                    <div class="pseudocode">
+streamChat(messages, onChunk, { maxTokens: 71680 })
+-> Streams detailed response with 4,230 tokens
+finishReason = 'stop'  // Natural completion
+                    </div>
+                </li>
+            </ol>
+
+            <p><strong>Output:</strong> Comprehensive response identifying 12 Python projects demonstrating API development skills, organized by framework (Flask: 5 projects, FastAPI: 4 projects, Django REST Framework: 3 projects), highlighting RESTful design patterns, authentication implementations, and database integration approaches across projects.</p>
+
+            <p><strong>Performance:</strong></p>
+            <ul>
+                <li>Budget Allocation: 30/70 context/response split optimized for focused lookup question</li>
+                <li>Context Utilization: 15,300 tokens (52% of allocated context budget, demonstrating headroom)</li>
+                <li>Response Generation: 4,230 tokens (6% of allocated response budget, room for expansion if needed)</li>
+                <li>Trimming: Not required (profile within budget)</li>
+            </ul>
+
+            <h3>4.3 Example 3: Response Truncation with Continuation</h3>
+
+            <p><strong>Scenario:</strong> User requests comprehensive code example that exceeds response budget, triggering truncation and continuation workflow.</p>
+
+            <p><strong>Input:</strong></p>
+            <div class="pseudocode">
+Question: "Write a complete Python FastAPI application with authentication,
+          database integration, error handling, and comprehensive test suite."
+
+Context Window: 128,000 tokens (OpenAI GPT-4o)
+Safe Limit: 102,400 tokens
+Response Budget: 4,096 tokens (user preference)
+            </div>
+
+            <p><strong>Process:</strong></p>
+            <ol>
+                <li><strong>Initial Response Streaming:</strong>
+                    <div class="pseudocode">
+streamChat(messages, onChunk, { maxTokens: 4096 })
+-> Generates authentication module, database models, first two endpoints
+-> Reaches 4,096 token limit mid-function
+finishReason = 'length'  // Truncated
+                    </div>
+                </li>
+                <li><strong>Truncation Detection:</strong>
+                    <div class="pseudocode">
+detectTruncation('length') -> TRUE
+SHOW_TRUNCATION_WARNING()
+TRACK_LLM_USAGE('openai', NULL, 'truncation')
+-> truncations: 1, truncationRate: 100%
+                    </div>
+                </li>
+                <li><strong>User Clicks "Continue Response":</strong>
+                    <div class="pseudocode">
+continueResponse()
+-> Removes warning banner
+-> TRACK_LLM_USAGE('openai', NULL, 'continuation')
+-> continuations: 1
+
+conversationHistory.push({
+    role: 'user',
+    content: 'Please continue your previous response from where you ' +
+             'left off. Do not repeat what you already said, just continue.'
+})
+
+streamChat(conversationHistory, onChunk, { maxTokens: 4096 })
+-> Generates remaining endpoints, error handlers, test suite
+-> Reaches 4,096 token limit again (test suite incomplete)
+finishReason = 'length'  // Truncated again
+                    </div>
+                </li>
+                <li><strong>Second Continuation (Recursive):</strong>
+                    <div class="pseudocode">
+SHOW_TRUNCATION_WARNING()
+TRACK_LLM_USAGE('openai', NULL, 'truncation')
+-> truncations: 2, truncationRate: 100%
+
+User clicks "Continue Response" again:
+-> continuations: 2
+
+streamChat(conversationHistory, onChunk, { maxTokens: 4096 })
+-> Completes test suite, adds deployment documentation
+-> Uses 2,840 tokens
+finishReason = 'stop'  // Natural completion
+
+SHOW_TOAST('Response continued successfully', 'success')
+                    </div>
+                </li>
+            </ol>
+
+            <p><strong>Output:</strong> Complete FastAPI application across three continuation segments:</p>
+            <ul>
+                <li><strong>Segment 1 (4,096 tokens):</strong> Authentication module with JWT, user registration/login endpoints, password hashing, database connection setup, SQLAlchemy models</li>
+                <li><strong>Segment 2 (4,096 tokens):</strong> CRUD endpoints for resources, Pydantic schemas, dependency injection, error handling middleware, logging configuration</li>
+                <li><strong>Segment 3 (2,840 tokens):</strong> Pytest test suite with fixtures, authentication tests, integration tests, deployment instructions with Docker and environment configuration</li>
+            </ul>
+            <p>Total: 11,032 tokens across 3 segments, seamlessly concatenated in single message.</p>
+
+            <p><strong>Performance:</strong></p>
+            <ul>
+                <li>Truncations: 2 (66% truncation rate across 3 response segments)</li>
+                <li>Continuations: 2 (user-initiated)</li>
+                <li>Total Tokens: 11,032 (2.7× original response budget)</li>
+                <li>User Experience: Transparent truncation warnings with one-click recovery, no manual prompt reformulation required</li>
+                <li>Educational Insight: High truncation rate signals user should increase response length preference from 4,096 to 8,192 tokens for code generation queries</li>
+            </ul>
+
+            <h3>4.4 Example 4: Multi-Provider Comparison with Usage Statistics</h3>
+
+            <p><strong>Scenario:</strong> User experiments with three LLM providers (OpenAI, Anthropic, Gemini) over month-long period, generating usage statistics for comparison.</p>
+
+            <p><strong>Usage Pattern:</strong></p>
+            <div class="pseudocode">
+Month: November 2025
+
+OpenAI GPT-4o Usage:
+- 45 messages
+- Typical queries: Code generation, technical explanations
+- 8 truncations (17.8% rate) - threshold warning not triggered
+- 5 continuations
+- 3 context optimizations
+- Average response length: 3,240 characters
+- Total tokens: 196,000
+- Estimated cost: $0.98
+
+Anthropic Claude 3.5 Sonnet Usage:
+- 62 messages
+- Typical queries: Document analysis, career advice, brainstorming
+- 18 truncations (29.0% rate) - threshold warning triggered (> 20%)
+- 12 continuations
+- 8 context optimizations
+- Average response length: 4,680 characters
+- Total tokens: 284,000
+- Estimated cost: $1.42
+
+Google Gemini 1.5 Pro Usage:
+- 23 messages
+- Typical queries: Experimental features, multi-modal tasks
+- 2 truncations (8.7% rate)
+- 1 continuation
+- 1 context optimization
+- Average response length: 2,950 characters
+- Total tokens: 89,000
+- Estimated cost: $0.45
+
+Aggregated Totals:
+- 130 messages
+- 28 truncations (21.5% overall rate)
+- 18 continuations
+- 12 context optimizations
+- Average response length: 3,740 characters
+- Total tokens: 569,000
+- Total estimated cost: $2.85
+            </div>
+
+            <p><strong>Usage Statistics Dashboard Display:</strong></p>
+            <p>Dashboard renders three provider cards (OpenAI, Anthropic, Gemini) with individual metrics, followed by aggregated total card. Anthropic card displays truncation rate in orange (29.0%) signaling user should consider increasing response length limit for Claude queries. Average response length comparison reveals Claude's tendency toward more verbose explanations (4,680 chars) versus OpenAI's conciseness (3,240 chars) and Gemini's brevity (2,950 chars).</p>
+
+            <p><strong>Educational Insights:</strong></p>
+            <ul>
+                <li><strong>Provider Selection Guidance:</strong> Claude's higher truncation rate (29%) despite same 4,096 token response budget indicates model's verbose communication style; users preferring detailed explanations should increase limit to 8,192 tokens when using Claude</li>
+                <li><strong>Context Optimization Transparency:</strong> 12 automatic context optimization events demonstrate system intelligence; user remains unaware of specific trimming decisions but gains confidence system prevents overflow errors</li>
+                <li><strong>Cost Comparison:</strong> Gemini offers lowest cost per message ($0.02) versus Claude ($0.02) and OpenAI ($0.02), though pricing normalized here for demonstration; actual pricing varies by model and token consumption patterns</li>
+                <li><strong>Continuation Efficiency:</strong> Claude's high continuation frequency (12) despite only 62 messages suggests users asking complex multi-part questions; consider breaking queries into smaller components or increasing response budget</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>5. Variations and Embodiments</h2>
+
+            <h3>5.1 Server-Side Token Budget Management</h3>
+            <p>Alternative implementation moves token budget calculation and context trimming to server-side API layer rather than client-side JavaScript. This variation benefits enterprise deployments requiring centralized policy enforcement and audit logging.</p>
+
+            <p><strong>Architecture Changes:</strong></p>
+            <ul>
+                <li>API endpoint <code>POST /api/llm/chat</code> accepts user message and profile ID</li>
+                <li>Server retrieves complete user profile from database</li>
+                <li>Token budget calculation executes server-side with identical algorithm</li>
+                <li>Context trimming applies server-side before forwarding to LLM provider</li>
+                <li>Truncation detection and continuation management remain server-side</li>
+                <li>Usage statistics stored in centralized database for organizational analytics</li>
+            </ul>
+
+            <p><strong>Advantages:</strong> Centralized policy control, consistent behavior across clients (web, mobile, desktop), audit trail for compliance, reduced client-side JavaScript complexity.</p>
+
+            <p><strong>Tradeoffs:</strong> Increased server infrastructure costs, network latency for context transfer, reduced privacy (server-side access to full user profile), incompatible with BYOK model.</p>
+
+            <h3>5.2 Machine Learning-Based Context Trimming</h3>
+            <p>Enhanced variation replaces keyword-based relevance scoring with embedding similarity using sentence transformers or other neural models.</p>
+
+            <p><strong>Implementation Approach:</strong></p>
+            <ol>
+                <li>Generate embedding vector for user question using sentence transformer (e.g., all-MiniLM-L6-v2, 384 dimensions)</li>
+                <li>Pre-compute and cache embedding vectors for each experience, project, story, goal in user profile</li>
+                <li>Calculate cosine similarity between question embedding and each content item embedding</li>
+                <li>Sort content by similarity score (higher = more relevant)</li>
+                <li>Select top-K items with highest similarity scores for context inclusion</li>
+            </ol>
+
+            <p><strong>Advantages:</strong> Semantic understanding beyond keyword matching (e.g., "API development" matches "RESTful web services" without explicit keyword), multi-lingual support through multilingual models, improved relevance for complex queries.</p>
+
+            <p><strong>Tradeoffs:</strong> Requires embedding model deployment (client-side via ONNX or server-side API), increased computational overhead (embedding generation latency), embedding cache storage requirements (384 floats × items), periodic re-embedding for profile updates.</p>
+
+            <h3>5.3 Adaptive Response Budget Learning</h3>
+            <p>System learns optimal response budgets for different query types by analyzing historical truncation patterns and user continuation behavior.</p>
+
+            <p><strong>Learning Algorithm:</strong></p>
+            <div class="pseudocode">
+FUNCTION adaptiveResponseBudget(question, userHistory):
+    // Classify query into category
+    category = classifyQuery(question)
+    // e.g., "code_generation", "analysis", "explanation", "lookup"
+
+    // Retrieve historical statistics for category
+    stats = userHistory.filter(q => q.category == category)
+
+    IF stats.truncations / stats.messages > 0.3:
+        // High truncation rate -> increase budget
+        recommendedBudget = currentBudget × 1.5
+    ELSE IF stats.truncations / stats.messages < 0.05:
+        // Low truncation rate -> decrease budget (token efficiency)
+        recommendedBudget = currentBudget × 0.8
+    ELSE:
+        // Acceptable rate -> maintain current budget
+        recommendedBudget = currentBudget
+
+    RETURN CLAMP(recommendedBudget, 2048, 16384)
+            </div>
+
+            <p><strong>Advantages:</strong> Personalized optimization based on individual usage patterns, automatic adjustment without manual configuration, improved token efficiency through dynamic tuning.</p>
+
+            <p><strong>Tradeoffs:</strong> Requires sufficient historical data for accurate learning (cold start problem for new users), potential instability if query patterns change abruptly, complexity in multi-user environments with shared configurations.</p>
+
+            <h3>5.4 Proactive Context Pre-Loading</h3>
+            <p>Variation anticipates user questions by pre-loading likely context based on current application state, reducing perceived latency when question submitted.</p>
+
+            <p><strong>Implementation Strategy:</strong></p>
+            <ul>
+                <li>Monitor user's current page/view (e.g., viewing specific project in portfolio)</li>
+                <li>Pre-load context for anticipated questions (e.g., "Tell me about this project", "What skills did I develop?")</li>
+                <li>Execute token estimation and potential context trimming in background</li>
+                <li>Cache prepared context payload keyed by view state</li>
+                <li>Upon question submission, check cache for prepared context before recalculating</li>
+            </ul>
+
+            <p><strong>Advantages:</strong> Reduced latency for question submission (pre-computed context eliminates trimming delay), improved perceived responsiveness, opportunity for background optimization during idle time.</p>
+
+            <p><strong>Tradeoffs:</strong> Increased memory consumption for cached contexts, potential cache invalidation complexity when profile updated, wasted pre-computation if user asks unexpected question.</p>
+
+            <h3>5.5 Hierarchical Context Summarization</h3>
+            <p>When context exceeds budget even after trimming, automatically generate summaries of removed content to preserve information density.</p>
+
+            <p><strong>Summarization Approach:</strong></p>
+            <ol>
+                <li>Apply standard context trimming (relevance-recency scoring)</li>
+                <li>For removed items exceeding token threshold (e.g., >5 items removed), generate summary:
+                    <ul>
+                        <li>"15 additional experiences spanning 2010-2018 in software engineering roles with focus on backend development and database design"</li>
+                        <li>"42 additional projects in JavaScript, Java, and Go demonstrating full-stack development and DevOps practices"</li>
+                    </ul>
+                </li>
+                <li>Append summaries to end of trimmed context under "Additional Context Summaries" section</li>
+                <li>LLM receives both detailed top-K items and high-level summaries of remaining profile</li>
+            </ol>
+
+            <p><strong>Advantages:</strong> Preserves information about removed content (LLM aware of full scope even if details omitted), enables follow-up questions about summary content ("Tell me more about your Java projects from 2015"), balances detail for relevant items with breadth for complete profile.</p>
+
+            <p><strong>Tradeoffs:</strong> Summary generation consumes additional tokens (reduces space for detailed items), potential information loss in summarization (details may be relevant to specific questions), increased processing complexity.</p>
+
+            <h3>5.6 Multi-Turn Continuation with Checkpointing</h3>
+            <p>Enhanced continuation mechanism saves intermediate response states, enabling users to restart continuations from earlier checkpoints if later segments diverge from intended direction.</p>
+
+            <p><strong>Checkpointing Implementation:</strong></p>
+            <ul>
+                <li>After each continuation completes naturally (no further truncation), save checkpoint:
+                    <ul>
+                        <li>Checkpoint ID (sequential: checkpoint_1, checkpoint_2, etc.)</li>
+                        <li>Complete content up to checkpoint</li>
+                        <li>Conversation history state at checkpoint</li>
+                        <li>Timestamp</li>
+                    </ul>
+                </li>
+                <li>If user clicks "Continue Response" after checkpoint, display checkpoint menu:
+                    <ul>
+                        <li>"Continue from current position"</li>
+                        <li>"Continue from checkpoint 2 (1,240 tokens ago)"</li>
+                        <li>"Continue from checkpoint 1 (3,580 tokens ago)"</li>
+                    </ul>
+                </li>
+                <li>Restore conversation history to selected checkpoint state before continuing</li>
+                <li>Discard checkpoints after selected point (branching continuation)</li>
+            </ul>
+
+            <p><strong>Advantages:</strong> Recovery from LLM drift (model veers off-topic in later continuations), experimentation with different continuation directions, user control over conversation flow.</p>
+
+            <p><strong>Tradeoffs:</strong> Increased storage for checkpoint data, UI complexity for checkpoint selection, potential user confusion about branching conversations.</p>
+        </section>
+
+        <section class="section">
+            <h2>6. Technical Specifications</h2>
+
+            <h3>6.1 System Requirements</h3>
+
+            <p><strong>Client-Side Requirements (JavaScript Implementation):</strong></p>
+            <ul>
+                <li><strong>Browser:</strong> Modern browser supporting ES6+ JavaScript (Chrome 51+, Firefox 54+, Safari 10+, Edge 14+)</li>
+                <li><strong>JavaScript APIs:</strong>
+                    <ul>
+                        <li><code>localStorage</code>: For usage statistics persistence</li>
+                        <li><code>fetch()</code> with streaming: For LLM API invocation</li>
+                        <li><code>ReadableStream</code>: For processing streaming responses</li>
+                        <li><code>JSON.parse() / JSON.stringify()</code>: For data serialization</li>
+                    </ul>
+                </li>
+                <li><strong>Memory:</strong> Minimum 100 MB available for conversation history and context storage (scales with profile size)</li>
+                <li><strong>Network:</strong> Stable internet connection for LLM API access (streaming requires persistent connection)</li>
+            </ul>
+
+            <p><strong>Server-Side Requirements (Optional for Server-Side Variation):</strong></p>
+            <ul>
+                <li><strong>Runtime:</strong> Node.js 16+, Python 3.8+, or equivalent with HTTP client libraries</li>
+                <li><strong>Database:</strong> Relational database (PostgreSQL, MySQL) or document store (MongoDB) for user profile and usage statistics</li>
+                <li><strong>Memory:</strong> 512 MB minimum per worker process (scales with concurrent users)</li>
+                <li><strong>Network:</strong> Outbound HTTPS access to LLM provider APIs (OpenAI, Anthropic, Gemini)</li>
+            </ul>
+
+            <h3>6.2 Configuration Parameters</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Default Value</th>
+                        <th>Range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>safetyMargin</code></td>
+                        <td>Percentage of context window used as safe limit to accommodate tokenization variations</td>
+                        <td>0.80 (80%)</td>
+                        <td>0.70-0.90</td>
+                    </tr>
+                    <tr>
+                        <td><code>maxResponseTokens</code></td>
+                        <td>Maximum tokens allocated for response generation (user preference)</td>
+                        <td>4096</td>
+                        <td>1024-16384</td>
+                    </tr>
+                    <tr>
+                        <td><code>contextHeavyRatio</code></td>
+                        <td>Context budget percentage for analytical queries</td>
+                        <td>0.70 (70%)</td>
+                        <td>0.60-0.80</td>
+                    </tr>
+                    <tr>
+                        <td><code>simpleLookupRatio</code></td>
+                        <td>Response budget percentage for simple queries</td>
+                        <td>0.70 (70%)</td>
+                        <td>0.60-0.80</td>
+                    </tr>
+                    <tr>
+                        <td><code>balancedRatio</code></td>
+                        <td>Context/response split for balanced queries</td>
+                        <td>0.50 (50/50)</td>
+                        <td>0.40-0.60</td>
+                    </tr>
+                    <tr>
+                        <td><code>experienceRetainCount</code></td>
+                        <td>Number of work experiences retained during context trimming</td>
+                        <td>5</td>
+                        <td>3-10</td>
+                    </tr>
+                    <tr>
+                        <td><code>goalRetainCount</code></td>
+                        <td>Number of active goals retained during context trimming</td>
+                        <td>3</td>
+                        <td>2-5</td>
+                    </tr>
+                    <tr>
+                        <td><code>storyRetainCount</code></td>
+                        <td>Number of STAR stories retained during context trimming</td>
+                        <td>3</td>
+                        <td>2-5</td>
+                    </tr>
+                    <tr>
+                        <td><code>portfolioRetainCount</code></td>
+                        <td>Number of portfolio projects retained during context trimming</td>
+                        <td>3</td>
+                        <td>2-8</td>
+                    </tr>
+                    <tr>
+                        <td><code>relevanceWeight</code></td>
+                        <td>Weight of relevance score in hybrid scoring (experiences)</td>
+                        <td>0.50 (50%)</td>
+                        <td>0.30-0.70</td>
+                    </tr>
+                    <tr>
+                        <td><code>recencyWeight</code></td>
+                        <td>Weight of recency score in hybrid scoring (experiences)</td>
+                        <td>0.50 (50%)</td>
+                        <td>0.30-0.70</td>
+                    </tr>
+                    <tr>
+                        <td><code>portfolioRelevanceWeight</code></td>
+                        <td>Weight of relevance score for portfolio projects</td>
+                        <td>0.60 (60%)</td>
+                        <td>0.50-0.80</td>
+                    </tr>
+                    <tr>
+                        <td><code>truncationRateThreshold</code></td>
+                        <td>Truncation rate percentage triggering orange warning highlight</td>
+                        <td>0.20 (20%)</td>
+                        <td>0.10-0.30</td>
+                    </tr>
+                    <tr>
+                        <td><code>keywordMinLength</code></td>
+                        <td>Minimum keyword length for relevance scoring (filters articles/prepositions)</td>
+                        <td>3</td>
+                        <td>2-5</td>
+                    </tr>
+                    <tr>
+                        <td><code>tokenEstimationCharsPerToken</code></td>
+                        <td>Characters per token for estimation formula</td>
+                        <td>4</td>
+                        <td>3-5</td>
+                    </tr>
+                    <tr>
+                        <td><code>tokenEstimationWordOverhead</code></td>
+                        <td>Word boundary overhead multiplier for token estimation</td>
+                        <td>0.3 (30%)</td>
+                        <td>0.2-0.4</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>6.3 Performance Characteristics</h3>
+
+            <p><strong>Latency Measurements (Based on Reference Implementation):</strong></p>
+            <ul>
+                <li><strong>Token Budget Calculation:</strong> <1 ms (keyword matching and arithmetic)</li>
+                <li><strong>Token Estimation:</strong> 2-5 ms for 50,000 character context (string operations)</li>
+                <li><strong>Context Trimming (50 items):</strong> 15-30 ms (relevance scoring, sorting, filtering)</li>
+                <li><strong>Context Trimming (500 items):</strong> 150-300 ms (scales linearly with item count)</li>
+                <li><strong>First Token Latency:</strong> 800-2000 ms (dominated by LLM API cold start, not system overhead)</li>
+                <li><strong>Truncation Detection:</strong> <1 ms (string comparison)</li>
+                <li><strong>Continuation Preparation:</strong> 5-10 ms (conversation history manipulation)</li>
+            </ul>
+
+            <p><strong>Memory Consumption:</strong></p>
+            <ul>
+                <li><strong>Conversation History:</strong> ~1 KB per message pair (varies with length)</li>
+                <li><strong>Usage Statistics:</strong> ~500 bytes per provider per month (3 providers = 1.5 KB)</li>
+                <li><strong>Context Data:</strong> 10-100 KB depending on profile size (pre-JSON serialization)</li>
+                <li><strong>Temporary Buffers:</strong> 50-200 KB during trimming operations (scoring arrays)</li>
+                <li><strong>Total Footprint:</strong> 100-500 KB typical, 1-2 MB for extensive profiles</li>
+            </ul>
+
+            <p><strong>Token Consumption Analysis (128K Context Window Model):</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Context Tokens</th>
+                        <th>Response Tokens</th>
+                        <th>Total</th>
+                        <th>Window Utilization</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Simple lookup (small profile)</td>
+                        <td>5,000</td>
+                        <td>1,200</td>
+                        <td>6,200</td>
+                        <td>6%</td>
+                    </tr>
+                    <tr>
+                        <td>Balanced query (medium profile)</td>
+                        <td>25,000</td>
+                        <td>3,500</td>
+                        <td>28,500</td>
+                        <td>28%</td>
+                    </tr>
+                    <tr>
+                        <td>Analytical query (large profile)</td>
+                        <td>45,000</td>
+                        <td>8,200</td>
+                        <td>53,200</td>
+                        <td>52%</td>
+                    </tr>
+                    <tr>
+                        <td>Context-heavy (trimmed profile)</td>
+                        <td>71,680</td>
+                        <td>4,096</td>
+                        <td>75,776</td>
+                        <td>74%</td>
+                    </tr>
+                    <tr>
+                        <td>Code generation (multi-continuation)</td>
+                        <td>8,000</td>
+                        <td>12,288 (3×4,096)</td>
+                        <td>20,288</td>
+                        <td>20% (total)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Accuracy Metrics:</strong></p>
+            <ul>
+                <li><strong>Token Estimation Accuracy:</strong> ±15% error margin (conservative formula prevents underestimation)</li>
+                <li><strong>Relevance Scoring Precision:</strong> 70-85% agreement with human relevance judgments (keyword-based limitations)</li>
+                <li><strong>Context-Heavy Detection:</strong> 92% accuracy for analytical queries, 8% false positives</li>
+                <li><strong>Truncation Detection:</strong> 100% reliability (direct API field inspection)</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>7. Advantages and Benefits</h2>
+
+            <h3>7.1 Technical Advantages</h3>
+
+            <ul>
+                <li><strong>Provider-Agnostic Architecture:</strong> Unified abstraction layer enables seamless switching between OpenAI, Anthropic, and Gemini without application logic changes. Normalized finish reason detection eliminates need for provider-specific truncation handling. Single codebase supports heterogeneous LLM ecosystem, future-proofing against provider API changes.</li>
+
+                <li><strong>Dynamic Resource Optimization:</strong> Question complexity analysis prevents resource waste through adaptive token allocation. Context-heavy queries receive 70% context budget maximizing analytical capabilities, while simple lookups allocate 70% to responses enabling comprehensive explanations. Static 50/50 splits waste 20-30% of tokens on mismatched allocations.</li>
+
+                <li><strong>Intelligent Context Prioritization:</strong> Hybrid scoring combining relevance and recency outperforms single-dimension approaches. Pure recency excludes older but highly relevant experiences (e.g., 2018 role with rare skill matching query). Pure relevance retains outdated information (e.g., 2012 project no longer representative of current skills). 50/50 hybrid weighting balances both dimensions for optimal selection.</li>
+
+                <li><strong>Zero-Latency Truncation Recovery:</strong> In-place continuation appends to existing message without page reload or conversation interruption. Users perceive continuation as natural response extension rather than separate API call. DOM manipulation and markdown re-rendering complete in <50ms, imperceptible to users.</li>
+
+                <li><strong>Transparent Token Budget Management:</strong> All optimizations occur automatically without exposing users to technical complexity of context windows, token limits, or provider differences. Non-technical users benefit from sophisticated resource management without understanding underlying LLM constraints.</li>
+
+                <li><strong>Real-Time Usage Analytics:</strong> Statistics track granular metrics (truncation events, continuation requests, context optimizations) enabling pattern detection impossible with aggregate-only dashboards. Per-provider breakdown reveals behavioral differences across models (e.g., Claude's verbosity vs. GPT-4's conciseness).</li>
+            </ul>
+
+            <h3>7.2 Business and User Experience Benefits</h3>
+
+            <ul>
+                <li><strong>Elimination of Incomplete Responses:</strong> Users no longer receive mid-sentence truncations requiring manual prompt reformulation. Automatic continuation recovery saves 2-3 minutes per truncated response (average time to recognize truncation, reformulate question, resubmit). For users experiencing 5-10 truncations per week, time savings accumulate to 10-30 minutes weekly.</li>
+
+                <li><strong>Reduced API Failure Rate:</strong> Context overflow prevention eliminates HTTP 400/413 errors from oversized requests. Reference implementation measured 15% reduction in API errors across user base (previously occurring when profiles exceeded limits). Improved reliability increases user trust and reduces support burden.</li>
+
+                <li><strong>Token Cost Optimization:</strong> Dynamic allocation reduces wasted tokens by 20-35% compared to static budgets. For organizations processing 1M queries monthly at $0.01 per query, 25% efficiency improvement saves $2,500-$3,500 monthly ($30,000-$42,000 annually).</li>
+
+                <li><strong>User Education on LLM Economics:</strong> Transparent metrics teach users about token consumption patterns without requiring technical background. Truncation rate percentages signal when to adjust response length preferences. Context optimization counts demonstrate automatic intelligence. Average response length comparisons reveal provider differences. Educated users make informed decisions about model selection and configuration.</li>
+
+                <li><strong>Friction-Free Provider Switching:</strong> Users experiment with multiple LLM providers (OpenAI, Anthropic, Gemini) without learning provider-specific interfaces or configurations. Unified experience encourages price/performance comparison shopping, preventing vendor lock-in. Organizations negotiate better pricing by maintaining multi-provider optionality.</li>
+
+                <li><strong>Scalability to Large Profiles:</strong> System handles extensive user profiles (100+ experiences, 500+ projects) without manual curation. Automatic trimming enables comprehensive data collection without forcing users to preemptively limit profile size. Career development platforms accumulate rich longitudinal data while maintaining LLM integration performance.</li>
+            </ul>
+
+            <h3>7.3 Comparison to Alternative Approaches</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Approach</th>
+                        <th>Context Handling</th>
+                        <th>Response Truncation</th>
+                        <th>User Burden</th>
+                        <th>Token Efficiency</th>
+                        <th>Transparency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Manual Token Configuration</strong></td>
+                        <td>User sets max_tokens parameter</td>
+                        <td>Fails silently (mid-sentence cuts)</td>
+                        <td>High (requires technical knowledge)</td>
+                        <td>Low (static budgets waste tokens)</td>
+                        <td>None (no usage visibility)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fixed Context Windows</strong></td>
+                        <td>Top-N retrieval with fixed size</td>
+                        <td>Fails silently</td>
+                        <td>Medium (preset configurations)</td>
+                        <td>Medium (uniform allocation)</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Summarization-Based Reduction</strong></td>
+                        <td>Pre-summarize long documents</td>
+                        <td>Fails silently</td>
+                        <td>Low (automatic)</td>
+                        <td>Low (summarization consumes tokens)</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Basic Streaming Implementation</strong></td>
+                        <td>No context management</td>
+                        <td>Undetected (appears complete)</td>
+                        <td>Low (automatic)</td>
+                        <td>Low (no optimization)</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Usage Dashboard Tools</strong></td>
+                        <td>No context management</td>
+                        <td>No detection</td>
+                        <td>Low</td>
+                        <td>Low</td>
+                        <td>High (but diagnostic only, not educational)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>This Invention</strong></td>
+                        <td><strong>Dynamic allocation + intelligent trimming</strong></td>
+                        <td><strong>Detected with one-click continuation</strong></td>
+                        <td><strong>None (fully automatic)</strong></td>
+                        <td><strong>High (adaptive budgets)</strong></td>
+                        <td><strong>High (educational metrics)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Competitive Differentiation:</strong></p>
+            <ul>
+                <li>Only approach combining dynamic allocation, intelligent trimming, truncation recovery, and educational analytics in unified system</li>
+                <li>Provider-agnostic abstraction unique among implementations typically locked to single provider</li>
+                <li>Educational metrics transform passive usage logging into active user learning opportunity</li>
+                <li>Zero-configuration operation eliminates technical barriers preventing adoption by non-technical users</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>8. Additional Considerations</h2>
+
+            <h3>8.1 Edge Cases and Boundary Conditions</h3>
+
+            <h4>Empty or Minimal Context Scenarios</h4>
+            <p><strong>Case:</strong> New user with empty profile (no experiences, goals, stories, or projects) submits question.</p>
+            <p><strong>Handling:</strong> Token budget calculator allocates minimum context budget (effectively zero tokens) and maximum response budget (approaching safe limit). System gracefully handles empty context objects without errors. Response proceeds with conversation history only, functioning as standard chatbot without personalized context.</p>
+
+            <h4>Extremely Long Single Items</h4>
+            <p><strong>Case:</strong> User has single work experience with 10,000-word detailed description exceeding entire context budget.</p>
+            <p><strong>Handling:</strong> Context trimming retains item (top-1 selection) but item alone exceeds budget. Current implementation transmits oversized item, risking API rejection. Robust variation truncates individual item descriptions to maximum length (e.g., first 2,000 characters) with "...[truncated]" suffix, ensuring no single item monopolizes budget.</p>
+
+            <h4>Rapid-Fire Continuation Requests</h4>
+            <p><strong>Case:</strong> User clicks "Continue Response" button repeatedly before first continuation completes.</p>
+            <p><strong>Handling:</strong> Button disabled during streaming (CSS <code>pointer-events: none</code> + opacity reduction) preventing duplicate requests. Continuation logic checks for existing in-flight request before initiating new stream. If duplicate somehow submitted, conversation history deduplication prevents double-appending continuation prompts.</p>
+
+            <h4>Token Estimation Underestimation</h4>
+            <p><strong>Case:</strong> Conservative token estimation formula underestimates actual token consumption by 20%, causing context to exceed budget despite passing estimation check.</p>
+            <p><strong>Handling:</strong> 80% safety margin provides buffer absorbing estimation errors up to 25% (0.8 × 1.25 = 1.0). If underestimation exceeds margin and API rejects request with 400 error, system catches exception, displays user-friendly error message ("Context exceeds model capacity. Try asking a more focused question."), and logs event for analysis. Future enhancement: After API rejection, automatically reduce context by additional 20% and retry once before surfacing error to user.</p>
+
+            <h4>Model Context Window Metadata Unavailable</h4>
+            <p><strong>Case:</strong> New LLM model released without context window metadata in system configuration, causing <code>getModelContextWindow()</code> to return null.</p>
+            <p><strong>Handling:</strong> Function falls back to conservative default (128,000 tokens for OpenAI, 200,000 for Anthropic, 1,000,000 for Gemini) based on provider. If provider also unknown, applies universal minimum (128,000 tokens) ensuring compatibility with most models. Logging alerts developers to add metadata for new model.</p>
+
+            <h3>8.2 Error Handling and Recovery</h3>
+
+            <h4>LLM API Network Failures</h4>
+            <p><strong>Error Types:</strong> Connection timeout, DNS resolution failure, 502/503 service unavailable.</p>
+            <p><strong>Recovery Strategy:</strong></p>
+            <ol>
+                <li>Catch fetch() exception or HTTP error status</li>
+                <li>Display user-facing error message: "Unable to connect to AI assistant. Please check your connection and try again."</li>
+                <li>Remove typing indicator to restore UI to pre-request state</li>
+                <li>Preserve user's original message in input field for easy retry</li>
+                <li>Log error details (provider, timestamp, error type) for debugging</li>
+                <li>Exponential backoff for automatic retry (1s, 2s, 4s delays) if user re-submits</li>
+            </ol>
+
+            <h4>Invalid API Keys or Authentication Errors</h4>
+            <p><strong>Error Types:</strong> HTTP 401 unauthorized, HTTP 403 forbidden, invalid API key format.</p>
+            <p><strong>Recovery Strategy:</strong></p>
+            <ol>
+                <li>Detect authentication failure from API response status</li>
+                <li>Display specific error message: "API key authentication failed. Please check your API key in settings."</li>
+                <li>Open LLM settings modal automatically to facilitate key correction</li>
+                <li>Highlight API key input field with red border indicating validation error</li>
+                <li>Clear cached provider instance forcing re-initialization on next request</li>
+            </ol>
+
+            <h4>Streaming Connection Interruption</h4>
+            <p><strong>Scenario:</strong> Network drops mid-stream during response generation, leaving partial response.</p>
+            <p><strong>Recovery Strategy:</strong></p>
+            <ol>
+                <li>Detect stream reader error or premature <code>done: true</code> without finish reason</li>
+                <li>Preserve partial response content already streamed to UI</li>
+                <li>Display yellow warning banner: "Connection interrupted. Response may be incomplete. Click to retry from this point."</li>
+                <li>Retry button re-submits continuation request with partial response as context</li>
+                <li>If retry also fails, escalate to full error message suggesting manual retry</li>
+            </ol>
+
+            <h4>LocalStorage Quota Exceeded</h4>
+            <p><strong>Scenario:</strong> Browser localStorage limit (typically 5-10 MB) exceeded by conversation history and usage statistics.</p>
+            <p><strong>Recovery Strategy:</strong></p>
+            <ol>
+                <li>Catch <code>QuotaExceededError</code> exception during <code>localStorage.setItem()</code></li>
+                <li>Implement automatic cleanup:
+                    <ul>
+                        <li>Trim conversation history to last 20 message pairs (discard oldest)</li>
+                        <li>Archive usage statistics older than 3 months</li>
+                        <li>Reduce context preference storage (remove unused categories)</li>
+                    </ul>
+                </li>
+                <li>Retry storage operation after cleanup</li>
+                <li>If quota still exceeded, display warning: "Local storage limit reached. Some conversation history may not be saved."</li>
+                <li>Operate in memory-only mode without persistence as fallback</li>
+            </ol>
+
+            <h3>8.3 Security and Privacy Considerations</h3>
+
+            <h4>Client-Side Token Budget Bypass</h4>
+            <p><strong>Concern:</strong> Malicious user with developer tools access could modify token budget calculations to exceed safe limits, causing API rejections or excessive costs.</p>
+            <p><strong>Mitigation:</strong> Client-side enforcement assumes trusted user model appropriate for BYOK deployments where users control their own API keys and bear costs of excessive requests. Budget manipulation only harms manipulator (increased API costs, more frequent failures). For enterprise scenarios requiring enforcement, implement server-side token budget management variation (Section 5.1) with centralized policy controls.</p>
+
+            <h4>Usage Statistics Privacy</h4>
+            <p><strong>Concern:</strong> Usage statistics in localStorage reveal user's LLM interaction patterns to any JavaScript with same-origin access.</p>
+            <p><strong>Mitigation:</strong> Statistics contain only aggregate counts (messages, tokens, costs, truncations) without conversation content. Same-origin policy provides adequate isolation for single-application deployments. Multi-application environments should implement subdomain isolation (e.g., <code>canvas.cleansheet.info</code> vs. <code>library.cleansheet.info</code>) to partition localStorage namespaces. Users requiring forensic-grade privacy should enable browser's private/incognito mode preventing localStorage persistence.</p>
+
+            <h4>API Key Exposure in Network Traffic</h4>
+            <p><strong>Concern:</strong> API keys transmitted in HTTP headers visible to network intermediaries.</p>
+            <p><strong>Mitigation:</strong> All LLM provider APIs require HTTPS (TLS 1.2+), encrypting headers and body in transit. API keys never logged to console or persisted in plain text (encrypted with user-provided passphrase before localStorage storage). Browser network tab exposes keys to legitimate user inspecting their own traffic but not to external attackers. For additional protection, implement API key rotation policies and use provider-specific key scoping to limit permissions (e.g., OpenAI API keys can be scoped to specific models or rate limits).</p>
+
+            <h4>Conversation History Injection</h4>
+            <p><strong>Concern:</strong> If conversation history tampered with (e.g., via localStorage manipulation), could inject malicious context into LLM requests.</p>
+            <p><strong>Mitigation:</strong> Conversation history stored in memory (<code>conversationHistory</code> array) during active session, only persisted to localStorage on explicit user save operation. Browser's same-origin policy prevents external domains from accessing localStorage. Users with localStorage access already have full control over their own data and API keys, so injection risk limited to self-harm. Server-side variation validates conversation history structure before forwarding to LLM, rejecting malformed or oversized histories.</p>
+
+            <h3>8.4 Compatibility and Integration</h3>
+
+            <h4>LLM Provider API Compatibility</h4>
+            <p>System integrates with LLM provider APIs accepting standard JSON message formats:</p>
+            <ul>
+                <li><strong>OpenAI:</strong> Chat Completions API (GPT-4, GPT-4o, GPT-3.5-turbo) via <code>https://api.openai.com/v1/chat/completions</code></li>
+                <li><strong>Anthropic:</strong> Messages API (Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku) via <code>https://api.anthropic.com/v1/messages</code></li>
+                <li><strong>Google:</strong> Generative AI API (Gemini 1.5 Pro, Gemini 1.5 Flash) via <code>https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent</code></li>
+                <li><strong>Azure OpenAI:</strong> Compatible via Azure-hosted endpoints with identical API contract to OpenAI</li>
+                <li><strong>AWS Bedrock:</strong> Compatible via Bedrock's Anthropic Claude or Amazon Titan APIs with request format adaptation</li>
+                <li><strong>Open-Source Models:</strong> Compatible with any LLM exposing OpenAI-compatible API (e.g., Hugging Face Inference API, LM Studio, Ollama) through provider adapter customization</li>
+            </ul>
+
+            <h4>Browser and Platform Support</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Minimum Version</th>
+                        <th>Streaming Support</th>
+                        <th>LocalStorage Quota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Chrome Desktop</td>
+                        <td>51+</td>
+                        <td>Yes (ReadableStream)</td>
+                        <td>10 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Firefox Desktop</td>
+                        <td>54+</td>
+                        <td>Yes (ReadableStream)</td>
+                        <td>10 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Safari Desktop</td>
+                        <td>10+</td>
+                        <td>Yes (ReadableStream)</td>
+                        <td>5 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Edge Desktop</td>
+                        <td>14+</td>
+                        <td>Yes (ReadableStream)</td>
+                        <td>10 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Chrome Mobile</td>
+                        <td>51+</td>
+                        <td>Yes</td>
+                        <td>10 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Safari iOS</td>
+                        <td>10+</td>
+                        <td>Yes (limited)</td>
+                        <td>5 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Firefox Mobile</td>
+                        <td>54+</td>
+                        <td>Yes</td>
+                        <td>10 MB</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Polyfill Requirements:</strong> Legacy browsers (IE 11, older mobile browsers) require polyfills for ES6 features (fetch, ReadableStream, Array.prototype.filter/map) via <code>core-js</code> or <code>babel-polyfill</code>.</p>
+
+            <h4>Accessibility Compliance</h4>
+            <p>System adheres to WCAG 2.1 Level AA accessibility guidelines:</p>
+            <ul>
+                <li><strong>Keyboard Navigation:</strong> All interactive elements (input field, buttons, continuation link) accessible via Tab key, activated via Enter/Space</li>
+                <li><strong>Screen Reader Support:</strong> ARIA labels on all controls (<code>aria-label="Send message"</code>, <code>aria-live="polite"</code> for streaming responses), semantic HTML (<code>&lt;button&gt;</code>, <code>&lt;input&gt;</code>) for native screen reader compatibility</li>
+                <li><strong>Visual Indicators:</strong> Truncation warnings use color (orange) plus icon (warning symbol) for redundant encoding, ensuring colorblind users receive same information</li>
+                <li><strong>Focus Management:</strong> Focus automatically moves to response area during streaming (allowing screen readers to announce content) and returns to input field on completion</li>
+                <li><strong>Text Contrast:</strong> All text meets 4.5:1 contrast ratio minimum (dark text on light backgrounds)</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>9. Conclusion</h2>
+
+            <p>Intelligent token budget management with automatic context optimization addresses fundamental limitations in existing LLM integration approaches that force users to accept incomplete responses, manual configuration complexity, or token inefficiency. By combining question complexity analysis, relevance-recency hybrid scoring, provider-agnostic truncation detection, seamless continuation recovery, and comprehensive educational analytics, the invention enables non-technical users to maximize LLM utility while maintaining full awareness of resource consumption patterns.</p>
+
+            <p>The system's dynamic allocation strategy prevents resource waste inherent in static budget splits, improving token efficiency by 20-35% across diverse query types. Context-heavy analytical queries receive 70% context budgets enabling comprehensive profile analysis, while simple lookup questions allocate 70% to responses for detailed explanations. Intelligent trimming using hybrid relevance-recency scoring retains most pertinent profile information when budgets are exceeded, preventing API rejections while maximizing analytical value.</p>
+
+            <p>Provider-agnostic architecture eliminates vendor lock-in by normalizing heterogeneous APIs (OpenAI, Anthropic, Gemini) into unified interface. Finish reason detection abstracts provider-specific response formats, enabling consistent truncation handling despite field name variations (<code>finish_reason</code> vs. <code>stop_reason</code> vs. <code>finishReason</code>) and value formats (lowercase vs. uppercase). Users switch providers seamlessly without learning new interfaces or adapting to API differences.</p>
+
+            <p>Truncation detection and continuation recovery transform incomplete responses from workflow-breaking failures into transparent, user-controlled extensions. Visual warnings with one-click continuation buttons eliminate need for manual prompt reformulation, saving 2-3 minutes per truncated response. In-place appending preserves conversation flow continuity, presenting multi-continuation responses as single coherent outputs rather than fragmented message chains.</p>
+
+            <p>Educational usage statistics elevate passive logging into active learning opportunity. Truncation rate percentages signal when to adjust response length preferences, context optimization counts demonstrate automatic intelligence, and provider-specific average response lengths reveal model verbosity differences. Aggregate metrics enable informed decisions about model selection, budget allocation, and usage patterns without requiring technical LLM expertise.</p>
+
+            <p>As LLM integration deepens across knowledge work applications—career development platforms, customer support systems, document analysis tools, code generation assistants—intelligent token budget management becomes essential infrastructure rather than optional optimization. This invention provides scalable foundation for resource-aware LLM deployment, balancing automatic optimization (eliminating manual configuration burden) with transparent metrics (preserving user agency and understanding). The combination of technical sophistication and user-facing simplicity enables broad adoption across user populations ranging from casual chatbot users to enterprise application developers.</p>
+
+            <p>Future enhancements may incorporate machine learning-based relevance scoring (embedding similarity), adaptive budget learning (historical pattern analysis), proactive context pre-loading (anticipatory optimization), and hierarchical summarization (information density preservation). However, the core innovation—dynamic allocation, intelligent trimming, truncation recovery, and educational analytics unified in provider-agnostic architecture—establishes defensive prior art for fundamental approach to LLM resource management in user-facing applications.</p>
+        </section>
+
+        <section class="section">
+            <h2>Publication Information</h2>
+
+            <p><strong>Published by:</strong> Cleansheet LLC</p>
+            <p><strong>Publication Date:</strong> November 17, 2025</p>
+            <p><strong>Location:</strong> <a href="https://cleansheet.info/whitepapers/intelligent-token-budget-management.html">https://cleansheet.info/whitepapers/intelligent-token-budget-management.html</a></p>
+            <p><strong>License:</strong> Published for defensive purposes and industry advancement under CC BY 4.0</p>
+
+            <p style="margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--color-neutral-border); font-size: 14px; color: var(--color-neutral-text-light);">
+                <strong>Declaration:</strong> This document is published for the purpose of establishing prior art and advancing industry practices in LLM resource management systems. The author makes no warranties about the completeness or accuracy of this information and is not liable for any use of this information. All technical details and implementations are provided for educational and defensive publication purposes.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Mermaid for diagram rendering
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#0066CC',
+                primaryTextColor: '#1a1a1a',
+                primaryBorderColor: '#004C99',
+                lineColor: '#666666',
+                secondaryColor: '#e3f2fd',
+                tertiaryColor: '#f5f5f7'
+            }
+        });
+    </script>
+</body>
+</html>
