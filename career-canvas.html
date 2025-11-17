@@ -16964,6 +16964,28 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         let currentProvider = null;
         let conversationHistory = [];
 
+        // Clear chat history and UI
+        function clearChatHistory() {
+            // Clear conversation history array
+            conversationHistory = [];
+
+            // Clear chat messages UI
+            const messagesContainer = document.getElementById('chatMessages');
+            if (messagesContainer) {
+                // Remove all messages
+                const messages = messagesContainer.querySelectorAll('.chat-message');
+                messages.forEach(msg => msg.remove());
+
+                // Show empty state if it exists
+                const emptyState = document.getElementById('chatEmptyState');
+                if (emptyState) {
+                    emptyState.style.display = 'flex';
+                }
+            }
+
+            console.log('[LLM] Chat history cleared');
+        }
+
         // Update provider badge with cost-based color coding
         function updateProviderBadge() {
             const badge = document.getElementById('providerModelBadge');
@@ -17587,7 +17609,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // Save to localStorage
             localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
 
-            // Save context control preferences
+            // Save context control preferences and clear chat if they changed
+            const previousPrefs = JSON.parse(localStorage.getItem('llm_context_preferences') || '{}');
             const contextPrefs = {
                 jobOpportunities: document.getElementById('contextJobOpportunities').checked,
                 experiences: document.getElementById('contextExperiences').checked,
@@ -17597,18 +17620,36 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 documents: document.getElementById('contextDocuments').checked,
                 documentDetail: document.querySelector('input[name="documentDetail"]:checked')?.value || 'metadata'
             };
+
+            // Check if context preferences changed
+            const contextChanged = JSON.stringify(previousPrefs) !== JSON.stringify(contextPrefs);
+
             localStorage.setItem('llm_context_preferences', JSON.stringify(contextPrefs));
             console.log('[LLM] Context preferences saved:', contextPrefs);
 
-            // Update UI
-            document.getElementById('chatEmptyState').style.display = 'none';
+            // Clear chat history if context settings changed to ensure privacy
+            const chatWasCleared = contextChanged && conversationHistory.length > 0;
+            if (chatWasCleared) {
+                clearChatHistory();
+            }
+
+            // Update UI - keep empty state visible if chat was just cleared
+            if (!chatWasCleared) {
+                document.getElementById('chatEmptyState').style.display = 'none';
+            }
             document.getElementById('chatInputContainer').style.display = 'block';
 
             // Update provider badge
             updateProviderBadge();
 
             closeLLMSettingsModal();
-            showToast('AI Assistant configured!', 'success');
+
+            // Show appropriate success message
+            if (chatWasCleared) {
+                showToast('Settings saved - conversation cleared for privacy', 'success');
+            } else {
+                showToast('AI Assistant configured!', 'success');
+            }
         }
 
         // Send chat message
