@@ -10361,6 +10361,15 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Keep existing data and add backup data to it from a JSON file</div>
                             </div>
                         </button>
+
+                        <!-- Restore API Keys Option -->
+                        <button onclick="handleRestoreApiKeysFromModal()" style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; text-align: left;" onmouseover="this.style.borderColor='#f59e0b'; this.style.background='#fffbeb';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-key" style="font-size: 32px; color: #f59e0b; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Restore API Keys</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Restore your LLM provider API keys from a backup file</div>
+                            </div>
+                        </button>
                     </div>
 
                     <!-- Info Note -->
@@ -10376,7 +10385,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
         <!-- Backup Options Modal -->
         <div class="modal" id="backupOptionsModal" style="display: none; z-index: 11000;">
-            <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
                     <h2 class="modal-title">
                         <i class="ph ph-download" style="margin-right: 8px; color: var(--color-primary-blue);"></i>
@@ -10388,51 +10397,82 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 </div>
                 <div class="modal-body" style="padding: 24px;">
                     <p style="font-family: var(--font-family-body); font-size: 14px; line-height: 1.6; color: var(--color-neutral-text); margin: 0 0 24px 0;">
-                        Configure your backup settings before exporting.
+                        Choose what to backup. Create separate backups for API keys and data, or backup both.
                     </p>
 
-                    <!-- API Key Backup Option -->
-                    <div style="margin-bottom: 24px;">
-                        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
-                            <input type="checkbox" id="includeApiKeysCheckbox" onchange="toggleApiKeyPassword()" style="margin-top: 2px; width: 18px; height: 18px; cursor: pointer;">
+                    <!-- Action Cards -->
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                        <!-- Backup API Keys Option -->
+                        <button onclick="handleApiKeyBackup()" style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; text-align: left;" onmouseover="this.style.borderColor='#f59e0b'; this.style.background='#fffbeb';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-key" style="font-size: 32px; color: #f59e0b; flex-shrink: 0;"></i>
                             <div style="flex: 1;">
-                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Include API Keys (requires password)</div>
-                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Backup your LLM provider API keys with password protection</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Backup API Keys</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Export only your LLM provider API keys with password protection</div>
                             </div>
-                        </label>
+                        </button>
+
+                        <!-- Backup Data Option -->
+                        <button onclick="handleDataBackup()" style="padding: 20px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; text-align: left;" onmouseover="this.style.borderColor='#16a34a'; this.style.background='#f0fdf4';" onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white';">
+                            <i class="ph ph-database" style="font-size: 32px; color: #16a34a; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <div style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); margin-bottom: 6px;">Backup Data</div>
+                                <div style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.4; color: var(--color-neutral-text);">Export all your Career Canvas data (experiences, goals, documents, etc.)</div>
+                            </div>
+                        </button>
                     </div>
 
-                    <!-- Password Fields (hidden by default) -->
-                    <div id="apiKeyPasswordSection" style="display: none; margin-bottom: 24px; padding: 20px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;">
-                        <!-- Warning -->
-                        <div style="margin-bottom: 16px;">
-                            <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #92400e; margin: 0;">
-                                <i class="ph ph-warning" style="margin-right: 4px;"></i>
-                                <strong>Important:</strong> If you lose this password, backups will restore WITHOUT API keys. You'll need to re-obtain keys from your LLM providers (OpenAI, Anthropic, etc.).
-                            </p>
-                        </div>
+                    <!-- Info Note -->
+                    <div style="background: #e3f2fd; border-left: 4px solid var(--color-primary-blue); padding: 12px; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 12px; line-height: 1.5; color: #1a237e; margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 4px;"></i>
+                            <strong>Tip:</strong> API keys and data are backed up separately for security. You can restore them independently.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Password Input -->
-                        <div style="margin-bottom: 12px;">
-                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Backup Password</label>
-                            <input type="password" id="backupPassword" placeholder="Enter password (min 8 characters)" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                        </div>
+        <!-- API Key Backup Password Modal -->
+        <div class="modal" id="apiKeyBackupPasswordModal" style="display: none; z-index: 11001;">
+            <div class="modal-content" style="max-width: 550px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">
+                        <i class="ph ph-lock-key" style="margin-right: 8px; color: var(--color-primary-blue);"></i>
+                        Set Backup Password
+                    </h2>
+                    <button class="modal-close" onclick="closeApiKeyBackupPasswordModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- Warning -->
+                    <div style="margin-bottom: 24px; padding: 16px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; line-height: 1.5; color: #92400e; margin: 0;">
+                            <i class="ph ph-warning" style="margin-right: 4px;"></i>
+                            <strong>Important:</strong> If you lose this password, you won't be able to restore your API keys. You'll need to re-obtain keys from your LLM providers (OpenAI, Anthropic, etc.).
+                        </p>
+                    </div>
 
-                        <!-- Password Confirmation -->
-                        <div>
-                            <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Confirm Password</label>
-                            <input type="password" id="backupPasswordConfirm" placeholder="Re-enter password" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                        </div>
+                    <!-- Password Input -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Backup Password</label>
+                        <input type="password" id="apiKeyBackupPassword" placeholder="Enter password (min 8 characters)" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
+                    </div>
+
+                    <!-- Password Confirmation -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); margin-bottom: 8px;">Confirm Password</label>
+                        <input type="password" id="apiKeyBackupPasswordConfirm" placeholder="Re-enter password" style="width: 100%; padding: 10px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
                     </div>
 
                     <!-- Buttons -->
                     <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button onclick="closeBackupOptionsModal()" style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        <button onclick="closeApiKeyBackupPasswordModal()" style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
                             Cancel
                         </button>
-                        <button onclick="executeBackupWithOptions()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                        <button onclick="executeApiKeysBackup()" style="padding: 10px 20px; background: #f59e0b; color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
                             <i class="ph ph-download" style="margin-right: 6px;"></i>
-                            Export Backup
+                            Export API Keys
                         </button>
                     </div>
                 </div>
@@ -24437,6 +24477,173 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             }
         }
 
+        // Export API Keys Only
+        async function exportApiKeysOnly(password) {
+            try {
+                console.log('[API Keys Backup] Starting API keys export...');
+
+                // Load encrypted LLM config from localStorage
+                const llmConfigEncrypted = localStorage.getItem('llm_config_encrypted');
+
+                if (!llmConfigEncrypted) {
+                    alert('No API keys found to backup. Please configure your LLM providers in AI Assistant Settings first.');
+                    return;
+                }
+
+                const llmConfig = JSON.parse(llmConfigEncrypted);
+                const providers = [];
+                const apiKeysData = {};
+
+                // Process OpenAI keys if configured
+                if (llmConfig.openai?.apiKey) {
+                    try {
+                        // Decrypt with device key
+                        const decryptedKey = await CleansheetCrypto.decrypt(llmConfig.openai.apiKey);
+
+                        // Re-encrypt with password
+                        const passwordEncryptedKey = await CleansheetCrypto.encryptWithPassword(decryptedKey, password);
+
+                        apiKeysData.openai = {
+                            apiKey: passwordEncryptedKey,
+                            model: llmConfig.openai.model
+                        };
+                        providers.push('OpenAI');
+                        console.log('[API Keys Backup] Included OpenAI API key');
+                    } catch (error) {
+                        console.error('[API Keys Backup] Failed to process OpenAI key:', error);
+                    }
+                }
+
+                // Process Anthropic keys if configured
+                if (llmConfig.anthropic?.apiKey) {
+                    try {
+                        // Decrypt with device key
+                        const decryptedKey = await CleansheetCrypto.decrypt(llmConfig.anthropic.apiKey);
+
+                        // Re-encrypt with password
+                        const passwordEncryptedKey = await CleansheetCrypto.encryptWithPassword(decryptedKey, password);
+
+                        apiKeysData.anthropic = {
+                            apiKey: passwordEncryptedKey,
+                            model: llmConfig.anthropic.model
+                        };
+                        providers.push('Anthropic');
+                        console.log('[API Keys Backup] Included Anthropic API key');
+                    } catch (error) {
+                        console.error('[API Keys Backup] Failed to process Anthropic key:', error);
+                    }
+                }
+
+                // Process Gemini keys if configured
+                if (llmConfig.gemini?.apiKey) {
+                    try {
+                        // Decrypt with device key
+                        const decryptedKey = await CleansheetCrypto.decrypt(llmConfig.gemini.apiKey);
+
+                        // Re-encrypt with password
+                        const passwordEncryptedKey = await CleansheetCrypto.encryptWithPassword(decryptedKey, password);
+
+                        apiKeysData.gemini = {
+                            apiKey: passwordEncryptedKey,
+                            model: llmConfig.gemini.model
+                        };
+                        providers.push('Gemini');
+                        console.log('[API Keys Backup] Included Gemini API key');
+                    } catch (error) {
+                        console.error('[API Keys Backup] Failed to process Gemini key:', error);
+                    }
+                }
+
+                if (providers.length === 0) {
+                    alert('No API keys found to backup.');
+                    return;
+                }
+
+                // Create export object with ONLY API keys
+                const exportData = {
+                    apiKeysEncrypted: {
+                        data: apiKeysData,
+                        providers: providers,
+                        activeProvider: llmConfig.activeProvider,
+                        encrypted: true
+                    },
+                    exportDate: new Date().toISOString(),
+                    version: '4.1',
+                    type: 'api-keys-only'  // Mark this as API keys only backup
+                };
+
+                console.log('[API Keys Backup] Successfully created API keys backup for:', providers.join(', '));
+
+                // Create download
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `cleansheet-api-keys-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                alert(`Successfully exported API keys (password-protected):\n\n🔒 Providers: ${providers.join(', ')}\n\nKeep this file and password safe!`);
+
+            } catch (error) {
+                console.error('[API Keys Backup] Export error:', error);
+                alert('Error exporting API keys: ' + error.message);
+            }
+        }
+
+        // Restore API Keys Only
+        function handleRestoreApiKeysFromModal() {
+            // Close the data management modal
+            closeDataManagementModal();
+
+            // Create and trigger file input
+            const fileInput = document.getElementById('jsonFileInput');
+            fileInput.value = ''; // Reset input
+
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+
+                        // Validate that this is an API keys backup
+                        if (!data.apiKeysEncrypted || !data.apiKeysEncrypted.encrypted) {
+                            alert('Invalid API keys backup file. This file does not contain encrypted API keys.\n\nPlease select an API keys backup file (typically named cleansheet-api-keys-*.json).');
+                            return;
+                        }
+
+                        // Check if it's an API keys only backup
+                        if (data.type === 'api-keys-only') {
+                            console.log('[Restore API Keys] Valid API keys backup detected');
+                        } else if (data.userFirstName && data.experiences) {
+                            // This is a full backup with API keys
+                            console.log('[Restore API Keys] Full backup with API keys detected, extracting keys only');
+                        }
+
+                        // Store data for password modal
+                        pendingRestoreData = data;
+                        pendingRestoreMode = 'api-keys-only';
+
+                        // Show password modal
+                        showRestorePasswordModal(data.apiKeysEncrypted.providers);
+
+                    } catch (error) {
+                        alert('Error parsing backup file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            fileInput.click();
+        }
+
         // Data Management Modal Functions
         function openDataManagementModal() {
             // Close profile dropdown
@@ -24456,51 +24663,54 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             closeDataManagementModal();
             // Open the backup options modal
             document.getElementById('backupOptionsModal').style.display = 'flex';
-            // Reset form
-            document.getElementById('includeApiKeysCheckbox').checked = false;
-            document.getElementById('backupPassword').value = '';
-            document.getElementById('backupPasswordConfirm').value = '';
-            document.getElementById('apiKeyPasswordSection').style.display = 'none';
         }
 
         function closeBackupOptionsModal() {
             document.getElementById('backupOptionsModal').style.display = 'none';
         }
 
-        function toggleApiKeyPassword() {
-            const checkbox = document.getElementById('includeApiKeysCheckbox');
-            const passwordSection = document.getElementById('apiKeyPasswordSection');
-            passwordSection.style.display = checkbox.checked ? 'block' : 'none';
+        function handleApiKeyBackup() {
+            // Close backup options modal
+            closeBackupOptionsModal();
+            // Open API key password modal
+            document.getElementById('apiKeyBackupPasswordModal').style.display = 'flex';
+            // Reset form
+            document.getElementById('apiKeyBackupPassword').value = '';
+            document.getElementById('apiKeyBackupPasswordConfirm').value = '';
         }
 
-        async function executeBackupWithOptions() {
-            const includeApiKeys = document.getElementById('includeApiKeysCheckbox').checked;
-            let backupPassword = null;
+        function closeApiKeyBackupPasswordModal() {
+            document.getElementById('apiKeyBackupPasswordModal').style.display = 'none';
+        }
 
-            // If including API keys, validate password
-            if (includeApiKeys) {
-                const password = document.getElementById('backupPassword').value;
-                const confirmPassword = document.getElementById('backupPasswordConfirm').value;
+        async function executeApiKeysBackup() {
+            const password = document.getElementById('apiKeyBackupPassword').value;
+            const confirmPassword = document.getElementById('apiKeyBackupPasswordConfirm').value;
 
-                // Validate password
-                if (!password || password.length < 8) {
-                    alert('Password must be at least 8 characters long');
-                    return;
-                }
+            // Validate password
+            if (!password || password.length < 8) {
+                alert('Password must be at least 8 characters long');
+                return;
+            }
 
-                if (password !== confirmPassword) {
-                    alert('Passwords do not match');
-                    return;
-                }
-
-                backupPassword = password;
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
             }
 
             // Close the modal
+            closeApiKeyBackupPasswordModal();
+
+            // Export only API keys
+            await exportApiKeysOnly(password);
+        }
+
+        async function handleDataBackup() {
+            // Close backup options modal
             closeBackupOptionsModal();
 
-            // Call modified export function with options
-            await exportCanvasDataWithOptions(includeApiKeys, backupPassword);
+            // Export data without API keys
+            await exportCanvasDataWithOptions(false, null);
         }
 
         // Restore state management
@@ -24613,7 +24823,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                     // Close password modal (this resets pendingRestoreData and pendingRestoreMode)
                     closeRestorePasswordModal();
 
-                    // Continue with normal import (without apiKeysEncrypted field)
+                    // If this is an API keys only restore, we're done
+                    if (restoreMode === 'api-keys-only') {
+                        alert('API keys restored successfully!\n\nYour LLM provider API keys have been restored. You can now use the AI Assistant.');
+                        return;
+                    }
+
+                    // Otherwise, continue with normal import (without apiKeysEncrypted field)
                     delete dataToRestore.apiKeysEncrypted;
 
                     pendingImportData = dataToRestore;
