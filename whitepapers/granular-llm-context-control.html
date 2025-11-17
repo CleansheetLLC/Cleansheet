@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Granular LLM Context Control System - Cleansheet LLC White Paper</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <style>
+        /* CSS Variables - Corporate Professional Design System */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-h1: clamp(28px, 4vw, 32px);
+            --font-size-h2: clamp(24px, 3.5vw, 28px);
+            --font-size-h3: clamp(18px, 3vw, 24px);
+            --font-size-h4: clamp(16px, 2.8vw, 20px);
+            --font-size-body: clamp(14px, 2.5vw, 16px);
+            --font-size-small: clamp(12px, 2.2vw, 14px);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            line-height: 1.6;
+            color: var(--color-neutral-text);
+            margin: 0;
+            padding: 0;
+            background: var(--color-neutral-white);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-ui);
+            color: var(--color-dark);
+            margin: var(--spacing-xxl) 0 var(--spacing-lg) 0;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: var(--font-size-h1);
+            color: var(--color-primary-blue);
+            text-align: center;
+            margin-bottom: var(--spacing-xxxl);
+            border-bottom: 2px solid var(--color-neutral-border);
+            padding-bottom: var(--spacing-lg);
+        }
+
+        h2 {
+            font-size: var(--font-size-h2);
+            color: var(--color-primary-blue);
+            border-left: 4px solid var(--color-primary-blue);
+            padding-left: var(--spacing-lg);
+            margin-top: var(--spacing-xxxl);
+        }
+
+        h3 {
+            font-size: var(--font-size-h3);
+            color: var(--color-accent-blue);
+        }
+
+        h4 {
+            font-size: var(--font-size-h4);
+            color: var(--color-dark);
+        }
+
+        p {
+            margin: var(--spacing-lg) 0;
+            font-size: var(--font-size-body);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl);
+        }
+
+        .header {
+            background: var(--color-dark);
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxxl) 0;
+            margin-bottom: var(--spacing-xxxl);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-xxl);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--color-neutral-white);
+            border-bottom: none;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .publication-info {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+            margin-bottom: 0;
+        }
+
+        /* Content Sections */
+        .section {
+            margin: var(--spacing-xxxl) 0;
+            padding: var(--spacing-xxl);
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .abstract {
+            background: var(--color-neutral-background-secondary);
+            border-left: 4px solid var(--color-primary-blue);
+            font-style: italic;
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: var(--spacing-xxl);
+            margin: var(--spacing-lg) 0;
+        }
+
+        li {
+            margin: var(--spacing-sm) 0;
+        }
+
+        /* Code and Technical Content */
+        .pseudocode {
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: var(--font-size-small);
+            line-height: 1.4;
+            color: var(--color-dark);
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-lg) 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        th {
+            background: var(--color-neutral-background);
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        /* Figures */
+        .figure {
+            margin: var(--spacing-xxl) 0;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .figure-description {
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+            font-style: italic;
+            margin-top: var(--spacing-md);
+        }
+
+        /* Mermaid Diagrams */
+        .mermaid {
+            background: var(--color-neutral-white);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            overflow-x: auto;
+        }
+
+        .figure .mermaid {
+            max-width: 100%;
+        }
+
+        /* Key Features Highlights */
+        .key-features {
+            background: linear-gradient(135deg, var(--color-primary-blue), var(--color-accent-blue));
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxl);
+            border-radius: 8px;
+            margin: var(--spacing-xxl) 0;
+        }
+
+        .key-features h3 {
+            color: var(--color-neutral-white);
+            margin-top: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-lg);
+            }
+
+            .section {
+                padding: var(--spacing-lg);
+            }
+
+            .header-content {
+                padding: 0 var(--spacing-lg);
+            }
+
+            .pseudocode {
+                font-size: 12px;
+                padding: var(--spacing-md);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header {
+                background: none;
+                color: var(--color-dark);
+            }
+
+            .header h1 {
+                color: var(--color-primary-blue);
+            }
+
+            .section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Granular LLM Context Control System</h1>
+            <p class="publication-info">
+                <strong>Publication Date:</strong> November 17, 2025<br>
+                <strong>Version:</strong> 1.0<br>
+                <strong>Author:</strong> Cleansheet LLC<br>
+                <strong>Contact:</strong> cleansheet.info
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section abstract">
+            <h2>Abstract</h2>
+            <p>A computer-implemented system for providing granular, user-configurable control over data context shared with Large Language Model (LLM) assistants, enabling privacy-conscious users to selectively expose career information at category, document-type, content-depth, and individual-asset levels while maintaining conversational continuity and providing immediate privacy enforcement through automatic conversation history clearing.</p>
+
+            <p>The system implements a multi-tier privacy control architecture comprising: (1) category-level toggles for independent inclusion/exclusion of six distinct career data types (job opportunities, experiences, goals, portfolio projects, STAR stories, and documents); (2) document-level granularity controls allowing users to share metadata-only versus full document content across ten heterogeneous document types (Lexical rich text, LaTeX, Markdown, diagrams, whiteboards, code snippets, presentations, Mermaid charts, photos, and links); and (3) asset-level privacy flags enabling individual document exclusion with persistent visual indicators and backup/restore preservation.</p>
+
+            <p>Key innovations include real-time privacy enforcement through automatic conversation history clearing when context preferences change, preventing LLM retention of previously exposed data without requiring page refresh or manual intervention. The system aggregates career data from fourteen independent localStorage sources while respecting granular exclusion rules, producing structured JSON context payloads that reflect user privacy preferences with zero server-side data transmission.</p>
+
+            <p>Unlike binary "share all or nothing" approaches common in AI assistant integrations, this invention enables sophisticated privacy management accessible to non-technical users through intuitive checkbox interfaces, radio button detail selectors, and visual privacy indicators (shield icons, reduced opacity) that communicate asset exclusion status without cryptic technical terminology.</p>
+
+            <p>Commercial applications span privacy-conscious career development platforms, BYOK (Bring Your Own Key) AI assistant implementations, enterprise knowledge management systems requiring granular data governance, and consumer productivity tools where users demand precise control over AI data exposure while maintaining assistant utility.</p>
+
+            <p><strong>Keywords:</strong> privacy controls, LLM context management, granular data governance, BYOK AI assistants, localStorage persistence, multi-tier privacy architecture, career data management, automatic conversation clearing, metadata filtering, asset-level exclusion</p>
+        </section>
+
+        <section class="section">
+            <h2>1. Technical Field</h2>
+
+            <h3>1.1 Background</h3>
+            <p>The present invention relates to privacy-preserving artificial intelligence systems, and more particularly to methods and systems for providing multi-tier, user-configurable control over context data shared with Large Language Model (LLM) assistants, enabling selective data exposure at category, content-depth, and individual asset levels while maintaining conversational functionality and immediate privacy enforcement.</p>
+
+            <p>The invention operates within the domain of privacy-first AI assistant integration, particularly in career development platforms, personal knowledge management systems, and Bring Your Own Key (BYOK) AI implementations where users retain API keys and demand precise control over data exposure. It addresses the critical need for granular privacy controls that enable sophisticated data governance without requiring technical expertise or compromising assistant utility.</p>
+
+            <h3>1.2 Problem Statement</h3>
+            <p>The integration of Large Language Model assistants into productivity applications has created significant opportunities for AI-powered knowledge work, but existing implementations suffer from critical privacy and usability limitations:</p>
+
+            <ul>
+                <li><strong>Binary Privacy Models:</strong> Most AI assistant integrations operate on "all or nothing" data sharing paradigms where users must choose between exposing their entire data corpus or disabling assistant functionality entirely, providing no middle ground for selective privacy.</li>
+
+                <li><strong>Category-Level Granularity Gaps:</strong> Systems that offer category-based filtering typically treat all content uniformly, failing to distinguish between high-sensitivity documents (financial records, confidential agreements) and low-sensitivity content (public portfolio samples, published articles).</li>
+
+                <li><strong>Content Depth Blindness:</strong> Existing privacy controls ignore the distinction between document metadata (titles, tags, creation dates) and full document content, forcing users to completely exclude documents when metadata-only sharing would preserve privacy while maintaining organizational context.</li>
+
+                <li><strong>Delayed Privacy Enforcement:</strong> When users modify privacy settings, conversation history containing previously shared data remains accessible to the LLM until manual page refresh, creating privacy exposure windows where sensitive information persists in context despite user intent to revoke access.</li>
+
+                <li><strong>Technical Accessibility Barriers:</strong> Advanced privacy controls often require understanding of technical concepts (API scopes, data serialization, context windows) that exclude non-technical users from exercising granular privacy management.</li>
+
+                <li><strong>Visual Feedback Absence:</strong> Users lack clear visual indicators showing which assets are excluded from LLM context, making it difficult to verify privacy settings or identify accidentally exposed sensitive documents during routine usage.</li>
+
+                <li><strong>Heterogeneous Document Type Challenges:</strong> Career development and knowledge management platforms integrate diverse document types (rich text, LaTeX, diagrams, code, presentations) stored in separate systems, and privacy controls fail to provide unified filtering across these heterogeneous sources.</li>
+            </ul>
+
+            <h3>1.3 Prior Art</h3>
+            <p>Existing approaches to LLM context management and privacy controls include:</p>
+
+            <ul>
+                <li><strong>Enterprise RAG Systems:</strong> Retrieval-Augmented Generation platforms implement role-based access control (RBAC) for document filtering, but operate at organizational permission levels rather than individual user preference levels, and lack real-time privacy enforcement or visual feedback mechanisms.</li>
+
+                <li><strong>ChatGPT Custom Instructions:</strong> OpenAI's custom instructions feature allows users to define static context shared with every conversation, but provides no granular filtering, no selective document exclusion, and no distinction between metadata and content exposure.</li>
+
+                <li><strong>Notion AI Integration:</strong> Notion's AI assistant accesses workspace content based on page-level permissions, but lacks category filtering, content-depth controls, or real-time privacy enforcement, and operates within proprietary ecosystem constraints.</li>
+
+                <li><strong>Microsoft Copilot Data Governance:</strong> Microsoft 365 Copilot implements admin-controlled data filtering through sensitivity labels and compliance policies, but these controls operate at IT administrator level rather than end-user preference level, and do not support BYOK scenarios or client-side privacy enforcement.</li>
+
+                <li><strong>Privacy-Preserving ML Research:</strong> Academic research in federated learning and differential privacy focuses on statistical privacy guarantees during model training, but does not address user-facing context control interfaces or selective data exposure in production assistant deployments.</li>
+            </ul>
+
+            <p>These prior approaches fail to provide the combination of multi-tier granularity (category + content-depth + asset-level), immediate privacy enforcement (automatic conversation clearing), intuitive non-technical interfaces (checkboxes + visual indicators), and BYOK compatibility that characterize the present invention.</p>
+        </section>
+
+        <section class="section">
+            <h2>2. Summary of the Invention</h2>
+
+            <h3>2.1 Overview</h3>
+            <p>The invention provides a multi-tier privacy control architecture for managing LLM assistant context exposure, comprising three complementary control mechanisms: (1) category-level toggles for six independent career data types, (2) document content-depth selectors offering metadata-only versus full-content modes, and (3) asset-level privacy flags enabling individual document exclusion with persistent storage and visual feedback.</p>
+
+            <p>The system aggregates career information from fourteen independent localStorage sources (experiences, stories, goals, portfolio, job opportunities, plus ten document storage types), filters data according to user privacy preferences at multiple granularity levels, and constructs structured JSON context payloads that respect all exclusion rules before transmission to LLM APIs.</p>
+
+            <p>When users modify privacy settings, the system automatically detects changes through JSON serialization comparison, immediately clears conversation history to prevent LLM retention of revoked context, and displays user-facing notifications confirming privacy enforcement without requiring page refresh or technical intervention.</p>
+
+            <h3>2.2 Key Features</h3>
+
+            <ul>
+                <li><strong>Six Independent Category Controls:</strong> Checkbox toggles for job opportunities, career experiences, goals, portfolio projects, STAR behavioral stories, and documents enable users to selectively expose career data types based on conversation topic and privacy sensitivity.</li>
+
+                <li><strong>Two-Level Content Depth Filtering:</strong> Radio button selector allows users to share documents as "metadata only" (name, description, tags, dates) or "full content" (complete document text/data), providing granular control over information disclosure depth.</li>
+
+                <li><strong>Asset-Level Privacy Flags:</strong> Individual documents across all ten storage types (Lexical, LaTeX, Markdown, diagrams, whiteboards, code, presentations, Mermaid, photos, links) support `excludeFromLLM` boolean property enabling surgical privacy control independent of category settings.</li>
+
+                <li><strong>Automatic Conversation Clearing:</strong> System detects privacy preference changes via JSON comparison, immediately clears conversation history array and UI messages, preventing LLM access to previously shared data without manual page refresh.</li>
+
+                <li><strong>Visual Privacy Indicators:</strong> Excluded assets display shield icons and reduced opacity (75%) in asset management tables with "Excluded from AI Assistant" tooltips, providing continuous visual confirmation of privacy status.</li>
+
+                <li><strong>Heterogeneous Source Aggregation:</strong> Unified filtering architecture spans ten distinct document storage types with different schemas, applying consistent exclusion rules across rich text, code, diagrams, and multimedia assets.</li>
+
+                <li><strong>Backup/Restore Preservation:</strong> Privacy metadata (`excludeFromLLM` flags) persists through JSON export/import cycles using native JavaScript serialization, ensuring privacy preferences survive data migration and backup restoration.</li>
+
+                <li><strong>Zero Server Transmission:</strong> All privacy control logic executes client-side in browser with localStorage persistence, preventing exposure of privacy preferences or excluded content to backend servers or third-party analytics.</li>
+            </ul>
+
+            <h3>2.3 Novel Aspects</h3>
+
+            <p>The invention introduces several novel technical elements not present in existing LLM context management systems:</p>
+
+            <ul>
+                <li><strong>Multi-Tier Privacy Architecture:</strong> First system to implement category, content-depth, and asset-level controls in unified framework, enabling privacy granularity from coarse (entire categories) to surgical (individual documents).</li>
+
+                <li><strong>Metadata-vs-Content Distinction:</strong> Novel recognition that document metadata (organizational context) can be safely shared while excluding document content (sensitive details), preserving assistant utility while enhancing privacy.</li>
+
+                <li><strong>Immediate Privacy Enforcement:</strong> Automatic conversation history clearing upon preference changes ensures zero persistence of revoked context, eliminating privacy exposure windows common in settings-based systems requiring manual refresh.</li>
+
+                <li><strong>Heterogeneous Document Filtering:</strong> Unified privacy control architecture spanning ten diverse document types (text, code, diagrams, multimedia) with different storage schemas and content structures, using consistent `excludeFromLLM` flag convention.</li>
+
+                <li><strong>Non-Technical Privacy Interface:</strong> Translation of sophisticated multi-tier privacy controls into intuitive checkbox/radio button interfaces with descriptive labels and visual feedback accessible to users without security expertise.</li>
+
+                <li><strong>Client-Side Privacy Governance:</strong> Complete privacy control implementation in browser JavaScript without server-side policy enforcement, enabling BYOK architectures and user sovereignty over data governance decisions.</li>
+            </ul>
+
+            <h3>2.4 Primary Advantages</h3>
+
+            <ul>
+                <li>Users achieve precise control over LLM context exposure without sacrificing assistant utility through graduated privacy levels</li>
+                <li>Privacy preference changes take immediate effect through automatic conversation clearing, eliminating exposure windows</li>
+                <li>Non-technical users manage sophisticated privacy controls through familiar checkbox/radio button interfaces</li>
+                <li>Individual asset exclusion enables surgical privacy for confidential documents while maintaining category-level context</li>
+                <li>Visual indicators (icons, opacity) provide continuous confirmation of privacy status without requiring settings inspection</li>
+                <li>Client-side architecture ensures privacy preferences never transmit to servers or third-party services</li>
+                <li>Metadata-only mode preserves organizational context while excluding sensitive document content</li>
+                <li>Backup/restore preservation maintains privacy settings across data migration and device transfers</li>
+            </ul>
+        </section>
+
+        <div class="key-features">
+            <h3>Core Innovation Summary</h3>
+            <p><strong>The invention enables casual LLM users to exercise enterprise-grade privacy controls through consumer-friendly interfaces, implementing multi-tier data governance (category + content-depth + asset-level) with immediate enforcement (automatic conversation clearing) and persistent visual feedback (shield icons, opacity indicators) in pure client-side architecture suitable for BYOK deployments.</strong></p>
+        </div>
+
+        <section class="section">
+            <h2>3. Detailed Description</h2>
+
+            <h3>3.1 System Architecture</h3>
+
+            <p>The granular LLM context control system comprises five interconnected components operating in browser-based JavaScript environment with localStorage persistence:</p>
+
+            <div class="figure">
+                <div class="figure-title">Figure 1: System Architecture</div>
+                <div class="mermaid">
+flowchart TB
+    subgraph UI["User Interface Layer"]
+        A[User Privacy Settings Interface]
+    end
+
+    subgraph CTRL["Privacy Control Layer"]
+        B[Privacy Preference Manager]
+        L[Conversation History Manager]
+        M[Automatic Clear Trigger]
+    end
+
+    subgraph PROC["Data Processing Layer"]
+        C[Context Aggregation Engine]
+        D[Multi-Source Data Loader]
+        E[Privacy Filter Processor]
+    end
+
+    subgraph FILT["Filtering Pipeline"]
+        G[Category Filter]
+        H[Content Depth Filter]
+        I[Asset Exclusion Filter]
+    end
+
+    subgraph DATA["Data Layer"]
+        F[localStorage Sources]
+    end
+
+    subgraph OUT["Output Layer"]
+        J[Filtered Context JSON]
+        K[LLM API Integration]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    D --> F
+    E --> G
+    E --> H
+    E --> I
+    G --> J
+    H --> J
+    I --> J
+    J --> K
+    B --> L
+    L --> M
+
+    style A fill:#e3f2fd
+    style B fill:#bbdefb
+    style C fill:#90caf9
+    style K fill:#42a5f5
+    style M fill:#ff8a80
+                </div>
+                <div class="figure-description">The system architecture implements multi-tier privacy filtering through independent category, content-depth, and asset-level processors that operate on aggregated career data before LLM transmission. Privacy preference changes trigger automatic conversation history clearing to enforce immediate revocation.</div>
+            </div>
+
+            <h4>Component 1: User Privacy Settings Interface</h4>
+            <p>Browser-based HTML form providing non-technical controls for privacy preference configuration:</p>
+            <ul>
+                <li><strong>Category Toggles:</strong> Six checkbox inputs with IDs: `contextJobOpportunities`, `contextExperiences`, `contextGoals`, `contextPortfolio`, `contextStories`, `contextDocuments`</li>
+                <li><strong>Content Depth Selector:</strong> Radio button group named `documentDetail` with values: `metadata` (default) and `full`</li>
+                <li><strong>Asset Privacy Checkbox:</strong> Checkbox input with ID: `unifiedAssetExcludeFromLLM` embedded in unified asset creation/edit modal</li>
+                <li><strong>Visual Feedback Elements:</strong> Shield icons (`ph-shield-check` Phosphor icon class), opacity styling (75% for excluded assets), tooltip text ("Excluded from AI Assistant")</li>
+            </ul>
+
+            <h4>Component 2: Privacy Preference Manager</h4>
+            <p>JavaScript module responsible for preference persistence and change detection:</p>
+            <ul>
+                <li><strong>Storage Key:</strong> `llm_context_preferences` localStorage key holding JSON object with properties: `jobOpportunities`, `experiences`, `goals`, `portfolio`, `stories`, `documents`, `documentDetail`</li>
+                <li><strong>Change Detection:</strong> Compares JSON.stringify() of previous preferences vs. new preferences to detect any modification</li>
+                <li><strong>Clear Trigger:</strong> Invokes `clearChatHistory()` function when change detected and conversation history non-empty</li>
+                <li><strong>User Notification:</strong> Displays toast message "Settings saved - conversation cleared for privacy" when automatic clearing occurs</li>
+            </ul>
+
+            <h4>Component 3: Context Aggregation Engine</h4>
+            <p>Core function `getCanvasContext()` that orchestrates multi-source data loading and privacy filtering:</p>
+            <ul>
+                <li><strong>Preference Loading:</strong> Retrieves privacy settings from `llm_context_preferences` localStorage, defaults all to enabled (true) if absent</li>
+                <li><strong>Conditional Aggregation:</strong> Only loads and includes data categories where corresponding preference is true</li>
+                <li><strong>Structured Output:</strong> Returns JSON object with top-level properties for each career data type, empty arrays for excluded categories</li>
+            </ul>
+
+            <h4>Component 4: Multi-Source Data Loader</h4>
+            <p>Reads career data from fourteen independent localStorage keys:</p>
+            <ul>
+                <li><strong>Profile:</strong> `cleansheet_profile` (user name, occupation, email)</li>
+                <li><strong>Experiences:</strong> `cleansheet_experiences` (work history array)</li>
+                <li><strong>Stories:</strong> `cleansheet_stories` or `behavioralStories` (STAR format narratives)</li>
+                <li><strong>Goals:</strong> `cleansheet_goals` (career objectives array)</li>
+                <li><strong>Portfolio:</strong> `userPortfolio_${currentPersona}` (project portfolio array)</li>
+                <li><strong>Jobs:</strong> `jobOpportunities_${currentPersona}` (target positions array)</li>
+                <li><strong>Documents (10 types):</strong>
+                    <ul>
+                        <li>`interview_documents_${currentPersona}` - Lexical rich text</li>
+                        <li>`user_latex_documents_${currentPersona}` - LaTeX/CV documents</li>
+                        <li>`diagrams_${currentPersona}` - Draw.io diagrams</li>
+                        <li>`whiteboards_${currentPersona}` - Whiteboard sessions</li>
+                        <li>`code_${currentPersona}` - Code snippets</li>
+                        <li>`markdown_${currentPersona}` - Markdown documents</li>
+                        <li>`presentations_${currentPersona}` - Slide presentations</li>
+                        <li>`mermaid_${currentPersona}` - Mermaid diagrams</li>
+                        <li>`user_photos_${currentPersona}` - Photo assets</li>
+                        <li>`user_pdfs_${currentPersona}` - PDF documents</li>
+                        <li>`user_links_${currentPersona}` - Web links</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Component 5: Privacy Filter Processor</h4>
+            <p>Three-stage filtering pipeline applied to aggregated data:</p>
+            <ul>
+                <li><strong>Category Filter:</strong> Excludes entire career data types (experiences, stories, etc.) when corresponding checkbox unchecked</li>
+                <li><strong>Content Depth Filter:</strong> For documents, constructs metadata-only representation (name, description, tags, dates, linkedType, sharedWith) when `documentDetail === 'metadata'`, or includes full content (document text/code/diagram data) when `documentDetail === 'full'`</li>
+                <li><strong>Asset Exclusion Filter:</strong> Applies `.filter(d => !d.excludeFromLLM)` to document arrays after aggregation, removing individually flagged assets regardless of category or content-depth settings</li>
+            </ul>
+
+            <h3>3.2 Core Method: Context Generation with Privacy Filtering</h3>
+
+            <p>The system executes the following sequence when generating LLM context for each assistant query:</p>
+
+            <div class="pseudocode">FUNCTION getCanvasContext():
+    // Step 1: Load privacy preferences from localStorage
+    preferences = JSON.parse(localStorage.getItem('llm_context_preferences')) || {
+        jobOpportunities: true,
+        experiences: true,
+        goals: true,
+        portfolio: true,
+        stories: true,
+        documents: true,
+        documentDetail: 'metadata'
+    }
+
+    // Step 2: Initialize empty context object
+    context = {
+        platform: "Cleansheet Career Canvas",
+        purpose: "Career development and job search assistance"
+    }
+
+    // Step 3: Conditionally load job opportunities
+    IF preferences.jobOpportunities == true:
+        jobs = JSON.parse(localStorage.getItem('jobOpportunities_${currentPersona}'))
+        context.jobOpportunities = jobs.map(job => {
+            id: job.id,
+            company: job.company,
+            title: job.title,
+            status: job.status,
+            // ... additional fields
+        })
+
+    // Step 4: Conditionally load career experiences
+    IF preferences.experiences == true:
+        experiences = JSON.parse(localStorage.getItem('cleansheet_experiences'))
+        context.experiences = experiences.map(exp => {
+            id: exp.id,
+            role: exp.role,
+            company: exp.organizationName,
+            technologies: exp.technologies,
+            keySkills: exp.keySkills,
+            competencies: exp.competencies,
+            achievements: exp.achievements
+            // ... additional fields
+        })
+
+    // Step 5: Conditionally load goals
+    IF preferences.goals == true:
+        goals = JSON.parse(localStorage.getItem('cleansheet_goals'))
+        context.goals = goals.map(goal => {
+            id: goal.id,
+            title: goal.title,
+            status: goal.status,
+            targetDate: goal.targetDate
+        })
+
+    // Step 6: Conditionally load portfolio projects
+    IF preferences.portfolio == true:
+        portfolio = JSON.parse(localStorage.getItem('userPortfolio_${currentPersona}'))
+        context.portfolio = portfolio.map(project => {
+            id: project.id,
+            name: project.name,
+            description: project.description,
+            technologies: project.technologies,
+            skills: project.skills
+            // ... additional fields
+        })
+
+    // Step 7: Conditionally load STAR stories
+    IF preferences.stories == true:
+        stories = JSON.parse(localStorage.getItem('cleansheet_stories'))
+        context.stories = stories.map(story => {
+            id: story.id,
+            title: story.title,
+            situation: story.situation,
+            task: story.task,
+            action: story.action,
+            result: story.result,
+            competencies: story.competencies
+        })
+
+    // Step 8: Conditionally load documents with multi-tier filtering
+    IF preferences.documents == true:
+        // Load all 10 document types from separate storage
+        lexicalDocs = JSON.parse(localStorage.getItem('interview_documents_${currentPersona}'))
+        latexDocs = JSON.parse(localStorage.getItem('user_latex_documents_${currentPersona}'))
+        diagrams = JSON.parse(localStorage.getItem('diagrams_${currentPersona}'))
+        whiteboards = JSON.parse(localStorage.getItem('whiteboards_${currentPersona}'))
+        codeSnippets = JSON.parse(localStorage.getItem('code_${currentPersona}'))
+        markdownDocs = JSON.parse(localStorage.getItem('markdown_${currentPersona}'))
+        presentations = JSON.parse(localStorage.getItem('presentations_${currentPersona}'))
+        mermaidDocs = JSON.parse(localStorage.getItem('mermaid_${currentPersona}'))
+        photos = JSON.parse(localStorage.getItem('user_photos_${currentPersona}'))
+        links = JSON.parse(localStorage.getItem('user_links_${currentPersona}'))
+
+        // Combine with type identifiers
+        allDocuments = [
+            ...lexicalDocs.map(d => ({...d, docType: 'lexical'})),
+            ...latexDocs.map(d => ({...d, docType: 'latex'})),
+            ...diagrams.map(d => ({...d, docType: 'diagram'})),
+            ...whiteboards.map(d => ({...d, docType: 'whiteboard'})),
+            ...codeSnippets.map(d => ({...d, docType: 'code'})),
+            ...markdownDocs.map(d => ({...d, docType: 'markdown'})),
+            ...presentations.map(d => ({...d, docType: 'presentation'})),
+            ...mermaidDocs.map(d => ({...d, docType: 'mermaid'})),
+            ...photos.map(d => ({...d, docType: 'photo'})),
+            ...links.map(d => ({...d, docType: 'link'}))
+        ]
+
+        // Asset-level exclusion filter
+        filteredDocuments = allDocuments.filter(doc => !doc.excludeFromLLM)
+
+        // Content depth filter
+        IF preferences.documentDetail == 'metadata':
+            // Metadata-only mode
+            context.documents = filteredDocuments.map(doc => {
+                id: doc.id,
+                name: doc.name || doc.title,
+                description: doc.description,
+                tags: doc.tags,
+                type: doc.docType,
+                linkedType: doc.linkedType,
+                linkedId: doc.linkedId,
+                createdAt: doc.createdAt,
+                updatedAt: doc.lastModified || doc.updatedAt,
+                sharedWith: doc.sharedWith,
+                url: doc.url || doc.link  // For links/photos
+                // NO content field
+            })
+        ELSE:
+            // Full content mode
+            context.documents = filteredDocuments.map(doc => {
+                id: doc.id,
+                name: doc.name || doc.title,
+                description: doc.description,
+                tags: doc.tags,
+                type: doc.docType,
+                linkedType: doc.linkedType,
+                linkedId: doc.linkedId,
+                createdAt: doc.createdAt,
+                updatedAt: doc.lastModified || doc.updatedAt,
+                sharedWith: doc.sharedWith,
+                // INCLUDE full content based on document type
+                content: doc.content || doc.latexContent || doc.markdownContent ||
+                         doc.whiteboardData || doc.diagramData || doc.slides || doc.code,
+                language: doc.language,  // For code snippets
+                url: doc.url || doc.link
+            })
+
+    // Step 9: Return filtered context
+    RETURN context
+END FUNCTION</div>
+
+            <h3>3.3 Privacy Enforcement: Automatic Conversation Clearing</h3>
+
+            <p>When users modify privacy preferences, the system ensures immediate enforcement through conversation history management:</p>
+
+            <div class="pseudocode">FUNCTION saveLLMSettings():
+    // Step 1: Load previous privacy preferences
+    previousPrefs = JSON.parse(localStorage.getItem('llm_context_preferences')) || {}
+
+    // Step 2: Read current form values
+    currentPrefs = {
+        jobOpportunities: getElementById('contextJobOpportunities').checked,
+        experiences: getElementById('contextExperiences').checked,
+        goals: getElementById('contextGoals').checked,
+        portfolio: getElementById('contextPortfolio').checked,
+        stories: getElementById('contextStories').checked,
+        documents: getElementById('contextDocuments').checked,
+        documentDetail: querySelector('input[name="documentDetail"]:checked').value
+    }
+
+    // Step 3: Detect changes via JSON comparison
+    previousJSON = JSON.stringify(previousPrefs)
+    currentJSON = JSON.stringify(currentPrefs)
+    contextChanged = (previousJSON != currentJSON)
+
+    // Step 4: Persist new preferences
+    localStorage.setItem('llm_context_preferences', currentJSON)
+
+    // Step 5: Clear conversation if preferences changed
+    IF contextChanged AND conversationHistory.length > 0:
+        clearChatHistory()
+        showToast('Settings saved - conversation cleared for privacy', 'info')
+    ELSE:
+        showToast('Settings saved', 'success')
+
+    closeSettingsModal()
+END FUNCTION
+
+FUNCTION clearChatHistory():
+    // Clear conversation history array
+    conversationHistory = []
+
+    // Clear UI message elements
+    messagesContainer = getElementById('chatMessages')
+    messages = messagesContainer.querySelectorAll('.chat-message')
+    FOR EACH message IN messages:
+        message.remove()
+
+    // Show empty state
+    emptyState = getElementById('chatEmptyState')
+    IF emptyState:
+        emptyState.style.display = 'flex'
+
+    console.log('[LLM] Chat history cleared')
+END FUNCTION</div>
+
+            <h3>3.4 Asset-Level Privacy: Individual Document Exclusion</h3>
+
+            <p>The system implements persistent, per-document privacy flags with visual feedback and backup preservation:</p>
+
+            <h4>Privacy Flag Storage</h4>
+            <div class="pseudocode">FUNCTION saveUnifiedAsset(assetId, mode):
+    // Step 1: Read privacy checkbox state
+    excludeFromLLM = getElementById('unifiedAssetExcludeFromLLM').checked
+
+    // Step 2: Create asset object with privacy flag
+    IF mode == 'edit':
+        // Edit mode: preserve existing asset, update fields
+        asset = {
+            ...existingAsset,
+            name: name,
+            description: description,
+            excludeFromLLM: excludeFromLLM,  // Privacy flag
+            lastModified: Date.now()
+        }
+    ELSE:
+        // Create mode: new asset with privacy flag
+        asset = {
+            id: generateId(),
+            name: name,
+            description: description,
+            excludeFromLLM: excludeFromLLM,  // Privacy flag
+            created: Date.now(),
+            lastModified: Date.now()
+        }
+
+    // Step 3: Save to appropriate storage based on asset type
+    storageKey = getStorageKeyForType(assetType)
+    assets = JSON.parse(localStorage.getItem(storageKey)) || []
+
+    IF mode == 'edit':
+        index = assets.findIndex(a => a.id == assetId)
+        assets[index] = asset
+    ELSE:
+        assets.push(asset)
+
+    localStorage.setItem(storageKey, JSON.stringify(assets))
+END FUNCTION</div>
+
+            <h4>Visual Privacy Indicators</h4>
+            <div class="pseudocode">FUNCTION renderAssetTableRow(asset):
+    // Step 1: Generate shield icon for excluded assets
+    excludedIndicator = ""
+    IF asset.excludeFromLLM:
+        excludedIndicator = '&lt;i class="ph ph-shield-check"
+                             style="font-size: 14px;
+                                    color: var(--color-primary-blue);
+                                    margin-left: 6px;"
+                             title="Excluded from AI Assistant"&gt;&lt;/i&gt;'
+
+    // Step 2: Apply reduced opacity for excluded assets
+    rowOpacity = asset.excludeFromLLM ? 'opacity: 0.75;' : ''
+
+    // Step 3: Render table row with visual indicators
+    RETURN '
+        &lt;tr style="border-bottom: 1px solid var(--color-neutral-border); ' + rowOpacity + '"&gt;
+            &lt;td style="padding: 12px 16px;"&gt;
+                &lt;div style="display: flex; align-items: center; gap: 8px;"&gt;
+                    &lt;i class="ph ' + asset.icon + '"&gt;&lt;/i&gt;
+                    &lt;span&gt;' + asset.name + excludedIndicator + '&lt;/span&gt;
+                &lt;/div&gt;
+            &lt;/td&gt;
+            &lt;!-- Additional columns --&gt;
+        &lt;/tr&gt;
+    '
+END FUNCTION</div>
+
+            <h4>Backup/Restore Preservation</h4>
+            <p>Privacy flags persist through export/import cycles using native JavaScript JSON serialization:</p>
+
+            <div class="pseudocode">// EXPORT: Read assets from localStorage (preserves all properties including excludeFromLLM)
+FUNCTION exportCanvasData():
+    documents = JSON.parse(localStorage.getItem('interview_documents_${currentPersona}'))
+    whiteboards = JSON.parse(localStorage.getItem('whiteboards_${currentPersona}'))
+    // ... all 10 document types
+
+    exportData = {
+        documents: documents,      // All properties preserved including excludeFromLLM
+        whiteboards: whiteboards,  // All properties preserved including excludeFromLLM
+        // ... all other data
+    }
+
+    RETURN JSON.stringify(exportData)
+END FUNCTION
+
+// IMPORT: Write assets to localStorage (preserves all properties including excludeFromLLM)
+FUNCTION processImportWithMode(overwriteMode, data):
+    newDocuments = data.documents || []  // Arrays contain all properties
+    newWhiteboards = data.whiteboards || []
+    // ... all 10 document types
+
+    // Preserve all properties through JSON serialization
+    localStorage.setItem('interview_documents_${currentPersona}',
+                        JSON.stringify(newDocuments))
+    localStorage.setItem('whiteboards_${currentPersona}',
+                        JSON.stringify(newWhiteboards))
+    // ... all other storage keys
+END FUNCTION</div>
+
+            <h3>3.5 User Interface Components</h3>
+
+            <h4>Settings Modal: Category and Content Depth Controls</h4>
+            <p>The settings modal presents privacy controls in an accessible, non-technical interface:</p>
+
+            <ul>
+                <li><strong>Modal Structure:</strong> Full-screen overlay with dark header (title: "LLM Settings"), scrollable body (white background), and sticky footer (Save/Cancel buttons)</li>
+                <li><strong>Section Headers:</strong> "Context Control Settings" with description: "Choose what career information is shared with the AI assistant during conversations"</li>
+                <li><strong>Category Checkboxes:</strong> Six checkbox inputs with labels, icons (Phosphor icon library), and descriptions:
+                    <ul>
+                        <li>Job Opportunities (briefcase icon) - "Target positions you're pursuing"</li>
+                        <li>Career Experiences (buildings icon) - "Your work history and accomplishments"</li>
+                        <li>Goals (target icon) - "Your career objectives and development plans"</li>
+                        <li>Portfolio Projects (folder-open icon) - "Your portfolio projects and work samples"</li>
+                        <li>STAR Stories (chat-circle-text icon) - "Your behavioral interview stories"</li>
+                        <li>Documents (file-text icon) - "Your saved documents and files"</li>
+                    </ul>
+                </li>
+                <li><strong>Content Depth Radio Buttons:</strong> Indented under Documents checkbox, disabled (50% opacity) when Documents unchecked:
+                    <ul>
+                        <li>"Metadata Only" (default) - "Share document names, descriptions, and tags only"</li>
+                        <li>"Full Content" - "Share complete document text and content"</li>
+                    </ul>
+                </li>
+                <li><strong>Footer Buttons:</strong> "Cancel" (white, bordered) and "Save Settings" (blue gradient, primary action)</li>
+            </ul>
+
+            <h4>Unified Asset Modal: Individual Privacy Checkbox</h4>
+            <p>When creating or editing documents, users encounter asset-level privacy control:</p>
+
+            <ul>
+                <li><strong>Privacy Control Section:</strong> Blue-bordered box (2px solid #93c5fd, background #eff6ff) with shield-check icon</li>
+                <li><strong>Checkbox Label:</strong> "Exclude from AI Assistant" with 18px checkbox input</li>
+                <li><strong>Description Text:</strong> "When checked, this asset will not be shared with the AI assistant during conversations (both metadata and content will be filtered)"</li>
+                <li><strong>Placement:</strong> Bottom of modal body, below tags and linked items, before footer buttons</li>
+            </ul>
+
+            <h4>Asset Management Table: Visual Privacy Indicators</h4>
+            <p>The asset list provides continuous visual feedback on privacy status:</p>
+
+            <ul>
+                <li><strong>Shield Icon:</strong> Blue shield-check icon (14px) appearing immediately after asset name for excluded documents</li>
+                <li><strong>Tooltip:</strong> "Excluded from AI Assistant" appears on shield icon hover</li>
+                <li><strong>Row Opacity:</strong> Entire table row displays at 75% opacity for excluded assets, normal opacity for included assets</li>
+                <li><strong>Hover Effect:</strong> Excluded assets retain reduced opacity on hover, differentiating from active assets</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>4. Implementation Examples</h2>
+
+            <h3>4.1 Example 1: Job Application with Financial Document Exclusion</h3>
+
+            <p><strong>Scenario:</strong> User preparing job application materials wants LLM assistance with resume tailoring and cover letter writing, but must exclude personal financial planning documents stored in the same Canvas workspace.</p>
+
+            <p><strong>Initial State:</strong></p>
+            <ul>
+                <li>14 documents in Canvas: 6 work portfolio samples, 3 technical whitepapers, 2 code repositories, 3 personal financial planning documents</li>
+                <li>All category toggles enabled (default state)</li>
+                <li>Document detail set to "Full Content" (user wants rich context for portfolio samples)</li>
+                <li>No asset-level exclusions configured</li>
+            </ul>
+
+            <p><strong>User Actions:</strong></p>
+            <ol>
+                <li>Opens "My Budget 2025" document metadata modal via Info button</li>
+                <li>Checks "Exclude from AI Assistant" checkbox</li>
+                <li>Saves modal (financial document now marked `excludeFromLLM: true`)</li>
+                <li>Repeats for "Investment Portfolio Analysis" and "Tax Planning Notes"</li>
+                <li>Observes blue shield icons and reduced opacity on three financial documents in asset table</li>
+            </ol>
+
+            <p><strong>Context Generation Process:</strong></p>
+            <div class="pseudocode">// Step 1: Load all 14 documents from storage
+allDocuments = [
+    {id: 1, name: "Senior Engineer Portfolio", docType: "lexical", excludeFromLLM: false},
+    {id: 2, name: "AWS Migration Case Study", docType: "markdown", excludeFromLLM: false},
+    {id: 3, name: "My Budget 2025", docType: "lexical", excludeFromLLM: true},  // EXCLUDED
+    {id: 4, name: "Python Automation Scripts", docType: "code", excludeFromLLM: false},
+    {id: 5, name: "Investment Portfolio Analysis", docType: "lexical", excludeFromLLM: true},  // EXCLUDED
+    {id: 6, name: "System Architecture Diagram", docType: "diagram", excludeFromLLM: false},
+    // ... 8 more documents
+]
+
+// Step 2: Apply asset-level exclusion filter
+filteredDocuments = allDocuments.filter(d => !d.excludeFromLLM)
+// Result: 11 documents (3 financial documents excluded)
+
+// Step 3: Apply content depth filter (user selected "Full Content")
+context.documents = filteredDocuments.map(doc => ({
+    id: doc.id,
+    name: doc.name,
+    type: doc.docType,
+    content: doc.content,  // Full content included
+    // ... additional metadata
+}))
+
+// Step 4: LLM receives context with 11 documents
+// Financial documents completely absent from context JSON</div>
+
+            <p><strong>Result:</strong> LLM receives full context including work portfolio samples and technical content, but has zero visibility into personal financial documents. User achieves surgical privacy without disabling entire Documents category, maintaining rich context for job application assistance.</p>
+
+            <h3>4.2 Example 2: Interview Preparation with Metadata-Only Mode</h3>
+
+            <p><strong>Scenario:</strong> User preparing for behavioral interviews wants LLM to understand their document organization and story structure, but employer has strict confidentiality agreements prohibiting disclosure of project details (even to AI systems).</p>
+
+            <p><strong>Initial State:</strong></p>
+            <ul>
+                <li>8 documents containing confidential project details from current employer</li>
+                <li>12 STAR behavioral stories linked to those confidential projects</li>
+                <li>All category toggles enabled</li>
+                <li>Document detail set to "Full Content" (default)</li>
+            </ul>
+
+            <p><strong>User Actions:</strong></p>
+            <ol>
+                <li>Opens LLM Settings modal</li>
+                <li>Changes "Document Detail" radio selection from "Full Content" to "Metadata Only"</li>
+                <li>Clicks "Save Settings"</li>
+                <li>Observes toast notification: "Settings saved - conversation cleared for privacy"</li>
+                <li>Conversation history cleared automatically, previous messages with full document content erased from UI and conversationHistory array</li>
+            </ol>
+
+            <p><strong>Context Generation Process (Before Settings Change):</strong></p>
+            <div class="pseudocode">// Previous context included full document content
+context.documents = [
+    {
+        id: 1,
+        name: "Project Phoenix - Security Audit",
+        description: "Q3 2024 comprehensive security assessment",
+        tags: ["security", "compliance", "audit"],
+        type: "lexical",
+        content: "CONFIDENTIAL: During Q3 2024 security audit of Project Phoenix,
+                  discovered 47 vulnerabilities in authentication layer including
+                  critical SQL injection vector in user login endpoint. Implemented
+                  parameterized queries and... [3000 words of confidential details]"
+    },
+    // ... 7 more documents with full confidential content
+]</div>
+
+            <p><strong>Context Generation Process (After Settings Change):</strong></p>
+            <div class="pseudocode">// New context includes metadata only, zero content disclosure
+context.documents = [
+    {
+        id: 1,
+        name: "Project Phoenix - Security Audit",
+        description: "Q3 2024 comprehensive security assessment",
+        tags: ["security", "compliance", "audit"],
+        type: "lexical",
+        linkedType: "experience",
+        linkedId: "exp_789",
+        createdAt: "2024-09-15T10:30:00Z",
+        updatedAt: "2024-11-10T14:22:00Z",
+        sharedWith: []
+        // NO content field
+    },
+    // ... 7 more documents with metadata only
+]
+
+// STAR stories still included with full STAR format (Situation/Task/Action/Result)
+context.stories = [
+    {
+        id: 1,
+        title: "Led Critical Security Remediation",
+        linkedExperience: "Senior Security Engineer at TechCorp",
+        situation: "Discovered critical vulnerabilities during routine audit",
+        task: "Remediate 47 security issues within 30-day compliance deadline",
+        action: "Coordinated cross-functional team, implemented automated testing...",
+        result: "Achieved 100% remediation within 22 days, zero vulnerabilities remain",
+        competencies: ["Security Engineering", "Project Management", "Crisis Response"]
+    },
+    // ... 11 more stories with full STAR details
+]</div>
+
+            <p><strong>LLM Interaction:</strong></p>
+            <p>User: "Help me prepare STAR stories for my interview at CloudSec Inc. They're looking for someone with security audit experience."</p>
+
+            <p>LLM Response (paraphrased): "Based on your profile, I can see you have a document titled 'Project Phoenix - Security Audit' from Q3 2024, tagged with security, compliance, and audit. This appears linked to your Senior Security Engineer role. You also have a STAR story titled 'Led Critical Security Remediation' from that same experience.</p>
+
+            <p>Let me help you refine that STAR story for CloudSec's interview. Your existing story demonstrates strong security engineering and project management competencies. Here's how we can emphasize the aspects most relevant to CloudSec's job description...</p>
+
+            <p>[LLM provides interview coaching based on STAR story content and document metadata, without ever seeing confidential project details from document content]"</p>
+
+            <p><strong>Result:</strong> User achieves compliance with employer confidentiality agreements (zero project details disclosed to LLM) while maintaining utility of LLM assistant for interview preparation. Metadata provides organizational context (document titles, tags, dates) enabling LLM to understand career narrative structure, while full STAR story content provides behavioral interview material that user controls and can share externally.</p>
+
+            <h3>4.3 Example 3: Category-Level Exclusion for Personal Goal Privacy</h3>
+
+            <p><strong>Scenario:</strong> User collaborating with colleague on joint portfolio project, sharing Canvas data via screen-share during video call. User has documented personal career goals including lateral move to competitor company and salary negotiation strategies, which must remain hidden from current colleague.</p>
+
+            <p><strong>Initial State:</strong></p>
+            <ul>
+                <li>5 personal career goals including "Transition to AWS by Q2 2025" and "Negotiate $180K base salary"</li>
+                <li>Colleague can see user's screen including LLM conversation interface</li>
+                <li>All category toggles enabled (goals visible to LLM)</li>
+            </ul>
+
+            <p><strong>User Actions (Before Screen-Share Begins):</strong></p>
+            <ol>
+                <li>Opens LLM Settings modal</li>
+                <li>Unchecks "Goals" category toggle</li>
+                <li>Clicks "Save Settings"</li>
+                <li>Observes toast: "Settings saved - conversation cleared for privacy"</li>
+                <li>Previous conversation (which may have referenced goals) erased from screen</li>
+                <li>Begins screen-share with colleague</li>
+            </ol>
+
+            <p><strong>Context Generation Process:</strong></p>
+            <div class="pseudocode">// Privacy preferences loaded
+preferences = {
+    jobOpportunities: true,
+    experiences: true,
+    goals: false,  // GOALS EXCLUDED
+    portfolio: true,
+    stories: true,
+    documents: true,
+    documentDetail: "metadata"
+}
+
+// Goals category completely skipped during context aggregation
+context = {
+    platform: "Cleansheet Career Canvas",
+    jobOpportunities: [...],  // Included
+    experiences: [...],       // Included
+    // goals: [...],          // COMPLETELY ABSENT - not even empty array
+    portfolio: [...],         // Included
+    stories: [...],          // Included
+    documents: [...]         // Included
+}</div>
+
+            <p><strong>LLM Interaction During Screen-Share:</strong></p>
+            <p>Colleague: "Can you ask the AI to suggest portfolio enhancements?"</p>
+
+            <p>User: "Analyze my current portfolio and suggest additional projects that would demonstrate full-stack capabilities."</p>
+
+            <p>LLM Response (visible on screen-share): "Based on your portfolio, I can see you have 3 projects demonstrating frontend (React, Vue) and backend (Node.js, Python Flask) experience. To round out your full-stack profile, consider adding...</p>
+
+            <p>[LLM provides portfolio enhancement suggestions based on existing projects and experiences, with zero mention of personal goals because goals category completely absent from context]"</p>
+
+            <p><strong>Result:</strong> User safely collaborates with colleague on portfolio development via screen-shared LLM session, with complete confidence that personal career goals (job search, salary targets) cannot possibly surface in conversation because goals data never transmitted to LLM. Category-level exclusion provides coarse-grained privacy suitable for entire data type hiding.</p>
+        </section>
+
+        <section class="section">
+            <h2>5. Variations and Embodiments</h2>
+
+            <h3>5.1 Alternative Implementation: Tiered Privacy Presets</h3>
+
+            <p>Instead of individual category toggles, the system could implement named privacy presets accessible via dropdown selector:</p>
+
+            <ul>
+                <li><strong>"Full Transparency" Preset:</strong> All categories enabled, full content mode</li>
+                <li><strong>"Professional Context" Preset:</strong> Experiences, portfolio, documents (metadata-only) enabled; goals, stories, job opportunities excluded</li>
+                <li><strong>"Job Search" Preset:</strong> Experiences, stories, job opportunities enabled; goals, portfolio excluded</li>
+                <li><strong>"Minimal Context" Preset:</strong> Only experiences (metadata-only) enabled</li>
+                <li><strong>"Custom" Preset:</strong> Falls back to individual toggles for advanced users</li>
+            </ul>
+
+            <p>This variation reduces decision complexity for non-technical users while maintaining advanced customization option for power users.</p>
+
+            <h3>5.2 Alternative Implementation: Temporary Privacy Sessions</h3>
+
+            <p>The system could offer time-limited privacy mode where users enable stricter privacy settings for specific conversation session, with automatic reversion to default preferences after session ends:</p>
+
+            <div class="pseudocode">FUNCTION enablePrivateSession(duration):
+    // Save current preferences
+    localStorage.setItem('llm_context_preferences_backup',
+                        localStorage.getItem('llm_context_preferences'))
+
+    // Apply strict privacy preset
+    strictPreferences = {
+        jobOpportunities: false,
+        experiences: true,
+        goals: false,
+        portfolio: false,
+        stories: false,
+        documents: true,
+        documentDetail: "metadata"
+    }
+    localStorage.setItem('llm_context_preferences', JSON.stringify(strictPreferences))
+
+    // Schedule automatic reversion
+    setTimeout(() => {
+        revertToDefaultPrivacy()
+    }, duration)
+
+    // Clear conversation history
+    clearChatHistory()
+
+    showToast('Private session enabled for ' + (duration/60000) + ' minutes', 'info')
+END FUNCTION
+
+FUNCTION revertToDefaultPrivacy():
+    backup = localStorage.getItem('llm_context_preferences_backup')
+    localStorage.setItem('llm_context_preferences', backup)
+    clearChatHistory()
+    showToast('Privacy settings reverted to defaults', 'success')
+END FUNCTION</div>
+
+            <p>Use case: User sharing screen during presentation or joining video call wants temporary enhanced privacy without permanently modifying preferences.</p>
+
+            <h3>5.3 Alternative Implementation: Granular Field-Level Exclusion</h3>
+
+            <p>Beyond document-level exclusion, system could enable field-level privacy within structured data types:</p>
+
+            <ul>
+                <li><strong>Experience Fields:</strong> Checkboxes to exclude specific fields: company name (for confidential employers), achievements (for unpublished results), technologies (for proprietary stacks)</li>
+                <li><strong>Story Fields:</strong> Checkboxes to exclude specific STAR components: situation (for confidential contexts), result (for unpublished metrics)</li>
+                <li><strong>Portfolio Fields:</strong> Checkboxes to exclude: project links (for private repositories), client names (for NDA-protected work)</li>
+            </ul>
+
+            <p>This variation enables surgical privacy for users in highly regulated industries (finance, healthcare, defense) where specific data fields require protection while maintaining overall career context.</p>
+
+            <h3>5.4 Optional Feature: Privacy Audit Log</h3>
+
+            <p>The system could maintain append-only log of privacy preference changes and conversation clears:</p>
+
+            <div class="pseudocode">// Log entry structure
+{
+    timestamp: "2025-11-17T14:32:15Z",
+    action: "privacy_change",
+    previousSettings: {...},
+    newSettings: {...},
+    conversationCleared: true,
+    messageCount: 12
+}</div>
+
+            <p>Audit log enables users to:</p>
+            <ul>
+                <li>Verify privacy enforcement occurred when expected</li>
+                <li>Review historical privacy configuration for compliance documentation</li>
+                <li>Detect unintended privacy changes (e.g., accidental toggle during UI interaction)</li>
+                <li>Export privacy history for employer security reviews</li>
+            </ul>
+
+            <h3>5.5 Scalability Variation: Enterprise Multi-User Deployment</h3>
+
+            <p>For enterprise deployments with centralized BYOK key management, the system could implement organization-level privacy policies that augment user preferences:</p>
+
+            <div class="pseudocode">FUNCTION getCanvasContext():
+    // Load user preferences
+    userPrefs = loadUserPreferences()
+
+    // Load organization policies
+    orgPolicies = loadOrganizationPolicies()  // From admin-configured API endpoint
+
+    // Merge with org policies taking precedence
+    effectivePrefs = {
+        jobOpportunities: userPrefs.jobOpportunities AND orgPolicies.allowJobOpportunities,
+        experiences: userPrefs.experiences AND orgPolicies.allowExperiences,
+        // Org policy "false" overrides user "true", but not vice versa
+        documents: userPrefs.documents AND orgPolicies.allowDocuments,
+        documentDetail: mostRestrictive(userPrefs.documentDetail, orgPolicies.documentDetail)
+    }
+
+    // Continue with normal context aggregation using effective preferences
+    RETURN buildContext(effectivePrefs)
+END FUNCTION</div>
+
+            <p>This variation enables IT administrators to enforce minimum privacy standards (e.g., "documents metadata-only for all users") while preserving individual user control within those boundaries.</p>
+        </section>
+
+        <section class="section">
+            <h2>6. Technical Specifications</h2>
+
+            <h3>6.1 System Requirements</h3>
+
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Requirement</th>
+                    <th>Rationale</th>
+                </tr>
+                <tr>
+                    <td>Browser Environment</td>
+                    <td>JavaScript ES6+, localStorage API, JSON parsing</td>
+                    <td>Core privacy filtering logic executes client-side</td>
+                </tr>
+                <tr>
+                    <td>Storage Capacity</td>
+                    <td>5-10MB localStorage quota (browser default)</td>
+                    <td>Stores 14 independent career data sources plus privacy preferences</td>
+                </tr>
+                <tr>
+                    <td>UI Framework</td>
+                    <td>HTML5, CSS3, Phosphor Icons CDN</td>
+                    <td>Privacy controls rendered as native checkbox/radio inputs</td>
+                </tr>
+                <tr>
+                    <td>LLM Integration</td>
+                    <td>HTTPS API endpoint accepting JSON context</td>
+                    <td>Context payload transmitted to OpenAI, Anthropic, or compatible API</td>
+                </tr>
+                <tr>
+                    <td>Browser Compatibility</td>
+                    <td>Chrome 90+, Firefox 88+, Safari 14+, Edge 90+</td>
+                    <td>localStorage, JSON.stringify/parse, ES6 array methods</td>
+                </tr>
+            </table>
+
+            <h3>6.2 Configuration Parameters</h3>
+
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Description</th>
+                    <th>Default Value</th>
+                    <th>Valid Range</th>
+                </tr>
+                <tr>
+                    <td>jobOpportunities</td>
+                    <td>Include job opportunities in context</td>
+                    <td>true (enabled)</td>
+                    <td>true | false</td>
+                </tr>
+                <tr>
+                    <td>experiences</td>
+                    <td>Include career experiences in context</td>
+                    <td>true (enabled)</td>
+                    <td>true | false</td>
+                </tr>
+                <tr>
+                    <td>goals</td>
+                    <td>Include career goals in context</td>
+                    <td>true (enabled)</td>
+                    <td>true | false</td>
+                </tr>
+                <tr>
+                    <td>portfolio</td>
+                    <td>Include portfolio projects in context</td>
+                    <td>true (enabled)</td>
+                    <td>true | false</td>
+                </tr>
+                <tr>
+                    <td>stories</td>
+                    <td>Include STAR behavioral stories in context</td>
+                    <td>true (enabled)</td>
+                    <td>true | false</td>
+                </tr>
+                <tr>
+                    <td>documents</td>
+                    <td>Include documents in context</td>
+                    <td>true (enabled)</td>
+                    <td>true | false</td>
+                </tr>
+                <tr>
+                    <td>documentDetail</td>
+                    <td>Content depth for documents</td>
+                    <td>"metadata"</td>
+                    <td>"metadata" | "full"</td>
+                </tr>
+                <tr>
+                    <td>excludeFromLLM</td>
+                    <td>Asset-level privacy flag (per document)</td>
+                    <td>false (included)</td>
+                    <td>true | false</td>
+                </tr>
+            </table>
+
+            <h3>6.3 Performance Characteristics</h3>
+
+            <table>
+                <tr>
+                    <th>Operation</th>
+                    <th>Performance Metric</th>
+                    <th>Typical Value</th>
+                </tr>
+                <tr>
+                    <td>Context Aggregation</td>
+                    <td>Execution time for 100 documents across 10 types</td>
+                    <td>< 50ms</td>
+                </tr>
+                <tr>
+                    <td>Privacy Filter</td>
+                    <td>Array filtering with asset exclusion check</td>
+                    <td>< 10ms</td>
+                </tr>
+                <tr>
+                    <td>Conversation Clear</td>
+                    <td>UI message removal and array reset</td>
+                    <td>< 20ms</td>
+                </tr>
+                <tr>
+                    <td>Settings Save</td>
+                    <td>JSON comparison and localStorage write</td>
+                    <td>< 5ms</td>
+                </tr>
+                <tr>
+                    <td>Context JSON Size</td>
+                    <td>Metadata-only mode (100 documents)</td>
+                    <td>~50KB</td>
+                </tr>
+                <tr>
+                    <td>Context JSON Size</td>
+                    <td>Full content mode (100 documents, avg 2KB/doc)</td>
+                    <td>~250KB</td>
+                </tr>
+                <tr>
+                    <td>Storage Overhead</td>
+                    <td>Privacy preferences JSON</td>
+                    <td>< 1KB</td>
+                </tr>
+            </table>
+
+            <h3>6.4 Data Structure Specifications</h3>
+
+            <h4>Privacy Preferences Schema</h4>
+            <div class="pseudocode">// localStorage key: 'llm_context_preferences'
+{
+    "jobOpportunities": boolean,
+    "experiences": boolean,
+    "goals": boolean,
+    "portfolio": boolean,
+    "stories": boolean,
+    "documents": boolean,
+    "documentDetail": "metadata" | "full"
+}</div>
+
+            <h4>Asset Privacy Flag Schema</h4>
+            <div class="pseudocode">// Property added to each document object across all 10 storage types
+{
+    "id": string,
+    "name": string,
+    "description": string,
+    "excludeFromLLM": boolean,  // Privacy flag
+    "created": timestamp,
+    "lastModified": timestamp,
+    // ... type-specific fields (content, code, diagramData, etc.)
+}</div>
+
+            <h4>Context JSON Schema (Metadata-Only Mode)</h4>
+            <div class="pseudocode">{
+    "platform": "Cleansheet Career Canvas",
+    "purpose": "Career development and job search assistance",
+    "jobOpportunities": [
+        {
+            "id": string,
+            "company": string,
+            "title": string,
+            "status": string,
+            // ... additional fields
+        }
+    ],
+    "experiences": [...],
+    "goals": [...],
+    "portfolio": [...],
+    "stories": [...],
+    "documents": [
+        {
+            "id": string,
+            "name": string,
+            "description": string,
+            "tags": string[],
+            "type": "lexical" | "latex" | "diagram" | "whiteboard" | "code" |
+                    "markdown" | "presentation" | "mermaid" | "photo" | "link",
+            "linkedType": string | null,
+            "linkedId": string | null,
+            "createdAt": timestamp,
+            "updatedAt": timestamp,
+            "sharedWith": string[],
+            "url": string | null
+            // NO content field in metadata-only mode
+        }
+    ]
+}</div>
+
+            <h4>Context JSON Schema (Full Content Mode)</h4>
+            <div class="pseudocode">{
+    // Same structure as metadata-only, but documents include content
+    "documents": [
+        {
+            // ... all metadata fields from above
+            "content": string | object,  // Full document content
+            "language": string | null    // For code snippets
+        }
+    ]
+}</div>
+        </section>
+
+        <section class="section">
+            <h2>7. Advantages and Benefits</h2>
+
+            <h3>7.1 User Experience Advantages</h3>
+
+            <ul>
+                <li><strong>Non-Technical Privacy Control:</strong> Users without security expertise exercise sophisticated data governance through familiar checkbox/radio button interfaces, eliminating technical knowledge barriers to privacy management.</li>
+
+                <li><strong>Graduated Privacy Levels:</strong> Multi-tier architecture enables users to choose privacy granularity appropriate to context: coarse category-level for broad exclusions, content-depth for information disclosure control, asset-level for surgical precision.</li>
+
+                <li><strong>Visual Privacy Confirmation:</strong> Persistent shield icons and opacity indicators provide continuous reassurance that privacy settings are active, reducing anxiety about accidental data exposure.</li>
+
+                <li><strong>Zero-Friction Enforcement:</strong> Privacy changes take immediate effect through automatic conversation clearing, eliminating manual page refresh or additional user actions that create adoption friction.</li>
+
+                <li><strong>Contextual Privacy Decisions:</strong> Users maintain different privacy profiles for different usage scenarios (job applications vs. skill development vs. screen-sharing) through quick settings adjustments without permanent commitment.</li>
+
+                <li><strong>Preservation of Assistant Utility:</strong> Metadata-only mode and category-level filtering enable privacy-conscious users to maintain LLM functionality rather than abandoning assistant entirely due to binary all-or-nothing privacy models.</li>
+            </ul>
+
+            <h3>7.2 Business and Practical Benefits</h3>
+
+            <ul>
+                <li><strong>Enterprise Compliance Enablement:</strong> Organizations in regulated industries (finance, healthcare, legal) can deploy BYOK LLM assistants with confidence that employees exercise appropriate data governance through granular controls.</li>
+
+                <li><strong>Reduced Privacy Support Burden:</strong> Clear visual indicators and intuitive controls decrease customer support inquiries about "what data is the AI seeing" and "how do I exclude sensitive documents."</li>
+
+                <li><strong>Competitive Differentiation:</strong> Privacy-first architecture attracts security-conscious professional users and enterprises that reject competitors with opaque data sharing models.</li>
+
+                <li><strong>User Trust and Retention:</strong> Transparent, user-controlled privacy mechanisms build trust that increases long-term platform engagement and reduces churn from privacy concerns.</li>
+
+                <li><strong>Regulatory Compliance:</strong> Granular controls facilitate GDPR "data minimization" principle and CCPA "right to know" requirements by providing users precise control over AI system data access.</li>
+
+                <li><strong>Zero Infrastructure Overhead:</strong> Client-side implementation eliminates server-side policy engine deployment, reducing infrastructure costs and eliminating server-side privacy policy attack surface.</li>
+            </ul>
+
+            <h3>7.3 Technical Advantages</h3>
+
+            <ul>
+                <li><strong>Architectural Simplicity:</strong> Pure client-side implementation using native browser APIs (localStorage, JSON.stringify/parse) eliminates dependencies on external privacy frameworks or policy engines.</li>
+
+                <li><strong>Performance Efficiency:</strong> Context aggregation and filtering executes in <50ms for 100 documents, meeting real-time conversational responsiveness requirements without perceived latency.</li>
+
+                <li><strong>Zero Server State:</strong> Privacy preferences stored exclusively in browser localStorage ensure user sovereignty and eliminate server-side privacy policy synchronization complexity.</li>
+
+                <li><strong>Heterogeneous Source Compatibility:</strong> Unified filtering architecture adapts to diverse document schemas (rich text, code, diagrams, multimedia) through consistent `excludeFromLLM` property convention, enabling extensibility to new document types.</li>
+
+                <li><strong>Backup/Restore Transparency:</strong> Privacy flags persist through JSON serialization without custom export/import logic, reducing maintenance burden and ensuring preference durability.</li>
+
+                <li><strong>Immediate Consistency:</strong> Automatic conversation clearing guarantees zero latency between privacy preference change and enforcement, eliminating eventual consistency concerns present in distributed policy systems.</li>
+            </ul>
+
+            <h3>7.4 Comparison to Alternative Approaches</h3>
+
+            <table>
+                <tr>
+                    <th>Approach</th>
+                    <th>Granularity</th>
+                    <th>Enforcement Latency</th>
+                    <th>User Complexity</th>
+                    <th>Infrastructure</th>
+                </tr>
+                <tr>
+                    <td><strong>This Invention</strong></td>
+                    <td>Category + Content-Depth + Asset-Level</td>
+                    <td>Immediate (auto-clear)</td>
+                    <td>Low (checkboxes + visual indicators)</td>
+                    <td>Client-only (localStorage)</td>
+                </tr>
+                <tr>
+                    <td>Enterprise RAG RBAC</td>
+                    <td>Role-based document access</td>
+                    <td>Eventual (policy sync)</td>
+                    <td>High (IT admin required)</td>
+                    <td>Server-side policy engine</td>
+                </tr>
+                <tr>
+                    <td>ChatGPT Custom Instructions</td>
+                    <td>None (static context)</td>
+                    <td>N/A (no filtering)</td>
+                    <td>Medium (text editing)</td>
+                    <td>Server-side storage</td>
+                </tr>
+                <tr>
+                    <td>Notion AI Permissions</td>
+                    <td>Page-level access control</td>
+                    <td>Immediate (page permissions)</td>
+                    <td>Medium (workspace permissions)</td>
+                    <td>Proprietary ecosystem</td>
+                </tr>
+                <tr>
+                    <td>Microsoft Copilot Sensitivity Labels</td>
+                    <td>Label-based classification</td>
+                    <td>Eventual (label propagation)</td>
+                    <td>High (IT admin classification)</td>
+                    <td>M365 infrastructure required</td>
+                </tr>
+                <tr>
+                    <td>Binary "Enable AI" Toggle</td>
+                    <td>All-or-nothing</td>
+                    <td>Immediate</td>
+                    <td>Low (single toggle)</td>
+                    <td>Client or server</td>
+                </tr>
+            </table>
+
+            <p><strong>Key Differentiators:</strong> This invention uniquely combines multi-tier granularity (enabling nuanced privacy decisions), immediate enforcement (zero exposure windows), low user complexity (non-technical interfaces), and pure client-side architecture (BYOK compatible), a combination not present in existing LLM privacy control systems.</p>
+        </section>
+
+        <section class="section">
+            <h2>8. Additional Considerations</h2>
+
+            <h3>8.1 Edge Cases and Boundary Conditions</h3>
+
+            <h4>Empty Data Categories</h4>
+            <p><strong>Scenario:</strong> User enables category (e.g., Portfolio Projects) but has zero items in that category.</p>
+            <p><strong>Handling:</strong> Context includes empty array (`"portfolio": []`) to signal category is enabled but unpopulated. LLM receives explicit signal that user has no portfolio projects rather than category being excluded for privacy.</p>
+
+            <h4>All Categories Disabled</h4>
+            <p><strong>Scenario:</strong> User disables all six category toggles.</p>
+            <p><strong>Handling:</strong> Context contains only platform metadata (`platform`, `purpose` properties), no career data arrays. LLM receives minimal context but conversation remains functional for general queries. System displays warning toast: "No career context enabled - AI assistant has limited awareness of your profile."</p>
+
+            <h4>Document Content Unavailable</h4>
+            <p><strong>Scenario:</strong> User selects "Full Content" mode but document storage contains corrupted data or incompatible format.</p>
+            <p><strong>Handling:</strong> Context includes document metadata with `content: null` field. Try-catch blocks around content extraction prevent entire context generation failure. Console warning logged for debugging: `[Canvas Context] Could not load content for document ${id}`.</p>
+
+            <h4>Privacy Flag Migration</h4>
+            <p><strong>Scenario:</strong> User restores backup created before `excludeFromLLM` feature existed (legacy documents lack privacy flag property).</p>
+            <p><strong>Handling:</strong> JavaScript evaluates `doc.excludeFromLLM` as `undefined` (falsy), filter logic `!doc.excludeFromLLM` evaluates to true, document included by default. Backward compatibility maintained without migration script.</p>
+
+            <h4>Rapid Settings Changes</h4>
+            <p><strong>Scenario:</strong> User rapidly toggles privacy settings multiple times (e.g., nervously clicking checkboxes).</p>
+            <p><strong>Handling:</strong> Each save operation compares previous vs. current settings via JSON.stringify(). Only first change triggers conversation clear; subsequent saves with no changes show "Settings saved" toast without clearing. Prevents excessive conversation history loss from accidental multiple saves.</p>
+
+            <h3>8.2 Security Considerations</h3>
+
+            <h4>Client-Side Privacy Enforcement Limitations</h4>
+            <p><strong>Consideration:</strong> Privacy filtering executes in browser JavaScript, which users with technical expertise could bypass via browser developer tools.</p>
+            <p><strong>Mitigation:</strong> System design assumes trusted user model appropriate for BYOK deployments where users control their own API keys and data. Privacy controls protect against accidental exposure rather than malicious circumvention. For enterprise scenarios requiring enforcement against insider threats, server-side policy engine variation (Section 5.5) should be implemented.</p>
+
+            <h4>Conversation History Persistence</h4>
+            <p><strong>Consideration:</strong> Conversation history stored in browser memory (`conversationHistory` array) could theoretically be recovered from browser memory even after clear operation.</p>
+            <p><strong>Mitigation:</strong> Automatic conversation clearing combined with in-memory array reset provides sufficient protection for standard privacy use cases. Users requiring forensic-grade privacy assurance should close browser tab after privacy-sensitive conversations to ensure memory release.</p>
+
+            <h4>LocalStorage Visibility</h4>
+            <p><strong>Consideration:</strong> Privacy preferences and excluded document lists stored in localStorage are readable by any JavaScript code on same origin.</p>
+            <p><strong>Mitigation:</strong> Same-origin policy provides adequate isolation for single-application deployments. For multi-application origins, implement subdomain isolation (e.g., canvas.cleansheet.info vs. library.cleansheet.info) to partition localStorage namespaces.</p>
+
+            <h4>Visual Indicator Spoofing</h4>
+            <p><strong>Consideration:</strong> Malicious user with editing access to document list HTML could inject fake shield icons to misrepresent privacy status.</p>
+            <p><strong>Mitigation:</strong> Visual indicators generated dynamically from `excludeFromLLM` property in authoritative localStorage data. UI manipulation does not affect actual privacy filtering logic. Enterprise deployments with shared accounts should implement user-specific persona isolation.</p>
+
+            <h3>8.3 Compatibility and Integration</h3>
+
+            <h4>LLM API Compatibility</h4>
+            <p>The system generates context as standard JSON object suitable for transmission to any LLM API accepting JSON payloads. Compatible with:</p>
+            <ul>
+                <li>OpenAI GPT-4/GPT-3.5 API (via system message or user message context)</li>
+                <li>Anthropic Claude API (via system parameter or user message)</li>
+                <li>Google Gemini API (via context parameter)</li>
+                <li>Azure OpenAI Service (via system message)</li>
+                <li>Open-source models via Hugging Face Inference API</li>
+                <li>Local LLM deployments via compatible REST API wrappers</li>
+            </ul>
+
+            <h4>Browser Compatibility</h4>
+            <p>Core functionality requires:</p>
+            <ul>
+                <li><strong>localStorage API:</strong> Available in all modern browsers (Chrome 4+, Firefox 3.5+, Safari 4+, IE 8+)</li>
+                <li><strong>JSON.parse() / JSON.stringify():</strong> Native JSON support (all modern browsers)</li>
+                <li><strong>ES6 Array Methods:</strong> Array.filter(), Array.map() (polyfillable for legacy browsers)</li>
+                <li><strong>CSS3 Opacity:</strong> Visual privacy indicators (all modern browsers)</li>
+            </ul>
+
+            <h4>Mobile Browser Support</h4>
+            <p>Full functionality available on mobile browsers (iOS Safari, Chrome Android, Firefox Mobile) with same localStorage persistence. Touch-friendly checkbox inputs and responsive modal layouts ensure usability on mobile devices without modification.</p>
+
+            <h3>8.4 Accessibility</h3>
+
+            <p>Privacy control interfaces implement accessibility best practices:</p>
+            <ul>
+                <li><strong>Semantic HTML:</strong> Native `<input type="checkbox">` and `<input type="radio">` elements provide built-in keyboard navigation and screen reader support</li>
+                <li><strong>Label Association:</strong> All checkboxes wrapped in `<label>` elements with descriptive text for click target expansion and screen reader context</li>
+                <li><strong>Visual Indicators:</strong> Shield icons accompanied by tooltip text ("Excluded from AI Assistant") readable by screen readers via `title` attribute</li>
+                <li><strong>Color Contrast:</strong> Blue shield icons (#0066CC) on white backgrounds exceed WCAG AA contrast ratio requirements (4.5:1)</li>
+                <li><strong>Keyboard Navigation:</strong> All privacy controls accessible via Tab key navigation, Space/Enter for activation</li>
+                <li><strong>Focus Indicators:</strong> Browser default focus rings maintained for keyboard navigation visibility</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>9. Conclusion</h2>
+
+            <p>The granular LLM context control system represents a significant advancement in privacy-preserving AI assistant integration, addressing fundamental limitations in existing approaches that force users to choose between comprehensive data exposure and complete assistant disablement.</p>
+
+            <p>By implementing multi-tier privacy controls spanning category-level filtering (six independent toggles), content-depth distinction (metadata vs. full content), and asset-level exclusion (individual document flags), the invention enables sophisticated privacy management through interfaces accessible to non-technical users. The combination of checkbox controls, visual indicators (shield icons, opacity), and automatic conversation clearing creates an intuitive privacy experience that reduces friction while providing enterprise-grade data governance.</p>
+
+            <p>The system's client-side architecture ensures compatibility with BYOK (Bring Your Own Key) deployments where users retain API key ownership and demand sovereignty over privacy decisions. Pure localStorage persistence eliminates server-side policy synchronization complexity and prevents exposure of privacy preferences to backend systems or third-party analytics.</p>
+
+            <p>Immediate privacy enforcement through automatic conversation history clearing distinguishes this approach from settings-based systems requiring manual page refresh, eliminating exposure windows where revoked context persists in LLM memory. This design ensures user privacy intent translates to actual enforcement without technical intervention or delayed propagation.</p>
+
+            <p>The invention demonstrates that casual LLM users can exercise enterprise-grade privacy controls when sophisticated technical capabilities are translated into familiar interface patterns. As AI assistants integrate more deeply into knowledge work, productivity tools, and professional development platforms, granular privacy controls will become essential rather than optional features, and this multi-tier architecture provides a scalable foundation for privacy-conscious LLM integration across diverse application domains.</p>
+        </section>
+
+        <section class="section">
+            <h2>Publication Information</h2>
+
+            <p><strong>Published by:</strong> Cleansheet LLC</p>
+            <p><strong>Publication Date:</strong> November 17, 2025</p>
+            <p><strong>Location:</strong> <a href="https://cleansheet.info/whitepapers/granular-llm-context-control.html">https://cleansheet.info/whitepapers/granular-llm-context-control.html</a></p>
+            <p><strong>License:</strong> Published for defensive purposes and industry advancement under CC BY 4.0</p>
+
+            <p style="margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--color-neutral-border); font-size: 14px; color: var(--color-neutral-text-light);">
+                <strong>Declaration:</strong> This document is published for the purpose of establishing prior art and advancing industry practices in privacy-preserving AI systems. The author makes no warranties about the completeness or accuracy of this information and is not liable for any use of this information. All technical details and implementations are provided for educational and defensive publication purposes.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Mermaid for diagram rendering
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#0066CC',
+                primaryTextColor: '#1a1a1a',
+                primaryBorderColor: '#004C99',
+                lineColor: '#666666',
+                secondaryColor: '#e3f2fd',
+                tertiaryColor: '#f5f5f7'
+            }
+        });
+    </script>
+</body>
+</html>
