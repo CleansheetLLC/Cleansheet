@@ -7618,11 +7618,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <p style="font-family: var(--font-family-body); color: var(--color-neutral-text); text-align: center; margin: 0 0 16px 0; line-height: 1.5;">
                                         Configure your AI assistant to get started
                                     </p>
-                                    <button onclick="openLLMSettingsModal()"
-                                            style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-                                        <i class="ph ph-gear"></i>
-                                        Set Up Now
-                                    </button>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <button onclick="openLLMSettingsModal()"
+                                                style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                                            <i class="ph ph-gear"></i>
+                                            Set Up Now
+                                        </button>
+                                        <button onclick="quickRestoreApiKeys()"
+                                                style="padding: 8px 16px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; color: var(--color-neutral-text); transition: all 0.2s;"
+                                                onmouseover="this.style.borderColor='#f59e0b'; this.style.background='#fffbeb'; this.style.color='var(--color-dark)';"
+                                                onmouseout="this.style.borderColor='var(--color-neutral-border)'; this.style.background='white'; this.style.color='var(--color-neutral-text)';">
+                                            <i class="ph ph-upload"></i>
+                                            Restore API Keys
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Messages will be appended here dynamically -->
@@ -17294,9 +17303,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         async function loadLLMConfig() {
             try {
                 const encryptedConfig = localStorage.getItem('llm_config_encrypted');
-                if (!encryptedConfig) return;
+                if (!encryptedConfig) {
+                    console.log('[LLM] No encrypted config found in localStorage');
+                    return;
+                }
 
                 const config = JSON.parse(encryptedConfig);
+                console.log('[LLM] Config loaded, activeProvider:', config.activeProvider);
+                console.log('[LLM] Available providers:', Object.keys(config).filter(k => k !== 'activeProvider'));
 
                 // Decrypt API key if present and initialize provider
                 if (config.activeProvider === 'openai' && config.openai?.apiKey) {
@@ -17320,6 +17334,12 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         { model: config.gemini.model || 'gemini-2.0-flash-exp' }
                     );
                     console.log('[LLM] Gemini configuration loaded and decrypted successfully');
+                } else {
+                    console.warn('[LLM] No matching provider configuration found');
+                    console.warn('[LLM] activeProvider:', config.activeProvider);
+                    console.warn('[LLM] has openai?', !!config.openai);
+                    console.warn('[LLM] has anthropic?', !!config.anthropic);
+                    console.warn('[LLM] has gemini?', !!config.gemini);
                 }
 
                 // Update provider badge
@@ -24493,7 +24513,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                             apiKey: passwordEncryptedKey,
                             model: llmConfig.openai.model
                         };
-                        providers.push('OpenAI');
+                        providers.push('openai');
                         console.log('[API Keys Backup] Included OpenAI API key');
                     } catch (error) {
                         console.error('[API Keys Backup] Failed to process OpenAI key:', error);
@@ -24513,7 +24533,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                             apiKey: passwordEncryptedKey,
                             model: llmConfig.anthropic.model
                         };
-                        providers.push('Anthropic');
+                        providers.push('anthropic');
                         console.log('[API Keys Backup] Included Anthropic API key');
                     } catch (error) {
                         console.error('[API Keys Backup] Failed to process Anthropic key:', error);
@@ -24533,7 +24553,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                             apiKey: passwordEncryptedKey,
                             model: llmConfig.gemini.model
                         };
-                        providers.push('Gemini');
+                        providers.push('gemini');
                         console.log('[API Keys Backup] Included Gemini API key');
                     } catch (error) {
                         console.error('[API Keys Backup] Failed to process Gemini key:', error);
@@ -24684,6 +24704,50 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             handleRestoreApiKeysFromModal();
         }
 
+        // Quick Restore API Keys from Empty State (no modal to close)
+        function quickRestoreApiKeys() {
+            const fileInput = document.getElementById('jsonFileInput');
+            fileInput.value = '';
+
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+
+                        // Validate that this is an API keys backup
+                        if (!data.apiKeysEncrypted || !data.apiKeysEncrypted.encrypted) {
+                            alert('Invalid API keys backup file. This file does not contain encrypted API keys.\n\nPlease select an API keys backup file (typically named cleansheet-api-keys-*.json).');
+                            return;
+                        }
+
+                        // Check if it's an API keys only backup
+                        if (data.type === 'api-keys-only') {
+                            console.log('[Quick Restore] Valid API keys backup detected');
+                        } else if (data.userFirstName && data.experiences) {
+                            console.log('[Quick Restore] Full backup with API keys detected, extracting keys only');
+                        }
+
+                        // Store data for password modal
+                        pendingRestoreData = data;
+                        pendingRestoreMode = 'api-keys-only';
+
+                        // Show password modal
+                        showRestorePasswordModal(data.apiKeysEncrypted.providers);
+
+                    } catch (error) {
+                        alert('Error parsing backup file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            fileInput.click();
+        }
+
         function closeApiKeyBackupPasswordModal() {
             document.getElementById('apiKeyBackupPasswordModal').style.display = 'none';
         }
@@ -24815,7 +24879,8 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 // Try to decrypt the API keys
                 const decryptedKeys = await decryptApiKeysFromBackup(pendingRestoreData.apiKeysEncrypted, password);
 
-                if (decryptedKeys) {
+                // Check if any keys were actually decrypted
+                if (decryptedKeys && Object.keys(decryptedKeys).length > 0) {
                     console.log('[Restore] Successfully decrypted API keys');
 
                     // Re-encrypt with device keys and save to localStorage
@@ -24830,7 +24895,24 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
                     // If this is an API keys only restore, we're done
                     if (restoreMode === 'api-keys-only') {
-                        alert('API keys restored successfully!\n\nYour LLM provider API keys have been restored. You can now use the AI Assistant.');
+                        console.log('[Restore] API keys only mode - reloading LLM config');
+
+                        // Reload LLM config and update UI
+                        await loadLLMConfig();
+
+                        console.log('[Restore] Current provider after load:', currentProvider ? currentProvider.getName() : 'none');
+
+                        // Update UI to show chat interface
+                        if (currentProvider) {
+                            document.getElementById('chatEmptyState').style.display = 'none';
+                            document.getElementById('chatInputContainer').style.display = 'block';
+                            updateProviderBadge();
+                            console.log('[Restore] UI updated - chat interface shown');
+                        } else {
+                            console.warn('[Restore] No current provider after loadLLMConfig()');
+                        }
+
+                        showToast('API keys restored successfully! AI Assistant is ready.', 'success');
                         return;
                     }
 
@@ -24845,10 +24927,22 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                     }
 
                     showToast('API keys restored successfully', 'success');
+                } else {
+                    // No keys were decrypted - this is NOT a password error
+                    console.error('[Restore] No API keys were found in the backup data');
+                    throw new Error('NO_KEYS_FOUND');
                 }
             } catch (error) {
                 console.error('[Restore] Decryption failed:', error);
 
+                // Check if this is a data structure error vs password error
+                if (error.message === 'NO_KEYS_FOUND') {
+                    showRestorePasswordError('No API keys found in backup file. The file may be corrupted or from an incompatible version.');
+                    // Don't increment attempts for non-password errors
+                    return;
+                }
+
+                // This is likely a password error
                 restorePasswordAttempts++;
                 const attemptsLeft = MAX_RESTORE_ATTEMPTS - restorePasswordAttempts;
 
@@ -24872,38 +24966,84 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
         }
 
         async function decryptApiKeysFromBackup(apiKeysEncrypted, password) {
+            console.log('[Decrypt] Starting decryption...');
+            console.log('[Decrypt] apiKeysEncrypted:', apiKeysEncrypted);
+            console.log('[Decrypt] providers list:', apiKeysEncrypted.providers);
+            console.log('[Decrypt] data object keys:', Object.keys(apiKeysEncrypted.data || {}));
+
+            if (!apiKeysEncrypted.providers || apiKeysEncrypted.providers.length === 0) {
+                console.error('[Decrypt] No providers in backup data');
+                throw new Error('NO_KEYS_FOUND');
+            }
+
+            if (!apiKeysEncrypted.data || Object.keys(apiKeysEncrypted.data).length === 0) {
+                console.error('[Decrypt] No data object in backup');
+                throw new Error('NO_KEYS_FOUND');
+            }
+
             const decryptedKeys = {};
+            let decryptionAttempted = false;
 
             for (const provider of apiKeysEncrypted.providers) {
-                if (apiKeysEncrypted.data[provider] && apiKeysEncrypted.data[provider].apiKey) {
+                console.log(`[Decrypt] Processing provider: ${provider}`);
+
+                // Handle both lowercase (openai) and capitalized (OpenAI) provider names for backwards compatibility
+                const providerKey = provider.toLowerCase();
+                console.log(`[Decrypt] Looking for data key: ${providerKey}`);
+                console.log(`[Decrypt] Has data[${providerKey}]?`, !!apiKeysEncrypted.data[providerKey]);
+                console.log(`[Decrypt] Has apiKey?`, !!apiKeysEncrypted.data[providerKey]?.apiKey);
+
+                if (apiKeysEncrypted.data[providerKey] && apiKeysEncrypted.data[providerKey].apiKey) {
                     try {
+                        decryptionAttempted = true;
+                        console.log(`[Decrypt] Decrypting ${providerKey} key...`);
                         // Decrypt with password
                         const decryptedKey = await CleansheetCrypto.decryptWithPassword(
-                            apiKeysEncrypted.data[provider].apiKey,
+                            apiKeysEncrypted.data[providerKey].apiKey,
                             password
                         );
 
-                        decryptedKeys[provider] = {
+                        decryptedKeys[providerKey] = {
                             apiKey: decryptedKey,
-                            model: apiKeysEncrypted.data[provider].model
+                            model: apiKeysEncrypted.data[providerKey].model
                         };
+                        console.log(`[Decrypt] Successfully decrypted ${providerKey} key`);
                     } catch (error) {
-                        console.error(`[Restore] Failed to decrypt ${provider} key:`, error);
+                        console.error(`[Decrypt] Failed to decrypt ${providerKey} key:`, error);
+                        // This is likely a password error since we found data but couldn't decrypt
                         throw error; // Re-throw to trigger password retry
                     }
+                } else {
+                    console.warn(`[Decrypt] Skipping ${provider} - provider list contains '${provider}' but data object has: ${Object.keys(apiKeysEncrypted.data).join(', ')}`);
                 }
             }
 
+            if (!decryptionAttempted) {
+                console.error('[Decrypt] No matching keys found between providers list and data object');
+                console.error('[Decrypt] Providers:', apiKeysEncrypted.providers);
+                console.error('[Decrypt] Data keys:', Object.keys(apiKeysEncrypted.data));
+                throw new Error('NO_KEYS_FOUND');
+            }
+
+            console.log('[Decrypt] Final decryptedKeys:', Object.keys(decryptedKeys));
             return decryptedKeys;
         }
 
         async function saveDecryptedKeysToConfig(decryptedKeys, activeProvider) {
+            console.log('[Restore] saveDecryptedKeysToConfig called');
+            console.log('[Restore] decryptedKeys object:', decryptedKeys);
+            console.log('[Restore] decryptedKeys keys:', Object.keys(decryptedKeys));
+            console.log('[Restore] activeProvider:', activeProvider);
+
             // Get current config or create new one
             let llmConfig = {};
             const existingConfig = localStorage.getItem('llm_config_encrypted');
             if (existingConfig) {
                 llmConfig = JSON.parse(existingConfig);
             }
+
+            console.log('[Restore] Saving keys for providers:', Object.keys(decryptedKeys));
+            console.log('[Restore] Active provider:', activeProvider);
 
             // Re-encrypt each key with device encryption
             for (const provider in decryptedKeys) {
@@ -24913,6 +25053,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                     apiKey: encryptedKey,
                     model: decryptedKeys[provider].model
                 };
+                console.log(`[Restore] Saved ${provider} with model ${decryptedKeys[provider].model}`);
             }
 
             // Set active provider
@@ -24922,6 +25063,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             localStorage.setItem('llm_config_encrypted', JSON.stringify(llmConfig));
 
             console.log('[Restore] API keys re-encrypted and saved to localStorage');
+            console.log('[Restore] Final config activeProvider:', llmConfig.activeProvider);
         }
 
         function restoreWithoutKeys() {
