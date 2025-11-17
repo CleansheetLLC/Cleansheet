@@ -295,7 +295,7 @@ class AnthropicProvider extends LLMProvider {
     constructor(apiKey, config = {}) {
         super(apiKey, config);
         this.baseUrl = config.baseUrl || 'https://api.anthropic.com/v1';
-        this.defaultModel = config.model || 'claude-3-5-sonnet-20241022';
+        this.defaultModel = config.model || 'claude-sonnet-4-5-20250929';
         this.apiVersion = config.apiVersion || '2023-06-01';
     }
 
@@ -344,7 +344,8 @@ class AnthropicProvider extends LLMProvider {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': this.apiKey,
-                'anthropic-version': this.apiVersion
+                'anthropic-version': this.apiVersion,
+                'anthropic-dangerous-direct-browser-access': 'true'
             },
             body: JSON.stringify(requestBody)
         });
@@ -393,7 +394,8 @@ class AnthropicProvider extends LLMProvider {
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': this.apiKey,
-                'anthropic-version': this.apiVersion
+                'anthropic-version': this.apiVersion,
+                'anthropic-dangerous-direct-browser-access': 'true'
             },
             body: JSON.stringify(requestBody)
         });

@@ -10467,6 +10467,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 <div style="display: flex; flex-direction: column; gap: 8px;">
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
                                         <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                                        <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;"><strong>LLM Integration (Bring your own key)</strong></span>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                        <i class="ph ph-check-circle" style="font-size: 20px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
                                         <span style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-dark); line-height: 1.5;">Cleansheet Profile Service <button onclick="event.stopPropagation(); openSubscriptionProfileRequestModal();" style="padding: 2px 8px; margin-left: 4px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(249, 115, 22, 0.3);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 4px rgba(249, 115, 22, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(249, 115, 22, 0.3)';">Request</button></span>
                                     </div>
                                     <div style="display: flex; align-items: flex-start; gap: 8px;">
@@ -11031,13 +11035,33 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer; transition: border-color 0.2s;">
                             <option value="">-- Select Provider --</option>
                             <option value="openai">OpenAI (GPT-4, GPT-3.5) ✓ Browser Compatible</option>
-                            <option value="anthropic">Anthropic (Claude 3.5, Claude 3) ⚠️ Requires Proxy</option>
+                            <option value="anthropic">Anthropic (Claude 3.5, Claude 3) ✓ Browser Compatible</option>
                             <option value="gemini">Google Gemini (Gemini 2.0, 1.5 Pro) ✓ Browser Compatible</option>
                             <option value="azure" disabled>Azure OpenAI (Coming Soon)</option>
                         </select>
                         <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
                             ℹ️ Choose which AI provider you'd like to use. You'll need your own API key.
                         </p>
+                    </div>
+
+                    <!-- Shared BYOK Privacy Info (appears for all providers) -->
+                    <div id="byokPrivacyInfo" style="display: none; background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 12px; align-items: start;">
+                            <i class="ph ph-shield-check" style="font-size: 24px; color: #0066CC; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #0066CC; margin: 0 0 8px 0;">
+                                    Bring Your Own Key (BYOK) - Privacy First
+                                </h4>
+                                <p style="font-family: var(--font-family-body); font-size: 13px; color: #1e40af; margin: 0; line-height: 1.5;">
+                                    <strong>Your API key is stored locally</strong> and used directly from your browser.
+                                    Conversations stay between you and your chosen AI provider.
+                                </p>
+                                <p style="font-family: var(--font-family-body); font-size: 13px; color: #1e40af; margin: 8px 0 0 0; line-height: 1.5;">
+                                    🔒 <strong>Your API key never touches Cleansheet servers.</strong>
+                                    This secure, privacy-first approach applies to all AI providers (OpenAI, Anthropic, and Gemini).
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- OpenAI Configuration -->
@@ -11082,26 +11106,6 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
                     <!-- Anthropic Configuration -->
                     <div id="anthropicConfig" style="display: none;">
-                        <!-- CORS Warning -->
-                        <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                            <div style="display: flex; gap: 12px; align-items: start;">
-                                <i class="ph ph-warning-circle" style="font-size: 24px; color: #dc2626; flex-shrink: 0; margin-top: 2px;"></i>
-                                <div>
-                                    <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #dc2626; margin: 0 0 8px 0;">
-                                        Browser Limitation - Proxy Required
-                                    </h4>
-                                    <p style="font-family: var(--font-family-body); font-size: 13px; color: #991b1b; margin: 0; line-height: 1.5;">
-                                        <strong>Anthropic's API blocks direct browser calls</strong> due to CORS security restrictions.
-                                        Unlike OpenAI and Gemini, Claude requires a backend proxy server to work.
-                                    </p>
-                                    <p style="font-family: var(--font-family-body); font-size: 13px; color: #991b1b; margin: 8px 0 0 0; line-height: 1.5;">
-                                        ⚠️ <strong>You will see CORS errors</strong> if you try to use Claude without a proxy.
-                                        Please use OpenAI or Gemini for direct browser access.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
                         <div style="background: #f5f5f7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
                             <div style="margin-bottom: 16px;">
                                 <label style="display: block; font-family: var(--font-family-ui); font-weight: 600; margin-bottom: 8px; color: var(--color-dark);">
@@ -11124,14 +11128,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 </label>
                                 <select id="anthropicModelSelect"
                                         style="width: 100%; padding: 12px; font-family: var(--font-family-body); font-size: 14px; border: 2px solid var(--color-neutral-border); border-radius: 8px; background: white; cursor: pointer;">
-                                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (New) - Best Overall</option>
-                                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (New) - Fast & Efficient</option>
-                                    <option value="claude-3-opus-20240229">Claude 3 Opus - Most Capable</option>
-                                    <option value="claude-3-sonnet-20240229">Claude 3 Sonnet - Balanced</option>
-                                    <option value="claude-3-haiku-20240307">Claude 3 Haiku - Fastest</option>
+                                    <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (Latest) - Best Overall</option>
+                                    <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 - Fast & Efficient</option>
+                                    <option value="claude-opus-4-1-20250805">Claude Opus 4.1 - Most Capable</option>
+                                    <option value="claude-3-5-haiku-20241022">Claude Haiku 3.5 (Legacy)</option>
+                                    <option value="claude-3-haiku-20240307">Claude Haiku 3 (Legacy)</option>
                                 </select>
                                 <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin-top: 6px; line-height: 1.5;">
-                                    💡 Claude 3.5 Sonnet offers the best balance of intelligence, speed, and cost. All models have 200K token context.
+                                    💡 Claude Sonnet 4.5 offers the best balance of intelligence, speed, and cost. All models have 200K token context.
                                 </p>
                             </div>
 
@@ -16845,10 +16849,36 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 return;
             }
 
-            // Load saved configuration
+            // Check tier access - AI Assistant only for Learner and Seeker
+            const currentTier = getCurrentSubscriptionTier();
+
+            if (currentTier === 'member') {
+                console.log('[LLM Init] AI Assistant restricted for Member tier');
+                // Show Member tier upgrade message
+                chatEmptyState.innerHTML = `
+                    <i class="ph ph-robot" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 12px;"></i>
+                    <p style="font-family: var(--font-family-body); color: var(--color-neutral-text); text-align: center; margin: 0 0 4px 0; line-height: 1.5; font-size: 14px;">
+                        <strong style="color: var(--color-dark);">AI Career Assistant</strong>
+                    </p>
+                    <p style="font-family: var(--font-family-body); color: var(--color-neutral-text); text-align: center; margin: 0 0 16px 0; line-height: 1.5; font-size: 13px;">
+                        Available on Learner and Seeker tiers
+                    </p>
+                    <button onclick="openSubscriptionModal()"
+                            style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; transition: background 0.2s;"
+                            onmouseover="this.style.background='var(--color-accent-blue)'"
+                            onmouseout="this.style.background='var(--color-primary-blue)'">
+                        <i class="ph ph-star"></i>
+                        Upgrade to Access
+                    </button>
+                `;
+                chatEmptyState.style.display = 'flex';
+                chatInputContainer.style.display = 'none';
+                return; // Stop initialization for Member tier
+            }
+
+            // For Learner and Seeker tiers: proceed with normal initialization
             await loadLLMConfig();
 
-            // AI Assistant is now available to all tiers (no restriction)
             // Show/hide UI based on configuration
             if (currentProvider) {
                 chatEmptyState.style.display = 'none';
@@ -17087,6 +17117,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             document.getElementById('openaiConfig').style.display = 'none';
             document.getElementById('anthropicConfig').style.display = 'none';
             document.getElementById('geminiConfig').style.display = 'none';
+
+            // Show/hide shared BYOK privacy info
+            const byokInfo = document.getElementById('byokPrivacyInfo');
+            if (provider && provider !== '') {
+                byokInfo.style.display = 'block';
+            } else {
+                byokInfo.style.display = 'none';
+            }
 
             // Show selected provider config
             if (provider === 'openai') {
