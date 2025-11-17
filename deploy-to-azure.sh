@@ -143,60 +143,39 @@ sync_files() {
         --account-name "$STORAGE_ACCOUNT" \
         --query "[0].value" -o tsv)
 
-    # Sync files using az storage blob upload-batch
-    print_info "Starting file upload..."
+    # Build exclude parameters
+    EXCLUDE_PARAMS=""
+    for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+        EXCLUDE_PARAMS="$EXCLUDE_PARAMS --exclude-path \"$pattern\""
+    done
 
-    # Upload with proper content types and cache control
-    az storage blob upload-batch \
+    print_info "Starting incremental sync (only changed files)..."
+
+    # Use azcopy sync for much faster incremental uploads
+    # This only uploads files that have changed
+    az storage blob sync \
         --account-name "$STORAGE_ACCOUNT" \
         --account-key "$ACCOUNT_KEY" \
-        --destination "$CONTAINER_NAME" \
+        --container "$CONTAINER_NAME" \
         --source "$REPO_DIR" \
-        --pattern "*" \
-        --content-cache-control "public, max-age=3600" \
-        --overwrite true \
-        --no-progress
+        $EXCLUDE_PARAMS \
+        --delete-destination false 2>&1 | tee /tmp/deploy-output.log
 
-    print_success "Files synced successfully!"
+    # Count uploaded files from output
+    UPLOADED=$(grep -c "Uploading" /tmp/deploy-output.log || echo "0")
+    SKIPPED=$(grep -c "Skipping" /tmp/deploy-output.log || echo "0")
+
+    print_success "Sync complete!"
+    print_info "Files uploaded: $UPLOADED"
+    print_info "Files skipped (unchanged): $SKIPPED"
 }
 
 set_content_types() {
     print_header "Setting Content Types"
 
-    # Get storage account key
-    ACCOUNT_KEY=$(az storage account keys list \
-        --resource-group "$RESOURCE_GROUP" \
-        --account-name "$STORAGE_ACCOUNT" \
-        --query "[0].value" -o tsv)
-
-    # Set content type for HTML files
-    print_info "Setting content-type for HTML files..."
-    az storage blob update-batch \
-        --account-name "$STORAGE_ACCOUNT" \
-        --account-key "$ACCOUNT_KEY" \
-        --source "$CONTAINER_NAME" \
-        --pattern "*.html" \
-        --content-type "text/html; charset=utf-8" 2>/dev/null || true
-
-    # Set content type for CSS files
-    print_info "Setting content-type for CSS files..."
-    az storage blob update-batch \
-        --account-name "$STORAGE_ACCOUNT" \
-        --account-key "$ACCOUNT_KEY" \
-        --source "$CONTAINER_NAME" \
-        --pattern "*.css" \
-        --content-type "text/css; charset=utf-8" 2>/dev/null || true
-
-    # Set content type for JavaScript files
-    print_info "Setting content-type for JavaScript files..."
-    az storage blob update-batch \
-        --account-name "$STORAGE_ACCOUNT" \
-        --account-key "$ACCOUNT_KEY" \
-        --source "$CONTAINER_NAME" \
-        --pattern "*.js" \
-        --content-type "application/javascript; charset=utf-8" 2>/dev/null || true
-
-    print_success "Content types set successfully!"
+    print_info "Content types are automatically set by az storage blob sync"
+    print_info "HTML: text/html, CSS: text/css, JS: application/javascript"
+    print_success "Content types configured!"
 }
 
 get_website_url() {

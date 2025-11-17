@@ -19,7 +19,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Interactive career management workspace with guided paths, role discovery tools, and curated learning resources">
     <meta name="theme-color" content="#0066CC">
-    <title>Career Canvas Preview</title>
+    <title>Cleansheet Career Canvas</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -7247,6 +7247,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     </style>
 </head>
 <body>
+    <!-- Visually hidden h1 for accessibility and SEO -->
+    <h1 style="position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;">Cleansheet Career Canvas - Interactive Career Management Platform</h1>
+
     <!-- Canvas Modal -->
     <div class="canvas-modal" id="canvasModal">
         <div class="canvas-modal-content">
@@ -15288,6 +15291,10 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             localStorage.setItem('subscription_tier', cloudData.subscriptionTier);
                             console.log('[Force Sync] Saved subscription tier:', cloudData.subscriptionTier);
                         }
+
+                        // Set flag to prevent demo data from loading on next page load
+                        localStorage.setItem('cleansheet_currentPersona', cloudData.persona || 'member');
+                        console.log('[Force Sync] Set cleansheet_currentPersona flag to prevent demo data');
 
                         console.log('[Force Sync] Cloud data saved to localStorage');
 
@@ -47409,7 +47416,7 @@ F &= ma \\\\
         // Service Worker Registration for PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('./service-worker.js')
                     .then((registration) => {
                         console.log('[PWA] Service Worker registered successfully:', registration.scope);
 
