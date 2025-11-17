@@ -7595,6 +7595,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     </div>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
+                                    <button onclick="openContextControlModal()" title="Context Control"
+                                            style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
+                                        <i class="ph ph-shield-check" style="font-size: 18px;"></i>
+                                    </button>
                                     <button onclick="openLLMUsageModal()" title="Usage Statistics"
                                             style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
                                         <i class="ph ph-chart-line" style="font-size: 18px;"></i>
@@ -11186,13 +11190,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         <div class="modal" id="llmSettingsModal" style="display: none;">
             <div class="modal-overlay" onclick="closeLLMSettingsModal()"></div>
             <div class="modal-content" style="max-width: 700px;">
-                <div class="modal-header">
-                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600;">
-                        <i class="ph ph-robot" style="margin-right: 8px;"></i>
+                <div class="modal-header" style="background: var(--color-dark); color: white;">
+                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">
+                        <i class="ph ph-robot" style="margin-right: 8px; color: white;"></i>
                         AI Assistant Settings
                     </h2>
-                    <button class="modal-close" onclick="closeLLMSettingsModal()">
-                        <i class="ph ph-x"></i>
+                    <button class="modal-close" onclick="closeLLMSettingsModal()" style="color: white;">
+                        <i class="ph ph-x" style="color: white;"></i>
                     </button>
                 </div>
 
@@ -11362,18 +11366,115 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         </div>
                     </div>
 
-                    <!-- Context Control / Privacy Settings -->
+                    <!-- Context Control Link -->
                     <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--color-neutral-border);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                            <i class="ph ph-shield-check" style="font-size: 24px; color: var(--color-primary-blue);"></i>
-                            <div>
+                        <button onclick="openContextControlModalFromSettings()"
+                                style="width: 100%; padding: 20px; background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 48px; height: 48px; background: var(--color-primary-blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="ph ph-shield-check" style="font-size: 24px; color: white;"></i>
+                            </div>
+                            <div style="flex: 1; text-align: left;">
                                 <h3 style="margin: 0 0 4px 0; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark);">
-                                    Context Control
+                                    Context Control Settings
                                 </h3>
-                                <p style="margin: 0; font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.4;">
+                                <p style="margin: 0; font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.4;">
                                     Choose which career data to share with the AI assistant
                                 </p>
                             </div>
+                            <i class="ph ph-arrow-right" style="font-size: 24px; color: var(--color-primary-blue); flex-shrink: 0;"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeLLMSettingsModal()"
+                            style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer; transition: all 0.2s;">
+                        Cancel
+                    </button>
+                    <button onclick="saveLLMSettings()"
+                            style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-check"></i>
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LLM Usage Stats Modal -->
+        <div class="modal" id="llmUsageModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeLLMUsageModal()"></div>
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header" style="background: var(--color-dark); color: white;">
+                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">
+                        <i class="ph ph-chart-line" style="margin-right: 8px; color: white;"></i>
+                        Usage This Month
+                    </h2>
+                    <button class="modal-close" onclick="closeLLMUsageModal()" style="color: white;">
+                        <i class="ph ph-x" style="color: white;"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+                    <!-- Usage Stats Content -->
+                    <div id="llmUsageStats">
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0 0 20px 0; line-height: 1.6;">
+                            Track your AI assistant usage across all providers. This shows your usage through Cleansheet only.
+                        </p>
+
+                        <!-- Container for all provider usage stats (populated dynamically) -->
+                        <div id="usageStatsContainer"></div>
+
+                        <!-- Empty state (shown when no usage data) -->
+                        <div id="usageEmptyState" style="display: none; text-align: center; padding: 32px 16px;">
+                            <i class="ph ph-chart-line-up" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 12px;"></i>
+                            <p style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">
+                                No Usage Data Yet
+                            </p>
+                            <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0; line-height: 1.5;">
+                                Start using the AI Career Assistant to see your usage statistics here.
+                            </p>
+                        </div>
+
+                        <div id="usageNote" style="display: none; background: #e3f2fd; border-left: 4px solid var(--color-primary-blue); padding: 12px; border-radius: 4px; margin-top: 20px;">
+                            <p style="font-family: var(--font-family-body); font-size: 12px; color: #0c4a6e; margin: 0; line-height: 1.5;">
+                                <i class="ph ph-info" style="margin-right: 4px;"></i>
+                                <strong>Note:</strong> Check each provider's dashboard for total account usage across all applications.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end;">
+                    <button onclick="closeLLMUsageModal()"
+                            style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Control Settings Modal -->
+        <div class="modal" id="contextControlModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeContextControlModal()"></div>
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header" style="background: var(--color-dark); color: white;">
+                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: white;">
+                        <i class="ph ph-shield-check" style="margin-right: 8px; color: white;"></i>
+                        Context Control Settings
+                    </h2>
+                    <button class="modal-close" onclick="closeContextControlModal()" style="color: white;">
+                        <i class="ph ph-x" style="color: white;"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+                    <!-- Context Control / Privacy Settings -->
+                    <div>
+                        <div style="margin-bottom: 16px;">
+                            <p style="margin: 0; font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); line-height: 1.5;">
+                                Choose which career data to share with the AI assistant. These settings control what information is sent to the AI with each message.
+                            </p>
                         </div>
 
                         <div style="background: #f5f5f7; border-radius: 12px; padding: 20px;">
@@ -11479,75 +11580,22 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             </div>
                         </div>
 
-                        <p style="margin: 12px 0 0 0; font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.5; font-style: italic;">
-                            💡 These settings control what information is sent to the AI with each message. Your preferences are saved locally.
+                        <p style="margin: 16px 0 0 0; font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); line-height: 1.5; font-style: italic;">
+                            💡 Your preferences are saved locally and take effect immediately.
                         </p>
                     </div>
 
                 </div>
 
                 <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
-                    <button onclick="closeLLMSettingsModal()"
+                    <button onclick="closeContextControlModal()"
                             style="padding: 10px 20px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-neutral-text); cursor: pointer; transition: all 0.2s;">
                         Cancel
                     </button>
-                    <button onclick="saveLLMSettings()"
+                    <button onclick="saveContextControlSettings()"
                             style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
                         <i class="ph ph-check"></i>
                         Save Settings
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- LLM Usage Stats Modal -->
-        <div class="modal" id="llmUsageModal" style="display: none;">
-            <div class="modal-overlay" onclick="closeLLMUsageModal()"></div>
-            <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header">
-                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600;">
-                        <i class="ph ph-chart-line" style="margin-right: 8px;"></i>
-                        Usage This Month
-                    </h2>
-                    <button class="modal-close" onclick="closeLLMUsageModal()">
-                        <i class="ph ph-x"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
-                    <!-- Usage Stats Content -->
-                    <div id="llmUsageStats">
-                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0 0 20px 0; line-height: 1.6;">
-                            Track your AI assistant usage across all providers. This shows your usage through Cleansheet only.
-                        </p>
-
-                        <!-- Container for all provider usage stats (populated dynamically) -->
-                        <div id="usageStatsContainer"></div>
-
-                        <!-- Empty state (shown when no usage data) -->
-                        <div id="usageEmptyState" style="display: none; text-align: center; padding: 32px 16px;">
-                            <i class="ph ph-chart-line-up" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 12px;"></i>
-                            <p style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">
-                                No Usage Data Yet
-                            </p>
-                            <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0; line-height: 1.5;">
-                                Start using the AI Career Assistant to see your usage statistics here.
-                            </p>
-                        </div>
-
-                        <div id="usageNote" style="display: none; background: #e3f2fd; border-left: 4px solid var(--color-primary-blue); padding: 12px; border-radius: 4px; margin-top: 20px;">
-                            <p style="font-family: var(--font-family-body); font-size: 12px; color: #0c4a6e; margin: 0; line-height: 1.5;">
-                                <i class="ph ph-info" style="margin-right: 4px;"></i>
-                                <strong>Note:</strong> Check each provider's dashboard for total account usage across all applications.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end;">
-                    <button onclick="closeLLMUsageModal()"
-                            style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
-                        Close
                     </button>
                 </div>
             </div>
@@ -17520,6 +17568,87 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             document.getElementById('llmUsageModal').style.display = 'none';
         }
 
+        // Open Context Control settings modal
+        function openContextControlModal() {
+            const modal = document.getElementById('contextControlModal');
+            modal.style.display = 'flex';
+
+            // Load current context preferences
+            const prefs = JSON.parse(localStorage.getItem('llm_context_preferences') || '{}');
+
+            // Set checkbox states (default to checked if not set)
+            document.getElementById('contextJobOpportunities').checked = prefs.jobOpportunities !== false;
+            document.getElementById('contextExperiences').checked = prefs.experiences !== false;
+            document.getElementById('contextGoals').checked = prefs.goals !== false;
+            document.getElementById('contextPortfolio').checked = prefs.portfolio !== false;
+            document.getElementById('contextStories').checked = prefs.stories !== false;
+            document.getElementById('contextDocuments').checked = prefs.documents !== false;
+
+            // Set document detail radio buttons
+            const documentDetail = prefs.documentDetail || 'metadata';
+            const radioButtons = document.querySelectorAll('input[name="documentDetail"]');
+            radioButtons.forEach(radio => {
+                radio.checked = radio.value === documentDetail;
+            });
+
+            // Update document detail options visibility
+            toggleDocumentDetailOptions();
+        }
+
+        // Close Context Control settings modal
+        function closeContextControlModal() {
+            document.getElementById('contextControlModal').style.display = 'none';
+        }
+
+        // Open Context Control modal from AI Assistant Settings
+        function openContextControlModalFromSettings() {
+            // Close the AI Assistant Settings modal
+            closeLLMSettingsModal();
+
+            // Open Context Control modal
+            openContextControlModal();
+        }
+
+        // Save Context Control settings
+        function saveContextControlSettings() {
+            // Get previous preferences to check if they changed
+            const previousPrefs = JSON.parse(localStorage.getItem('llm_context_preferences') || '{}');
+
+            // Collect current preferences
+            const contextPrefs = {
+                jobOpportunities: document.getElementById('contextJobOpportunities').checked,
+                experiences: document.getElementById('contextExperiences').checked,
+                goals: document.getElementById('contextGoals').checked,
+                portfolio: document.getElementById('contextPortfolio').checked,
+                stories: document.getElementById('contextStories').checked,
+                documents: document.getElementById('contextDocuments').checked,
+                documentDetail: document.querySelector('input[name="documentDetail"]:checked')?.value || 'metadata'
+            };
+
+            // Check if context preferences changed
+            const contextChanged = JSON.stringify(previousPrefs) !== JSON.stringify(contextPrefs);
+
+            // Save preferences to localStorage
+            localStorage.setItem('llm_context_preferences', JSON.stringify(contextPrefs));
+            console.log('[Context Control] Preferences saved:', contextPrefs);
+
+            // Clear chat history if context settings changed to ensure privacy
+            const chatWasCleared = contextChanged && conversationHistory.length > 0;
+            if (chatWasCleared) {
+                clearChatHistory();
+            }
+
+            // Close modal
+            closeContextControlModal();
+
+            // Show appropriate success message
+            if (chatWasCleared) {
+                showToast('Context control updated - conversation cleared for privacy', 'success');
+            } else {
+                showToast('Context control settings saved!', 'success');
+            }
+        }
+
         // Handle provider selection change
         function handleProviderChange() {
             const provider = document.getElementById('llmProviderSelect').value;
@@ -17736,34 +17865,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // Save to localStorage
             localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
 
-            // Save context control preferences and clear chat if they changed
-            const previousPrefs = JSON.parse(localStorage.getItem('llm_context_preferences') || '{}');
-            const contextPrefs = {
-                jobOpportunities: document.getElementById('contextJobOpportunities').checked,
-                experiences: document.getElementById('contextExperiences').checked,
-                goals: document.getElementById('contextGoals').checked,
-                portfolio: document.getElementById('contextPortfolio').checked,
-                stories: document.getElementById('contextStories').checked,
-                documents: document.getElementById('contextDocuments').checked,
-                documentDetail: document.querySelector('input[name="documentDetail"]:checked')?.value || 'metadata'
-            };
-
-            // Check if context preferences changed
-            const contextChanged = JSON.stringify(previousPrefs) !== JSON.stringify(contextPrefs);
-
-            localStorage.setItem('llm_context_preferences', JSON.stringify(contextPrefs));
-            console.log('[LLM] Context preferences saved:', contextPrefs);
-
-            // Clear chat history if context settings changed to ensure privacy
-            const chatWasCleared = contextChanged && conversationHistory.length > 0;
-            if (chatWasCleared) {
-                clearChatHistory();
-            }
-
-            // Update UI - keep empty state visible if chat was just cleared
-            if (!chatWasCleared) {
-                document.getElementById('chatEmptyState').style.display = 'none';
-            }
+            // Update UI
+            document.getElementById('chatEmptyState').style.display = 'none';
             document.getElementById('chatInputContainer').style.display = 'block';
 
             // Update provider badge
@@ -17771,12 +17874,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             closeLLMSettingsModal();
 
-            // Show appropriate success message
-            if (chatWasCleared) {
-                showToast('Settings saved - conversation cleared for privacy', 'success');
-            } else {
-                showToast('AI Assistant configured!', 'success');
-            }
+            // Show success message
+            showToast('AI Assistant configured!', 'success');
         }
 
         // Send chat message
