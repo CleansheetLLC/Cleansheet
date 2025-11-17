@@ -17959,6 +17959,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // Render markdown for assistant messages, plain text for user messages
             if (role === 'assistant' && typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+                // Store original markdown for copy functionality
+                contentDiv.dataset.originalContent = content;
                 contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(content));
             } else {
                 contentDiv.textContent = content;
@@ -18065,12 +18067,15 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     <div class="chat-message-avatar">
                         <i class="ph ph-robot"></i>
                     </div>
-                    <div class="chat-message-content">${renderedContent}</div>
+                    <div class="chat-message-content" data-original-content="${content.replace(/"/g, '&quot;')}">${renderedContent}</div>
                 `;
                 messagesContainer.appendChild(messageDiv);
             } else {
                 // Update existing typing indicator with content
                 const contentDiv = messageEl.querySelector('.chat-message-content');
+
+                // Store original markdown content for copy functionality
+                contentDiv.dataset.originalContent = content;
 
                 // Render markdown for streaming updates
                 if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
@@ -18093,7 +18098,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 // Add copy button to the finalized streaming message
                 const contentDiv = messageEl.querySelector('.chat-message-content');
                 if (contentDiv && !contentDiv.querySelector('.copy-message-btn')) {
-                    const content = contentDiv.textContent;
+                    // Retrieve original markdown from data attribute (falls back to text content)
+                    const content = contentDiv.dataset.originalContent || contentDiv.textContent;
                     const copyBtn = document.createElement('button');
                     copyBtn.className = 'copy-message-btn';
                     copyBtn.innerHTML = '<i class="ph ph-copy"></i><span>Copy</span>';
