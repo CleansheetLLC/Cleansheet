@@ -2314,12 +2314,54 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: #f5f5f7;
             color: var(--color-dark);
             border-bottom-left-radius: 4px;
+            position: relative;
         }
 
         .chat-message.system .chat-message-content {
             background: #fef2f2;
             color: #dc2626;
             border-left: 3px solid #dc2626;
+        }
+
+        .copy-message-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            padding: 6px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .chat-message.assistant .chat-message-content:hover .copy-message-btn {
+            opacity: 1;
+        }
+
+        .copy-message-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+            color: var(--color-primary-blue);
+        }
+
+        .copy-message-btn i {
+            font-size: 14px;
+        }
+
+        .copy-message-btn.copied {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            color: #16a34a;
+            opacity: 1;
         }
 
         .chat-input-container {
@@ -17475,11 +17517,59 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             contentDiv.className = 'chat-message-content';
             contentDiv.textContent = content;
 
+            // Add copy button for assistant messages
+            if (role === 'assistant') {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-message-btn';
+                copyBtn.innerHTML = '<i class="ph ph-copy"></i><span>Copy</span>';
+                copyBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    copyMessageToClipboard(content, copyBtn);
+                };
+                contentDiv.appendChild(copyBtn);
+            }
+
             messageDiv.appendChild(avatarDiv);
             messageDiv.appendChild(contentDiv);
 
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Copy message to clipboard with proper markdown line breaking
+        async function copyMessageToClipboard(content, button) {
+            try {
+                // Use clipboard API to preserve markdown formatting including line breaks
+                await navigator.clipboard.writeText(content);
+
+                // Show success feedback
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="ph ph-check"></i><span>Copied!</span>';
+                button.classList.add('copied');
+
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy message:', err);
+
+                // Show error feedback
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="ph ph-warning"></i><span>Failed</span>';
+                button.style.borderColor = '#dc2626';
+                button.style.background = '#fef2f2';
+                button.style.color = '#dc2626';
+
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.style.borderColor = '';
+                    button.style.background = '';
+                    button.style.color = '';
+                }, 2000);
+            }
         }
 
         // Add typing indicator
@@ -17535,11 +17625,25 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Remove typing indicator
+        // Remove typing indicator and add copy button
         function removeTypingIndicator(typingId) {
             const messageEl = document.getElementById(typingId);
             if (messageEl) {
                 messageEl.removeAttribute('id'); // Keep the message, just remove the ID
+
+                // Add copy button to the finalized streaming message
+                const contentDiv = messageEl.querySelector('.chat-message-content');
+                if (contentDiv && !contentDiv.querySelector('.copy-message-btn')) {
+                    const content = contentDiv.textContent;
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-message-btn';
+                    copyBtn.innerHTML = '<i class="ph ph-copy"></i><span>Copy</span>';
+                    copyBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        copyMessageToClipboard(content, copyBtn);
+                    };
+                    contentDiv.appendChild(copyBtn);
+                }
             }
         }
 
