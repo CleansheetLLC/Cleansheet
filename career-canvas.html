@@ -18017,19 +18017,41 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 }
             }
 
-            // Documents (if enabled)
+            // Documents (if enabled) - includes ALL document types
             if (includeDocuments) {
                 try {
-                    const documents = JSON.parse(localStorage.getItem(`interview_documents_${currentPersona}`) || '[]');
+                    // Load all document types from different storage locations
+                    const lexicalDocs = JSON.parse(localStorage.getItem(`interview_documents_${currentPersona}`) || '[]');
                     const latexDocs = JSON.parse(localStorage.getItem(`user_latex_documents_${currentPersona}`) || '[]');
-                    const allDocuments = [...documents, ...latexDocs];
+                    const diagrams = JSON.parse(localStorage.getItem(`diagrams_${currentPersona}`) || '[]');
+                    const whiteboards = JSON.parse(localStorage.getItem(`user_whiteboards_${currentPersona}`) || '[]');
+                    const codeSnippets = JSON.parse(localStorage.getItem(`user_code_snippets_${currentPersona}`) || '[]');
+                    const markdownDocs = JSON.parse(localStorage.getItem(`markdown_${currentPersona}`) || '[]');
+                    const presentations = JSON.parse(localStorage.getItem(`presentations_${currentPersona}`) || '[]');
+                    const photos = JSON.parse(localStorage.getItem(`user_photos_${currentPersona}`) || '[]');
+                    const pdfs = JSON.parse(localStorage.getItem(`user_pdfs_${currentPersona}`) || '[]');
+                    const links = JSON.parse(localStorage.getItem(`user_links_${currentPersona}`) || '[]');
+
+                    // Combine all document types with type identifiers
+                    const allDocuments = [
+                        ...lexicalDocs.map(d => ({ ...d, docType: 'lexical' })),
+                        ...latexDocs.map(d => ({ ...d, docType: 'latex' })),
+                        ...diagrams.map(d => ({ ...d, docType: 'diagram' })),
+                        ...whiteboards.map(d => ({ ...d, docType: 'whiteboard' })),
+                        ...codeSnippets.map(d => ({ ...d, docType: 'code' })),
+                        ...markdownDocs.map(d => ({ ...d, docType: 'markdown' })),
+                        ...presentations.map(d => ({ ...d, docType: 'presentation' })),
+                        ...photos.map(d => ({ ...d, docType: 'photo' })),
+                        ...pdfs.map(d => ({ ...d, docType: 'pdf' })),
+                        ...links.map(d => ({ ...d, docType: 'link' }))
+                    ];
 
                     if (allDocuments && allDocuments.length > 0) {
                         if (documentDetail === 'metadata') {
                             // Metadata only: name, description, tags, dates, share status
                             context.documents = allDocuments.map(d => ({
                                 id: d.id,
-                                name: d.name || 'Untitled Document',
+                                name: d.name || d.title || 'Untitled',
                                 description: d.description || null,
                                 tags: d.tags || [],
                                 linkedType: d.linkedType || null,
@@ -18037,13 +18059,15 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 sharedWith: d.sharedWith || [],
                                 createdAt: d.createdAt || null,
                                 updatedAt: d.lastModified || d.updatedAt || null,
-                                type: d.content ? 'lexical' : 'latex'
+                                type: d.docType,
+                                // Include URL for links and photos without full content
+                                url: d.url || d.link || null
                             }));
                         } else {
-                            // Full content: include document text
+                            // Full content: include document text/data
                             context.documents = allDocuments.map(d => ({
                                 id: d.id,
-                                name: d.name || 'Untitled Document',
+                                name: d.name || d.title || 'Untitled',
                                 description: d.description || null,
                                 tags: d.tags || [],
                                 linkedType: d.linkedType || null,
@@ -18051,8 +18075,12 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                                 sharedWith: d.sharedWith || [],
                                 createdAt: d.createdAt || null,
                                 updatedAt: d.lastModified || d.updatedAt || null,
-                                type: d.content ? 'lexical' : 'latex',
-                                content: d.content || d.latexContent || null  // Full document content
+                                type: d.docType,
+                                // Include full content based on document type
+                                content: d.content || d.latexContent || d.markdownContent || d.whiteboardData ||
+                                         d.diagramData || d.slides || d.code || null,
+                                language: d.language || null, // For code snippets
+                                url: d.url || d.link || null   // For links and photos
                             }));
                         }
                     } else {
@@ -18755,7 +18783,12 @@ With each user message, you receive comprehensive structured data including:
 - Competencies: Array of competency areas (e.g., Project Management, Data Analysis)
 - Achievements: Array of measurable accomplishments and outcomes
 
-**Portfolio Stories (STAR FORMAT):**
+**Portfolio Projects:**
+- Project name, description, and link
+- Technologies, skills, and competencies demonstrated
+- Created/updated dates
+
+**STAR Stories:**
 - Title and linked experience
 - Situation: Context and background
 - Task: Objective and challenge
@@ -18763,11 +18796,27 @@ With each user message, you receive comprehensive structured data including:
 - Result: Measurable outcomes
 - Competencies demonstrated
 
+**Documents (10 types):**
+- Lexical documents: Rich text documents created in the platform
+- LaTeX documents: Technical documents and papers
+- Markdown documents: Markdown-formatted documentation
+- Diagrams: Draw.io diagrams and flowcharts
+- Whiteboards: Visual brainstorming and planning boards
+- Presentations: Slide decks and presentation materials
+- Code snippets: Code examples with language tags
+- Photos: Image assets
+- PDFs: Uploaded PDF documents
+- Links: Web resource bookmarks
+- Includes: name, description, tags, linkedType, linkedId, sharedWith, dates
+- May include full content depending on user's privacy settings
+
 **Goals:** id, title, status, targetDate
 
 **Summary Counts:** Quick reference for all categories
 
 This context is COMPLETE and ACCURATE. Trust this data - don't assume or hallucinate information.
+
+**USER PRIVACY CONTROLS:** Users can choose which data types to share with you. If a data type is missing from the context, respect that the user has chosen not to share it. Never ask why data is missing or suggest the user should share more.
 
 IMPORTANT: When asked about skills or experience with specific technologies (e.g., "How many years of Excel experience?"),
 scan through ALL experiences and their technologies arrays to calculate accurate totals based on date ranges.
