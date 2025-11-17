@@ -7449,10 +7449,16 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <!-- Populated by updateProviderBadge() -->
                                     </div>
                                 </div>
-                                <button onclick="openLLMSettingsModal()" title="Settings"
-                                        style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
-                                    <i class="ph ph-gear" style="font-size: 18px;"></i>
-                                </button>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <button onclick="openLLMUsageModal()" title="Usage Statistics"
+                                            style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
+                                        <i class="ph ph-chart-line" style="font-size: 18px;"></i>
+                                    </button>
+                                    <button onclick="openLLMSettingsModal()" title="Settings"
+                                            style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
+                                        <i class="ph ph-gear" style="font-size: 18px;"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Messages Area -->
@@ -11191,18 +11197,6 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         </div>
                     </div>
 
-                    <!-- Usage Stats (if configured) -->
-                    <div id="llmUsageStats" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-neutral-border);">
-                        <h3 style="font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-dark);">
-                            <i class="ph ph-chart-line" style="margin-right: 6px;"></i>
-                            Usage This Month (All Providers)
-                        </h3>
-                        <!-- Container for all provider usage stats (populated dynamically) -->
-                        <div id="usageStatsContainer"></div>
-                        <p style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); margin: 16px 0 0 0; line-height: 1.5;">
-                            💡 This shows your usage through Cleansheet only. Check each provider's dashboard for total account usage.
-                        </p>
-                    </div>
                 </div>
 
                 <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
@@ -11214,6 +11208,59 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;">
                         <i class="ph ph-check"></i>
                         Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LLM Usage Stats Modal -->
+        <div class="modal" id="llmUsageModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeLLMUsageModal()"></div>
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 20px; font-weight: 600;">
+                        <i class="ph ph-chart-line" style="margin-right: 8px;"></i>
+                        Usage This Month
+                    </h2>
+                    <button class="modal-close" onclick="closeLLMUsageModal()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+                    <!-- Usage Stats Content -->
+                    <div id="llmUsageStats">
+                        <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); margin: 0 0 20px 0; line-height: 1.6;">
+                            Track your AI assistant usage across all providers. This shows your usage through Cleansheet only.
+                        </p>
+
+                        <!-- Container for all provider usage stats (populated dynamically) -->
+                        <div id="usageStatsContainer"></div>
+
+                        <!-- Empty state (shown when no usage data) -->
+                        <div id="usageEmptyState" style="display: none; text-align: center; padding: 32px 16px;">
+                            <i class="ph ph-chart-line-up" style="font-size: 48px; color: var(--color-neutral-border); margin-bottom: 12px;"></i>
+                            <p style="font-family: var(--font-family-ui); font-size: 15px; font-weight: 600; color: var(--color-dark); margin: 0 0 8px 0;">
+                                No Usage Data Yet
+                            </p>
+                            <p style="font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); margin: 0; line-height: 1.5;">
+                                Start using the AI Career Assistant to see your usage statistics here.
+                            </p>
+                        </div>
+
+                        <div id="usageNote" style="display: none; background: #e3f2fd; border-left: 4px solid var(--color-primary-blue); padding: 12px; border-radius: 4px; margin-top: 20px;">
+                            <p style="font-family: var(--font-family-body); font-size: 12px; color: #0c4a6e; margin: 0; line-height: 1.5;">
+                                <i class="ph ph-info" style="margin-right: 4px;"></i>
+                                <strong>Note:</strong> Check each provider's dashboard for total account usage across all applications.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end;">
+                    <button onclick="closeLLMUsageModal()"
+                            style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        Close
                     </button>
                 </div>
             </div>
@@ -16966,47 +17013,49 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             let totalTokens = 0;
             let totalCost = 0;
 
-            // Create stats card for each provider with usage
+            // Create stats card for ALL providers (showing usage across all)
             for (const provider in providerInfo) {
-                if (usage[provider] && usage[provider].messages > 0) {
+                const info = providerInfo[provider];
+                const providerUsage = usage[provider] || { messages: 0, tokens: 0, cost: 0 };
+
+                // Track if any provider has usage
+                if (providerUsage.messages > 0) {
                     hasAnyUsage = true;
-                    const info = providerInfo[provider];
-                    const providerUsage = usage[provider];
-
-                    totalMessages += providerUsage.messages || 0;
-                    totalTokens += providerUsage.tokens || 0;
-                    totalCost += providerUsage.cost || 0;
-
-                    const card = document.createElement('div');
-                    card.style.cssText = 'background: #f5f5f7; border-radius: 12px; padding: 16px; margin-bottom: 12px;';
-                    card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color}; margin: 0;">
-                                ${info.name}
-                            </h4>
-                            <a href="${info.dashboardUrl}" target="_blank" rel="noopener noreferrer"
-                               style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; text-decoration: none; transition: all 0.2s;">
-                                <i class="ph ph-arrow-square-out" style="font-size: 12px;"></i>
-                                Dashboard
-                            </a>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                            <div>
-                                <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
-                                <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${providerUsage.messages || 0}</div>
-                            </div>
-                            <div>
-                                <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Tokens</div>
-                                <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${(providerUsage.tokens || 0).toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
-                                <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">$${(providerUsage.cost || 0).toFixed(2)}</div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(card);
                 }
+
+                totalMessages += providerUsage.messages || 0;
+                totalTokens += providerUsage.tokens || 0;
+                totalCost += providerUsage.cost || 0;
+
+                const card = document.createElement('div');
+                card.style.cssText = 'background: #f5f5f7; border-radius: 12px; padding: 16px; margin-bottom: 12px;';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color}; margin: 0;">
+                            ${info.name}
+                        </h4>
+                        <a href="${info.dashboardUrl}" target="_blank" rel="noopener noreferrer"
+                           style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; color: var(--color-primary-blue); font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; text-decoration: none; transition: all 0.2s;">
+                            <i class="ph ph-arrow-square-out" style="font-size: 12px;"></i>
+                            Dashboard
+                        </a>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div>
+                            <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Messages</div>
+                            <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${providerUsage.messages || 0}</div>
+                        </div>
+                        <div>
+                            <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Tokens</div>
+                            <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">${(providerUsage.tokens || 0).toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <div style="font-family: var(--font-family-body); font-size: 10px; color: var(--color-neutral-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Est. Cost</div>
+                            <div style="font-family: var(--font-family-ui); font-size: 20px; font-weight: 600; color: ${info.color};">$${(providerUsage.cost || 0).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
             }
 
             // Show total if multiple providers have usage
@@ -17036,8 +17085,17 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 container.appendChild(totalCard);
             }
 
-            // Show/hide stats section based on whether there's any usage
-            statsSection.style.display = hasAnyUsage ? 'block' : 'none';
+            // Always hide empty state (we now show all providers with 0 usage if no activity)
+            // Show note only if there's actual usage
+            const emptyState = document.getElementById('usageEmptyState');
+            const usageNote = document.getElementById('usageNote');
+
+            if (emptyState) {
+                emptyState.style.display = 'none';  // Always show provider cards, even with 0 usage
+            }
+            if (usageNote) {
+                usageNote.style.display = hasAnyUsage ? 'block' : 'none';
+            }
         }
 
         async function openLLMSettingsModal() {
@@ -17094,9 +17152,6 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 }
             }
 
-            // Populate usage stats for ALL providers with usage data
-            populateAllProviderUsageStats();
-
             // Load auto-execute setting (session-based, defaults to false)
             const autoExecuteCheckbox = document.getElementById('autoExecuteActions');
             if (autoExecuteCheckbox) {
@@ -17107,6 +17162,20 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         // Close LLM settings modal
         function closeLLMSettingsModal() {
             document.getElementById('llmSettingsModal').style.display = 'none';
+        }
+
+        // Open LLM usage stats modal
+        function openLLMUsageModal() {
+            const modal = document.getElementById('llmUsageModal');
+            modal.style.display = 'flex';
+
+            // Populate usage stats for ALL providers with usage data
+            populateAllProviderUsageStats();
+        }
+
+        // Close LLM usage stats modal
+        function closeLLMUsageModal() {
+            document.getElementById('llmUsageModal').style.display = 'none';
         }
 
         // Handle provider selection change
@@ -17487,9 +17556,12 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             const currentMonth = new Date().toISOString().slice(0, 7);
             const usage = JSON.parse(localStorage.getItem('llm_usage') || '{}');
 
+            // If new month, reset ALL providers
             if (usage.month !== currentMonth) {
                 usage.month = currentMonth;
-                usage[provider] = { messages: 0, tokens: 0, cost: 0 };
+                usage.openai = { messages: 0, tokens: 0, cost: 0 };
+                usage.anthropic = { messages: 0, tokens: 0, cost: 0 };
+                usage.gemini = { messages: 0, tokens: 0, cost: 0 };
             }
 
             if (!usage[provider]) {
@@ -19663,7 +19735,7 @@ ${JSON.stringify(canvasContext, null, 2)}
             document.getElementById('aboutModal').style.display = 'none';
         }
 
-        function selectPlan(plan) {
+        async function selectPlan(plan) {
             // Update plan card styles
             const memberCard = document.getElementById('memberPlanCard');
             const learnerCard = document.getElementById('learnerPlanCard');
@@ -19715,6 +19787,14 @@ ${JSON.stringify(canvasContext, null, 2)}
 
             // Update cloud sync button
             updateCloudSyncButton();
+
+            // Reinitialize LLM to apply tier restrictions
+            console.log('[Tier Change] Reinitializing AI Assistant for tier:', plan);
+            try {
+                await initializeLLM();
+            } catch (error) {
+                console.error('[LLM Init] Error reinitializing LLM:', error);
+            }
 
             // Show success toast
             const planNames = { member: 'Member', learner: 'Learner', seeker: 'Job Seeker' };
