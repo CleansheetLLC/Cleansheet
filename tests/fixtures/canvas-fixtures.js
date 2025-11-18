@@ -50,23 +50,30 @@ export const test = base.extend({
     await page.goto('/web/career-canvas.html');
     await StorageHelpers.clearAllCanvasData(page);
 
-    // Inject mock encrypted API keys
-    await CryptoHelpers.injectMockEncryptedKey(
-      page,
-      'openai',
-      CryptoHelpers.mockEncrypt('sk-test-openai-key-12345')
-    );
+    // Encrypt API keys using the actual CleansheetCrypto (with device key)
+    await page.evaluate(async () => {
+      // Wait for CleansheetCrypto to be available
+      while (typeof CleansheetCrypto === 'undefined') {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
-    await CryptoHelpers.injectMockEncryptedKey(
-      page,
-      'anthropic',
-      CryptoHelpers.mockEncrypt('sk-ant-test-anthropic-key-67890')
-    );
+      // Encrypt test keys with device key
+      const encryptedOpenAI = await CleansheetCrypto.encrypt('sk-test-openai-key-12345');
+      const encryptedAnthropic = await CleansheetCrypto.encrypt('sk-ant-test-anthropic-key-67890');
 
-    // Set active provider
-    await page.evaluate(() => {
-      const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
-      config.activeProvider = 'openai';
+      // Store encrypted keys in llm_config_encrypted
+      const config = {
+        openai: {
+          apiKey: encryptedOpenAI,
+          model: 'gpt-4'
+        },
+        anthropic: {
+          apiKey: encryptedAnthropic,
+          model: 'claude-3-sonnet-20240229'
+        },
+        activeProvider: 'openai'
+      };
+
       localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
     });
 
@@ -90,16 +97,30 @@ export const test = base.extend({
       withCanvas: true
     });
 
-    // Inject mock API keys
-    await CryptoHelpers.injectMockEncryptedKey(
-      page,
-      'openai',
-      CryptoHelpers.mockEncrypt('sk-test-openai-key')
-    );
+    // Encrypt API keys using the actual CleansheetCrypto (with device key)
+    await page.evaluate(async () => {
+      // Wait for CleansheetCrypto to be available
+      while (typeof CleansheetCrypto === 'undefined') {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
-    await page.evaluate(() => {
-      const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
-      config.activeProvider = 'openai';
+      // Encrypt test keys with device key
+      const encryptedOpenAI = await CleansheetCrypto.encrypt('sk-test-openai-key-12345');
+      const encryptedAnthropic = await CleansheetCrypto.encrypt('sk-ant-test-anthropic-key-67890');
+
+      // Store encrypted keys in llm_config_encrypted
+      const config = {
+        openai: {
+          apiKey: encryptedOpenAI,
+          model: 'gpt-4'
+        },
+        anthropic: {
+          apiKey: encryptedAnthropic,
+          model: 'claude-3-sonnet-20240229'
+        },
+        activeProvider: 'openai'
+      };
+
       localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
     });
 

@@ -12,6 +12,7 @@ import { test, expect } from '../../fixtures/canvas-fixtures.js';
 import { CryptoHelpers } from '../../helpers/crypto-helpers.js';
 import { StorageHelpers } from '../../helpers/storage-helpers.js';
 import { BackupRestorePage } from '../../page-objects/BackupRestorePage.js';
+import { BackupFileHelpers } from '../../helpers/backup-file-helpers.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -25,12 +26,29 @@ test.describe('🔄 Backup Restore Functionality - CRITICAL', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('should restore full backup with correct password', async ({ page }) => {
+  test('should restore full backup with correct password', async ({ canvasFullyConfigured }) => {
     // CRITICAL: Main restore workflow must work
     // This is the happy path that users depend on
 
-    const backupPath = path.join(__dirname, '../../fixtures/backup-samples/full-backup-with-keys.json');
+    const { page } = canvasFullyConfigured;
     const password = 'TestPassword123';
+
+    // Create a real backup file with properly encrypted keys
+    const backupPath = await BackupFileHelpers.createValidBackupFile(page, password, {
+      withData: true,
+      withKeys: true
+    });
+
+    // Verify the backup has encrypted keys
+    const verification = BackupFileHelpers.verifyBackupHasEncryptedKeys(backupPath);
+    console.log('[Backup Verification]', verification);
+    expect(verification.hasKeys).toBe(true);
+    expect(verification.providers).toContain('openai');
+
+    // Clear data to test restore
+    await StorageHelpers.clearAllCanvasData(page);
+    await page.reload();
+    await page.waitForLoadState('networkidle');
 
     const backupPage = new BackupRestorePage(page);
 

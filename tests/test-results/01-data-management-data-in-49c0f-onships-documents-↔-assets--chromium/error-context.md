@@ -62,29 +62,39 @@
             - generic [ref=e68]:
               - generic [ref=e71]: 
               - generic: JobOpportunities
-            - generic [ref=e72]:
-              - generic [ref=e75]: 
+              - generic [ref=e72]:
+                - generic: "4"
+            - generic [ref=e74]:
+              - generic [ref=e77]: 
               - generic: CareerExperience
-            - generic [ref=e76]:
-              - generic [ref=e79]: 
-              - generic: Goals
+              - generic [ref=e78]:
+                - generic: "3"
             - generic [ref=e80]:
-              - generic [ref=e83]: 
+              - generic [ref=e83]: 
+              - generic: Goals
+              - generic [ref=e84]:
+                - generic: "3"
+            - generic [ref=e86]:
+              - generic [ref=e89]: 
               - generic: Portfolio
-            - generic [ref=e84]:
-              - generic [ref=e87]: 
+              - generic [ref=e90]:
+                - generic: "2"
+            - generic [ref=e92]:
+              - generic [ref=e95]: 
               - generic: Interview Prep
-        - button "" [ref=e88] [cursor=pointer]:
-          - generic [ref=e89]: 
+              - generic [ref=e96]:
+                - generic: "3"
+        - button "" [ref=e98] [cursor=pointer]:
+          - generic [ref=e99]: 
         - text:        
       - text:                                                      
     - text:              
-    - generic [ref=e90]: © 2025 Cleansheet LLC. All rights reserved.
+    - generic [ref=e100]: © 2025 Cleansheet LLC. All rights reserved.
   - text:                                                                                                                                                                                                                                                                                                                                                                                                    
-  - generic [ref=e91]:
-    - generic [ref=e92]:
-      - heading "Interview Preparation" [level=2] [ref=e93]
-      - button "×" [ref=e94] [cursor=pointer]
+  - generic [ref=e101]:
+    - generic [ref=e102]:
+      - heading "Interview Preparation" [level=2] [ref=e103]
+      - button "×" [ref=e104] [cursor=pointer]
     - text:                                                                                                      
   - text:                                                         
 ```
