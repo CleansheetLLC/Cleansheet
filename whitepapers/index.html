@@ -1661,17 +1661,42 @@
 
             // Get iframe
             const iframe = document.getElementById('whitepaperIframe');
-            if (!iframe || !iframe.contentWindow) {
+            if (!iframe) {
                 alert('White paper content not loaded');
                 return;
             }
 
-            // Print the iframe content
+            // Try to access iframe content
             try {
-                iframe.contentWindow.print();
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (!iframeDoc) {
+                    alert('Cannot access white paper content');
+                    return;
+                }
+
+                // Get the full HTML from iframe
+                const htmlContent = iframeDoc.documentElement.outerHTML;
+
+                // Open in new window for printing
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    alert('Pop-up blocked. Please allow pop-ups to print.');
+                    return;
+                }
+
+                printWindow.document.write(htmlContent);
+                printWindow.document.close();
+
+                // Wait for content to load, then print
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                        // Don't close automatically - let user close
+                    }, 250);
+                };
             } catch (error) {
                 console.error('Print error:', error);
-                alert('Failed to print');
+                alert('Failed to print: ' + error.message);
             }
         }
 
