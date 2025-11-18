@@ -524,29 +524,120 @@ Before feature launch, all items must be verified:
 
 ### Architecture Overview
 
+**Key Architectural Decisions:**
+- **Embed-Only Architecture:** Chatbots are accessible ONLY via public embed URLs (not in-canvas chat)
+- **Claude Haiku Integration:** Cleansheet-managed Claude API (no user BYOK)
+- **Dedicated API Keys:** One Claude API key provisioned per chatbot for cost control and rate limiting
+- **5-Minute Profile Sync:** Profile changes reflected in chatbot within 5 minutes
+- **Stateless Conversations:** Last 5 messages retained in session context only (no persistence)
+- **Preview Mode:** Manual key provisioning and user onboarding during preview period
+
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Cleansheet Platform                       │
-│                                                               │
-│  ┌─────────────────┐         ┌─────────────────┐           │
-│  │  User Profile   │────────▶│ Chatbot Config  │           │
-│  │  (Data Service) │         │   (New Service) │           │
-│  └─────────────────┘         └─────────────────┘           │
-│          │                            │                      │
-│          │                            ▼                      │
-│          │                   ┌─────────────────┐           │
-│          └──────────────────▶│  Chatbot Engine │           │
-│                               │ (Azure Function)│           │
-│                               └─────────────────┘           │
-│                                        │                      │
-└────────────────────────────────────────┼──────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                      Cleansheet Platform                             │
+│                                                                       │
+│  ┌─────────────────┐         ┌──────────────────────┐              │
+│  │  User Profile   │────────▶│  Chatbot Config      │              │
+│  │  (Data Service) │         │  (New Service)       │              │
+│  │                 │         │  - URL slug          │              │
+│  │  - Experiences  │         │  - Data permissions  │              │
+│  │  - Skills       │         │  - Personality       │              │
+│  │  - Projects     │         │  - Behavioral rules  │              │
+│  │  - Goals        │         │  - Claude API key    │              │
+│  └─────────────────┘         └──────────────────────┘              │
+│          │                            │                              │
+│          │                            │                              │
+│          │    5-min sync              ▼                              │
+│          │                   ┌─────────────────┐                   │
+│          └──────────────────▶│ Chatbot Engine  │                   │
+│                               │ (Azure Function)│                   │
+│                               │                 │                   │
+│                               │ - Rate limiting │                   │
+│                               │ - Context mgmt  │                   │
+│                               │ - Key routing   │                   │
+│                               └─────────────────┘                   │
+│                                        │                              │
+└────────────────────────────────────────┼──────────────────────────────┘
+                                         │
+                                         │ Dedicated API key per chatbot
                                          │
                                          ▼
-                         ┌───────────────────────────┐
-                         │   Azure OpenAI Service    │
-                         │ (LLM Inference, no train) │
-                         └───────────────────────────┘
+                         ┌───────────────────────────────┐
+                         │   Anthropic Claude API        │
+                         │   (Haiku Model)               │
+                         │                               │
+                         │   - No training on user data  │
+                         │   - Cleansheet-managed keys   │
+                         │   - Per-chatbot key rotation  │
+                         └───────────────────────────────┘
+                                         │
+                                         │
+                                         ▼
+                         ┌───────────────────────────────┐
+                         │   Public Embed Interface      │
+                         │   (Visitor-facing)            │
+                         │                               │
+                         │   cleansheet.info/chat/:slug  │
+                         │   - No authentication         │
+                         │   - Session-only context      │
+                         │   - 5 message history         │
+                         │   - Soft/hard limits          │
+                         └───────────────────────────────┘
 ```
+
+**Data Flow:**
+1. User creates chatbot → System validates profile completeness
+2. User completes wizard-based personality interview → Configuration saved with data permissions
+3. System provisions dedicated Claude API key for chatbot
+4. Profile changes sync to chatbot config every 5 minutes
+5. Visitor accesses embed URL → Session established (no authentication)
+6. Visitor sends message → Chatbot Engine routes to Claude API with dedicated key
+7. Claude Haiku generates response using last 5 messages context
+8. Response includes citations, suggested questions, rate limiting status
+9. Soft limit warning → Hard limit → "Contact the human" message
+10. Profile update detected → Chat user alerted with timestamp and model change notification
+
+### Wizard-Based Personality Interview
+
+**Purpose:** Replace fixed personality presets with a dynamic interview that captures the user's authentic communication style and professional demeanor.
+
+**Flow:**
+1. **Welcome Screen:** "Let's help your chatbot represent you authentically. This interview takes 3-5 minutes."
+2. **Communication Style (Question 1):**
+   - Prompt: "How would you describe your communication style in professional settings?"
+   - Input: Large textarea (500 chars)
+   - Examples: "Direct and to-the-point", "Collaborative and consultative", "Analytical and data-driven"
+3. **Interaction Preferences (Question 2):**
+   - Prompt: "What kind of conversations energize you? What topics do you prefer to discuss?"
+   - Input: Large textarea (500 chars)
+   - Examples: "I love detailed technical discussions", "I prefer high-level strategic conversations", "I enjoy mentoring and teaching"
+4. **Professional Tone (Question 3):**
+   - Prompt: "How do you want visitors to perceive you based on this chatbot?"
+   - Input: Large textarea (500 chars)
+   - Examples: "Approachable but authoritative", "Friendly and informal", "Formal and executive-level"
+5. **Emphasis Areas (Question 4):**
+   - Prompt: "What aspects of your background should the chatbot emphasize?"
+   - Input: Checkbox list + textarea
+   - Options: Technical skills, Leadership experience, Industry expertise, Educational background, Project outcomes
+   - Custom: "Other (describe)"
+6. **Conversation Boundaries (Question 5):**
+   - Prompt: "What should the chatbot NEVER discuss or share?"
+   - Input: Large textarea (500 chars)
+   - Examples: "Never share salary information", "Don't discuss previous employer's proprietary details", "Avoid political topics"
+7. **Preview & Refine:**
+   - System generates personality summary from interview responses
+   - User can edit summary before finalizing
+   - Example: "You come across as a collaborative technical leader who values mentorship. You prefer detailed discussions about system architecture and enjoy teaching complex concepts. You maintain a professional yet approachable tone."
+
+**Implementation:**
+- Wizard UI: Multi-step form with progress indicator (Step 1 of 7, 2 of 7, etc.)
+- Back/Next navigation
+- Save as draft at any step
+- Auto-save responses (localStorage or API)
+- Generate `personality_description` field for database from responses
+- Preview mode shows example chatbot conversation with generated personality
+
+---
 
 ### Frontend Requirements
 
@@ -719,19 +810,24 @@ chatbot: {
 | `chatbot_id` | UUID | Primary key |
 | `user_id` | UUID | Foreign key to users table |
 | `url_slug` | VARCHAR(100) | Unique, URL-safe identifier (e.g., 'john-smith') |
-| `personality` | ENUM | 'professional', 'friendly', 'technical', 'executive' |
-| `data_permissions` | JSONB | Granular data sharing settings |
+| `personality_preset` | ENUM | 'professional', 'friendly', 'technical', 'executive' |
+| `personality_description` | TEXT | Free-form personality from wizard interview (communication style, interaction preferences, tone) |
+| `data_permissions` | JSONB | Granular data sharing settings (work_experiences, skills, projects, etc.) |
 | `behavioral_rules` | JSONB | Custom chatbot behavior rules |
+| `claude_api_key` | VARCHAR(255) | Dedicated Anthropic Claude API key (encrypted at rest) |
+| `profile_version` | INTEGER | Incremented on each profile sync (detects updates mid-conversation) |
+| `profile_last_synced` | TIMESTAMP | Last profile data sync timestamp |
 | `status` | ENUM | 'draft', 'published', 'paused', 'deleted' |
 | `created_at` | TIMESTAMP | Creation timestamp |
 | `published_at` | TIMESTAMP | First publication timestamp |
 | `last_modified_at` | TIMESTAMP | Last update timestamp |
-| `deleted_at` | TIMESTAMP | Soft delete timestamp |
+| `deleted_at` | TIMESTAMP | Soft delete timestamp (7-day retention for preview) |
 
 **Indexes:**
 - Unique index on `url_slug` (for fast public chatbot lookup)
 - Index on `user_id` (for user's chatbot management)
 - Index on `status` (for filtering published chatbots)
+- Index on `profile_last_synced` (for sync job queries)
 
 ---
 
@@ -755,71 +851,136 @@ chatbot: {
 
 #### Azure Services Integration
 
-**Azure OpenAI Service (Primary LLM Provider)**
-- Model: GPT-4 or GPT-4-turbo (latest stable version)
-- Deployment: Dedicated instance for Cleansheet (not shared)
-- Configuration:
+**Anthropic Claude API (Primary LLM Provider)**
+- **Model:** Claude Haiku (fast, cost-effective)
+- **Key Management:** One dedicated API key provisioned per chatbot
+  - Allows per-chatbot rate limiting and cost tracking
+  - Manual key rotation during preview period
+  - Cleansheet-managed (no user BYOK)
+- **Configuration:**
   - Temperature: 0.7 (balanced creativity and consistency)
   - Max tokens: 500 (concise responses)
   - System prompt: Includes user's profile context and behavioral rules
-  - Opt-out of training: Explicitly configured in deployment settings
+  - No training: Anthropic does not train on API data by default
+- **Context Management:**
+  - Last 5 messages retained in session
+  - Soft limit at 20 messages: Warning message displayed
+  - Hard limit at 25 messages: "Contact the human" response with profile owner's contact info
+  - Context reset on profile update (with notification to chat visitor)
 
 **Azure Functions (Chatbot Engine)**
 - Function: `chatbot-message-handler`
   - Trigger: HTTP POST to `/chat/:urlSlug/message`
   - Process:
     1. Validate rate limiting (10 messages per 5 min per IP)
-    2. Retrieve chatbot configuration and user profile data
-    3. Build contextualized prompt with relevant profile information
-    4. Call Azure OpenAI API
-    5. Post-process response (extract citations, generate follow-up questions)
-    6. Return response to visitor (no conversation persistence)
+    2. Retrieve chatbot configuration and user profile data (cached, 5-min TTL)
+    3. Check message count against soft/hard limits
+    4. Build contextualized prompt with last 5 messages + profile data
+    5. Route to Claude API using chatbot's dedicated API key
+    6. Post-process response (extract citations, generate follow-up questions)
+    7. Check for profile updates (if updated, inject notification into response)
+    8. Return response to visitor (no conversation persistence beyond session)
   - Timeout: 30 seconds
   - Concurrency: Auto-scale based on load
+- Function: `chatbot-profile-sync`
+  - Trigger: Timer (every 5 minutes)
+  - Process:
+    1. Query all published chatbots
+    2. Check for profile updates since last sync
+    3. Update cached profile data in chatbot config
+    4. Increment version number (used to detect changes mid-conversation)
 
 **Azure Application Insights (Analytics)**
 - Custom events tracked:
-  - `ChatbotMessageSent` (anonymized visitor ID, chatbot ID, question theme)
+  - `ChatbotMessageSent` (anonymized visitor ID, chatbot ID, question theme, message count)
   - `ChatbotResponseRated` (chatbot ID, rating: positive/negative)
   - `ChatbotContactRequest` (chatbot ID, triggers notification to profile owner)
+  - `ChatbotLimitReached` (chatbot ID, limit type: soft/hard)
+  - `ChatbotProfileUpdated` (chatbot ID, version number)
 - No PII logged: IP addresses anonymized, conversation content NOT logged
+- Cost tracking: Log Claude API key usage per chatbot for billing
 
-**Azure Blob Storage (Optional: Chatbot Assets)**
+**Azure Blob Storage (Chatbot Assets)**
 - Store QR codes generated for chatbot URLs
 - Store social sharing images (Open Graph metadata)
+- Store chatbot configuration exports (JSON format for user download)
 
 ---
 
 #### LLM Prompt Engineering
 
-**System Prompt Template:**
+**System Prompt Template (Claude Haiku):**
 ```
 You are an AI assistant representing [USER_NAME], a professional with expertise in [PRIMARY_SKILLS].
+
+Your personality profile (from wizard interview):
+[PERSONALITY_DESCRIPTION]
+- Communication style: [e.g., Direct, Collaborative, Analytical]
+- Interaction preferences: [e.g., Prefers detailed technical discussions]
+- Professional tone: [e.g., Approachable but authoritative]
+
 Your role is to answer questions about [USER_NAME]'s background, experience, and career interests based ONLY on the profile data provided below.
 
-**Profile Context:**
-[WORK_EXPERIENCES]
-[SKILLS]
-[PROJECTS]
-[CAREER_GOALS]
-[EDUCATION]
+**Profile Context (Version [VERSION_NUMBER], Last Updated: [TIMESTAMP]):**
+
+Work Experiences:
+[WORK_EXPERIENCES_JSON]
+
+Skills:
+[SKILLS_LIST]
+
+Projects:
+[PROJECTS_JSON]
+
+Career Goals:
+[CAREER_GOALS_TEXT]
+
+Education:
+[EDUCATION_JSON]
+
+**Data Sharing Permissions:**
+[PERMISSIONS_JSON]
+(Only share data categories where permission = true)
 
 **Behavioral Rules:**
 - Always speak in first person as if you are [USER_NAME]
-- Only share information explicitly provided in the profile data
-- If asked about information not in the profile, respond: "I don't have that information in my profile, but you can reach out to me directly at [CONTACT_METHOD]"
-- [CUSTOM_RULES_FROM_USER_CONFIG]
+- Only share information explicitly provided in the profile data above
+- Respect data sharing permissions - do not mention categories where permission = false
+- If asked about information not in the profile or not permitted, respond: "I don't have that information in my profile, but you can reach out to me directly at [CONTACT_METHOD]"
+- Custom rules: [CUSTOM_RULES_FROM_USER_CONFIG]
 
-**Tone:** [PERSONALITY] (Professional, Friendly, Technical, or Executive)
+**Conversation Context:**
+Message count: [MESSAGE_COUNT]/25
+- At 20 messages: Add gentle reminder that visitor can contact [USER_NAME] directly
+- At 25 messages: Respond ONLY with contact redirect message (hard limit reached)
+
+**Tone:** [PERSONALITY_PRESET] (Professional, Friendly, Technical, or Executive)
+
+**Previous 5 messages:**
+[CONVERSATION_HISTORY]
 
 Now respond to the following question from a visitor:
 [VISITOR_MESSAGE]
 ```
 
 **Response Post-Processing:**
-- Extract citations: Identify which profile data was referenced (e.g., "Based on my role at Company X")
-- Generate follow-up questions: Use visitor's question to suggest 3 related questions
-- Validate response: Ensure no hallucinated information or out-of-scope content
+- **Citation Extraction:** Parse response for references to profile data
+  - Pattern match: "my role at X", "when I worked on Y", "my experience with Z"
+  - Generate citation links: `[Based on: Experience at Company X →]`
+  - Link to profile data source (work experience ID, project ID, etc.)
+- **Follow-up Question Generation:** Use Claude API to suggest 3 contextual follow-ups
+  - Based on visitor's question and response content
+  - Prioritize questions that showcase profile strengths
+- **Hallucination Detection:**
+  - Compare response against profile data JSON
+  - Flag responses containing information not in profile context
+  - If detected, regenerate with stricter prompt constraints
+- **Limit Enforcement:**
+  - Inject soft limit warning at message 20: "We've had a great conversation! If you'd like to discuss further, feel free to contact [USER_NAME] directly at [CONTACT]."
+  - Replace response at message 25 with hard limit message: "Thank you for your interest! This chat has reached its message limit. To continue our conversation, please reach out to [USER_NAME] directly: [CONTACT_INFO]"
+- **Profile Update Detection:**
+  - Compare current profile version with session start version
+  - If version mismatch, inject notification: "Note: [USER_NAME]'s profile was updated on [TIMESTAMP]. Some previous responses may reflect outdated information."
 
 ---
 
@@ -1356,28 +1517,42 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
 
 1. **Freemium vs. Premium:**
    - Should chatbot creation be a free feature for all users, or premium-only?
+     - Premium only - in fact it will be an add on to job seekers, probably very expensive.
    - If free, what limitations? (e.g., max 50 conversations/month, basic analytics only)
    - What premium features justify upgrade? (custom domain, unlimited conversations, advanced analytics)
+     - custom domain, unlimited conversations
 
 2. **Branding:**
    - Should chatbot interface display "Powered by Cleansheet" badge?
+     - Yes by default
    - Can users remove branding in premium tier?
+     - Another add-on
    - How prominent should Cleansheet branding be in embed widget?
+     - Obvious but not overwhelming.  Certain use cases should be motivated to upgrade to remove.
 
 3. **Content Moderation:**
    - How do we handle inappropriate visitor messages to chatbots?
+     - block, standard chatbot responses
    - Should profile owners be able to review and block specific visitors?
+     - yes, and there should allow lists as well as block lists, comprehensive settings
    - What's the process for reporting abusive chatbot usage?
+     - we will need to establish this with legal advice.  Let's implement the framework for detection, reporting, blocking and forwarding, auditing, though
 
 4. **Multi-Chatbot Support:**
    - Can users create multiple chatbots with different configurations (e.g., one for recruiting, one for freelancing)?
+     - yes
    - How do we manage multiple chatbots in the UI?
+     - It would be handled as a d3 node in the mindmap.  Slideout to a table with the chatbot attributes
    - Pricing implications for multi-chatbot accounts?
+     - Per chatbot.  No discounts.  This is purely a vanity feature.
 
 5. **LLM Provider Strategy:**
    - Azure OpenAI only, or support multiple providers (Anthropic Claude, Google Gemini)?
+     - We'll be piloting with claude haiku.  Cleansheet managed.
    - Allow users to BYOK (Bring Your Own Key) for LLM providers?
+     - No - this would preclude control
    - How do we handle LLM provider downtime or rate limits?
+     - we will be handling.  We will rate limit users, and align consumption.  This implies the need for a backend.
 
 ---
 
@@ -1387,26 +1562,37 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
    - Current design: conversations NOT stored (privacy-first)
    - User request: "I want to review past conversations with my chatbot"
    - Solution: Opt-in conversation logging with clear consent and data retention limits?
+     - This is not the same as the in-canvas chat.  An entirely different framework, that allows the user to generate a URL that embed a cleansheet chatbot wherever they like, but tuned to their profile, and their portfolio.  The users think they are chatting with our client.  In-canvas chat should remain the same.  We will be addressing a cleansheet branded chat in a different feature.
 
 2. **Context Window Management:**
    - How many messages of context do we provide to LLM? (e.g., last 5 messages)
+     - sure
    - How do we handle long conversations that exceed token limits?
+     - soft limit, then hard with a "sorry, you've exceeded your chat limits, sounds like you're super interested - why not reach out to the human %user%" type thing.
    - Should we summarize older messages to maintain context?
+     - let's make this another add on for the user.
 
 3. **Profile Data Synchronization:**
    - When user updates profile, how quickly does chatbot reflect changes?
+     - 5 minutes
    - Real-time sync, or scheduled refresh (e.g., every 5 minutes)?
    - How do we handle version conflicts if user updates profile mid-conversation?
+     - alert the chat user with a model change and timestamp.  Explain that the profile is updated, so they might want to check the full accuracy of previous statements.
 
 4. **Scalability:**
    - What's the expected peak load? (concurrent chatbot conversations)
+     - this is preview, so we will be controlling keys manually
    - Azure Function scaling limits and cost implications?
+     - again, we will be manually controlling demand.
    - When do we need dedicated infrastructure vs. serverless?
+     - a fair question.  we should probably have a larger AI strategy for this decision.  For now, let's implement it such that we provision a dedicated claude api key per chatbot.  WE can manage cost through key rotation.
 
 5. **Backup & Disaster Recovery:**
    - What happens if user accidentally deletes chatbot?
    - Soft delete retention period (30 days? 90 days?)
+     - Soft delete retention 7 days for the preview.
    - Backup strategy for chatbot configurations?
+     - export to JSON, should be included in existing data management workflows..
 
 ---
 
@@ -1416,14 +1602,18 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
    - Are current minimum requirements too strict or too lenient?
    - Should requirements vary by user persona (e.g., developers need projects, managers need experience)?
    - How do we balance quality (comprehensive chatbots) vs. adoption (lower barriers)?
+     - this should be low barrier for the job seeker.  Should we get adoption, we will be developing this as another product line.
 
 2. **Chatbot Personality:**
    - Are 4 personality presets sufficient (Professional, Friendly, Technical, Executive)?
    - Should users be able to define custom personality traits (e.g., "humorous", "concise")?
+     - YEs - allow the users to desribe their personality and integrate it in
    - How do we train users on what each personality means?
+     - a short wizard-based behavioral interview process where the user describes their communication and interaction styles, preferences, etc. 
 
 3. **Citation UX:**
    - Current design: inline citations as links
+     - links work great
    - Alternative: tooltip on hover with profile excerpt?
    - Should citations be optional (user can disable)?
 
@@ -1431,11 +1621,15 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
    - How do we teach visitors how to interact with chatbot?
    - Suggested starter questions vs. free-form input?
    - Tutorial overlay for first-time visitors?
+     - starter questions in the pane, with a tutorial overlap
 
 5. **Mobile Experience:**
    - Full-screen chatbot vs. bottom sheet overlay?
    - Should chatbot work within Cleansheet app or require separate page?
+     - chatbots are only available as embeds
+     - Users may embed at cleansheet via url slug to user name
    - Native app integration (iOS/Android) feasible?
+     - let's not think about that now.
 
 ---
 
@@ -1443,24 +1637,32 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
 
 1. **GDPR Compliance:**
    - How do we handle EU visitors to chatbots?
+     - this will be hard coded to haiku at first.  So let's link out to claude terms of use, and any cookie requirements around that.
    - Cookie consent banner required for chatbot embeds?
    - Data processing agreements with LLM providers (Azure OpenAI) GDPR-compliant?
 
 2. **CCPA Compliance:**
    - Do California users have right to know what data chatbot shares?
+     - yes, we should explicitly state the chatbot.
    - How do we provide "Do Not Sell My Personal Information" option?
+     - We do not sell or train on personal information anyway.  We should confirm that when the user engages to create a chatbot
 
 3. **Children's Privacy:**
    - Platform age limit is 18+, but what if visitor is a minor?
    - How do we enforce age restrictions on public chatbot pages?
+     - Can we implement a similar routine as claude leverages?
 
 4. **Right to be Forgotten:**
    - If user deletes Cleansheet account, how do we handle published chatbot?
+     - There is an erasure request form in cleansheet-canvas.html under the user menu that drops to an Azure blob store.
+     - Otherwise accounts are retained for 365 days after account deletion
    - Automatic chatbot deletion, or allow transfer to new account?
 
 5. **Third-Party Embeds:**
    - If user embeds chatbot on external website, who is responsible for compliance?
+     - We'll place in the compliance statemenets etc in the embed.
    - Do we need terms requiring embed sites to have privacy policies?
+     - embed sites would not have access to the data, and we'll be displaying in the embed, so we shouldn't need it.
 
 ---
 
@@ -1468,21 +1670,27 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
 
 1. **Pricing Model:**
    - Freemium: Free tier with limitations + Premium tier for power users?
-   - Usage-based: Charge per conversation or per visitor?
-   - Subscription: Monthly fee for unlimited chatbot usage?
+     - This is an add-on to Job Seeker or Learner.
+     - Monthly fee - vanity pricing, for limited, but generous usage, further addons for additional usage, automatic overage, analytics, advanced traiing
+
 
 2. **Go-to-Market Strategy:**
    - Beta launch to existing users first, or open to new signups?
+     - We are in preview for the next 6-8 months, we don't need to worry while we are manually onboarding and managing users
    - Target audience: Job seekers, freelancers, consultants, or all professionals?
+     - This is a larger question - we are focusing on job seekers and freelancers at first, mostly technical.  If there is interest we will expand.
    - Marketing channels: LinkedIn ads, product hunts, influencer partnerships?
+     - we'll worry about that later.
 
 3. **Competitive Positioning:**
    - How do we differentiate from Linktree, Carrd, and other bio link tools?
    - Positioning: "AI-powered professional profile" vs. "smart bio link"?
    - Unique value proposition messaging?
+     - It's literally a personal chatbot.  It augments things like carrd - you can embed it.
 
 4. **Revenue Projections:**
    - Expected conversion rate to premium tier?
+     - Not sure - why this is preview.
    - Average revenue per user (ARPU) target?
    - Break-even point (cost of LLM inference vs. revenue)?
 
@@ -1490,6 +1698,7 @@ All chatbot UI must follow Cleansheet Corporate Professional design system:
    - Integrate with recruiting platforms (LinkedIn, Indeed)?
    - White-label chatbot solution for enterprises?
    - API access for third-party developers?
+     - All these are possinle
 
 ---
 
