@@ -1581,16 +1581,21 @@
 
             // Get iframe content
             const iframe = document.getElementById('whitepaperIframe');
-            if (!iframe || !iframe.contentDocument) {
+            if (!iframe) {
                 alert('White paper content not loaded');
                 return;
             }
 
-            // Get the content from iframe
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const content = iframeDoc.body;
+            // Try to access iframe content
+            let iframeDoc;
+            try {
+                iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            } catch (error) {
+                alert('PDF export requires serving files via web server (http://localhost).\n\nWhen loading from file://, browser security prevents access to iframe content.\n\nTo use PDF export:\n1. Run a local web server (e.g., python -m http.server)\n2. Access via http://localhost:8000/whitepapers/');
+                return;
+            }
 
-            if (!content) {
+            if (!iframeDoc || !iframeDoc.body) {
                 alert('No content to export');
                 return;
             }
@@ -1608,7 +1613,7 @@
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            html2pdf().set(opt).from(content).save().then(() => {
+            html2pdf().set(opt).from(iframeDoc.body).save().then(() => {
                 showToast('PDF exported successfully!', 'success');
             }).catch(error => {
                 console.error('PDF export error:', error);
@@ -1630,13 +1635,26 @@
 
             // Get iframe content
             const iframe = document.getElementById('whitepaperIframe');
-            if (!iframe || !iframe.contentDocument) {
+            if (!iframe) {
                 alert('White paper content not loaded');
                 return;
             }
 
+            // Try to access iframe content
+            let iframeDoc;
+            try {
+                iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            } catch (error) {
+                alert('HTML export requires serving files via web server (http://localhost).\n\nWhen loading from file://, browser security prevents access to iframe content.\n\nTo use HTML export:\n1. Run a local web server (e.g., python -m http.server)\n2. Access via http://localhost:8000/whitepapers/');
+                return;
+            }
+
+            if (!iframeDoc) {
+                alert('No content to export');
+                return;
+            }
+
             // Get the full HTML from iframe
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             const htmlContent = iframeDoc.documentElement.outerHTML;
 
             // Create blob and download
@@ -1659,6 +1677,12 @@
                 return;
             }
 
+            const paper = whitePapers.find(p => p.id === currentPaperId);
+            if (!paper) {
+                alert('White paper not found');
+                return;
+            }
+
             // Get iframe
             const iframe = document.getElementById('whitepaperIframe');
             if (!iframe) {
@@ -1667,14 +1691,31 @@
             }
 
             // Try to access iframe content
+            let iframeDoc;
             try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                if (!iframeDoc) {
-                    alert('Cannot access white paper content');
-                    return;
+                iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            } catch (error) {
+                // Cross-origin error when loading from file://
+                // Open the white paper file directly for printing
+                const printWindow = window.open(`${paper.filename}`, '_blank');
+                if (!printWindow) {
+                    alert('Pop-up blocked. Please allow pop-ups to print.\n\nAlternatively, you can:\n1. Open the white paper file directly: ' + paper.filename + '\n2. Use Ctrl+P (Cmd+P) to print');
+                } else {
+                    // Give user instructions
+                    setTimeout(() => {
+                        alert('White paper opened in new tab. Use your browser\'s print function (Ctrl+P or Cmd+P) to print.');
+                    }, 500);
                 }
+                return;
+            }
 
-                // Get the full HTML from iframe
+            if (!iframeDoc) {
+                alert('Cannot access white paper content');
+                return;
+            }
+
+            // Get the full HTML from iframe
+            try {
                 const htmlContent = iframeDoc.documentElement.outerHTML;
 
                 // Open in new window for printing
@@ -1691,7 +1732,6 @@
                 printWindow.onload = function() {
                     setTimeout(() => {
                         printWindow.print();
-                        // Don't close automatically - let user close
                     }, 250);
                 };
             } catch (error) {
