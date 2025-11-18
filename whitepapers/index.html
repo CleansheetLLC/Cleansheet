@@ -1237,6 +1237,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             renderPapers(whitePapers);
             setupEventListeners();
+
+            // Check for deep link in URL hash
+            checkDeepLink();
         });
 
         // Event Listeners
@@ -1430,6 +1433,9 @@
             const loading = document.getElementById('slideoutLoading');
             const iframe = document.getElementById('whitepaperIframe');
 
+            // Update URL hash without triggering page reload
+            history.pushState(null, '', `#${paper.id}`);
+
             // Set title
             title.textContent = paper.title;
 
@@ -1472,11 +1478,60 @@
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
 
+            // Remove hash from URL
+            history.pushState(null, '', window.location.pathname + window.location.search);
+
             // Clear iframe after transition
             setTimeout(() => {
                 iframe.src = '';
             }, 300);
         }
+
+        // Deep linking support
+        function checkDeepLink() {
+            const hash = window.location.hash;
+
+            if (hash) {
+                // Support both formats: #paper=id and #id
+                let paperId = null;
+
+                if (hash.startsWith('#paper=')) {
+                    paperId = hash.substring(7); // Remove '#paper='
+                } else if (hash.startsWith('#')) {
+                    paperId = hash.substring(1); // Remove '#'
+                }
+
+                if (paperId) {
+                    // Verify paper exists
+                    const paper = whitePapers.find(p => p.id === paperId);
+
+                    if (paper) {
+                        // Small delay to ensure DOM is ready
+                        setTimeout(() => {
+                            openWhitepaperSlideout(paperId);
+                        }, 100);
+                    } else {
+                        console.warn(`White paper not found: ${paperId}`);
+                    }
+                }
+            }
+        }
+
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', function(event) {
+            const hash = window.location.hash;
+
+            if (hash) {
+                // If there's a hash, open the corresponding paper
+                checkDeepLink();
+            } else {
+                // If no hash, close any open slideout
+                const slideout = document.getElementById('whitepaperSlideout');
+                if (slideout.classList.contains('active')) {
+                    closeWhitepaperSlideout();
+                }
+            }
+        });
 
         // Escape key to close slideout
         document.addEventListener('keydown', function(e) {
