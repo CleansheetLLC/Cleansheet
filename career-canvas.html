@@ -77,6 +77,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Draw.io Diagram Editor -->
     <script src="shared/drawio-diagram-editor.js"></script>
 
+    <!-- Cleansheet Core Utilities -->
+    <script src="shared/cleansheet-core.js"></script>
+
     <!-- Monaco Editor (VS Code Editor) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 
@@ -9400,6 +9403,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <button onclick="editLatexMetadata()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="Edit Info">
                         <i class="ph ph-info"></i>
                     </button>
+                    <button class="monaco-theme-toggle" onclick="CleansheetCore.monaco.toggleTheme()" aria-label="Toggle dark mode">
+                        <i class="ph ph-moon"></i>
+                    </button>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
                         <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
@@ -9599,6 +9605,9 @@ Your content here...
                         <option value="shell">Shell</option>
                         <option value="powershell">PowerShell</option>
                     </select>
+                    <button class="monaco-theme-toggle" onclick="CleansheetCore.monaco.toggleTheme()" aria-label="Toggle dark mode">
+                        <i class="ph ph-moon"></i>
+                    </button>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
                         <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
@@ -9624,6 +9633,9 @@ Your content here...
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="monaco-theme-toggle" onclick="CleansheetCore.monaco.toggleTheme()" aria-label="Toggle dark mode">
+                        <i class="ph ph-moon"></i>
+                    </button>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
                         <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
@@ -28490,7 +28502,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                     monacoEditor = monaco.editor.create(document.getElementById('monacoEditorContainer'), {
                         value: codeSnippet.content || '',
                         language: codeSnippet.language || 'javascript',
-                        theme: 'vs-dark',
+                        theme: CleansheetCore.monaco.currentTheme,
                         automaticLayout: true,
                         fontSize: 14,
                         minimap: { enabled: true },
@@ -28501,6 +28513,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                         tabSize: 4,
                         insertSpaces: true
                     });
+
+                    // Register with theme manager
+                    CleansheetCore.monaco.register(monacoEditor);
 
                     // Start auto-save
                     startCodeAutoSave();
@@ -28674,7 +28689,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                     monacoMarkdownEditor = monaco.editor.create(document.getElementById('monacoMarkdownEditorContainer'), {
                         value: markdownDoc.content || '# Welcome\n\nStart writing your markdown here...',
                         language: 'markdown',
-                        theme: 'vs-dark',
+                        theme: CleansheetCore.monaco.currentTheme,
                         automaticLayout: true,
                         fontSize: 14,
                         minimap: { enabled: true },
@@ -28685,6 +28700,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                         tabSize: 2,
                         insertSpaces: true
                     });
+
+                    // Register with theme manager
+                    CleansheetCore.monaco.register(monacoMarkdownEditor);
 
                     // Update preview on content change
                     monacoMarkdownEditor.onDidChangeModelContent(() => {
@@ -50826,7 +50844,7 @@ F &= ma \\\\
                     latexEditor = monaco.editor.create(editorContainer, {
                         value: '',
                         language: useLatexLanguage ? 'latex' : 'plaintext',
-                        theme: useLatexLanguage ? 'latex-dark' : 'vs-dark',
+                        theme: CleansheetCore.monaco.currentTheme,
                         fontSize: 14,
                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                         lineNumbers: 'on',
@@ -50835,6 +50853,9 @@ F &= ma \\\\
                         automaticLayout: true,
                         scrollBeyondLastLine: false
                     });
+
+                    // Register with theme manager
+                    CleansheetCore.monaco.register(latexEditor);
 
                     // Add change listener for auto-save and auto-compile
                     latexEditor.onDidChangeModelContent(() => {

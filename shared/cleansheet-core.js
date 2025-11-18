@@ -320,6 +320,105 @@ const CleansheetCore = {
         }
     },
 
+    // Monaco Editor theme management
+    monaco: {
+        currentTheme: 'vs', // Default light theme
+        editors: [], // Track all editor instances
+
+        /**
+         * Initialize Monaco theme from localStorage
+         */
+        init() {
+            const saved = localStorage.getItem('monaco_theme');
+            this.currentTheme = saved || 'vs';
+            // Apply initial theme to preview if it exists
+            this.applyTheme();
+        },
+
+        /**
+         * Register an editor instance
+         * @param {monaco.editor.IStandaloneCodeEditor} editor - Monaco editor instance
+         */
+        register(editor) {
+            if (editor && !this.editors.includes(editor)) {
+                this.editors.push(editor);
+                // Apply current theme to newly registered editor
+                if (typeof monaco !== 'undefined') {
+                    monaco.editor.setTheme(this.currentTheme);
+                }
+            }
+        },
+
+        /**
+         * Toggle between light and dark themes
+         */
+        toggleTheme() {
+            this.currentTheme = this.currentTheme === 'vs' ? 'vs-dark' : 'vs';
+            this.applyTheme();
+        },
+
+        /**
+         * Set specific theme
+         * @param {string} themeName - 'vs', 'vs-dark', or 'hc-black'
+         */
+        setTheme(themeName) {
+            if (['vs', 'vs-dark', 'hc-black'].includes(themeName)) {
+                this.currentTheme = themeName;
+                this.applyTheme();
+            }
+        },
+
+        /**
+         * Apply current theme to all Monaco editors and markdown preview
+         */
+        applyTheme() {
+            if (typeof monaco !== 'undefined') {
+                monaco.editor.setTheme(this.currentTheme);
+            }
+
+            // Apply theme to markdown preview pane
+            const markdownPreview = document.getElementById('markdownPreview');
+            if (markdownPreview) {
+                const isDark = this.currentTheme === 'vs-dark' || this.currentTheme === 'hc-black';
+
+                if (isDark) {
+                    markdownPreview.classList.add('theme-dark');
+                    // Set inline styles for dark theme
+                    markdownPreview.style.background = '#1e1e1e';
+                    markdownPreview.style.color = '#d4d4d4';
+                } else {
+                    markdownPreview.classList.remove('theme-dark');
+                    // Set inline styles for light theme
+                    markdownPreview.style.background = '#ffffff';
+                    markdownPreview.style.color = '#333333';
+                }
+            }
+
+            localStorage.setItem('monaco_theme', this.currentTheme);
+            this.updateToggleButtons();
+        },
+
+        /**
+         * Update all theme toggle button states
+         */
+        updateToggleButtons() {
+            document.querySelectorAll('.monaco-theme-toggle').forEach(btn => {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    if (this.currentTheme === 'vs-dark' || this.currentTheme === 'hc-black') {
+                        icon.className = 'ph ph-sun';
+                        btn.setAttribute('aria-label', 'Switch to light mode');
+                        btn.setAttribute('data-theme', 'dark');
+                    } else {
+                        icon.className = 'ph ph-moon';
+                        btn.setAttribute('aria-label', 'Switch to dark mode');
+                        btn.setAttribute('data-theme', 'light');
+                    }
+                }
+            });
+        }
+    },
+
     // Export functionality for markdown content
     // Note: html2pdf.js must be loaded before using PDF export
     // CDN: https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js
@@ -705,37 +804,197 @@ const CleansheetCore = {
     }
 };
 
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInUp {
-        from {
-            transform: translateY(100%);
-            opacity: 0;
+// Add CSS animations and Monaco theme toggle styles (wrapped to avoid scope conflicts)
+(function() {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
 
-    @keyframes slideOutDown {
-        from {
-            transform: translateY(0);
-            opacity: 1;
+        @keyframes slideOutDown {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100%);
+                opacity: 0;
+            }
         }
-        to {
-            transform: translateY(100%);
-            opacity: 0;
-        }
-    }
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Monaco Theme Toggle Button */
+        .monaco-theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            padding: 8px 12px;
+            font-family: var(--font-family-ui, 'Questrial', sans-serif);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .monaco-theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .monaco-theme-toggle i {
+            font-size: 16px;
+        }
+
+        /* Markdown Preview Theme - Light (Default) */
+        #markdownPreview {
+            background: #ffffff !important;
+            color: #333333 !important;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Light theme explicit styles */
+        #markdownPreview h1,
+        #markdownPreview h2,
+        #markdownPreview h3,
+        #markdownPreview h4,
+        #markdownPreview h5,
+        #markdownPreview h6 {
+            color: #1a1a1a !important;
+        }
+
+        #markdownPreview p,
+        #markdownPreview li,
+        #markdownPreview span {
+            color: #333333 !important;
+        }
+
+        #markdownPreview a {
+            color: #0066CC !important;
+        }
+
+        #markdownPreview code {
+            background: #f8f8f8 !important;
+            color: #e83e8c !important;
+        }
+
+        #markdownPreview pre {
+            background: #1e1e1e !important;
+            border: 1px solid #e5e5e7 !important;
+        }
+
+        #markdownPreview pre code {
+            background: none !important;
+            color: #d4d4d4 !important;
+        }
+
+        #markdownPreview blockquote {
+            background: #f0f7ff !important;
+            border-left-color: #0066CC !important;
+            color: #666666 !important;
+        }
+
+        #markdownPreview table {
+            border-color: #e5e5e7 !important;
+        }
+
+        #markdownPreview th,
+        #markdownPreview td {
+            border-color: #e5e5e7 !important;
+            color: #333333 !important;
+        }
+
+        #markdownPreview th {
+            background: #f5f5f7 !important;
+        }
+
+        #markdownPreview tr:nth-child(even) {
+            background: #fafafa !important;
+        }
+
+        /* Dark theme overrides */
+        #markdownPreview.theme-dark {
+            background: #1e1e1e !important;
+            color: #d4d4d4 !important;
+        }
+
+        #markdownPreview.theme-dark h1,
+        #markdownPreview.theme-dark h2,
+        #markdownPreview.theme-dark h3,
+        #markdownPreview.theme-dark h4,
+        #markdownPreview.theme-dark h5,
+        #markdownPreview.theme-dark h6 {
+            color: #ffffff !important;
+        }
+
+        #markdownPreview.theme-dark p,
+        #markdownPreview.theme-dark li,
+        #markdownPreview.theme-dark span {
+            color: #d4d4d4 !important;
+        }
+
+        #markdownPreview.theme-dark a {
+            color: #4da6ff !important;
+        }
+
+        #markdownPreview.theme-dark code {
+            background: #2d2d2d !important;
+            color: #ff6b9d !important;
+        }
+
+        #markdownPreview.theme-dark pre {
+            background: #252525 !important;
+            border-color: #404040 !important;
+        }
+
+        #markdownPreview.theme-dark blockquote {
+            background: #1e2a3a !important;
+            border-left-color: #4da6ff !important;
+        }
+
+        #markdownPreview.theme-dark table {
+            border-color: #404040 !important;
+        }
+
+        #markdownPreview.theme-dark th,
+        #markdownPreview.theme-dark td {
+            border-color: #404040 !important;
+        }
+
+        #markdownPreview.theme-dark th {
+            background: #252525 !important;
+        }
+
+        #markdownPreview.theme-dark tr:nth-child(even) {
+            background: #2a2a2a !important;
+        }
+    `;
+    document.head.appendChild(styleElement);
+
+    // Auto-initialize Monaco theme on page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            CleansheetCore.monaco.init();
+        });
+    } else {
+        CleansheetCore.monaco.init();
     }
-`;
-document.head.appendChild(style);
+})();
 
 // Export for use in HTML pages
 if (typeof window !== 'undefined') {
