@@ -336,6 +336,7 @@ Cleansheet is developed by a solo technical founder actively working in cloud ar
 - **KaTeX** - Fast math typesetting library (MIT License)
 - **Reveal.js** - HTML presentation framework (MIT License)
 - **draw.io** - Diagramming and whiteboarding tool (Apache License 2.0)
+- **Playwright** - End-to-end testing framework by Microsoft (Apache License 2.0)
 
 ### Inspiration
 - **DugganUSA** - Build and security approach
