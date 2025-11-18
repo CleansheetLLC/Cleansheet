@@ -7603,6 +7603,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                             style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
                                         <i class="ph ph-chart-line" style="font-size: 18px;"></i>
                                     </button>
+                                    <button onclick="clearChatHistory()" title="Clear Chat History"
+                                            style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
+                                        <i class="ph ph-trash" style="font-size: 18px;"></i>
+                                    </button>
                                     <button onclick="openLLMSettingsModal()" title="Settings"
                                             style="background: none; border: none; color: var(--color-neutral-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;">
                                         <i class="ph ph-gear" style="font-size: 18px;"></i>
@@ -17129,10 +17133,130 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         let currentProvider = null;
         let conversationHistory = [];
 
+        // Conversation history persistence settings
+        const CONVERSATION_SETTINGS = {
+            maxMessages: 100,           // Maximum messages to store
+            cleanupThreshold: 80,       // Start cleanup at 80% capacity
+            cleanupAmount: 25,          // Remove 25 oldest messages when cleaning
+            maxStorageMB: 2,            // Max storage size in MB
+            persistPerPersona: true,    // Store separately per persona
+            includeInContext: 20        // Include last 20 messages in API context
+        };
+
+        // Get storage key for conversation history (persona-specific)
+        function getConversationStorageKey() {
+            if (CONVERSATION_SETTINGS.persistPerPersona) {
+                const personaId = localStorage.getItem('selected_persona_id') || 'default';
+                return `ai_conversation_history_${personaId}`;
+            }
+            return 'ai_conversation_history';
+        }
+
+        // Estimate size of conversation history in MB
+        function estimateConversationSize(history) {
+            const jsonString = JSON.stringify(history);
+            const sizeBytes = new Blob([jsonString]).size;
+            return sizeBytes / (1024 * 1024);
+        }
+
+        // Load conversation history from localStorage
+        async function loadConversationHistory() {
+            try {
+                const storageKey = getConversationStorageKey();
+                const savedHistory = localStorage.getItem(storageKey);
+
+                if (savedHistory) {
+                    conversationHistory = JSON.parse(savedHistory);
+                    console.log(`[LLM] Loaded ${conversationHistory.length} messages from history`);
+
+                    // Wait for marked and DOMPurify libraries to be available
+                    let attempts = 0;
+                    while ((typeof marked === 'undefined' || typeof DOMPurify === 'undefined') && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+
+                    if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+                        console.warn('[LLM] marked or DOMPurify not loaded, messages may not render correctly');
+                    }
+
+                    // Restore messages to UI
+                    conversationHistory.forEach(msg => {
+                        if (msg.role !== 'system') {
+                            addMessageToUI(msg.role, msg.content);
+                        }
+                    });
+
+                    // Hide empty state if there are messages
+                    if (conversationHistory.length > 0) {
+                        const emptyState = document.getElementById('chatEmptyState');
+                        if (emptyState) {
+                            emptyState.style.display = 'none';
+                        }
+                    }
+                } else {
+                    console.log('[LLM] No saved conversation history found');
+                }
+            } catch (error) {
+                console.error('[LLM] Error loading conversation history:', error);
+                conversationHistory = [];
+            }
+        }
+
+        // Save conversation history to localStorage
+        function saveConversationHistory() {
+            try {
+                const storageKey = getConversationStorageKey();
+
+                // Check if cleanup is needed
+                if (conversationHistory.length >= CONVERSATION_SETTINGS.cleanupThreshold) {
+                    cleanupConversationHistory();
+                }
+
+                // Check storage size
+                const sizeInMB = estimateConversationSize(conversationHistory);
+                if (sizeInMB > CONVERSATION_SETTINGS.maxStorageMB) {
+                    console.warn(`[LLM] Conversation history exceeds ${CONVERSATION_SETTINGS.maxStorageMB}MB, cleaning up`);
+                    cleanupConversationHistory();
+                }
+
+                localStorage.setItem(storageKey, JSON.stringify(conversationHistory));
+                console.log(`[LLM] Saved ${conversationHistory.length} messages to history`);
+            } catch (error) {
+                console.error('[LLM] Error saving conversation history:', error);
+            }
+        }
+
+        // FIFO cleanup - remove oldest messages
+        function cleanupConversationHistory() {
+            const before = conversationHistory.length;
+
+            // Remove oldest messages (keep newest)
+            if (conversationHistory.length > CONVERSATION_SETTINGS.cleanupAmount) {
+                conversationHistory = conversationHistory.slice(-CONVERSATION_SETTINGS.maxMessages + CONVERSATION_SETTINGS.cleanupAmount);
+            } else {
+                conversationHistory = conversationHistory.slice(-CONVERSATION_SETTINGS.maxMessages);
+            }
+
+            const after = conversationHistory.length;
+            console.log(`[LLM] Cleaned up conversation history: ${before} → ${after} messages`);
+        }
+
+        // Get recent messages for API context
+        function getContextMessages(count = CONVERSATION_SETTINGS.includeInContext) {
+            // Filter out system messages and return last N messages
+            const userMessages = conversationHistory.filter(m => m.role !== 'system');
+            return userMessages.slice(-count);
+        }
+
         // Clear chat history and UI
         function clearChatHistory() {
             // Clear conversation history array
             conversationHistory = [];
+
+            // Clear from localStorage
+            const storageKey = getConversationStorageKey();
+            localStorage.removeItem(storageKey);
 
             // Clear chat messages UI
             const messagesContainer = document.getElementById('chatMessages');
@@ -17148,7 +17272,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 }
             }
 
-            console.log('[LLM] Chat history cleared');
+            console.log('[LLM] Chat history cleared from memory and localStorage');
         }
 
         // Update provider badge with cost-based color coding
@@ -17276,6 +17400,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // For Learner and Seeker tiers: proceed with normal initialization
             await loadLLMConfig();
+
+            // Load conversation history from localStorage
+            await loadConversationHistory();
 
             // Show/hide UI based on configuration
             if (currentProvider) {
@@ -19705,7 +19832,7 @@ You are part of Cleansheet, a privacy-first career development platform.
 **Privacy Commitments (CRITICAL):**
 - **No AI Training:** User data NEVER used to train AI models
 - **BYOK LLM:** Conversations go direct from browser to AI provider (OpenAI, Anthropic, Gemini), NOT through Cleansheet servers
-- **Session-Only:** Conversation history held in browser memory during session, cleared when browser closes, never persisted
+- **Local Storage:** Conversation history saved locally in your browser (localStorage) for persistence across sessions. History stays on your device only—never sent to Cleansheet servers. Each persona maintains separate conversation history. Clear anytime using the Clear Chat button.
 - **No Data Sharing:** No selling data, no behavioral profiling, no third-party tracking, no targeted ads
 - **Anonymized Analytics:** Only anonymized usage data collected to optimize platform
 - **User Control:** Users choose which AI provider to use and what career data to share
@@ -19838,6 +19965,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             // Update conversation history (without system prompt)
             conversationHistory.push({ role: 'user', content: message });
 
+            // Save conversation history to localStorage
+            saveConversationHistory();
+
             // Show typing indicator
             const typingId = addTypingIndicator();
 
@@ -19858,6 +19988,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
                 // Add complete message to conversation history
                 conversationHistory.push({ role: 'assistant', content: assistantMessage });
+
+                // Save conversation history to localStorage
+                saveConversationHistory();
 
                 // Parse and execute any actions in the response
                 await executeCanvasActions(assistantMessage);
