@@ -318,6 +318,390 @@ const CleansheetCore = {
                 loader.parentNode.removeChild(loader);
             }
         }
+    },
+
+    // Export functionality for markdown content
+    // Note: html2pdf.js must be loaded before using PDF export
+    // CDN: https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js
+    export: {
+        /**
+         * Check if html2pdf library is loaded
+         */
+        _checkHtml2PdfLoaded() {
+            if (typeof html2pdf === 'undefined') {
+                console.error('html2pdf.js is not loaded. Add to page: <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>');
+                return false;
+            }
+            return true;
+        },
+
+        /**
+         * Export element to PDF
+         * @param {HTMLElement|string} element - Element or selector to export
+         * @param {string} filename - Output filename (without .pdf extension)
+         * @param {object} options - Export options
+         * @returns {Promise<void>}
+         */
+        async toPDF(element, filename = 'document', options = {}) {
+            if (!this._checkHtml2PdfLoaded()) {
+                CleansheetCore.utils.showToast('PDF export library not loaded', 'error');
+                return;
+            }
+
+            const el = typeof element === 'string' ? document.querySelector(element) : element;
+            if (!el) {
+                CleansheetCore.utils.showToast('Element not found for export', 'error');
+                return;
+            }
+
+            // Show loading indicator
+            CleansheetCore.utils.showToast('Generating PDF...', 'info', 5000);
+
+            // Default PDF options
+            const pdfOptions = {
+                margin: options.margin || [15, 15, 15, 15], // top, right, bottom, left in mm
+                filename: `${filename}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    ...options.html2canvas
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait',
+                    ...options.jsPDF
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            try {
+                // Clone element to avoid modifying original
+                const clone = el.cloneNode(true);
+
+                // Add print-friendly styles
+                clone.style.background = 'white';
+                clone.style.color = '#333';
+                clone.style.padding = '20px';
+                clone.style.maxWidth = '100%';
+
+                // Create temporary container
+                const tempDiv = document.createElement('div');
+                tempDiv.style.cssText = 'position: absolute; left: -9999px; top: 0;';
+                tempDiv.appendChild(clone);
+                document.body.appendChild(tempDiv);
+
+                // Generate PDF
+                await html2pdf().set(pdfOptions).from(clone).save();
+
+                // Cleanup
+                document.body.removeChild(tempDiv);
+
+                CleansheetCore.utils.showToast('PDF exported successfully!', 'success');
+            } catch (error) {
+                console.error('PDF export error:', error);
+                CleansheetCore.utils.showToast('Failed to export PDF', 'error');
+            }
+        },
+
+        /**
+         * Export element to standalone HTML file
+         * @param {HTMLElement|string} element - Element or selector to export
+         * @param {string} filename - Output filename (without .html extension)
+         * @param {object} options - Export options
+         */
+        toHTML(element, filename = 'document', options = {}) {
+            const el = typeof element === 'string' ? document.querySelector(element) : element;
+            if (!el) {
+                CleansheetCore.utils.showToast('Element not found for export', 'error');
+                return;
+            }
+
+            try {
+                // Get content
+                const content = el.innerHTML;
+
+                // Get inline styles or computed styles
+                const styles = options.includeStyles !== false ? this._extractStyles(el) : '';
+
+                // Build HTML document
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${options.title || filename}</title>
+    <style>
+        /* Cleansheet Corporate Professional Design System */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+            background: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+
+        h1 { font-size: 32px; color: #0066CC; }
+        h2 { font-size: 28px; color: #0066CC; }
+        h3 { font-size: 24px; color: #004C99; }
+        h4 { font-size: 20px; }
+
+        p { margin: 16px 0; }
+
+        code {
+            background: #f5f5f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        pre {
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        th, td {
+            border: 1px solid #e5e5e7;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f7;
+            font-weight: 600;
+        }
+
+        a {
+            color: #0066CC;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        blockquote {
+            border-left: 4px solid #0066CC;
+            padding-left: 16px;
+            margin: 16px 0;
+            color: #666666;
+            font-style: italic;
+        }
+
+        ${styles}
+    </style>
+    ${options.includeGoogleFonts !== false ? `
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Questrial&display=swap" rel="stylesheet">
+    ` : ''}
+</head>
+<body>
+    ${options.includeMetadata !== false && options.metadata ? `
+    <div style="border-bottom: 2px solid #e5e5e7; padding-bottom: 16px; margin-bottom: 24px;">
+        ${options.metadata.title ? `<h1>${options.metadata.title}</h1>` : ''}
+        ${options.metadata.date ? `<p style="color: #666; font-size: 14px;">Exported: ${options.metadata.date}</p>` : ''}
+        ${options.metadata.source ? `<p style="color: #666; font-size: 14px;">Source: ${options.metadata.source}</p>` : ''}
+    </div>
+    ` : ''}
+
+    <div class="content">
+        ${content}
+    </div>
+
+    ${options.includeFooter !== false ? `
+    <footer style="margin-top: 48px; padding-top: 24px; border-top: 2px solid #e5e5e7; text-align: center; color: #999999; font-size: 12px;">
+        <p>Exported from Cleansheet Platform | cleansheet.info</p>
+    </footer>
+    ` : ''}
+</body>
+</html>`;
+
+                // Create blob and download
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filename}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                CleansheetCore.utils.showToast('HTML exported successfully!', 'success');
+            } catch (error) {
+                console.error('HTML export error:', error);
+                CleansheetCore.utils.showToast('Failed to export HTML', 'error');
+            }
+        },
+
+        /**
+         * Open browser print dialog
+         * @param {HTMLElement|string} element - Element or selector to print
+         * @param {object} options - Print options
+         */
+        print(element, options = {}) {
+            const el = typeof element === 'string' ? document.querySelector(element) : element;
+            if (!el) {
+                CleansheetCore.utils.showToast('Element not found for print', 'error');
+                return;
+            }
+
+            try {
+                // Create print window
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    CleansheetCore.utils.showToast('Pop-up blocked. Please allow pop-ups to print.', 'error');
+                    return;
+                }
+
+                // Get content
+                const content = el.innerHTML;
+                const styles = this._extractStyles(el);
+
+                // Build print document
+                printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${options.title || 'Print'}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Questrial&display=swap" rel="stylesheet">
+    <style>
+        @media print {
+            @page {
+                margin: 2cm;
+                size: A4;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Avoid page breaks inside elements */
+            h1, h2, h3, h4, h5, h6 {
+                page-break-after: avoid;
+            }
+
+            img, table, figure {
+                page-break-inside: avoid;
+            }
+
+            /* Show link URLs */
+            a[href]:after {
+                content: " (" attr(href) ")";
+                font-size: 0.8em;
+                color: #666;
+            }
+        }
+
+        body {
+            font-family: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            color: #333333;
+            font-size: 11pt;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Questrial', sans-serif;
+            color: #1a1a1a;
+        }
+
+        h1 { font-size: 24pt; }
+        h2 { font-size: 20pt; }
+        h3 { font-size: 16pt; }
+        h4 { font-size: 14pt; }
+
+        code {
+            background: #f5f5f7;
+            padding: 2px 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 10pt;
+        }
+
+        pre {
+            background: #f5f5f7;
+            border: 1px solid #e5e5e7;
+            padding: 12px;
+            overflow-x: auto;
+        }
+
+        ${styles}
+    </style>
+</head>
+<body>
+    ${content}
+</body>
+</html>`);
+
+                printWindow.document.close();
+
+                // Wait for content to load, then print
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                        // Don't close automatically - let user close
+                        // printWindow.close();
+                    }, 250);
+                };
+            } catch (error) {
+                console.error('Print error:', error);
+                CleansheetCore.utils.showToast('Failed to open print dialog', 'error');
+            }
+        },
+
+        /**
+         * Extract and consolidate CSS styles from element
+         * @param {HTMLElement} element - Element to extract styles from
+         * @returns {string} Consolidated CSS
+         * @private
+         */
+        _extractStyles(element) {
+            // For now, return empty string
+            // In a full implementation, you would extract computed styles
+            // or include stylesheets linked in the page
+            return '';
+        }
     }
 };
 

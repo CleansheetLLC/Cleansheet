@@ -840,6 +840,9 @@
         }
 
     </style>
+
+    <!-- html2pdf.js for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <header class="header">
@@ -921,7 +924,21 @@
     <div class="whitepaper-slideout" id="whitepaperSlideout">
         <div class="slideout-header">
             <h2 id="slideoutTitle">White Paper</h2>
-            <button class="slideout-close" onclick="closeWhitepaperSlideout()">&times;</button>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="exportWhitepaperPDF()" title="Export as PDF" style="background: none; border: none; color: white; cursor: pointer; padding: 8px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-family-ui); border-radius: 6px; transition: background 0.2s;">
+                    <i class="ph ph-file-pdf" style="font-size: 20px;"></i>
+                    <span>PDF</span>
+                </button>
+                <button onclick="exportWhitepaperHTML()" title="Export as HTML" style="background: none; border: none; color: white; cursor: pointer; padding: 8px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-family-ui); border-radius: 6px; transition: background 0.2s;">
+                    <i class="ph ph-file-html" style="font-size: 20px;"></i>
+                    <span>HTML</span>
+                </button>
+                <button onclick="printWhitepaper()" title="Print" style="background: none; border: none; color: white; cursor: pointer; padding: 8px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-family-ui); border-radius: 6px; transition: background 0.2s;">
+                    <i class="ph ph-printer" style="font-size: 20px;"></i>
+                    <span>Print</span>
+                </button>
+                <button class="slideout-close" onclick="closeWhitepaperSlideout()">&times;</button>
+            </div>
         </div>
         <div class="slideout-body" id="slideoutBody">
             <div class="slideout-loading" id="slideoutLoading">
@@ -1538,6 +1555,147 @@
                     }
                 }, 150);
             }
+        }
+
+        // Export functions
+        let currentPaperId = null;
+
+        // Store current paper ID when slideout opens
+        const originalOpenFunction = openWhitepaperSlideout;
+        openWhitepaperSlideout = function(paperId) {
+            currentPaperId = paperId;
+            originalOpenFunction(paperId);
+        };
+
+        function exportWhitepaperPDF() {
+            if (!currentPaperId) {
+                alert('No white paper loaded');
+                return;
+            }
+
+            const paper = whitePapers.find(p => p.id === currentPaperId);
+            if (!paper) {
+                alert('White paper not found');
+                return;
+            }
+
+            // Get iframe content
+            const iframe = document.getElementById('whitepaperIframe');
+            if (!iframe || !iframe.contentDocument) {
+                alert('White paper content not loaded');
+                return;
+            }
+
+            // Get the content from iframe
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const content = iframeDoc.body;
+
+            if (!content) {
+                alert('No content to export');
+                return;
+            }
+
+            // Show toast
+            showToast('Generating PDF... This may take a moment.', 'info');
+
+            // Use html2pdf with better options
+            const opt = {
+                margin: [15, 15, 15, 15],
+                filename: `${paper.id}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(content).save().then(() => {
+                showToast('PDF exported successfully!', 'success');
+            }).catch(error => {
+                console.error('PDF export error:', error);
+                showToast('Failed to export PDF', 'error');
+            });
+        }
+
+        function exportWhitepaperHTML() {
+            if (!currentPaperId) {
+                alert('No white paper loaded');
+                return;
+            }
+
+            const paper = whitePapers.find(p => p.id === currentPaperId);
+            if (!paper) {
+                alert('White paper not found');
+                return;
+            }
+
+            // Get iframe content
+            const iframe = document.getElementById('whitepaperIframe');
+            if (!iframe || !iframe.contentDocument) {
+                alert('White paper content not loaded');
+                return;
+            }
+
+            // Get the full HTML from iframe
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const htmlContent = iframeDoc.documentElement.outerHTML;
+
+            // Create blob and download
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${paper.id}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('HTML exported successfully!', 'success');
+        }
+
+        function printWhitepaper() {
+            if (!currentPaperId) {
+                alert('No white paper loaded');
+                return;
+            }
+
+            // Get iframe
+            const iframe = document.getElementById('whitepaperIframe');
+            if (!iframe || !iframe.contentWindow) {
+                alert('White paper content not loaded');
+                return;
+            }
+
+            // Print the iframe content
+            try {
+                iframe.contentWindow.print();
+            } catch (error) {
+                console.error('Print error:', error);
+                alert('Failed to print');
+            }
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                background: ${type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : '#2196F3'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                font-size: 14px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
         }
     </script>
 </body>
