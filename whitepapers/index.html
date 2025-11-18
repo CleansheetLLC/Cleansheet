@@ -937,6 +937,10 @@
                     <i class="ph ph-printer" style="font-size: 20px;"></i>
                     <span>Print</span>
                 </button>
+                <button onclick="copyWhitepaperLink()" title="Copy Link to Clipboard" style="background: none; border: none; color: white; cursor: pointer; padding: 8px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-family-ui); border-radius: 6px; transition: background 0.2s;">
+                    <i class="ph ph-link" style="font-size: 20px;"></i>
+                    <span>Copy Link</span>
+                </button>
                 <button class="slideout-close" onclick="closeWhitepaperSlideout()">&times;</button>
             </div>
         </div>
@@ -1793,6 +1797,43 @@
                 console.error('Print error:', error);
                 alert('Failed to print: ' + error.message);
             }
+        }
+
+        function copyWhitepaperLink() {
+            if (!currentPaperId) {
+                alert('No white paper loaded');
+                return;
+            }
+
+            const paper = whitePapers.find(p => p.id === currentPaperId);
+            if (!paper) {
+                alert('White paper not found');
+                return;
+            }
+
+            // Build the deep link URL
+            const url = `${window.location.origin}${window.location.pathname}#${paper.id}`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Link copied to clipboard!', 'success');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = url;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Link copied to clipboard!', 'success');
+                } catch (error) {
+                    console.error('Copy failed:', error);
+                    showToast('Failed to copy link', 'error');
+                }
+                document.body.removeChild(textarea);
+            });
         }
 
         function showToast(message, type) {
