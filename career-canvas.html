@@ -2331,14 +2331,12 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         .copy-message-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
+            position: relative;
             background: white;
             border: 1px solid var(--color-neutral-border);
             border-radius: 6px;
             padding: 6px 8px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 4px;
             cursor: pointer;
@@ -2347,11 +2345,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-weight: 600;
             color: var(--color-neutral-text);
             transition: all 0.2s;
-            opacity: 0;
-        }
-
-        .chat-message.assistant .chat-message-content:hover .copy-message-btn {
-            opacity: 1;
+            margin-top: 12px;
+            margin-right: 8px;
         }
 
         .copy-message-btn:hover {
@@ -2369,6 +2364,78 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             background: #f0fdf4;
             color: #16a34a;
             opacity: 1;
+        }
+
+        /* Save to Asset button */
+        .save-message-btn {
+            position: relative;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            padding: 6px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .save-message-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+            color: var(--color-primary-blue);
+        }
+
+        .save-message-btn i {
+            font-size: 14px;
+        }
+
+        .save-message-btn.saved {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            color: #16a34a;
+            opacity: 1;
+        }
+
+        /* Asset Saved Toast Notification (Story 5) */
+        .asset-saved-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            padding: 16px;
+            max-width: 400px;
+            z-index: 10000;
+            animation: slideInFromRight 0.3s ease;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .asset-saved-toast button:hover {
+            opacity: 0.8;
+        }
+
+        .asset-saved-toast button i {
+            margin-right: 4px;
         }
 
         /* Markdown formatting in chat messages */
@@ -17264,9 +17331,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     }
 
                     // Restore messages to UI
-                    conversationHistory.forEach(msg => {
+                    conversationHistory.forEach((msg, index) => {
                         if (msg.role !== 'system') {
-                            addMessageToUI(msg.role, msg.content);
+                            addMessageToUI(msg.role, msg.content, index);
                         }
                     });
 
@@ -18701,11 +18768,16 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Add message to UI
-        function addMessageToUI(role, content) {
+        function addMessageToUI(role, content, messageIndex = null) {
             const messagesContainer = document.getElementById('chatMessages');
 
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${role}`;
+
+            // Store message index for save functionality
+            if (messageIndex !== null) {
+                messageDiv.dataset.messageIndex = messageIndex;
+            }
 
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'chat-message-avatar';
@@ -18725,8 +18797,28 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 contentDiv.textContent = content;
             }
 
-            // Add copy button for assistant messages
+            // Add action buttons for assistant messages at the bottom
             if (role === 'assistant') {
+                // Create button container
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.gap = '0';
+                buttonContainer.style.marginTop = '12px';
+                buttonContainer.style.paddingTop = '12px';
+                buttonContainer.style.borderTop = '1px solid var(--color-neutral-border)';
+
+                // Save to Asset button (first, more prominent action)
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'save-message-btn';
+                saveBtn.innerHTML = '<i class="ph ph-floppy-disk-back"></i><span>Save to Asset</span>';
+                saveBtn.title = 'Save this response to Interview Prep > Assets';
+                saveBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    saveAssistantMessageAsMarkdown(content, messageIndex);
+                };
+                buttonContainer.appendChild(saveBtn);
+
+                // Copy button
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-message-btn';
                 copyBtn.innerHTML = '<i class="ph ph-copy"></i><span>Copy</span>';
@@ -18734,7 +18826,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     e.stopPropagation();
                     copyMessageToClipboard(content, copyBtn);
                 };
-                contentDiv.appendChild(copyBtn);
+                buttonContainer.appendChild(copyBtn);
+
+                contentDiv.appendChild(buttonContainer);
             }
 
             messageDiv.appendChild(avatarDiv);
@@ -18778,6 +18872,352 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     button.style.color = '';
                 }, 2000);
             }
+        }
+
+        // Detect conversation context for auto-linking (Story 5)
+        function detectConversationContext() {
+            try {
+                // Get recent conversation messages (last 10)
+                const recentMessages = conversationHistory.slice(-10);
+                const conversationText = recentMessages
+                    .map(msg => msg.content)
+                    .join(' ')
+                    .toLowerCase();
+
+                // Load opportunities, experiences, and portfolio items
+                const opportunitiesKey = `jobOpportunities_${currentPersona}`;
+                const experiencesKey = `user_experiences_${currentPersona}`;
+                const portfolioKey = `userPortfolio_${currentPersona}`;
+
+                const opportunities = JSON.parse(localStorage.getItem(opportunitiesKey) || '[]');
+                const experiences = JSON.parse(localStorage.getItem(experiencesKey) || '[]');
+                const portfolio = JSON.parse(localStorage.getItem(portfolioKey) || '[]');
+
+                // Check for opportunity matches (company name + role)
+                for (const opp of opportunities) {
+                    const company = (opp.company || '').toLowerCase();
+                    const role = (opp.role || '').toLowerCase();
+
+                    if (company && role && conversationText.includes(company) && conversationText.includes(role)) {
+                        return {
+                            linkedType: 'opportunity',
+                            linkedId: opp.id || opp.company,
+                            linkedName: `${opp.role} at ${opp.company}`,
+                            confidence: 'high'
+                        };
+                    } else if (company && conversationText.includes(company)) {
+                        return {
+                            linkedType: 'opportunity',
+                            linkedId: opp.id || opp.company,
+                            linkedName: `${opp.role} at ${opp.company}`,
+                            confidence: 'medium'
+                        };
+                    }
+                }
+
+                // Check for experience matches (company + role or title)
+                for (const exp of experiences) {
+                    const company = (exp.company || '').toLowerCase();
+                    const role = (exp.role || exp.title || '').toLowerCase();
+
+                    if (company && role && conversationText.includes(company) && conversationText.includes(role)) {
+                        return {
+                            linkedType: 'experience',
+                            linkedId: exp.id || exp.company,
+                            linkedName: `${exp.role || exp.title} at ${exp.company}`,
+                            confidence: 'high'
+                        };
+                    } else if (company && conversationText.includes(company)) {
+                        return {
+                            linkedType: 'experience',
+                            linkedId: exp.id || exp.company,
+                            linkedName: `${exp.role || exp.title} at ${exp.company}`,
+                            confidence: 'medium'
+                        };
+                    }
+                }
+
+                // Check for portfolio matches (project name)
+                for (const project of portfolio) {
+                    const name = (project.name || project.title || '').toLowerCase();
+
+                    if (name && conversationText.includes(name)) {
+                        return {
+                            linkedType: 'portfolio',
+                            linkedId: project.id || project.name,
+                            linkedName: project.name || project.title,
+                            confidence: 'medium'
+                        };
+                    }
+                }
+
+                // No context detected
+                return {
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    confidence: 'none'
+                };
+
+            } catch (error) {
+                console.error('[Story 5] Error detecting conversation context:', error);
+                return {
+                    linkedType: 'none',
+                    linkedId: '',
+                    linkedName: '',
+                    confidence: 'none'
+                };
+            }
+        }
+
+        // Generate contextual asset name (Story 5)
+        function generateAssetName(content, context) {
+            try {
+                const contentLower = content.toLowerCase();
+
+                // Detect document type from content patterns
+                if (contentLower.includes('dear hiring manager') ||
+                    contentLower.includes('cover letter') ||
+                    (contentLower.includes('position') && contentLower.includes('excited'))) {
+                    // Cover letter
+                    if (context.linkedType === 'opportunity' && context.linkedName) {
+                        const company = context.linkedName.split(' at ')[1] || 'Company';
+                        return `Cover Letter - ${company}`;
+                    }
+                    return 'Cover Letter';
+                }
+
+                if (contentLower.includes('interview prep') ||
+                    contentLower.includes('behavioral question') ||
+                    contentLower.includes('tell me about a time')) {
+                    // Interview preparation
+                    return 'Interview Prep - Behavioral Questions';
+                }
+
+                if (contentLower.includes('skills summary') ||
+                    contentLower.includes('technical skills') ||
+                    contentLower.includes('competencies')) {
+                    // Skills summary
+                    const skillMatch = content.match(/\b(Python|JavaScript|Java|React|Node\.js|AWS|Azure|SQL|C\+\+|Go|Rust|TypeScript)\b/i);
+                    if (skillMatch) {
+                        return `${skillMatch[1]} Skills Summary`;
+                    }
+                    return 'Skills Summary';
+                }
+
+                if (contentLower.includes('resume') || contentLower.includes('curriculum vitae')) {
+                    // Resume content
+                    return 'Resume Content';
+                }
+
+                // Try to extract first sentence as name (max 60 chars)
+                const sentences = content.split(/[.!?]\s+/);
+                if (sentences.length > 0 && sentences[0].trim()) {
+                    let firstSentence = sentences[0].trim();
+                    // Remove markdown formatting
+                    firstSentence = firstSentence.replace(/[#*_`[\]]/g, '');
+                    if (firstSentence.length > 60) {
+                        firstSentence = firstSentence.substring(0, 57) + '...';
+                    }
+                    return firstSentence;
+                }
+
+                // Fallback to timestamp-based name
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                return `AI Response - ${dateStr}`;
+
+            } catch (error) {
+                console.error('[Story 5] Error generating asset name:', error);
+                return `AI Response - ${new Date().toLocaleDateString()}`;
+            }
+        }
+
+        // Save assistant message as markdown asset (Story 5)
+        async function saveAssistantMessageAsMarkdown(content, messageIndex) {
+            try {
+                // Get save button to show feedback
+                const saveButtons = document.querySelectorAll('.save-message-btn');
+                let saveButton = null;
+                if (messageIndex !== null) {
+                    const messageDiv = document.querySelector(`[data-message-index="${messageIndex}"]`);
+                    if (messageDiv) {
+                        saveButton = messageDiv.querySelector('.save-message-btn');
+                    }
+                }
+                if (!saveButton && saveButtons.length > 0) {
+                    saveButton = saveButtons[saveButtons.length - 1];
+                }
+
+                // Detect context for auto-linking
+                const context = detectConversationContext();
+
+                // Generate contextual name
+                const assetName = generateAssetName(content, context);
+
+                // Get user's original prompt (if available)
+                let userPrompt = '';
+                if (messageIndex !== null && messageIndex > 0) {
+                    const previousMsg = conversationHistory[messageIndex - 1];
+                    if (previousMsg && previousMsg.role === 'user') {
+                        userPrompt = previousMsg.content;
+                    }
+                }
+
+                // Create markdown document object
+                const markdownAsset = {
+                    id: Date.now().toString(),
+                    name: assetName,
+                    description: userPrompt || 'Saved from AI chat conversation',
+                    content: content,
+                    linkedType: context.linkedType,
+                    linkedId: context.linkedId,
+                    linkedName: context.linkedName,
+                    skills: [],
+                    technologies: [],
+                    competencies: [],
+                    excludeFromLLM: false,
+                    created: new Date().toISOString(),
+                    lastModified: new Date().toISOString()
+                };
+
+                // Load existing markdown documents
+                const markdownKey = `markdown_${currentPersona}`;
+                let markdownDocs = [];
+                const stored = localStorage.getItem(markdownKey);
+                if (stored) {
+                    markdownDocs = JSON.parse(stored);
+                }
+
+                // Add new asset
+                markdownDocs.push(markdownAsset);
+
+                // Save to localStorage
+                localStorage.setItem(markdownKey, JSON.stringify(markdownDocs));
+
+                // Update canvas tree count badge
+                updateBadgesOnly();
+
+                // Show success feedback on button
+                if (saveButton) {
+                    const originalHTML = saveButton.innerHTML;
+                    saveButton.innerHTML = '<i class="ph ph-check"></i><span>Saved!</span>';
+                    saveButton.classList.add('saved');
+
+                    setTimeout(() => {
+                        saveButton.innerHTML = originalHTML;
+                        saveButton.classList.remove('saved');
+                    }, 2000);
+                }
+
+                // Show success toast notification
+                showAssetSavedToast(assetName, markdownAsset.id, context);
+
+                // Refresh assets table if Interview Prep slideout is open
+                const interviewPrepSlideout = document.getElementById('interviewPrepSlideout');
+                if (interviewPrepSlideout && interviewPrepSlideout.classList.contains('active')) {
+                    // Check if Assets tab is active
+                    const assetsTab = document.querySelector('[data-tab="assets"]');
+                    if (assetsTab && assetsTab.classList.contains('active')) {
+                        loadAllAssets();
+                    }
+                }
+
+                console.log('[Story 5] Asset saved successfully:', assetName);
+
+            } catch (error) {
+                console.error('[Story 5] Error saving assistant message:', error);
+
+                // Show error feedback on button
+                const saveButtons = document.querySelectorAll('.save-message-btn');
+                const saveButton = saveButtons[saveButtons.length - 1];
+                if (saveButton) {
+                    const originalHTML = saveButton.innerHTML;
+                    saveButton.innerHTML = '<i class="ph ph-warning"></i><span>Failed</span>';
+                    saveButton.style.borderColor = '#dc2626';
+                    saveButton.style.background = '#fef2f2';
+                    saveButton.style.color = '#dc2626';
+
+                    setTimeout(() => {
+                        saveButton.innerHTML = originalHTML;
+                        saveButton.style.borderColor = '';
+                        saveButton.style.background = '';
+                        saveButton.style.color = '';
+                    }, 2000);
+                }
+
+                alert('Failed to save asset. Please try again.');
+            }
+        }
+
+        // Show toast notification for saved asset (Story 5)
+        function showAssetSavedToast(assetName, assetId, context) {
+            // Remove any existing toast
+            const existingToast = document.getElementById('assetSavedToast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast container
+            const toast = document.createElement('div');
+            toast.id = 'assetSavedToast';
+            toast.className = 'asset-saved-toast';
+
+            // Build toast content
+            let linkedText = '';
+            if (context.linkedType !== 'none' && context.linkedName) {
+                linkedText = `<div style="font-size: 11px; color: #666; margin-top: 4px;">
+                    <i class="ph ph-link-simple"></i> Linked to ${context.linkedName}
+                </div>`;
+            }
+
+            toast.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="flex-shrink: 0; width: 32px; height: 32px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph ph-check-circle" style="font-size: 18px; color: #16a34a;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
+                            Asset Created
+                        </div>
+                        <div style="font-family: var(--font-family-body); font-size: 12px; color: #666; margin-top: 2px;">
+                            ${assetName}
+                        </div>
+                        ${linkedText}
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <button onclick="editAssetMetadata('markdown', '${assetId}')"
+                                    style="padding: 4px 10px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; color: var(--color-neutral-text);">
+                                <i class="ph ph-pencil-simple" style="font-size: 12px;"></i> Edit Info
+                            </button>
+                            <button onclick="openMarkdownByIdMonaco('${assetId}')"
+                                    style="padding: 4px 10px; background: var(--color-primary-blue); border: none; border-radius: 4px; font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; cursor: pointer; color: white;">
+                                <i class="ph ph-eye" style="font-size: 12px;"></i> View Asset
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()"
+                            style="flex-shrink: 0; background: none; border: none; cursor: pointer; color: #999; font-size: 18px; padding: 0; line-height: 1;">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
         }
 
         // Add typing indicator
@@ -19980,12 +20420,15 @@ You can include actions in your responses using JSON code blocks:
 \`\`\`
 
 Action types:
-- navigate: Switch views ONLY if user explicitly requests it {"view": "seeker"|"learner"}
+- navigate: Switch views ONLY if user explicitly requests it {"action": "navigate", "params": {"view": "seeker"|"learner"}}
   * "seeker" = Job search view (job opportunities, applications, interview prep)
   * "learner" = Learning view (goals, portfolio, skill development)
   * Note: Other views are not yet implemented and will be blocked
-- showToast: Display brief notifications {"message": "text", "type": "success"|"info"|"error"}
-- openModal: Open forms ONLY when user asks to create something {"modal": "addJob"|"addExperience"|"addStory"|"addGoal"|"addDocument"}
+- showToast: Display brief notifications {"action": "showToast", "params": {"message": "text", "type": "success"|"info"|"error"}}
+- openModal: Open forms ONLY when user asks to create something {"action": "openModal", "params": {"modal": "addJob"|"addExperience"|"addStory"|"addGoal"|"addDocument", "data": {...}}}
+  * For addStory: When user asks you to CREATE a story (not just open the form), you MUST generate and include the story content in the data field
+  * Example with data: {"action": "openModal", "params": {"modal": "addStory", "data": {"title": "Story Title", "experience": "Exact experience name from user's data", "situation": "Describe the situation...", "task": "Describe the task...", "action": "Describe the action...", "result": "Describe the result...", "competencies": ["skill1", "skill2"]}}}
+  * Example without data (only to open empty form): {"action": "openModal", "params": {"modal": "addStory"}}
 
 CRITICAL GUIDELINES:
 1. Answer questions using the context data provided - it contains everything you need
@@ -20131,7 +20574,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 const modalFunctions = {
                     'addJob': 'addJobOpportunity',
                     'addExperience': 'showExperienceForm',
-                    'addStory': 'showStoryForm',
+                    'addStory': 'openStoryForm',
                     'addGoal': 'showGoalForm',
                     'addDocument': 'showDocumentForm'
                 };
@@ -20234,12 +20677,14 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                                                 break;
 
                                             case 'addStory':
-                                                if (typeof showStoryForm === 'function') {
-                                                    showStoryForm();
-                                                    addMessageToUI('system', `✓ Opened add story form`);
+                                                if (typeof openStoryForm === 'function') {
+                                                    // Extract story data from params if provided
+                                                    const storyData = actionData.params?.data || null;
+                                                    openStoryForm(null, storyData);  // Pass null for editIndex, storyData for prefill
+                                                    addMessageToUI('system', `✓ Opened add story form${storyData ? ' with AI-generated content' : ''}`);
                                                     showToast('Add Story form opened', 'success');
                                                 } else {
-                                                    throw new Error('showStoryForm function not found');
+                                                    throw new Error('openStoryForm function not found');
                                                 }
                                                 break;
 
@@ -31822,7 +32267,7 @@ Start typing...`
             updateBadgesOnly(); // FIXED: Use selective badge update instead of full re-render
         }
 
-        function openStoryForm(editIndex = null) {
+        function openStoryForm(editIndex = null, prefillData = null) {
             const modal = document.getElementById('storyFormModal');
             const form = document.getElementById('storyForm');
             const formTitle = document.getElementById('formTitle');
@@ -31851,8 +32296,28 @@ Start typing...`
                     document.getElementById('storyResult').value = story.result || '';
                     document.getElementById('storyCompetencies').value = story.competencies ? story.competencies.join(', ') : '';
                 }
+            } else if (prefillData) {
+                // Add mode with AI-generated prefill
+                currentEditingStoryId = null;
+                formTitle.textContent = 'Add New Story';
+                form.reset();
+
+                // Prefill with AI-suggested data
+                if (prefillData.title) document.getElementById('storyTitle').value = prefillData.title;
+                if (prefillData.experience) document.getElementById('storyExperience').value = prefillData.experience;
+                if (prefillData.situation) document.getElementById('storySituation').value = prefillData.situation;
+                if (prefillData.task) document.getElementById('storyTask').value = prefillData.task;
+                if (prefillData.action) document.getElementById('storyAction').value = prefillData.action;
+                if (prefillData.result) document.getElementById('storyResult').value = prefillData.result;
+                if (prefillData.competencies) {
+                    // Handle both string and array formats
+                    const compString = Array.isArray(prefillData.competencies) ?
+                        prefillData.competencies.join(', ') :
+                        prefillData.competencies;
+                    document.getElementById('storyCompetencies').value = compString;
+                }
             } else {
-                // Add mode
+                // Add mode - empty form
                 currentEditingStoryId = null;
                 formTitle.textContent = 'Add New Story';
                 form.reset();
