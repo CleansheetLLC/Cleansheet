@@ -80,6 +80,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Cleansheet Core Utilities -->
     <script src="shared/cleansheet-core.js"></script>
 
+    <!-- Contextual Suggestion System -->
+    <script src="shared/context-analyzer.js"></script>
+    <script src="shared/suggestion-engine.js"></script>
+
     <!-- Monaco Editor (VS Code Editor) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 
@@ -2543,6 +2547,57 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             border-top: 1px solid var(--color-neutral-border);
             flex-shrink: 0;
             background: white;
+        }
+
+        /* Suggestion Chips */
+        .suggestion-chip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 20px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            color: var(--color-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background: #e3f2fd;
+            border-color: var(--color-primary-blue);
+            color: var(--color-primary-blue);
+        }
+
+        .suggestion-chip-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .suggestion-chip-dismiss {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--color-neutral-text);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip-dismiss:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--color-dark);
+        }
+
+        .suggestion-chip:hover .suggestion-chip-dismiss {
+            color: var(--color-primary-blue);
         }
 
         .typing-indicator {
@@ -7780,6 +7835,17 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 </div>
 
                                 <!-- Messages will be appended here dynamically -->
+                            </div>
+
+                            <!-- Contextual Question Suggestions -->
+                            <div id="suggestionChipsContainer" style="display: none; padding: 0 16px 12px 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <i class="ph ph-lightbulb" style="font-size: 16px; color: var(--color-primary-blue);"></i>
+                                    <span style="font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-neutral-text);">Suggested Questions:</span>
+                                </div>
+                                <div id="suggestionChipsList" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <!-- Suggestion chips will be appended here dynamically -->
+                                </div>
                             </div>
 
                             <!-- Input Area -->
@@ -17558,10 +17624,167 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             if (currentProvider) {
                 chatEmptyState.style.display = 'none';
                 chatInputContainer.style.display = 'block';
+
+                // Initialize suggestion system
+                initializeSuggestionSystem();
             } else {
                 chatEmptyState.style.display = 'flex';
                 chatInputContainer.style.display = 'none';
             }
+        }
+
+        // ==========================================
+        // CONTEXTUAL SUGGESTION SYSTEM
+        // ==========================================
+
+        let suggestionContextAnalyzer = null;
+        let suggestionEngine = null;
+
+        /**
+         * Initialize the contextual suggestion system
+         */
+        function initializeSuggestionSystem() {
+            try {
+                // Initialize context analyzer and suggestion engine
+                suggestionContextAnalyzer = new ContextAnalyzer();
+                suggestionEngine = new SuggestionEngine(suggestionContextAnalyzer);
+
+                console.log('[Suggestions] System initialized');
+
+                // Generate and render initial suggestions
+                refreshSuggestions();
+            } catch (e) {
+                console.error('[Suggestions] Initialization error:', e);
+            }
+        }
+
+        /**
+         * Refresh suggestions based on current Canvas state
+         */
+        function refreshSuggestions() {
+            if (!suggestionEngine) {
+                console.warn('[Suggestions] Engine not initialized');
+                return;
+            }
+
+            try {
+                // Generate suggestions
+                const suggestions = suggestionEngine.generateSuggestions();
+
+                // Render suggestions
+                renderSuggestions(suggestions);
+            } catch (e) {
+                console.error('[Suggestions] Refresh error:', e);
+            }
+        }
+
+        /**
+         * Render suggestion chips in the UI
+         * @param {Array} suggestions Array of suggestion objects
+         */
+        function renderSuggestions(suggestions) {
+            const container = document.getElementById('suggestionChipsContainer');
+            const chipsList = document.getElementById('suggestionChipsList');
+
+            if (!container || !chipsList) {
+                console.warn('[Suggestions] Container elements not found');
+                return;
+            }
+
+            // Clear existing chips
+            chipsList.innerHTML = '';
+
+            // If no suggestions, hide container
+            if (!suggestions || suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            // Show container
+            container.style.display = 'block';
+
+            // Render each suggestion chip
+            suggestions.forEach(suggestion => {
+                const chip = document.createElement('div');
+                chip.className = 'suggestion-chip';
+                chip.dataset.suggestionId = suggestion.id;
+
+                chip.innerHTML = `
+                    <div class="suggestion-chip-text">${escapeHtml(suggestion.text)}</div>
+                    <div class="suggestion-chip-dismiss" onclick="dismissSuggestion(event, '${suggestion.id}')">
+                        <i class="ph ph-x"></i>
+                    </div>
+                `;
+
+                // Click to submit suggestion (but not on dismiss button)
+                chip.addEventListener('click', (e) => {
+                    // Don't trigger if clicking dismiss button
+                    if (e.target.closest('.suggestion-chip-dismiss')) return;
+
+                    submitSuggestion(suggestion.text);
+                });
+
+                chipsList.appendChild(chip);
+            });
+
+            console.log('[Suggestions] Rendered', suggestions.length, 'suggestions');
+        }
+
+        /**
+         * Submit a suggestion as a chat message
+         * @param {string} questionText The suggested question text
+         */
+        async function submitSuggestion(questionText) {
+            console.log('[Suggestions] Submitting:', questionText);
+
+            try {
+                // Check if LLM provider is configured
+                console.log('[Suggestions] currentProvider:', currentProvider);
+                if (!currentProvider) {
+                    console.log('[Suggestions] No provider, opening settings');
+                    showToast('Please configure AI Assistant first', 'error');
+                    openLLMSettingsModal();
+                    return; // Don't hide suggestions, keep them visible
+                }
+
+                console.log('[Suggestions] About to call sendChatMessage with:', questionText);
+                console.log('[Suggestions] sendChatMessage exists?', typeof sendChatMessage);
+
+                // Send the suggested question
+                await sendChatMessage(questionText);
+
+                console.log('[Suggestions] sendChatMessage completed');
+
+                // Hide suggestions after submission (user is now engaged)
+                const container = document.getElementById('suggestionChipsContainer');
+                if (container) {
+                    container.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('[Suggestions] Error in submitSuggestion:', error);
+                showToast('Error submitting suggestion: ' + error.message, 'error');
+            }
+        }
+
+        /**
+         * Dismiss a suggestion for 7 days
+         * @param {Event} event Click event
+         * @param {string} suggestionId Suggestion ID
+         */
+        function dismissSuggestion(event, suggestionId) {
+            event.stopPropagation(); // Prevent chip click
+
+            console.log('[Suggestions] Dismissing:', suggestionId);
+
+            // Mark as dismissed in engine
+            if (suggestionEngine) {
+                suggestionEngine.dismissSuggestion(suggestionId);
+            }
+
+            // Refresh suggestions to remove the dismissed one
+            refreshSuggestions();
+
+            showToast('Suggestion dismissed', 'info');
         }
 
         // Check if user can access LLM features
@@ -18269,6 +18492,11 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // Close modal
             closeContextControlModal();
 
+            // Refresh contextual suggestions (data visibility may have changed)
+            if (typeof refreshSuggestions === 'function') {
+                refreshSuggestions();
+            }
+
             // Show appropriate success message
             if (chatWasCleared) {
                 showToast('Context control updated - conversation cleared for privacy', 'success');
@@ -18505,16 +18733,24 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Send chat message
-        async function sendChatMessage() {
+        async function sendChatMessage(suggestedMessage = null) {
+            console.log('[Chat] sendChatMessage called with:', suggestedMessage);
             const input = document.getElementById('chatInput');
-            const message = input.value.trim();
+            const message = suggestedMessage || input.value.trim();
+            console.log('[Chat] Final message:', message);
 
-            if (!message) return;
+            if (!message) {
+                console.log('[Chat] No message, returning');
+                return;
+            }
             if (!currentProvider) {
+                console.log('[Chat] No provider configured');
                 showToast('Please configure AI Assistant first', 'error');
                 openLLMSettingsModal();
                 return;
             }
+
+            console.log('[Chat] Proceeding with message send');
 
             // Calculate token budget based on question complexity
             const budget = calculateTokenBudget(message);
@@ -18545,6 +18781,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             input.value = '';
 
             // Add user message to UI
+            console.log('[Chat] Adding message to UI:', message);
             addMessageToUI('user', message);
 
             // Add to conversation history
@@ -20442,9 +20679,9 @@ Your role is to assist with career advice and answer questions about the user's 
 
         // Enhanced sendChatMessage with canvas context
         const originalSendChatMessage = sendChatMessage;
-        sendChatMessage = async function() {
+        sendChatMessage = async function(suggestedMessage = null) {
             const input = document.getElementById('chatInput');
-            const message = input.value.trim();
+            const message = suggestedMessage || input.value.trim();
 
             if (!message) return;
             if (!currentProvider) {
@@ -32462,6 +32699,11 @@ Start typing...`
             // Reload stories
             loadStories();
 
+            // Refresh contextual suggestions
+            if (typeof refreshSuggestions === 'function') {
+                refreshSuggestions();
+            }
+
             // Close form
             closeStoryForm();
         }
@@ -35316,6 +35558,11 @@ Start typing...`
             closeJobForm();
             loadJobOpportunities();
             updateBadgesOnly();
+
+            // Refresh contextual suggestions
+            if (typeof refreshSuggestions === 'function') {
+                refreshSuggestions();
+            }
         }
 
         function editJob(index) {
@@ -37569,6 +37816,11 @@ Start typing...`
             updateExperienceCount(userExperiences.length);
             updateBadgesOnly(); // FIXED: Use selective badge update instead of full re-render
             closeExperienceModal();
+
+            // Refresh contextual suggestions
+            if (typeof refreshSuggestions === 'function') {
+                refreshSuggestions();
+            }
         }
 
         function deleteExperienceRecord(index) {
@@ -37944,6 +38196,11 @@ Start typing...`
             updateGoalsCount(userGoals.length);
             // FIXED: Use selective badge update instead of full re-rendering
             updateBadgesOnly();
+
+            // Refresh contextual suggestions
+            if (typeof refreshSuggestions === 'function') {
+                refreshSuggestions();
+            }
         }
 
         function openGoalsSlideout() {
