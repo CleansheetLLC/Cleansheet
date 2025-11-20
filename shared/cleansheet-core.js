@@ -385,12 +385,10 @@ const CleansheetCore = {
                     markdownPreview.classList.add('theme-dark');
                     // Set inline styles for dark theme
                     markdownPreview.style.background = '#1e1e1e';
-                    markdownPreview.style.color = '#d4d4d4';
                 } else {
                     markdownPreview.classList.remove('theme-dark');
                     // Set inline styles for light theme
                     markdownPreview.style.background = '#ffffff';
-                    markdownPreview.style.color = '#333333';
                 }
             }
 
