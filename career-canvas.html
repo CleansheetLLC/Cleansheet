@@ -60,6 +60,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="shared/cleansheet-sync.js"></script>
     <script src="shared/llm-providers.js"></script>
     <script src="shared/cleansheet-crypto.js"></script>
+    <script src="shared/rating-service.js?v=7"></script>
+    <link rel="stylesheet" href="shared/rating-styles.css?v=7">
 
     <!-- Reveal.js for presentations -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
@@ -19035,6 +19037,35 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 };
                 buttonContainer.appendChild(copyBtn);
 
+                // Rating buttons (Phase 1: AI Response Rating)
+                try {
+                    console.log('[Rating] Adding rating buttons to message');
+                    const responseId = ratingService.generateResponseId(content);
+
+                    // Capture detailed model information
+                    const metadata = currentProvider ? {
+                        provider: currentProvider.getName(),
+                        model: currentProvider.defaultModel,
+                        apiVersion: currentProvider.apiVersion || 'unknown'
+                    } : {
+                        provider: 'unknown',
+                        model: 'unknown',
+                        apiVersion: 'unknown'
+                    };
+
+                    console.log('[Rating] Response ID:', responseId, 'Provider:', metadata.provider, 'Model:', metadata.model);
+                    const ratingButtonsContainer = document.createElement('div');
+                    ratingButtonsContainer.className = 'rating-buttons';
+                    ratingButtonsContainer.innerHTML = ratingService.createRatingButtons('response', responseId, metadata);
+                    buttonContainer.appendChild(ratingButtonsContainer);
+
+                    // Initialize rating button event listeners
+                    ratingService.initializeRatingButtons(ratingButtonsContainer, metadata);
+                    console.log('[Rating] Rating buttons added successfully');
+                } catch (error) {
+                    console.error('[Rating] Failed to add rating buttons:', error);
+                }
+
                 contentDiv.appendChild(buttonContainer);
             }
 
@@ -19501,11 +19532,24 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             if (messageEl) {
                 messageEl.removeAttribute('id'); // Keep the message, just remove the ID
 
-                // Add copy button to the finalized streaming message
+                // Add action buttons to the finalized streaming message
                 const contentDiv = messageEl.querySelector('.chat-message-content');
                 if (contentDiv && !contentDiv.querySelector('.copy-message-btn')) {
                     // Retrieve original markdown from data attribute (falls back to text content)
                     const content = contentDiv.dataset.originalContent || contentDiv.textContent;
+
+                    // Create button container if it doesn't exist
+                    let buttonContainer = contentDiv.querySelector('div[style*="display: flex"]');
+                    if (!buttonContainer) {
+                        buttonContainer = document.createElement('div');
+                        buttonContainer.style.display = 'flex';
+                        buttonContainer.style.gap = '0';
+                        buttonContainer.style.marginTop = '12px';
+                        buttonContainer.style.paddingTop = '12px';
+                        buttonContainer.style.borderTop = '1px solid var(--color-neutral-border)';
+                    }
+
+                    // Copy button
                     const copyBtn = document.createElement('button');
                     copyBtn.className = 'copy-message-btn';
                     copyBtn.innerHTML = '<i class="ph ph-copy"></i><span>Copy</span>';
@@ -19513,7 +19557,38 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         e.stopPropagation();
                         copyMessageToClipboard(content, copyBtn);
                     };
-                    contentDiv.appendChild(copyBtn);
+                    buttonContainer.appendChild(copyBtn);
+
+                    // Rating buttons
+                    try {
+                        console.log('[Rating] Adding rating buttons to streaming message');
+                        const responseId = ratingService.generateResponseId(content);
+
+                        // Capture detailed model information
+                        const metadata = currentProvider ? {
+                            provider: currentProvider.getName(),
+                            model: currentProvider.defaultModel,
+                            apiVersion: currentProvider.apiVersion || 'unknown'
+                        } : {
+                            provider: 'unknown',
+                            model: 'unknown',
+                            apiVersion: 'unknown'
+                        };
+
+                        console.log('[Rating] Response ID:', responseId, 'Provider:', metadata.provider, 'Model:', metadata.model);
+                        const ratingButtonsContainer = document.createElement('div');
+                        ratingButtonsContainer.className = 'rating-buttons';
+                        ratingButtonsContainer.innerHTML = ratingService.createRatingButtons('response', responseId, metadata);
+                        buttonContainer.appendChild(ratingButtonsContainer);
+
+                        // Initialize rating button event listeners
+                        ratingService.initializeRatingButtons(ratingButtonsContainer, metadata);
+                        console.log('[Rating] Rating buttons added to streaming message successfully');
+                    } catch (error) {
+                        console.error('[Rating] Failed to add rating buttons to streaming message:', error);
+                    }
+
+                    contentDiv.appendChild(buttonContainer);
                 }
             }
         }
