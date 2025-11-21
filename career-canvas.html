@@ -16182,7 +16182,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             console.log('[Sync] All data reloaded');
         }
 
+        // DISABLED: Azure blob sync (Issue #3)
         // Add subtle sync status indicator (non-interactive)
+        /*
         if (sync) {
             sync.addEventListener('sync_start', () => {
                 if (isInitializing) return;
@@ -16270,6 +16272,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 updateLeftPanelSyncStatus('error');
             });
         }
+        */
 
         // ===================================================================
         // Legacy Profile Storage (TO BE DEPRECATED)
@@ -17908,6 +17911,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             let totalTruncations = 0;
             let totalContinuations = 0;
             let totalContextOptimizations = 0;
+            let totalCompletions = 0;
             let totalResponseLength = 0;
 
             // Create stats card for ALL providers (showing usage across all)
@@ -17926,6 +17930,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 totalTruncations += providerUsage.truncations || 0;
                 totalContinuations += providerUsage.continuations || 0;
                 totalContextOptimizations += providerUsage.contextOptimizations || 0;
+                totalCompletions += providerUsage.completions || 0;
                 totalResponseLength += providerUsage.totalResponseLength || 0;
 
                 // Calculate average response length
@@ -17967,9 +17972,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     </div>
                     <div style="border-top: 1px solid var(--color-neutral-border); padding-top: 12px;">
                         <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: var(--color-neutral-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            Token Management
+                            Usage Details
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-bottom: 2px;">Completions</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${info.color};">${providerUsage.completions || 0}</div>
+                            </div>
                             <div>
                                 <div style="font-family: var(--font-family-body); font-size: 9px; color: var(--color-neutral-text); margin-bottom: 2px;">Truncations</div>
                                 <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: ${truncationRate > 20 ? '#f59e0b' : info.color};">
@@ -18027,9 +18036,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     </div>
                     <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px;">
                         <div style="font-family: var(--font-family-ui); font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            Token Management
+                            Usage Details
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                            <div>
+                                <div style="font-family: var(--font-family-body); font-size: 9px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">Completions</div>
+                                <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white;">${totalCompletions}</div>
+                            </div>
                             <div>
                                 <div style="font-family: var(--font-family-body); font-size: 9px; color: rgba(255,255,255,0.7); margin-bottom: 2px;">Truncations</div>
                                 <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: white;">
@@ -19693,13 +19706,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // If new month, reset ALL providers
             if (usage.month !== currentMonth) {
                 usage.month = currentMonth;
-                usage.openai = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
-                usage.anthropic = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
-                usage.gemini = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
+                usage.openai = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, completions: 0, totalResponseLength: 0 };
+                usage.anthropic = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, completions: 0, totalResponseLength: 0 };
+                usage.gemini = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, completions: 0, totalResponseLength: 0 };
             }
 
             if (!usage[provider]) {
-                usage[provider] = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, totalResponseLength: 0 };
+                usage[provider] = { messages: 0, tokens: 0, cost: 0, truncations: 0, continuations: 0, contextOptimizations: 0, completions: 0, totalResponseLength: 0 };
             }
 
             // Handle different event types
@@ -19709,6 +19722,17 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 usage[provider].continuations = (usage[provider].continuations || 0) + 1;
             } else if (eventType === 'contextOptimization') {
                 usage[provider].contextOptimizations = (usage[provider].contextOptimizations || 0) + 1;
+            } else if (eventType === 'completion') {
+                // Track inline code completion
+                usage[provider].completions = (usage[provider].completions || 0) + 1;
+
+                // Estimate tokens for completion
+                const estimatedTokens = Math.ceil(response.length / 4);
+                usage[provider].tokens += estimatedTokens;
+
+                // Estimate cost (lower rate for completions since they're typically shorter)
+                const costPer1k = 0.005;
+                usage[provider].cost += (estimatedTokens / 1000) * costPer1k;
             } else if (eventType === 'message') {
                 // Increment message count
                 usage[provider].messages++;
@@ -29792,9 +29816,12 @@ Complete the code at the cursor position. Provide only the next line or logical 
                         console.log('[Inline Completion] Requesting suggestion from AI...');
 
                         // Request completion from AI provider
-                        const response = await currentProvider.generateResponse([
+                        const response = await currentProvider.chat([
                             { role: 'user', content: prompt }
-                        ]);
+                        ], {
+                            maxTokens: 500,  // Keep completions concise
+                            temperature: 0.3  // Lower temperature for more predictable completions
+                        });
 
                         // Extract completion text
                         let completion = response.content || '';
@@ -29817,6 +29844,11 @@ Complete the code at the cursor position. Provide only the next line or logical 
                         cleanCompletionCache();
 
                         console.log('[Inline Completion] Suggestion received:', completion.substring(0, 50) + '...');
+
+                        // Track completion usage
+                        const providerName = currentProvider.getName().toLowerCase();
+                        trackLLMUsage(providerName, completion, 'completion');
+                        console.log('[Inline Completion] Usage tracked for', providerName);
 
                         return {
                             items: [{
