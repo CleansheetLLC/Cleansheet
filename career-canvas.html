@@ -29372,6 +29372,279 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             }
         });
 
+        // Monaco Language Configuration
+        let monacoLanguagesConfigured = false;
+
+        function configureMonacoLanguages() {
+            if (monacoLanguagesConfigured) {
+                console.log('[Monaco] Language configurations already applied');
+                return;
+            }
+
+            console.log('[Monaco] Configuring language autosurrounding and autoclosing...');
+
+            // Common pairs used across all languages
+            const commonPairs = [
+                { open: '(', close: ')' },
+                { open: '[', close: ']' },
+                { open: '{', close: '}' },
+                { open: '"', close: '"' },
+                { open: "'", close: "'" }
+            ];
+
+            const commonAutoClosingPairs = [
+                { open: '(', close: ')' },
+                { open: '[', close: ']' },
+                { open: '{', close: '}' },
+                { open: '"', close: '"', notIn: ['string', 'comment'] },
+                { open: "'", close: "'", notIn: ['string', 'comment'] }
+            ];
+
+            // ===== MARKDOWN CONFIGURATION =====
+            monaco.languages.setLanguageConfiguration('markdown', {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '`', close: '`' },
+                    { open: '*', close: '*' },      // italic (single *)
+                    { open: '_', close: '_' }       // italic (single _)
+                    // Note: Multi-character pairs like **, __, ~~ don't work in Monaco
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '`', close: '`' },
+                    { open: '*', close: '*' },
+                    { open: '_', close: '_' }
+                ]
+            });
+            console.log('[Monaco] ✓ Markdown language configured');
+
+            // ===== LATEX CONFIGURATION =====
+            // For both 'latex' and 'plaintext' (fallback when latex isn't registered)
+            const latexConfig = {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '$', close: '$' },           // inline math
+                    { open: '`', close: '`' }
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '$', close: '$' },
+                    { open: '`', close: '`' },
+                    { open: '\\{', close: '\\}' }
+                ]
+            };
+
+            try {
+                monaco.languages.setLanguageConfiguration('latex', latexConfig);
+                console.log('[Monaco] ✓ LaTeX language configured');
+            } catch (e) {
+                console.log('[Monaco] LaTeX language not available, will use plaintext');
+            }
+
+            // Also configure plaintext as fallback for LaTeX documents
+            monaco.languages.setLanguageConfiguration('plaintext', latexConfig);
+            console.log('[Monaco] ✓ Plaintext (LaTeX fallback) configured');
+
+            // ===== CODE LANGUAGES CONFIGURATION =====
+            // JavaScript, TypeScript, JSX, TSX
+            const jsConfig = {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '`', close: '`' }  // template literals
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '`', close: '`' },
+                    { open: '<', close: '>', notIn: ['string', 'comment'] }  // JSX
+                ]
+            };
+            ['javascript', 'typescript', 'javascriptreact', 'typescriptreact'].forEach(lang => {
+                try {
+                    monaco.languages.setLanguageConfiguration(lang, jsConfig);
+                    console.log(`[Monaco] ✓ ${lang} configured`);
+                } catch (e) {
+                    console.log(`[Monaco] ${lang} not available`);
+                }
+            });
+
+            // Python
+            monaco.languages.setLanguageConfiguration('python', {
+                surroundingPairs: [
+                    ...commonPairs
+                    // Note: Multi-character pairs like """ and ''' don't work in Monaco
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs
+                ]
+            });
+            console.log('[Monaco] ✓ Python configured');
+
+            // Java, C, C++, C#
+            const cLikeConfig = {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '<', close: '>' }  // templates/generics
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '<', close: '>', notIn: ['string', 'comment'] }
+                ]
+            };
+            ['java', 'c', 'cpp', 'csharp'].forEach(lang => {
+                try {
+                    monaco.languages.setLanguageConfiguration(lang, cLikeConfig);
+                    console.log(`[Monaco] ✓ ${lang} configured`);
+                } catch (e) {
+                    console.log(`[Monaco] ${lang} not available`);
+                }
+            });
+
+            // Go
+            monaco.languages.setLanguageConfiguration('go', {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '`', close: '`' }  // raw string literals
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '`', close: '`' }
+                ]
+            });
+            console.log('[Monaco] ✓ Go configured');
+
+            // Ruby
+            monaco.languages.setLanguageConfiguration('ruby', {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '|', close: '|' }  // block parameters
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '|', close: '|' }
+                ]
+            });
+            console.log('[Monaco] ✓ Ruby configured');
+
+            // PHP
+            monaco.languages.setLanguageConfiguration('php', {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '<', close: '>' }
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '<', close: '>', notIn: ['string', 'comment'] }
+                ]
+            });
+            console.log('[Monaco] ✓ PHP configured');
+
+            // Rust
+            monaco.languages.setLanguageConfiguration('rust', {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '<', close: '>' }  // generics
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '<', close: '>', notIn: ['string', 'comment'] }
+                ]
+            });
+            console.log('[Monaco] ✓ Rust configured');
+
+            // HTML, XML
+            const markupConfig = {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '<', close: '>' },
+                    { open: '`', close: '`' }
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '<', close: '>' },
+                    { open: '`', close: '`' }
+                ]
+            };
+            ['html', 'xml'].forEach(lang => {
+                try {
+                    monaco.languages.setLanguageConfiguration(lang, markupConfig);
+                    console.log(`[Monaco] ✓ ${lang} configured`);
+                } catch (e) {
+                    console.log(`[Monaco] ${lang} not available`);
+                }
+            });
+
+            // CSS, SCSS, LESS
+            const cssConfig = {
+                surroundingPairs: commonPairs,
+                autoClosingPairs: commonAutoClosingPairs
+            };
+            ['css', 'scss', 'less'].forEach(lang => {
+                try {
+                    monaco.languages.setLanguageConfiguration(lang, cssConfig);
+                    console.log(`[Monaco] ✓ ${lang} configured`);
+                } catch (e) {
+                    console.log(`[Monaco] ${lang} not available`);
+                }
+            });
+
+            // SQL
+            monaco.languages.setLanguageConfiguration('sql', {
+                surroundingPairs: commonPairs,
+                autoClosingPairs: commonAutoClosingPairs
+            });
+            console.log('[Monaco] ✓ SQL configured');
+
+            // JSON
+            monaco.languages.setLanguageConfiguration('json', {
+                surroundingPairs: [
+                    ['{', '}'],
+                    ['[', ']'],
+                    ['"', '"']
+                ],
+                autoClosingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '"', close: '"' }
+                ]
+            });
+            console.log('[Monaco] ✓ JSON configured');
+
+            // YAML
+            monaco.languages.setLanguageConfiguration('yaml', {
+                surroundingPairs: [
+                    ['(', ')'],
+                    ['[', ']'],
+                    ['{', '}'],
+                    ['"', '"'],
+                    ["'", "'"]
+                ],
+                autoClosingPairs: [
+                    { open: '(', close: ')' },
+                    { open: '[', close: ']' },
+                    { open: '{', close: '}' },
+                    { open: '"', close: '"' },
+                    { open: "'", close: "'" }
+                ]
+            });
+            console.log('[Monaco] ✓ YAML configured');
+
+            // Shell/Bash
+            monaco.languages.setLanguageConfiguration('shell', {
+                surroundingPairs: [
+                    ...commonPairs,
+                    { open: '`', close: '`' }
+                ],
+                autoClosingPairs: [
+                    ...commonAutoClosingPairs,
+                    { open: '`', close: '`' }
+                ]
+            });
+            console.log('[Monaco] ✓ Shell configured');
+
+            monacoLanguagesConfigured = true;
+            console.log('[Monaco] ✅ All language configurations complete');
+        }
+
         // Monaco Code Editor Functions
         let monacoEditor = null;
         let currentEditingCodeId = null;
@@ -29416,6 +29689,10 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             if (!monacoEditor) {
                 require(['vs/editor/editor.main'], function() {
                     console.log('[Code] Monaco loaded, creating editor');
+
+                    // Configure language autosurrounding/autoclosing
+                    configureMonacoLanguages();
+
                     monacoEditor = monaco.editor.create(document.getElementById('monacoEditorContainer'), {
                         value: codeSnippet.content || '',
                         language: codeSnippet.language || 'javascript',
@@ -29428,7 +29705,8 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                         lineNumbers: 'on',
                         renderWhitespace: 'selection',
                         tabSize: 4,
-                        insertSpaces: true
+                        insertSpaces: true,
+                        autoSurround: 'languageDefined'  // Enable autosurrounding from language config
                     });
 
                     // Register with theme manager
@@ -29614,6 +29892,10 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             if (!monacoMarkdownEditor) {
                 require(['vs/editor/editor.main'], function() {
                     console.log('[Markdown] Monaco loaded, creating editor');
+
+                    // Configure language autosurrounding/autoclosing
+                    configureMonacoLanguages();
+
                     monacoMarkdownEditor = monaco.editor.create(document.getElementById('monacoMarkdownEditorContainer'), {
                         value: markdownDoc.content || '# Welcome\n\nStart writing your markdown here...',
                         language: 'markdown',
@@ -29626,7 +29908,8 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                         lineNumbers: 'on',
                         renderWhitespace: 'selection',
                         tabSize: 2,
-                        insertSpaces: true
+                        insertSpaces: true,
+                        autoSurround: 'languageDefined'  // Enable autosurrounding from language config
                     });
 
                     // Register with theme manager
@@ -52205,6 +52488,9 @@ F &= ma \\\\
                         }
                     }
 
+                    // Configure language autosurrounding/autoclosing
+                    configureMonacoLanguages();
+
                     // Clear any existing content
                     editorContainer.innerHTML = '';
 
@@ -52221,7 +52507,8 @@ F &= ma \\\\
                         minimap: { enabled: false },
                         wordWrap: 'on',
                         automaticLayout: true,
-                        scrollBeyondLastLine: false
+                        scrollBeyondLastLine: false,
+                        autoSurround: 'languageDefined'  // Enable autosurrounding from language config
                     });
 
                     // Register with theme manager
