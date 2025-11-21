@@ -160,6 +160,15 @@ function openDiagramByIdDrawio(id) {
     document.getElementById('diagramEditor').style.display = 'flex';
     document.getElementById('diagramEditorTitle').textContent = diagram.name || 'Untitled Diagram';
 
+    // Initialize rating buttons (Phase 3b)
+    if (typeof initializeModalRating === 'function') {
+        initializeModalRating('diagramEditor', {
+            modalName: 'Diagram Editor',
+            modalType: 'diagram-editor',
+            complexity: 'very-high'
+        });
+    }
+
     // Initialize iframe if not already done
     if (!diagramIframe) {
         initializeDiagramIframe();
@@ -202,6 +211,11 @@ function closeDiagramEditorDrawio() {
     if (editorElement) {
         editorElement.style.display = 'none';
         console.log('[Diagram] Editor hidden');
+    }
+
+    // Clear rating buttons (Phase 3b)
+    if (typeof clearModalRating === 'function') {
+        clearModalRating('diagramEditor');
     }
 
     currentEditingDiagramId = null;

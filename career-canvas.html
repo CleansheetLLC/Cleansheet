@@ -8032,6 +8032,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                     <i class="ph ph-share-network" style="font-size: 16px;"></i>
                                     Share
                                 </button>
+                                <!-- Rating Buttons Container (Phase 3b) -->
+                                <div id="modalRatingButtons_documentEditorModal" class="rating-buttons"></div>
                                 <button class="modal-close" onclick="closeModal('documentEditorModal')">
                                     <i class="ph ph-x"></i>
                                 </button>
@@ -9464,7 +9466,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- Edit Info button removed -->
+                    <!-- Rating Buttons Container (Phase 3b) -->
+                    <div id="modalRatingButtons_whiteboardEditor" class="rating-buttons"></div>
                 </div>
             </div>
             <!-- Whiteboard Toolbar -->
@@ -9560,6 +9563,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Rating Buttons Container (Phase 3b) -->
+                    <div id="modalRatingButtons_diagramEditor" class="rating-buttons"></div>
                     <span style="font-family: var(--font-family-body); font-size: 12px; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                         <i class="ph ph-check-circle" style="margin-right: 4px;"></i>
                         <span id="saveIndicator" style="opacity: 0.7; transition: opacity 0.3s;">Auto-save enabled</span>
@@ -9584,6 +9589,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Rating Buttons Container (Phase 3b) -->
+                    <div id="modalRatingButtons_latexEditor" class="rating-buttons"></div>
                     <button onclick="editLatexMetadata()" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="Edit Info">
                         <i class="ph ph-info"></i>
                     </button>
@@ -9769,6 +9776,8 @@ Your content here...
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Rating Buttons Container (Phase 3b) -->
+                    <div id="modalRatingButtons_codeEditor" class="rating-buttons"></div>
                     <select id="codeLanguageSelect" onchange="changeCodeLanguage()" style="padding: 8px 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
                         <option value="javascript">JavaScript</option>
                         <option value="typescript">TypeScript</option>
@@ -9817,6 +9826,8 @@ Your content here...
                     </h3>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Rating Buttons Container (Phase 3b) -->
+                    <div id="modalRatingButtons_markdownEditor" class="rating-buttons"></div>
                     <button class="monaco-theme-toggle" onclick="CleansheetCore.monaco.toggleTheme()" aria-label="Toggle dark mode">
                         <i class="ph ph-moon"></i>
                     </button>
@@ -29394,6 +29405,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             document.getElementById('codeEditorTitle').textContent = codeSnippet.name || 'Untitled Code';
             document.getElementById('codeLanguageSelect').value = codeSnippet.language || 'javascript';
 
+            // Initialize rating buttons (Phase 3b)
+            initializeModalRating('codeEditor', {
+                modalName: 'Code Editor',
+                modalType: 'code-editor',
+                complexity: 'very-high'
+            });
+
             // Initialize Monaco editor if not already done
             if (!monacoEditor) {
                 require(['vs/editor/editor.main'], function() {
@@ -29448,6 +29466,10 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
             // Hide editor
             document.getElementById('codeEditor').style.display = 'none';
+
+            // Clear rating buttons (Phase 3b)
+            clearModalRating('codeEditor');
+
             currentEditingCodeId = null;
 
             // Reload assets list to show updated last modified time
@@ -29581,6 +29603,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             document.getElementById('markdownEditor').style.display = 'flex';
             document.getElementById('markdownEditorTitle').textContent = markdownDoc.name || 'Untitled Markdown';
 
+            // Initialize rating buttons (Phase 3b)
+            initializeModalRating('markdownEditor', {
+                modalName: 'Markdown Editor',
+                modalType: 'markdown-editor',
+                complexity: 'very-high'
+            });
+
             // Initialize Monaco editor if not already done
             if (!monacoMarkdownEditor) {
                 require(['vs/editor/editor.main'], function() {
@@ -29680,6 +29709,10 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
             // Hide editor
             document.getElementById('markdownEditor').style.display = 'none';
+
+            // Clear rating buttons (Phase 3b)
+            clearModalRating('markdownEditor');
+
             currentEditingMarkdownId = null;
 
             // Reload assets list to show updated last modified time
@@ -34948,6 +34981,13 @@ Start typing...`
                 console.error('Editor element not found!');
             }
 
+            // Initialize rating buttons (Phase 3b)
+            initializeModalRating('whiteboardEditor', {
+                modalName: 'Whiteboard Editor',
+                modalType: 'whiteboard-editor',
+                complexity: 'very-high'
+            });
+
             // Initialize whiteboard.js
             initializeWhiteboardJS(whiteboard);
         }
@@ -34987,6 +35027,9 @@ Start typing...`
             if (editorEl) {
                 editorEl.style.display = 'none';
             }
+
+            // Clear rating buttons (Phase 3b)
+            clearModalRating('whiteboardEditor');
 
             // Reload whiteboards list
             console.log('Reloading whiteboards list');
@@ -46562,6 +46605,13 @@ Start typing...`
         function openDocumentEditor(documentIndex = null) {
             currentDocumentIndex = documentIndex;
             openModal('documentEditorModal');
+
+            // Initialize rating buttons (Phase 3b)
+            initializeModalRating('documentEditorModal', {
+                modalName: 'Document Editor',
+                modalType: 'rich-text-editor',
+                complexity: 'very-high'
+            });
         }
 
         function initializeQuillEditor() {
@@ -52417,6 +52467,13 @@ F &= ma \\\\
             // Show the editor
             document.getElementById('latexEditor').style.display = 'flex';
 
+            // Initialize rating buttons (Phase 3b)
+            initializeModalRating('latexEditor', {
+                modalName: 'LaTeX Editor',
+                modalType: 'latex-editor',
+                complexity: 'very-high'
+            });
+
             // Check if this is a CV document and show/hide CV toolbar commands
             const documents = getLatexDocuments();
             const currentDoc = documents.find(d => d.id === currentLatexDocumentId);
@@ -52499,6 +52556,9 @@ F &= ma \\\\
 
             // Hide the editor
             document.getElementById('latexEditor').style.display = 'none';
+
+            // Clear rating buttons (Phase 3b)
+            clearModalRating('latexEditor');
 
             // Clear state
             currentLatexDocumentId = null;

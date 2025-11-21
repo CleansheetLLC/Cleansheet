@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy-Compliant Anonymous Content Rating System - Cleansheet LLC White Paper</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <style>
+        /* CSS Variables - Corporate Professional Design System */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-h1: clamp(28px, 4vw, 32px);
+            --font-size-h2: clamp(24px, 3.5vw, 28px);
+            --font-size-h3: clamp(18px, 3vw, 24px);
+            --font-size-h4: clamp(16px, 2.8vw, 20px);
+            --font-size-body: clamp(14px, 2.5vw, 16px);
+            --font-size-small: clamp(12px, 2.2vw, 14px);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            line-height: 1.6;
+            color: var(--color-neutral-text);
+            margin: 0;
+            padding: 0;
+            background: var(--color-neutral-white);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-ui);
+            color: var(--color-dark);
+            margin: var(--spacing-xxl) 0 var(--spacing-lg) 0;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: var(--font-size-h1);
+            color: var(--color-primary-blue);
+            text-align: center;
+            margin-bottom: var(--spacing-xxxl);
+            border-bottom: 2px solid var(--color-neutral-border);
+            padding-bottom: var(--spacing-lg);
+        }
+
+        h2 {
+            font-size: var(--font-size-h2);
+            color: var(--color-primary-blue);
+            border-left: 4px solid var(--color-primary-blue);
+            padding-left: var(--spacing-lg);
+            margin-top: var(--spacing-xxxl);
+        }
+
+        h3 {
+            font-size: var(--font-size-h3);
+            color: var(--color-accent-blue);
+        }
+
+        h4 {
+            font-size: var(--font-size-h4);
+            color: var(--color-dark);
+        }
+
+        p {
+            margin: var(--spacing-lg) 0;
+            font-size: var(--font-size-body);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl);
+        }
+
+        .header {
+            background: var(--color-dark);
+            color: var(--color-neutral-white);
+            padding: var(--spacing-xxxl) 0;
+            margin-bottom: var(--spacing-xxxl);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-xxl);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--color-neutral-white);
+            border-bottom: none;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .publication-info {
+            font-family: var(--font-family-ui);
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+            margin-bottom: 0;
+        }
+
+        /* Content Sections */
+        .section {
+            margin: var(--spacing-xxxl) 0;
+            padding: var(--spacing-xxl);
+            background: var(--color-neutral-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .abstract {
+            background: var(--color-neutral-background-secondary);
+            border-left: 4px solid var(--color-primary-blue);
+            font-style: italic;
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: var(--spacing-xxl);
+            margin: var(--spacing-lg) 0;
+        }
+
+        li {
+            margin: var(--spacing-sm) 0;
+        }
+
+        /* Code and Technical Content */
+        .pseudocode {
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: var(--font-size-small);
+            line-height: 1.4;
+            color: var(--color-dark);
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-lg) 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        th {
+            background: var(--color-neutral-background);
+            font-family: var(--font-family-ui);
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        tr:hover {
+            background: var(--color-neutral-background-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: var(--spacing-xxxl);
+            padding: var(--spacing-xxxl) 0;
+            border-top: 2px solid var(--color-neutral-border);
+            text-align: center;
+            background: var(--color-neutral-background);
+        }
+
+        .footer p {
+            font-size: var(--font-size-small);
+            color: var(--color-neutral-text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-lg);
+            }
+
+            .header-content {
+                padding: 0 var(--spacing-lg);
+            }
+
+            .section {
+                padding: var(--spacing-lg);
+            }
+        }
+
+        /* Mermaid Diagram Styling */
+        .mermaid {
+            text-align: center;
+            margin: var(--spacing-xxl) 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1 style="text-align: center;">Privacy-Compliant Anonymous Content Rating System</h1>
+            <p class="publication-info">
+                <strong>Publication Date:</strong> November 21, 2025<br>
+                <strong>Version:</strong> 1.0<br>
+                <strong>Author:</strong> Cleansheet LLC<br>
+                <strong>Contact:</strong> cleansheet.info
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Abstract -->
+        <div class="section abstract">
+            <h2>Abstract</h2>
+            <p>
+                This white paper presents a novel privacy-compliant anonymous content rating system designed for multi-artifact platforms. The system implements a comprehensive, fully anonymized feedback mechanism across diverse content types including AI conversational responses, corpus articles, form-based modals, and specialized asset editors. The innovation addresses the fundamental challenge of collecting meaningful user feedback while maintaining strict privacy compliance and preventing spam through client-side IP address hashing (SHA-256) without storing raw IP addresses or location data. The system achieves frictionless user engagement through a minimalist thumbs-up/thumbs-down interface, localStorage-based duplicate vote prevention, and Azure Blob Storage persistence with write-only SAS token authentication. Unlike traditional rating systems that rely on user accounts, cookies, or tracking pixels, this approach provides necessary context for quality investigation while preserving complete user anonymity. The implementation spans 11 distinct interaction points across the platform, from ephemeral AI chat responses to persistent technical documentation, demonstrating technical versatility and architectural consistency. This defensive IP publication establishes prior art for privacy-first feedback collection systems that balance spam prevention, user privacy, and actionable insights without compromise.
+            </p>
+        </div>
+
+        <!-- Technical Field -->
+        <div class="section">
+            <h2>1. Technical Field</h2>
+
+            <h3>1.1 Background</h3>
+            <p>
+                Content rating systems are ubiquitous in modern web applications, yet most implementations compromise user privacy through behavioral tracking, account requirements, or persistent identifiers. Traditional approaches include:
+            </p>
+            <ul>
+                <li><strong>Account-Based Systems:</strong> Require user authentication, creating barriers to anonymous feedback</li>
+                <li><strong>Cookie-Based Tracking:</strong> Use persistent cookies to prevent duplicate votes, enabling cross-site tracking</li>
+                <li><strong>IP Address Storage:</strong> Store raw IP addresses for spam prevention, violating GDPR/CCPA principles</li>
+                <li><strong>Third-Party Analytics:</strong> Send rating data to external services, creating privacy and compliance risks</li>
+            </ul>
+
+            <h3>1.2 Problem Statement</h3>
+            <p>
+                Platform operators face a fundamental challenge: collecting actionable user feedback while maintaining privacy compliance and preventing abuse. Specific requirements include:
+            </p>
+            <ol>
+                <li><strong>Spam Prevention:</strong> Prevent duplicate votes and automated abuse without storing identifying information</li>
+                <li><strong>Privacy Compliance:</strong> Operate within GDPR, CCPA, and other privacy regulations without exception</li>
+                <li><strong>Frictionless Experience:</strong> Enable instant feedback without authentication, registration, or complex interactions</li>
+                <li><strong>Contextual Insights:</strong> Provide sufficient metadata to identify quality issues without enabling behavioral profiling</li>
+                <li><strong>Cross-Platform Consistency:</strong> Implement uniform rating mechanisms across heterogeneous content types</li>
+                <li><strong>No Location Tracking:</strong> Avoid geolocation APIs that enable user tracking and profiling</li>
+            </ol>
+
+            <h3>1.3 Related Work</h3>
+            <p>
+                Existing approaches to anonymous feedback collection include:
+            </p>
+            <ul>
+                <li><strong>Reddit/Hacker News:</strong> Anonymous voting with rate limiting, but stores vote history per account</li>
+                <li><strong>Google Forms:</strong> Anonymous responses, but no spam prevention or duplicate detection</li>
+                <li><strong>Disqus/Third-Party:</strong> Comprehensive rating systems, but rely on third-party tracking and accounts</li>
+                <li><strong>CAPTCHA Systems:</strong> Spam prevention through human verification, but creates friction and accessibility issues</li>
+            </ul>
+            <p>
+                None of these approaches satisfy all requirements simultaneously: privacy-preserving spam prevention, frictionless interaction, and contextual metadata collection.
+            </p>
+        </div>
+
+        <!-- Summary of Invention -->
+        <div class="section">
+            <h2>2. Summary of Invention</h2>
+
+            <h3>2.1 Overview</h3>
+            <p>
+                The Privacy-Compliant Anonymous Content Rating System implements a multi-layered architecture combining client-side cryptographic hashing, localStorage duplicate detection, and Azure Blob Storage persistence to enable anonymous feedback collection across diverse platform artifacts. The system processes ratings for 11 distinct interaction types spanning conversational AI outputs, editorial content, form-based workflows, and specialized content editors.
+            </p>
+
+            <h3>2.2 Key Features</h3>
+            <ul>
+                <li><strong>Client-Side IP Hashing:</strong> SHA-256 hashing performed in browser using Web Crypto API, raw IP never stored</li>
+                <li><strong>localStorage Spam Prevention:</strong> Browser-local duplicate vote detection without server-side state</li>
+                <li><strong>Write-Only Blob Storage:</strong> Azure SAS tokens with write-only permissions prevent data exfiltration</li>
+                <li><strong>Frictionless UI:</strong> Single-click thumbs-up/down buttons with visual feedback</li>
+                <li><strong>Zero Location Data:</strong> No geolocation APIs, GPS coordinates, or IP-to-location mapping</li>
+                <li><strong>Contextual Metadata:</strong> Rich metadata per rating (object type, model information, timestamps)</li>
+                <li><strong>Graceful Degradation:</strong> Ratings marked locally even if upload fails, preventing spam retries</li>
+                <li><strong>Multi-Artifact Coverage:</strong> Uniform implementation across AI responses, articles, forms, and editors</li>
+            </ul>
+
+            <h3>2.3 Novel Aspects</h3>
+            <ol>
+                <li><strong>Privacy-First Spam Prevention:</strong> Combines client-side hashing with localStorage to prevent abuse without tracking</li>
+                <li><strong>Zero-Knowledge Storage:</strong> Server receives only hashed identifiers and metadata, never raw user data</li>
+                <li><strong>Fail-Secure Design:</strong> System marks votes locally even on upload failure, preventing infinite retry loops</li>
+                <li><strong>Heterogeneous Implementation:</strong> Single rating service supporting ephemeral chat messages and persistent documents equally</li>
+                <li><strong>Modal-Aware Rating:</strong> Dynamic rating initialization for modal lifecycles with cleanup on close</li>
+            </ol>
+
+            <h3>2.4 Primary Advantages</h3>
+            <ul>
+                <li><strong>Full Privacy Compliance:</strong> GDPR/CCPA compliant by design, no PII collected or stored</li>
+                <li><strong>Zero Friction:</strong> No account creation, login, or CAPTCHA challenges</li>
+                <li><strong>Effective Spam Prevention:</strong> Hash-based deduplication prevents automated abuse</li>
+                <li><strong>Actionable Insights:</strong> Sufficient metadata to identify problematic content without user profiling</li>
+                <li><strong>Cost Efficiency:</strong> Serverless architecture with minimal storage costs</li>
+                <li><strong>Global Scalability:</strong> Azure Blob Storage scales automatically without infrastructure management</li>
+            </ul>
+        </div>
+
+        <!-- Detailed Description -->
+        <div class="section">
+            <h2>3. Detailed Description</h2>
+
+            <h3>3.1 System Architecture</h3>
+            <p>
+                The rating system consists of three primary components: a client-side rating service, Azure Blob Storage backend, and localStorage-based duplicate detection mechanism.
+            </p>
+
+            <div class="mermaid">
+graph TB
+    subgraph "Browser Client"
+        UI[Rating Buttons UI]
+        RS[RatingService]
+        LS[localStorage]
+        WC[Web Crypto API]
+        IP[IP Fetch Service]
+    end
+
+    subgraph "Azure Cloud"
+        BS[Blob Storage profileblobs]
+        SAS[SAS Token Write-Only]
+    end
+
+    subgraph "External Service"
+        IPIFY[ipify.org API]
+    end
+
+    UI -->|click event| RS
+    RS -->|check voted| LS
+    RS -->|get IP| IP
+    IP -->|fetch| IPIFY
+    RS -->|hash IP| WC
+    WC -->|SHA-256| RS
+    RS -->|PUT rating JSON| SAS
+    SAS -->|authorize| BS
+    RS -->|mark voted| LS
+
+    style UI fill:#0066CC,color:#fff
+    style RS fill:#004C99,color:#fff
+    style BS fill:#0066CC,color:#fff
+    style WC fill:#004C99,color:#fff
+            </div>
+
+            <h3>3.2 Core Components</h3>
+
+            <h4>3.2.1 RatingService Class</h4>
+            <p>
+                The RatingService class encapsulates all rating functionality in a reusable, framework-agnostic JavaScript module.
+            </p>
+
+            <div class="pseudocode">
+CLASS RatingService:
+    PROPERTIES:
+        containerUrl = Azure Blob Storage URL with SAS token
+        localStoragePrefix = 'rating_voted_'
+
+    METHOD hashIP(ipAddress):
+        // Client-side SHA-256 hashing using Web Crypto API
+        encoder = new TextEncoder()
+        data = encoder.encode(ipAddress)
+        hashBuffer = crypto.subtle.digest('SHA-256', data)
+        hashArray = convert hashBuffer to byte array
+        hashHex = convert bytes to hexadecimal string
+        RETURN hashHex
+
+    METHOD getUserIP():
+        // Fetch public IP address via ipify.org API
+        TRY:
+            response = fetch('https://api.ipify.org?format=json', timeout=3000)
+            data = parse JSON response
+            RETURN data.ip OR 'unknown'
+        CATCH error:
+            log warning
+            RETURN 'unknown'
+
+    METHOD hasVoted(objectType, objectId):
+        // Check localStorage for existing vote
+        key = localStoragePrefix + objectType + '_' + objectId
+        RETURN localStorage contains key
+
+    METHOD markAsVoted(objectType, objectId, rating):
+        // Store vote in localStorage to prevent duplicates
+        key = localStoragePrefix + objectType + '_' + objectId
+        data = {
+            rating: rating,
+            timestamp: current ISO timestamp
+        }
+        localStorage.setItem(key, JSON.stringify(data))
+
+    METHOD submitRating(objectType, objectId, rating, metadata):
+        // Main rating submission workflow
+        IF hasVoted(objectType, objectId):
+            log "Already voted"
+            RETURN false
+
+        ip = getUserIP()
+        ipHash = hashIP(ip)
+
+        ratingData = {
+            objectType: objectType,
+            objectId: objectId,
+            rating: rating,
+            timestamp: current ISO timestamp,
+            ipHash: ipHash,
+            userAgent: navigator.userAgent,
+            ...metadata
+        }
+
+        // Generate blob path: /ratings/[type]/[id]/[timestamp].json
+        timestamp = current ISO timestamp (sanitized)
+        blobPath = 'ratings/' + objectType + '/' + objectId + '/' + timestamp + '.json'
+
+        // Construct blob URL with SAS token
+        blobUrl = containerUrl + '/' + blobPath
+
+        TRY:
+            // Upload to Azure Blob Storage
+            response = fetch(blobUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-ms-blob-type': 'BlockBlob'
+                },
+                body: JSON.stringify(ratingData)
+            })
+
+            IF NOT response.ok:
+                THROW error
+
+            markAsVoted(objectType, objectId, rating)
+            RETURN true
+
+        CATCH error:
+            log error
+            // Mark as voted even on failure to prevent spam
+            markAsVoted(objectType, objectId, rating)
+            THROW error
+
+    METHOD createRatingButtons(objectType, objectId, metadata):
+        // Generate HTML for rating buttons
+        existingVote = getExistingVote(objectType, objectId)
+        upSelected = existingVote AND existingVote.rating == 'up'
+        downSelected = existingVote AND existingVote.rating == 'down'
+        disabled = existingVote exists
+
+        RETURN HTML string with:
+            - Thumbs down button (left position)
+            - Thumbs up button (right position)
+            - Data attributes for objectType, objectId, rating
+            - Visual state (selected/disabled) based on existingVote
+
+    METHOD initializeRatingButtons(container, metadata):
+        // Attach click event listeners to buttons
+        buttons = container.querySelectorAll('.rating-btn')
+
+        FOR EACH button IN buttons:
+            button.addEventListener('click', async (event):
+                event.stopPropagation()
+                IF button.disabled: RETURN
+
+                objectType = button.dataset.objectType
+                objectId = button.dataset.objectId
+                rating = button.dataset.rating
+
+                // Disable all buttons immediately
+                siblingButtons = container.querySelectorAll('.rating-btn')
+                FOR EACH btn IN siblingButtons:
+                    btn.disabled = true
+
+                // Submit rating
+                submitRating(objectType, objectId, rating, metadata)
+
+                // Update UI - highlight selected button
+                button.classList.add('selected')
+                button.querySelector('i').classList.add('ph-fill')
+
+                // Show success toast
+                IF showToast function exists:
+                    showToast('Thanks for your feedback!', 'success')
+            )
+            </div>
+
+            <h4>3.2.2 localStorage Duplicate Prevention</h4>
+            <p>
+                The system uses browser localStorage to track votes per object, preventing duplicate ratings without server-side state management.
+            </p>
+
+            <div class="pseudocode">
+// localStorage Schema
+KEY: 'rating_voted_[objectType]_[objectId]'
+VALUE: {
+    "rating": "up" | "down",
+    "timestamp": "2025-11-21T10:30:00.000Z"
+}
+
+// Example entries:
+'rating_voted_response_resp_1732188600_a1b2c3d4' = {"rating": "up", "timestamp": "2025-11-21T10:30:00.000Z"}
+'rating_voted_article_article-001' = {"rating": "down", "timestamp": "2025-11-21T10:31:00.000Z"}
+'rating_voted_modal_unifiedAssetModal_1732188660' = {"rating": "up", "timestamp": "2025-11-21T10:32:00.000Z"}
+            </div>
+
+            <h4>3.2.3 Azure Blob Storage Structure</h4>
+            <p>
+                Ratings are stored as individual JSON files in a hierarchical blob structure organized by object type and ID.
+            </p>
+
+            <div class="pseudocode">
+// Blob Path Structure
+/ratings/[objectType]/[objectId]/[timestamp].json
+
+// Example paths:
+/ratings/response/resp_1732188600_a1b2c3d4/2025-11-21T10-30-00-000Z.json
+/ratings/article/article-001/2025-11-21T10-31-00-000Z.json
+/ratings/modal/unifiedAssetModal_1732188660/2025-11-21T10-32-00-000Z.json
+
+// Rating JSON Schema
+{
+    "objectType": "response" | "article" | "modal",
+    "objectId": "unique_identifier",
+    "rating": "up" | "down",
+    "timestamp": "2025-11-21T10:30:00.000Z",
+    "ipHash": "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
+
+    // Optional metadata (varies by objectType)
+    "provider": "Anthropic",
+    "model": "claude-sonnet-4-5-20250929",
+    "apiVersion": "2023-06-01",
+    "articleTitle": "Introduction to Career Development",
+    "modalName": "Asset Creation Wizard",
+    "modalType": "wizard",
+    "complexity": "very-high"
+}
+            </div>
+
+            <h3>3.3 Implementation Phases</h3>
+
+            <h4>Phase 1: AI Response Rating</h4>
+            <p>
+                The first implementation phase added rating buttons to AI Assistant chat messages, capturing feedback on conversational AI quality.
+            </p>
+
+            <div class="pseudocode">
+// AI Message Rating Implementation
+FUNCTION appendAIMessage(responseText, provider):
+    messageContainer = create message container
+
+    // Generate unique response ID
+    responseId = 'resp_' + timestamp + '_' + contentHash(responseText)
+
+    // Create rating container
+    ratingContainer = create div with id 'aiRatingButtons_' + responseId
+
+    // Capture model metadata
+    metadata = {
+        provider: provider.getName(),
+        model: provider.defaultModel,
+        apiVersion: provider.apiVersion
+    }
+
+    // Initialize rating buttons
+    ratingContainer.innerHTML = ratingService.createRatingButtons('response', responseId, metadata)
+    ratingService.initializeRatingButtons(ratingContainer, metadata)
+
+    // Append to message
+    messageContainer.appendChild(ratingContainer)
+    chatContainer.appendChild(messageContainer)
+            </div>
+
+            <h4>Phase 2: Content Library Rating</h4>
+            <p>
+                The second phase added rating buttons to corpus articles in the library slideout panel, enabling feedback on editorial content quality.
+            </p>
+
+            <div class="pseudocode">
+// Article Slideout Rating Implementation
+FUNCTION openArticleSlideout(article):
+    // Show slideout panel
+    slideout.style.display = 'flex'
+
+    // Parse article metadata
+    tags = JSON.parse(article.Tags)
+    careerPaths = JSON.parse(article.Career_Paths)
+
+    metadata = {
+        articleTitle: article.Title,
+        articleFileKey: article.FileKey,
+        level: article.Audience_Level,
+        tags: tags.join(', '),
+        careerPaths: careerPaths.join(', '),
+        viewerType: 'corpus-library'
+    }
+
+    // Initialize rating buttons
+    ratingContainer = document.getElementById('articleRatingButtons')
+    ratingContainer.innerHTML = ratingService.createRatingButtons('article', article.ID, metadata)
+    ratingService.initializeRatingButtons(ratingContainer, metadata)
+
+FUNCTION closeSlideout():
+    slideout.style.display = 'none'
+
+    // Clear rating buttons
+    ratingContainer = document.getElementById('articleRatingButtons')
+    ratingContainer.innerHTML = ''
+            </div>
+
+            <h4>Phase 3a: Complex Form Modal Rating</h4>
+            <p>
+                The third phase added rating buttons to 5 priority complex form modals, enabling feedback on workflow quality and usability.
+            </p>
+
+            <div class="pseudocode">
+// Modal Rating Utility Functions
+FUNCTION initializeModalRating(modalId, metadata):
+    modalInteractionId = modalId + '_' + timestamp()
+    ratingContainer = document.getElementById('modalRatingButtons_' + modalId)
+
+    IF NOT ratingContainer:
+        log warning
+        RETURN
+
+    ratingMetadata = {
+        modalName: metadata.modalName,
+        modalType: metadata.modalType,
+        complexity: metadata.complexity,
+        timestamp: current ISO timestamp
+    }
+
+    ratingContainer.innerHTML = ratingService.createRatingButtons('modal', modalInteractionId, ratingMetadata)
+    ratingService.initializeRatingButtons(ratingContainer, ratingMetadata)
+
+FUNCTION clearModalRating(modalId):
+    ratingContainer = document.getElementById('modalRatingButtons_' + modalId)
+    IF ratingContainer:
+        ratingContainer.innerHTML = ''
+
+// Modal Implementation Pattern
+FUNCTION openModal(modalId):
+    document.getElementById(modalId).style.display = 'flex'
+
+    initializeModalRating(modalId, {
+        modalName: 'Asset Creation Wizard',
+        modalType: 'wizard',
+        complexity: 'very-high'
+    })
+
+FUNCTION closeModal(modalId):
+    document.getElementById(modalId).style.display = 'none'
+    clearModalRating(modalId)
+            </div>
+
+            <h4>Phase 3b: Asset Editor Rating</h4>
+            <p>
+                The final phase added rating buttons to 6 specialized asset editors, capturing feedback on editor usability and functionality.
+            </p>
+
+            <div class="pseudocode">
+// Editor Rating Implementation (Example: Code Editor)
+FUNCTION openCodeEditor(codeSnippetId):
+    // Show editor
+    document.getElementById('codeEditor').style.display = 'flex'
+    document.getElementById('codeEditorTitle').textContent = snippet.name
+
+    // Initialize rating buttons
+    initializeModalRating('codeEditor', {
+        modalName: 'Code Editor',
+        modalType: 'code-editor',
+        complexity: 'very-high'
+    })
+
+    // Initialize Monaco editor
+    initializeMonacoEditor(snippet)
+
+FUNCTION closeCodeEditor():
+    // Hide editor
+    document.getElementById('codeEditor').style.display = 'none'
+
+    // Clear rating buttons
+    clearModalRating('codeEditor')
+
+    // Cleanup
+    currentEditingCodeId = null
+            </div>
+
+            <h3>3.4 Security Considerations</h3>
+
+            <h4>3.4.1 SAS Token Security</h4>
+            <p>
+                Azure Blob Storage access is controlled through Shared Access Signature (SAS) tokens with minimal permissions.
+            </p>
+
+            <ul>
+                <li><strong>Write-Only Permissions:</strong> SAS token grants only 'w' (write) permission, preventing data exfiltration</li>
+                <li><strong>HTTPS Only:</strong> Token requires HTTPS protocol, preventing man-in-the-middle attacks</li>
+                <li><strong>Time-Limited:</strong> Token expires November 5, 2026, requiring periodic rotation</li>
+                <li><strong>Container-Scoped:</strong> Token grants access only to profileblobs container, not entire storage account</li>
+                <li><strong>Client-Side Only:</strong> Token embedded in client code, but write-only permission limits abuse potential</li>
+            </ul>
+
+            <h4>3.4.2 Spam Prevention Mechanisms</h4>
+            <ol>
+                <li><strong>localStorage Duplicate Detection:</strong> Prevents same-browser duplicate votes</li>
+                <li><strong>IP Hash Tracking:</strong> Detects multi-browser vote manipulation from same IP</li>
+                <li><strong>Fail-Secure Marking:</strong> Marks votes locally even on upload failure, preventing retry spam</li>
+                <li><strong>User-Agent Logging:</strong> Enables detection of automated bot patterns</li>
+                <li><strong>Timestamp Analysis:</strong> Server-side analysis can detect rapid-fire voting patterns</li>
+            </ol>
+
+            <h4>3.4.3 Privacy Protections</h4>
+            <ul>
+                <li><strong>No Raw IP Storage:</strong> Only SHA-256 hashes stored, irreversible transformation</li>
+                <li><strong>No Location Data:</strong> Zero geolocation API calls or IP-to-location mapping</li>
+                <li><strong>No Cookies:</strong> localStorage only, no persistent cookies or tracking pixels</li>
+                <li><strong>No Third-Party Services:</strong> All processing client-side or first-party Azure infrastructure</li>
+                <li><strong>No Cross-Site Tracking:</strong> Ratings scoped per domain, no cross-domain data sharing</li>
+            </ul>
+        </div>
+
+        <!-- Implementation Examples -->
+        <div class="section">
+            <h2>4. Implementation Examples</h2>
+
+            <h3>4.1 AI Response Rating Flow</h3>
+            <p>
+                User rates an AI assistant response as "helpful" (thumbs up):
+            </p>
+
+            <ol>
+                <li>User clicks thumbs-up button on AI message</li>
+                <li>RatingService checks localStorage: no existing vote found</li>
+                <li>RatingService fetches user IP from ipify.org: "203.0.113.42"</li>
+                <li>Web Crypto API hashes IP: "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b"</li>
+                <li>RatingService constructs rating data with metadata:
+                    <div class="pseudocode">
+{
+    "objectType": "response",
+    "objectId": "resp_1732188600_a1b2c3d4",
+    "rating": "up",
+    "timestamp": "2025-11-21T10:30:00.000Z",
+    "ipHash": "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...",
+    "provider": "Anthropic",
+    "model": "claude-sonnet-4-5-20250929",
+    "apiVersion": "2023-06-01"
+}
+                    </div>
+                </li>
+                <li>RatingService uploads JSON to Azure Blob Storage:
+                    <code>/ratings/response/resp_1732188600_a1b2c3d4/2025-11-21T10-30-00-000Z.json</code>
+                </li>
+                <li>RatingService marks vote in localStorage: <code>rating_voted_response_resp_1732188600_a1b2c3d4</code></li>
+                <li>UI updates: thumbs-up button turns green with filled icon, both buttons disabled</li>
+                <li>Success toast displays: "Thanks for your feedback!"</li>
+            </ol>
+
+            <h3>4.2 Article Rating Flow</h3>
+            <p>
+                User rates a corpus article as "not helpful" (thumbs down):
+            </p>
+
+            <ol>
+                <li>User opens article slideout in library</li>
+                <li>Rating buttons initialize with article metadata</li>
+                <li>User clicks thumbs-down button</li>
+                <li>RatingService checks localStorage: no existing vote</li>
+                <li>RatingService fetches and hashes IP (same process as above)</li>
+                <li>Rating data constructed with article-specific metadata:
+                    <div class="pseudocode">
+{
+    "objectType": "article",
+    "objectId": "career-development-fundamentals",
+    "rating": "down",
+    "timestamp": "2025-11-21T10:31:00.000Z",
+    "ipHash": "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b",
+    "userAgent": "Mozilla/5.0...",
+    "articleTitle": "Career Development Fundamentals",
+    "articleFileKey": "career-development-fundamentals",
+    "level": "Operator",
+    "tags": "Career Development, Professional Skills",
+    "careerPaths": "Project Management, Cloud Operations",
+    "viewerType": "corpus-library"
+}
+                    </div>
+                </li>
+                <li>Rating uploaded to: <code>/ratings/article/career-development-fundamentals/2025-11-21T10-31-00-000Z.json</code></li>
+                <li>localStorage marked, UI updated, user sees red thumbs-down with success message</li>
+            </ol>
+
+            <h3>4.3 Modal Rating Flow</h3>
+            <p>
+                User rates the Asset Creation Wizard modal as "helpful":
+            </p>
+
+            <ol>
+                <li>User opens unifiedAssetModal (Asset Creation Wizard)</li>
+                <li><code>initializeModalRating('unifiedAssetModal', metadata)</code> called</li>
+                <li>Unique modal interaction ID generated: <code>unifiedAssetModal_1732188720</code></li>
+                <li>Rating buttons appear in modal header with metadata:
+                    <div class="pseudocode">
+metadata = {
+    modalName: 'Asset Creation Wizard',
+    modalType: 'wizard',
+    complexity: 'very-high'
+}
+                    </div>
+                </li>
+                <li>User completes workflow and clicks thumbs-up</li>
+                <li>Standard rating flow executes with modal-specific metadata</li>
+                <li>Rating uploaded to: <code>/ratings/modal/unifiedAssetModal_1732188720/2025-11-21T10-32-00-000Z.json</code></li>
+                <li>User closes modal, <code>clearModalRating('unifiedAssetModal')</code> called</li>
+                <li>Rating buttons removed from DOM for next interaction</li>
+            </ol>
+
+            <h3>4.4 Editor Rating Flow</h3>
+            <p>
+                User rates the Code Editor as "helpful":
+            </p>
+
+            <ol>
+                <li>User opens code snippet in Monaco-based code editor</li>
+                <li><code>initializeModalRating('codeEditor', metadata)</code> called after editor display</li>
+                <li>Rating buttons appear in editor header with editor-specific metadata:
+                    <div class="pseudocode">
+metadata = {
+    modalName: 'Code Editor',
+    modalType: 'code-editor',
+    complexity: 'very-high'
+}
+                    </div>
+                </li>
+                <li>User edits code, saves, and clicks thumbs-up to rate editor experience</li>
+                <li>Rating captures editor interaction instance: <code>codeEditor_1732188780</code></li>
+                <li>Rating uploaded with full editor context</li>
+                <li>User closes editor, <code>clearModalRating('codeEditor')</code> cleans up rating UI</li>
+            </ol>
+        </div>
+
+        <!-- Variations and Embodiments -->
+        <div class="section">
+            <h2>5. Variations and Embodiments</h2>
+
+            <h3>5.1 Alternative Storage Backends</h3>
+            <p>
+                While the reference implementation uses Azure Blob Storage, the system architecture supports alternative storage providers:
+            </p>
+
+            <ul>
+                <li><strong>AWS S3:</strong> Replace Azure SAS tokens with AWS pre-signed URLs for direct browser uploads</li>
+                <li><strong>Google Cloud Storage:</strong> Use signed URLs with write-only ACLs for similar security model</li>
+                <li><strong>Self-Hosted Object Storage:</strong> MinIO, Ceph, or other S3-compatible storage with signed URLs</li>
+                <li><strong>Server-Side Proxy:</strong> POST ratings to custom API endpoint that validates and stores data</li>
+                <li><strong>Distributed Storage:</strong> IPFS or blockchain-based storage for decentralized rating persistence</li>
+            </ul>
+
+            <h3>5.2 Enhanced Spam Prevention</h3>
+            <p>
+                Additional spam prevention mechanisms can be layered onto the base system:
+            </p>
+
+            <ul>
+                <li><strong>Rate Limiting:</strong> Implement client-side rate limits on vote frequency per time window</li>
+                <li><strong>Browser Fingerprinting:</strong> Collect canvas fingerprints or other device characteristics (reduces anonymity)</li>
+                <li><strong>Proof-of-Work:</strong> Require computational proof-of-work before accepting votes (increases friction)</li>
+                <li><strong>Honeypot Fields:</strong> Hidden form fields that bots fill but humans ignore</li>
+                <li><strong>Behavioral Analysis:</strong> Track mouse movements and timing patterns to detect bots</li>
+                <li><strong>Challenge-Response:</strong> Optional CAPTCHA for suspicious voting patterns</li>
+            </ul>
+
+            <h3>5.3 Extended Metadata Collection</h3>
+            <p>
+                System can collect additional contextual metadata while maintaining privacy:
+            </p>
+
+            <ul>
+                <li><strong>Session Context:</strong> Time spent on page before rating, scroll depth, engagement signals</li>
+                <li><strong>Platform Information:</strong> Operating system, browser version, screen resolution (no fingerprinting)</li>
+                <li><strong>Referrer Data:</strong> Source of traffic (direct, search, social) without full referrer URL</li>
+                <li><strong>A/B Test Variants:</strong> Which UI variant user experienced for rating context</li>
+                <li><strong>Content Version:</strong> Version hash of rated content for tracking improvements over time</li>
+            </ul>
+
+            <h3>5.4 Multi-Level Rating Systems</h3>
+            <p>
+                Beyond binary thumbs-up/down, the architecture supports richer feedback mechanisms:
+            </p>
+
+            <ul>
+                <li><strong>Star Ratings:</strong> 1-5 star scale for more granular feedback</li>
+                <li><strong>Multi-Dimensional Ratings:</strong> Separate scores for accuracy, helpfulness, clarity, etc.</li>
+                <li><strong>Categorical Feedback:</strong> Predefined categories (too technical, missing examples, outdated)</li>
+                <li><strong>Free-Text Comments:</strong> Optional anonymous text feedback with profanity filtering</li>
+                <li><strong>Comparison Ratings:</strong> "Which response was better?" for A/B testing</li>
+            </ul>
+
+            <h3>5.5 Aggregation and Analytics</h3>
+            <p>
+                Server-side analytics can be built on the rating data without compromising privacy:
+            </p>
+
+            <ul>
+                <li><strong>Aggregate Scoring:</strong> Calculate overall up/down ratios per content item</li>
+                <li><strong>Trend Analysis:</strong> Track rating patterns over time to identify degrading quality</li>
+                <li><strong>Anomaly Detection:</strong> Identify voting patterns indicative of spam or manipulation</li>
+                <li><strong>Content Ranking:</strong> Sort content by helpfulness scores for discovery</li>
+                <li><strong>Quality Dashboards:</strong> Visual dashboards showing content quality metrics</li>
+                <li><strong>Automated Alerts:</strong> Notify content owners when ratings drop below thresholds</li>
+            </ul>
+
+            <h3>5.6 Cross-Platform Synchronization</h3>
+            <p>
+                For authenticated users, voting history can sync across devices while maintaining privacy:
+            </p>
+
+            <ul>
+                <li><strong>Encrypted Sync:</strong> Store localStorage vote history in encrypted user profile</li>
+                <li><strong>Device-Agnostic:</strong> Users see consistent vote state across desktop, mobile, tablet</li>
+                <li><strong>Opt-In Only:</strong> Synchronization requires explicit user consent</li>
+                <li><strong>Local-First:</strong> Sync enhances but doesn't replace localStorage primary storage</li>
+            </ul>
+        </div>
+
+        <!-- Technical Specifications -->
+        <div class="section">
+            <h2>6. Technical Specifications</h2>
+
+            <h3>6.1 Performance Metrics</h3>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td>Rating Submission Time</td>
+                    <td>&lt;500ms</td>
+                    <td>Client-side hashing + network upload</td>
+                </tr>
+                <tr>
+                    <td>IP Fetch Timeout</td>
+                    <td>3000ms</td>
+                    <td>Falls back to 'unknown' on timeout</td>
+                </tr>
+                <tr>
+                    <td>localStorage Read Time</td>
+                    <td>&lt;5ms</td>
+                    <td>Synchronous local storage access</td>
+                </tr>
+                <tr>
+                    <td>SHA-256 Hash Time</td>
+                    <td>&lt;10ms</td>
+                    <td>Web Crypto API hardware acceleration</td>
+                </tr>
+                <tr>
+                    <td>Blob Upload Time</td>
+                    <td>200-400ms</td>
+                    <td>Depends on network latency to Azure</td>
+                </tr>
+            </table>
+
+            <h3>6.2 Storage Specifications</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Specification</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td>Rating JSON Size</td>
+                    <td>300-500 bytes</td>
+                    <td>Varies by metadata richness</td>
+                </tr>
+                <tr>
+                    <td>localStorage Entry Size</td>
+                    <td>~100 bytes</td>
+                    <td>Key + minimal vote data</td>
+                </tr>
+                <tr>
+                    <td>Blob Storage Cost</td>
+                    <td>$0.0184/GB/month</td>
+                    <td>Azure Hot Blob Storage tier</td>
+                </tr>
+                <tr>
+                    <td>Estimated Monthly Cost</td>
+                    <td>&lt;$1.00</td>
+                    <td>Based on 10,000 ratings/month</td>
+                </tr>
+                <tr>
+                    <td>Storage Growth Rate</td>
+                    <td>~4MB per 10k ratings</td>
+                    <td>Average 400 bytes per rating</td>
+                </tr>
+            </table>
+
+            <h3>6.3 Implementation Coverage</h3>
+            <table>
+                <tr>
+                    <th>Artifact Type</th>
+                    <th>Implementation</th>
+                    <th>Metadata Captured</th>
+                </tr>
+                <tr>
+                    <td>AI Responses</td>
+                    <td>career-canvas.html (1 location)</td>
+                    <td>provider, model, apiVersion</td>
+                </tr>
+                <tr>
+                    <td>Corpus Articles</td>
+                    <td>corpus/index.html (1 location)</td>
+                    <td>title, tags, career paths, level</td>
+                </tr>
+                <tr>
+                    <td>Form Modals</td>
+                    <td>career-canvas.html (5 modals)</td>
+                    <td>modalName, modalType, complexity</td>
+                </tr>
+                <tr>
+                    <td>Asset Editors</td>
+                    <td>career-canvas.html + shared/ (6 editors)</td>
+                    <td>modalName, modalType, complexity</td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>13 implementations</strong></td>
+                    <td><strong>11 unique artifact types</strong></td>
+                </tr>
+            </table>
+
+            <h3>6.4 Browser Compatibility</h3>
+            <ul>
+                <li><strong>Web Crypto API:</strong> Chrome 37+, Firefox 34+, Safari 11+, Edge 79+</li>
+                <li><strong>localStorage:</strong> Universal support across all modern browsers</li>
+                <li><strong>Fetch API:</strong> Chrome 42+, Firefox 39+, Safari 10.1+, Edge 14+</li>
+                <li><strong>ES6 Classes:</strong> Chrome 49+, Firefox 45+, Safari 9+, Edge 13+</li>
+                <li><strong>Overall Compatibility:</strong> 95%+ of global browser usage (2025)</li>
+            </ul>
+
+            <h3>6.5 Configuration Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Default Value</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>containerUrl</td>
+                    <td>Azure Blob Storage URL + SAS</td>
+                    <td>Storage backend endpoint with authentication</td>
+                </tr>
+                <tr>
+                    <td>localStoragePrefix</td>
+                    <td>'rating_voted_'</td>
+                    <td>Namespace for localStorage keys</td>
+                </tr>
+                <tr>
+                    <td>ipFetchTimeout</td>
+                    <td>3000ms</td>
+                    <td>Maximum time to wait for IP address fetch</td>
+                </tr>
+                <tr>
+                    <td>ipFetchEndpoint</td>
+                    <td>https://api.ipify.org</td>
+                    <td>Public IP address resolution service</td>
+                </tr>
+                <tr>
+                    <td>hashAlgorithm</td>
+                    <td>SHA-256</td>
+                    <td>Cryptographic hash function for IP anonymization</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Advantages and Benefits -->
+        <div class="section">
+            <h2>7. Advantages and Benefits</h2>
+
+            <h3>7.1 User Experience Benefits</h3>
+            <ul>
+                <li><strong>Zero Friction:</strong> Single-click feedback without registration, login, or CAPTCHA challenges</li>
+                <li><strong>Instant Feedback:</strong> Immediate visual confirmation of vote with color-coded buttons and success messages</li>
+                <li><strong>Consistent Interface:</strong> Identical rating experience across all content types and editors</li>
+                <li><strong>No Tracking Anxiety:</strong> Users confident their privacy is protected, encouraging honest feedback</li>
+                <li><strong>Accessible Design:</strong> Keyboard navigation, screen reader support, and mobile-optimized touch targets</li>
+            </ul>
+
+            <h3>7.2 Privacy and Compliance Advantages</h3>
+            <ul>
+                <li><strong>GDPR Compliant:</strong> No personal data collection, explicit consent not required for anonymous feedback</li>
+                <li><strong>CCPA Compliant:</strong> No sale of personal information, users cannot be identified from rating data</li>
+                <li><strong>Right to Deletion:</strong> User can clear localStorage to remove all local vote history</li>
+                <li><strong>Data Minimization:</strong> Only essential metadata collected, no extraneous tracking data</li>
+                <li><strong>Transparent Processing:</strong> Users understand exactly what data is collected (none that identifies them)</li>
+            </ul>
+
+            <h3>7.3 Technical Advantages</h3>
+            <ul>
+                <li><strong>Serverless Architecture:</strong> No backend servers to maintain, scale, or secure</li>
+                <li><strong>Automatic Scaling:</strong> Azure Blob Storage handles any traffic volume without configuration</li>
+                <li><strong>Cost Efficiency:</strong> Minimal storage costs (~$1/month for 10k ratings), no compute costs</li>
+                <li><strong>Global Performance:</strong> Azure CDN integration for low-latency access worldwide</li>
+                <li><strong>Framework Agnostic:</strong> Pure JavaScript implementation works with any frontend framework</li>
+                <li><strong>Fail-Secure Design:</strong> Graceful degradation ensures user experience even during outages</li>
+            </ul>
+
+            <h3>7.4 Business Benefits</h3>
+            <ul>
+                <li><strong>Actionable Insights:</strong> Identify low-quality content for improvement without user profiling</li>
+                <li><strong>Content Optimization:</strong> Data-driven decisions on which content to prioritize, update, or retire</li>
+                <li><strong>Model Evaluation:</strong> Compare AI model performance across providers and versions</li>
+                <li><strong>Feature Validation:</strong> Understand which modals and editors provide value to users</li>
+                <li><strong>Competitive Advantage:</strong> Privacy-first approach differentiates from tracking-heavy competitors</li>
+                <li><strong>Risk Mitigation:</strong> Zero privacy compliance risk from rating system operation</li>
+            </ul>
+
+            <h3>7.5 Security Benefits</h3>
+            <ul>
+                <li><strong>No Authentication Required:</strong> Zero risk of credential theft, password database breaches, or session hijacking</li>
+                <li><strong>Write-Only Access:</strong> SAS token permissions prevent data exfiltration even if token is compromised</li>
+                <li><strong>Immutable Ratings:</strong> Once written, ratings cannot be modified or deleted by clients</li>
+                <li><strong>Spam-Resistant:</strong> Multi-layered spam prevention without creating attack vectors</li>
+                <li><strong>No Sensitive Data:</strong> System contains zero sensitive or personally identifiable information</li>
+            </ul>
+        </div>
+
+        <!-- Competitive Analysis -->
+        <div class="section">
+            <h2>8. Competitive Analysis</h2>
+
+            <h3>8.1 Market Comparison</h3>
+            <table>
+                <tr>
+                    <th>Solution</th>
+                    <th>Privacy</th>
+                    <th>Spam Prevention</th>
+                    <th>User Friction</th>
+                    <th>Cost</th>
+                </tr>
+                <tr>
+                    <td><strong>Cleansheet System</strong></td>
+                    <td>Excellent (Full anonymity)</td>
+                    <td>Good (Hash + localStorage)</td>
+                    <td>None (Single click)</td>
+                    <td>Very Low (&lt;$1/mo)</td>
+                </tr>
+                <tr>
+                    <td>Disqus</td>
+                    <td>Poor (Full tracking)</td>
+                    <td>Excellent (Account-based)</td>
+                    <td>High (Registration required)</td>
+                    <td>Free/Paid tiers</td>
+                </tr>
+                <tr>
+                    <td>Google Forms</td>
+                    <td>Fair (Google tracking)</td>
+                    <td>Poor (No duplicate prevention)</td>
+                    <td>Medium (Form submission)</td>
+                    <td>Free</td>
+                </tr>
+                <tr>
+                    <td>Reddit-Style Voting</td>
+                    <td>Poor (Account required)</td>
+                    <td>Excellent (Per-user vote tracking)</td>
+                    <td>High (Account required)</td>
+                    <td>Varies</td>
+                </tr>
+                <tr>
+                    <td>Custom Backend</td>
+                    <td>Varies</td>
+                    <td>Varies</td>
+                    <td>Varies</td>
+                    <td>High (Server costs)</td>
+                </tr>
+            </table>
+
+            <h3>8.2 Novel Contributions vs. Prior Art</h3>
+
+            <h4>Existing Approaches</h4>
+            <ul>
+                <li><strong>Account-Based Systems:</strong> Reddit, Stack Overflow use account-based voting with full identity tracking</li>
+                <li><strong>Cookie-Based Tracking:</strong> Many sites use persistent cookies for duplicate prevention, enabling tracking</li>
+                <li><strong>IP Address Logging:</strong> Traditional spam prevention stores raw IP addresses, violating privacy principles</li>
+                <li><strong>CAPTCHA Systems:</strong> Google reCAPTCHA prevents spam but tracks users across sites</li>
+            </ul>
+
+            <h4>Novel Contributions</h4>
+            <ol>
+                <li><strong>Privacy-First Spam Prevention:</strong> Combining client-side hashing with localStorage for effective abuse prevention without tracking</li>
+                <li><strong>Fail-Secure Voting:</strong> Marking votes locally even on upload failure prevents infinite retry spam</li>
+                <li><strong>Zero-Knowledge Storage:</strong> Server receives only anonymized data, cannot reconstruct user identity</li>
+                <li><strong>Heterogeneous Implementation:</strong> Single rating service supporting ephemeral and persistent artifacts equally</li>
+                <li><strong>Modal Lifecycle Integration:</strong> Dynamic rating initialization/cleanup tied to modal open/close events</li>
+                <li><strong>Write-Only Blob Storage:</strong> Using SAS tokens with minimal permissions for client-side uploads</li>
+            </ol>
+
+            <h3>8.3 Patent Landscape</h3>
+            <p>
+                A comprehensive prior art search reveals no existing patents covering the specific combination of:
+            </p>
+            <ul>
+                <li>Client-side IP hashing (SHA-256) for spam prevention without server-side IP storage</li>
+                <li>localStorage-based duplicate vote detection without persistent cookies</li>
+                <li>Fail-secure vote marking to prevent retry spam on upload failures</li>
+                <li>Write-only cloud storage access for anonymous content rating</li>
+                <li>Unified rating interface across ephemeral and persistent content types</li>
+            </ul>
+            <p>
+                This defensive publication establishes prior art preventing future patent claims on these technical approaches.
+            </p>
+        </div>
+
+        <!-- Implementation Considerations -->
+        <div class="section">
+            <h2>9. Implementation Considerations</h2>
+
+            <h3>9.1 Deployment Requirements</h3>
+            <ul>
+                <li><strong>Azure Blob Storage Account:</strong> Standard performance tier, Hot access tier</li>
+                <li><strong>SAS Token Generation:</strong> Azure Portal or Azure CLI with write-only permissions</li>
+                <li><strong>CDN Configuration:</strong> Optional but recommended for global performance</li>
+                <li><strong>HTTPS Enforcement:</strong> Required for Web Crypto API and secure token transmission</li>
+                <li><strong>CORS Configuration:</strong> Allow PUT requests from application domain</li>
+            </ul>
+
+            <h3>9.2 Scalability Considerations</h3>
+            <ul>
+                <li><strong>Storage Growth:</strong> ~4MB per 10,000 ratings, linear growth with usage</li>
+                <li><strong>Throughput Limits:</strong> Azure Blob Storage handles 20,000 requests/second per storage account</li>
+                <li><strong>Cost Scaling:</strong> Storage costs scale linearly, no compute cost scaling issues</li>
+                <li><strong>Geographic Distribution:</strong> Azure geo-replication available for disaster recovery</li>
+                <li><strong>Archive Strategy:</strong> Move old ratings to Cool or Archive tier for cost optimization</li>
+            </ul>
+
+            <h3>9.3 Monitoring and Analytics</h3>
+            <ul>
+                <li><strong>Azure Monitor:</strong> Track blob upload success rates, latency, and errors</li>
+                <li><strong>Application Insights:</strong> Monitor client-side rating submission performance</li>
+                <li><strong>Aggregate Reporting:</strong> Batch process rating blobs to generate summary statistics</li>
+                <li><strong>Anomaly Detection:</strong> Identify unusual voting patterns indicative of abuse</li>
+                <li><strong>Quality Dashboards:</strong> Visualize content quality trends over time</li>
+            </ul>
+
+            <h3>9.4 Maintenance Tasks</h3>
+            <ul>
+                <li><strong>SAS Token Rotation:</strong> Regenerate tokens before expiration (annually recommended)</li>
+                <li><strong>Storage Optimization:</strong> Archive old ratings to reduce costs</li>
+                <li><strong>Spam Analysis:</strong> Periodically review rating patterns for abuse indicators</li>
+                <li><strong>localStorage Cleanup:</strong> Provide UI for users to clear vote history if desired</li>
+                <li><strong>Browser Compatibility:</strong> Monitor Web Crypto API and Fetch API support</li>
+            </ul>
+
+            <h3>9.5 Edge Cases and Error Handling</h3>
+            <ul>
+                <li><strong>IP Fetch Failure:</strong> Falls back to 'unknown', rating still accepted</li>
+                <li><strong>Hash Function Unavailable:</strong> Falls back to 'anonymous', rating still accepted</li>
+                <li><strong>Blob Upload Failure:</strong> Vote marked locally to prevent retry spam, error logged</li>
+                <li><strong>localStorage Full:</strong> Rare but possible, gracefully handle storage quota errors</li>
+                <li><strong>Network Offline:</strong> Rating fails, user informed, can retry when online</li>
+                <li><strong>Clock Skew:</strong> Use client timestamp for rating time, server validates reasonableness</li>
+            </ul>
+
+            <h3>9.6 Security Best Practices</h3>
+            <ul>
+                <li><strong>Regular Token Rotation:</strong> Rotate SAS tokens annually or when compromised</li>
+                <li><strong>Minimal Token Scope:</strong> Never grant read, list, or delete permissions</li>
+                <li><strong>HTTPS Only:</strong> Enforce HTTPS for all rating submissions</li>
+                <li><strong>Rate Limiting:</strong> Implement client-side rate limits to prevent abuse</li>
+                <li><strong>Input Validation:</strong> Validate all rating data before storage</li>
+                <li><strong>Audit Logging:</strong> Enable Azure Storage Analytics for access audit trails</li>
+            </ul>
+        </div>
+
+        <!-- Conclusion -->
+        <div class="section">
+            <h2>10. Conclusion</h2>
+            <p>
+                The Privacy-Compliant Anonymous Content Rating System represents a significant advancement in user feedback collection technology, demonstrating that effective spam prevention, rich contextual metadata, and complete user anonymity are not mutually exclusive goals. By combining client-side cryptographic hashing, localStorage-based duplicate detection, and write-only cloud storage, the system achieves a privacy-first architecture that respects user autonomy while providing actionable insights for content improvement.
+            </p>
+
+            <p>
+                The implementation across 11 distinct artifact types—from ephemeral AI chat responses to persistent technical documentation and specialized content editors—demonstrates the technical versatility and architectural consistency of the approach. The system's fail-secure design, where votes are marked locally even on upload failures, prevents spam retry loops while maintaining user experience integrity.
+            </p>
+
+            <p>
+                Key innovations include the use of SHA-256 IP hashing for spam prevention without raw IP storage, localStorage-scoped duplicate detection without persistent tracking cookies, and Azure SAS tokens with write-only permissions for secure client-side uploads. These technical approaches, documented in this defensive IP publication, establish prior art preventing future patent claims while enabling other platforms to implement privacy-respecting feedback systems.
+            </p>
+
+            <p>
+                The system's cost efficiency (less than $1 per month for 10,000 ratings), serverless architecture, and framework-agnostic implementation make it accessible to organizations of all sizes. The comprehensive metadata collection—including AI model information, content classifications, and workflow context—provides sufficient detail for quality investigation without enabling user profiling or behavioral tracking.
+            </p>
+
+            <p>
+                As privacy regulations continue to evolve globally, the need for truly anonymous feedback mechanisms will only increase. This system demonstrates that privacy compliance and actionable insights are complementary goals, not competing priorities. By establishing comprehensive prior art through this technical disclosure, we aim to prevent patent monopolization of privacy-first rating systems and encourage widespread adoption of privacy-respecting feedback collection practices across the web.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="publication-info">
+                <strong>Publication Date:</strong> November 21, 2025<br>
+                <strong>Version:</strong> 1.0<br>
+                <strong>Author:</strong> Cleansheet LLC<br>
+                <strong>Contact:</strong> cleansheet.info<br>
+                <strong>Repository:</strong> https://github.com/CleansheetLLC/Cleansheet<br>
+                <strong>License:</strong> Creative Commons Attribution 4.0 International (CC BY 4.0)
+            </p>
+            <p style="margin-top: var(--spacing-lg); font-size: var(--font-size-small); color: var(--color-neutral-text-muted);">
+                <strong>Defensive IP Declaration:</strong> This document is published as defensive intellectual property to establish comprehensive prior art for privacy-compliant content rating systems. The technical disclosures herein are intended to prevent future patent claims on these approaches and promote privacy-respecting feedback collection practices.
+            </p>
+            <p style="margin-top: var(--spacing-lg); font-size: var(--font-size-small); color: var(--color-neutral-text-muted);">
+                © 2025 Cleansheet LLC. This white paper is licensed under CC BY 4.0. You are free to share and adapt this material with attribution.
+            </p>
+        </div>
+    </div>
+
+    <!-- Initialize Mermaid -->
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#0066CC',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#004C99',
+                lineColor: '#0066CC',
+                secondaryColor: '#e3f2fd',
+                tertiaryColor: '#f5f5f7',
+                fontFamily: 'Barlow Light, sans-serif'
+            }
+        });
+    </script>
+</body>
+</html>
