@@ -29702,6 +29702,170 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             console.log('[Monaco] ✅ All language configurations complete');
         }
 
+        // ==========================================
+        // Monaco AI Inline Completion Provider
+        // ==========================================
+
+        // Completion cache and state
+        const completionCache = new Map(); // Cache for recent completions
+        const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+        const DEBOUNCE_DELAY = 500; // 500ms debounce
+        let completionDebounceTimer = null;
+        let lastCompletionContext = null;
+
+        /**
+         * Register AI inline completion provider for a Monaco editor
+         * @param {monaco.editor.IStandaloneCodeEditor} editor - Monaco editor instance
+         * @param {string} editorType - Type of editor ('code', 'markdown', 'latex')
+         */
+        function registerInlineCompletionProvider(editor, editorType) {
+            if (!editor) {
+                console.warn('[Inline Completion] Editor not provided');
+                return;
+            }
+
+            console.log(`[Inline Completion] Registering provider for ${editorType} editor`);
+
+            // Register inline completions provider
+            const provider = monaco.languages.registerInlineCompletionsProvider('*', {
+                provideInlineCompletions: async (model, position, context, token) => {
+                    // Check if AI provider is available
+                    if (!currentProvider) {
+                        console.log('[Inline Completion] No AI provider configured');
+                        return { items: [] };
+                    }
+
+                    try {
+                        // Get context around cursor
+                        const textBefore = model.getValueInRange({
+                            startLineNumber: Math.max(1, position.lineNumber - 50),
+                            startColumn: 1,
+                            endLineNumber: position.lineNumber,
+                            endColumn: position.column
+                        });
+
+                        const textAfter = model.getValueInRange({
+                            startLineNumber: position.lineNumber,
+                            startColumn: position.column,
+                            endLineNumber: Math.min(model.getLineCount(), position.lineNumber + 10),
+                            endColumn: model.getLineMaxColumn(Math.min(model.getLineCount(), position.lineNumber + 10))
+                        });
+
+                        // Create cache key
+                        const cacheKey = `${textBefore}|${position.lineNumber}|${position.column}`;
+
+                        // Check cache
+                        const cached = completionCache.get(cacheKey);
+                        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+                            console.log('[Inline Completion] Using cached suggestion');
+                            return {
+                                items: [{
+                                    insertText: cached.completion,
+                                    range: {
+                                        startLineNumber: position.lineNumber,
+                                        startColumn: position.column,
+                                        endLineNumber: position.lineNumber,
+                                        endColumn: position.column
+                                    }
+                                }]
+                            };
+                        }
+
+                        // Get language from model
+                        const language = model.getLanguageId();
+
+                        // Build prompt for AI
+                        const prompt = `You are a code completion assistant. Complete the following ${language} code. Provide ONLY the completion text, no explanations.
+
+Context before cursor:
+\`\`\`${language}
+${textBefore}
+\`\`\`
+
+Context after cursor:
+\`\`\`${language}
+${textAfter}
+\`\`\`
+
+Complete the code at the cursor position. Provide only the next line or logical block of code:`;
+
+                        console.log('[Inline Completion] Requesting suggestion from AI...');
+
+                        // Request completion from AI provider
+                        const response = await currentProvider.generateResponse([
+                            { role: 'user', content: prompt }
+                        ]);
+
+                        // Extract completion text
+                        let completion = response.content || '';
+
+                        // Clean up completion (remove markdown code blocks if present)
+                        completion = completion.replace(/```[a-z]*\n?/gi, '').trim();
+
+                        // Remove leading/trailing whitespace but preserve indentation
+                        const lines = completion.split('\n');
+                        const firstLineIndent = lines[0].match(/^\s*/)[0];
+                        completion = lines.map(line => line.startsWith(firstLineIndent) ? line.slice(firstLineIndent.length) : line).join('\n');
+
+                        // Cache the result
+                        completionCache.set(cacheKey, {
+                            completion,
+                            timestamp: Date.now()
+                        });
+
+                        // Clean old cache entries
+                        cleanCompletionCache();
+
+                        console.log('[Inline Completion] Suggestion received:', completion.substring(0, 50) + '...');
+
+                        return {
+                            items: [{
+                                insertText: completion,
+                                range: {
+                                    startLineNumber: position.lineNumber,
+                                    startColumn: position.column,
+                                    endLineNumber: position.lineNumber,
+                                    endColumn: position.column
+                                }
+                            }]
+                        };
+
+                    } catch (error) {
+                        console.error('[Inline Completion] Error getting suggestion:', error);
+                        return { items: [] };
+                    }
+                },
+                freeInlineCompletions: (completions) => {
+                    // Optional cleanup
+                }
+            });
+
+            // Store provider for potential cleanup
+            editor._inlineCompletionProvider = provider;
+
+            console.log(`[Inline Completion] ✅ Provider registered for ${editorType}`);
+        }
+
+        /**
+         * Clean old cache entries (older than TTL)
+         */
+        function cleanCompletionCache() {
+            const now = Date.now();
+            for (const [key, value] of completionCache.entries()) {
+                if (now - value.timestamp > CACHE_TTL) {
+                    completionCache.delete(key);
+                }
+            }
+        }
+
+        /**
+         * Clear completion cache (useful for testing or when switching contexts)
+         */
+        function clearCompletionCache() {
+            completionCache.clear();
+            console.log('[Inline Completion] Cache cleared');
+        }
+
         // Monaco Code Editor Functions
         let monacoEditor = null;
         let currentEditingCodeId = null;
@@ -29768,6 +29932,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
                     // Register with theme manager
                     CleansheetCore.monaco.register(monacoEditor);
+
+                    // Register AI inline completion provider
+                    registerInlineCompletionProvider(monacoEditor, 'code');
 
                     // Start auto-save
                     startCodeAutoSave();
@@ -29971,6 +30138,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
                     // Register with theme manager
                     CleansheetCore.monaco.register(monacoMarkdownEditor);
+
+                    // Register AI inline completion provider
+                    registerInlineCompletionProvider(monacoMarkdownEditor, 'markdown');
 
                     // Update preview on content change
                     monacoMarkdownEditor.onDidChangeModelContent(() => {
@@ -52570,6 +52740,9 @@ F &= ma \\\\
 
                     // Register with theme manager
                     CleansheetCore.monaco.register(latexEditor);
+
+                    // Register AI inline completion provider
+                    registerInlineCompletionProvider(latexEditor, 'latex');
 
                     // Add change listener for auto-save and auto-compile
                     latexEditor.onDidChangeModelContent(() => {
