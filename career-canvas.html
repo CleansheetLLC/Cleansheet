@@ -19589,6 +19589,21 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         buttonContainer.style.borderTop = '1px solid var(--color-neutral-border)';
                     }
 
+                    // Save to Asset button (first, more prominent action)
+                    const saveBtn = document.createElement('button');
+                    saveBtn.className = 'save-message-btn';
+                    saveBtn.innerHTML = '<i class="ph ph-floppy-disk-back"></i><span>Save to Asset</span>';
+                    saveBtn.title = 'Save this response to Interview Prep > Assets';
+                    saveBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        // Get message index from the message element
+                        const messageEl = contentDiv.closest('.chat-message');
+                        const messageIndex = messageEl ? messageEl.dataset.messageIndex : null;
+                        saveAssistantMessageAsMarkdown(content, messageIndex);
+                    };
+                    buttonContainer.appendChild(saveBtn);
+                    console.log('[Streaming] Save to Asset button added');
+
                     // Copy button
                     const copyBtn = document.createElement('button');
                     copyBtn.className = 'copy-message-btn';
