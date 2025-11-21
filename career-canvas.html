@@ -17396,11 +17396,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     }
 
                     // Restore messages to UI
+                    console.log('[LLM] Restoring', conversationHistory.length, 'messages to UI');
                     conversationHistory.forEach((msg, index) => {
                         if (msg.role !== 'system') {
+                            console.log('[LLM] Restoring message', index, 'with role:', msg.role);
                             addMessageToUI(msg.role, msg.content, index);
                         }
                     });
+                    console.log('[LLM] All messages restored');
 
                     // Hide empty state if there are messages
                     if (conversationHistory.length > 0) {
@@ -19005,7 +19008,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
         // Add message to UI
         function addMessageToUI(role, content, messageIndex = null) {
+            console.log('[addMessageToUI] Called with role:', role, 'messageIndex:', messageIndex);
             const messagesContainer = document.getElementById('chatMessages');
+
+            if (!messagesContainer) {
+                console.error('[addMessageToUI] chatMessages container not found!');
+                return;
+            }
 
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${role}`;
@@ -19035,6 +19044,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             // Add action buttons for assistant messages at the bottom
             if (role === 'assistant') {
+                console.log('[addMessageToUI] Creating buttons for assistant message');
                 // Create button container
                 const buttonContainer = document.createElement('div');
                 buttonContainer.style.display = 'flex';
@@ -19053,6 +19063,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     saveAssistantMessageAsMarkdown(content, messageIndex);
                 };
                 buttonContainer.appendChild(saveBtn);
+                console.log('[addMessageToUI] Save button created and appended');
 
                 // Copy button
                 const copyBtn = document.createElement('button');
@@ -19094,6 +19105,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 }
 
                 contentDiv.appendChild(buttonContainer);
+                console.log('[addMessageToUI] Button container appended to contentDiv, total buttons:', buttonContainer.children.length);
             }
 
             messageDiv.appendChild(avatarDiv);
@@ -19101,6 +19113,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
 
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            console.log('[addMessageToUI] Message appended to DOM');
         }
 
         // Copy message to clipboard with proper markdown line breaking
