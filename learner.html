@@ -15,6 +15,10 @@
     <script src="shared/data-service.js"></script>
     <script src="shared/library-data.js"></script>
 
+    <!-- Rating System (Phase 2: Article Rating) -->
+    <script src="shared/rating-service.js?v=7"></script>
+    <link rel="stylesheet" href="shared/rating-styles.css?v=7">
+
     <style>
         /* Cleansheet Design System */
         :root {
@@ -653,6 +657,8 @@
                             <i class="ph ph-bookmark"></i>
                             Bookmark
                         </button>
+                        <!-- Rating Buttons Container (Phase 2: Article Rating) -->
+                        <div id="articleRatingButtons" class="rating-buttons" style="margin-left: 12px;"></div>
                     </div>
                 </div>
                 <div class="reading-content" id="articleContent">
@@ -959,11 +965,56 @@
             } else {
                 bookmarkBtn.innerHTML = '<i class="ph ph-bookmark"></i> Bookmark';
             }
+
+            // Add rating buttons (Phase 2: Article Rating)
+            try {
+                const ratingContainer = document.getElementById('articleRatingButtons');
+
+                if (!ratingContainer) {
+                    console.warn('[learner.html] Rating button container not found');
+                    return;
+                }
+
+                // Build comprehensive metadata for analytics
+                const metadata = {
+                    articleTitle: article.title,
+                    articleFileKey: article.fileKey,
+                    level: article.level || 'Operator',
+                    tags: article.tags ? article.tags.join(', ') : '',
+                    careerPaths: article.careerPaths ? article.careerPaths.join(', ') : '',
+                    wordCount: article.wordCount || 0,
+                    readingTime: article.readingTime || 0,
+                    viewerType: 'learner'
+                };
+
+                // Generate rating buttons HTML
+                ratingContainer.innerHTML = ratingService.createRatingButtons(
+                    'article',
+                    article.id,
+                    metadata
+                );
+
+                // Attach event listeners
+                ratingService.initializeRatingButtons(ratingContainer, metadata);
+
+                console.log('[learner.html] Rating buttons initialized for article ID:', article.id);
+
+            } catch (error) {
+                console.error('[learner.html] Failed to initialize rating buttons:', error);
+                // Non-critical error - article still readable without rating buttons
+            }
         }
 
         function closeArticle() {
             document.getElementById('libraryView').style.display = 'block';
             document.getElementById('readingView').classList.remove('active');
+
+            // Clear rating buttons
+            const ratingContainer = document.getElementById('articleRatingButtons');
+            if (ratingContainer) {
+                ratingContainer.innerHTML = '';
+            }
+
             currentArticleId = null;
         }
 
