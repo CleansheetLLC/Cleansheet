@@ -8915,9 +8915,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <div class="modal-content" style="max-width: 500px;">
                 <div class="modal-header">
                     <h2 class="modal-title">Profile Settings</h2>
-                    <button class="modal-close" onclick="closeProfileModal()">
-                        <i class="ph ph-x"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <!-- Rating Buttons Container (Phase 3a) -->
+                        <div id="modalRatingButtons_profileModal" class="rating-buttons"></div>
+                        <button class="modal-close" onclick="closeProfileModal()">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -9212,9 +9216,13 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2 class="modal-title" id="unifiedAssetModalTitle">Create Asset</h2>
-                    <button class="modal-close" onclick="closeUnifiedAssetModal()">
-                        <i class="ph ph-x"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+                        <!-- Rating Buttons Container (Phase 3a) -->
+                        <div id="modalRatingButtons_unifiedAssetModal" class="rating-buttons"></div>
+                        <button class="modal-close" onclick="closeUnifiedAssetModal()">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -9951,9 +9959,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
                     <h2 class="modal-title">Generate LLM Prompt</h2>
-                    <button class="modal-close" onclick="closePromptBuilder()">
-                        <i class="ph ph-x"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+                        <!-- Rating Buttons Container (Phase 3a) -->
+                        <div id="modalRatingButtons_promptBuilderModal" class="rating-buttons"></div>
+                        <button class="modal-close" onclick="closePromptBuilder()">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -10101,6 +10113,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             <i class="ph ph-play-circle" style="font-size: 16px;"></i>
                             <span>Start Tour</span>
                         </button>
+                        <!-- Rating Buttons Container (Phase 3a) -->
+                        <div id="modalRatingButtons_rapidOnboardingModal" class="rating-buttons"></div>
                         <button class="modal-close" onclick="closeRapidOnboardingModal()">
                             <i class="ph ph-x"></i>
                         </button>
@@ -12640,6 +12654,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                         <button onclick="saveTableSchema()" style="padding: 8px 16px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer;">
                             Save Table Schema
                         </button>
+                        <!-- Rating Buttons Container (Phase 3a) -->
+                        <div id="modalRatingButtons_tableWizardModal" class="rating-buttons"></div>
                         <button class="modal-close" onclick="closeModal('tableWizardModal')">
                             <i class="ph ph-x"></i>
                         </button>
@@ -21782,6 +21798,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
             // Show modal
             document.getElementById('profileModal').style.display = 'flex';
+
+            // Initialize rating buttons (Phase 3a)
+            initializeModalRating('profileModal', {
+                modalName: 'Profile Settings',
+                modalType: 'settings',
+                complexity: 'medium'
+            });
         }
 
         function checkAndShowExampleProfileNotice(profile) {
@@ -21843,6 +21866,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
         function closeProfileModal() {
             document.getElementById('profileModal').style.display = 'none';
+
+            // Clear rating buttons (Phase 3a)
+            clearModalRating('profileModal');
         }
 
         function loadProfile() {
@@ -21963,6 +21989,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
             // Show modal
             document.getElementById('promptBuilderModal').style.display = 'flex';
+
+            // Initialize rating buttons (Phase 3a)
+            initializeModalRating('promptBuilderModal', {
+                modalName: 'LLM Prompt Generator',
+                modalType: 'wizard',
+                complexity: 'very-high'
+            });
         }
 
         function updateAttachButtonState() {
@@ -21997,6 +22030,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
         }
 
         function closePromptBuilder() {
+            // Clear rating buttons (Phase 3a)
+            clearModalRating('promptBuilderModal');
+
             document.getElementById('promptBuilderModal').style.display = 'none';
         }
 
@@ -22090,10 +22126,20 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             document.getElementById('rapidOnboardingLastName').value = '';
             document.getElementById('rapidOnboardingProfession').value = '';
             document.getElementById('rapidOnboardingGoal').value = '';
+
+            // Initialize rating buttons (Phase 3a)
+            initializeModalRating('rapidOnboardingModal', {
+                modalName: 'Rapid Onboarding Quick Start',
+                modalType: 'wizard',
+                complexity: 'medium'
+            });
         };
 
         window.closeRapidOnboardingModal = function() {
             document.getElementById('rapidOnboardingModal').style.display = 'none';
+
+            // Clear rating buttons (Phase 3a)
+            clearModalRating('rapidOnboardingModal');
         };
 
         window.toggleProfileRequestFields = function() {
@@ -28811,6 +28857,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
             // Show modal
             document.getElementById('unifiedAssetModal').style.display = 'flex';
+
+            // Initialize rating buttons (Phase 3a)
+            initializeModalRating('unifiedAssetModal', {
+                modalName: 'Asset Creation Wizard',
+                modalType: 'wizard',
+                complexity: 'very-high'
+            });
         }
 
         function editAssetMetadata(assetType, assetId) {
@@ -28890,6 +28943,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
         }
 
         function closeUnifiedAssetModal() {
+            // Clear rating buttons (Phase 3a)
+            clearModalRating('unifiedAssetModal');
+
             document.getElementById('unifiedAssetModal').style.display = 'none';
         }
 
@@ -41528,6 +41584,13 @@ Start typing...`
             addTableColumn({name: 'id', dataType: 'serial', primaryKey: true, notNull: true});
 
             openModal('tableWizardModal');
+
+            // Initialize rating buttons (Phase 3a)
+            initializeModalRating('tableWizardModal', {
+                modalName: 'Table Wizard',
+                modalType: 'schema-builder',
+                complexity: 'very-high'
+            });
         }
 
         function addTableColumn(preset = null) {
@@ -47594,6 +47657,51 @@ Start typing...`
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+
+            // Clear rating buttons if this modal has them (Phase 3a)
+            clearModalRating(modalId);
+        }
+
+        // Modal Rating Functions (Phase 3a: Complex Form Modals)
+        function initializeModalRating(modalId, metadata = {}) {
+            try {
+                const modalInteractionId = `${modalId}_${Date.now()}`;
+                const ratingContainer = document.getElementById(`modalRatingButtons_${modalId}`);
+
+                if (!ratingContainer) {
+                    console.warn('[Modal Rating] Container not found for:', modalId);
+                    return;
+                }
+
+                // Build metadata
+                const ratingMetadata = {
+                    modalName: metadata.modalName || modalId,
+                    modalType: metadata.modalType || 'unknown',
+                    complexity: metadata.complexity || 'unknown',
+                    timestamp: new Date().toISOString()
+                };
+
+                // Create rating buttons
+                ratingContainer.innerHTML = ratingService.createRatingButtons(
+                    'modal',
+                    modalInteractionId,
+                    ratingMetadata
+                );
+
+                // Initialize event listeners
+                ratingService.initializeRatingButtons(ratingContainer, ratingMetadata);
+
+                console.log('[Modal Rating] Initialized for:', modalId);
+            } catch (error) {
+                console.error('[Modal Rating] Failed to initialize:', error);
+            }
+        }
+
+        function clearModalRating(modalId) {
+            const ratingContainer = document.getElementById(`modalRatingButtons_${modalId}`);
+            if (ratingContainer) {
+                ratingContainer.innerHTML = '';
+            }
         }
 
         // Export Menu Functions
