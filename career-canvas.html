@@ -84,6 +84,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <script src="shared/context-analyzer.js"></script>
     <script src="shared/suggestion-engine.js"></script>
 
+    <!-- Simple Onboarding Modal -->
+    <script src="shared/onboarding-modal-simple.js"></script>
+
     <!-- Monaco Editor (VS Code Editor) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 
@@ -8948,20 +8951,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <textarea id="profileGoal" placeholder="e.g., Transition to senior engineering role at a tech company" rows="3" style="padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"></textarea>
                         </div>
 
-                        <!-- Email & Sign In -->
-                        <div style="display: flex; gap: 8px; align-items: flex-end;">
-                            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-                                <label style="font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark);">
-                                    Email Address
-                                </label>
-                                <input type="email" id="profileEmail" placeholder="your.email@example.com" style="width: 100%; padding: 10px 12px; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;">
-                            </div>
-                            <button id="profileCloudSyncButton" onclick="handleCloudSyncClick()" style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
-                                <i id="profileCloudSyncIcon" class="ph ph-cloud-arrow-up" style="font-size: 16px;"></i>
-                                <span id="profileCloudSyncText">Sign In</span>
-                            </button>
-                        </div>
-
                         <!-- Example Profile Notice (shown only for example profiles) -->
                         <div id="exampleProfileNotice" style="display: none; padding: 16px; background: #fff7ed; border-radius: 8px; border: 2px solid #f97316;">
                             <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
@@ -8978,25 +8967,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                             <button onclick="clearExampleProfile()" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                 <i class="ph ph-broom"></i>
                                 <span>Ready to Get Started</span>
-                            </button>
-                        </div>
-
-                        <!-- Profile Request Invitation (shown when NOT example profile) -->
-                        <div id="profileRequestInvitation" style="display: none; padding: 16px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 8px; border: 2px solid #f97316;">
-                            <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
-                                <i class="ph ph-sparkle" style="font-size: 24px; color: #f97316; flex-shrink: 0;"></i>
-                                <div>
-                                    <div style="font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: #ea580c; margin-bottom: 4px;">
-                                        Skip the Drudgery
-                                    </div>
-                                    <div style="font-family: var(--font-family-body); font-size: 13px; color: #9a3412; line-height: 1.5;">
-                                        Let Cleansheet build your professional profile from LinkedIn. We'll create a comprehensive career canvas with your experiences, skills, and accomplishments.
-                                    </div>
-                                </div>
-                            </div>
-                            <button onclick="closeProfileModal(); openSubscriptionProfileRequestModal();" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                <i class="ph ph-user-focus"></i>
-                                <span>Request Cleansheet Profile</span>
                             </button>
                         </div>
 
@@ -21731,7 +21701,6 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             document.getElementById('profileLastName').value = profile.lastName;
             document.getElementById('profileProfession').value = profile.profession;
             document.getElementById('profileGoal').value = profile.goal;
-            document.getElementById('profileEmail').value = profile.email || '';
 
             // Check if this is an example profile and show/hide notice
             checkAndShowExampleProfileNotice(profile);
@@ -21766,12 +21735,6 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             if (notice) {
                 notice.style.display = isExampleProfile ? 'block' : 'none';
             }
-
-            // Show profile request invitation if it's NOT an example profile
-            const invitation = document.getElementById('profileRequestInvitation');
-            if (invitation) {
-                invitation.style.display = isExampleProfile ? 'none' : 'block';
-            }
         }
 
         function clearExampleProfile() {
@@ -21791,14 +21754,10 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 document.getElementById('profileLastName').value = '';
                 document.getElementById('profileProfession').value = '';
                 document.getElementById('profileGoal').value = '';
-                document.getElementById('profileEmail').value = '';
 
-                // Hide the example profile notice and show the profile request invitation
+                // Hide the example profile notice
                 const notice = document.getElementById('exampleProfileNotice');
                 if (notice) notice.style.display = 'none';
-
-                const invitation = document.getElementById('profileRequestInvitation');
-                if (invitation) invitation.style.display = 'block';
 
                 // Refresh the mindmap to show empty state
                 refreshMindmap();
@@ -21828,8 +21787,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 firstName: document.getElementById('profileFirstName').value.trim(),
                 lastName: document.getElementById('profileLastName').value.trim(),
                 profession: document.getElementById('profileProfession').value.trim(),
-                goal: document.getElementById('profileGoal').value.trim(),
-                email: document.getElementById('profileEmail').value.trim()
+                goal: document.getElementById('profileGoal').value.trim()
             };
 
             // Validate required fields
@@ -24862,10 +24820,13 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
         // Process Restore with Selected Mode
         function processImportWithMode(overwriteMode) {
+            console.log('[Import] processImportWithMode called, overwriteMode:', overwriteMode);
             if (!pendingImportData) {
+                console.error('[Import] No pendingImportData available!');
                 alert('No import data available.');
                 return;
             }
+            console.log('[Import] pendingImportData exists, processing...');
 
             const data = pendingImportData;
             closeImportModeModal();
@@ -24896,6 +24857,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             }
 
             // Import profile data
+            console.log('[Import] Creating profile from data...');
             const profile = {
                 firstName: data.userFirstName,
                 lastName: data.userLastName,
@@ -24903,7 +24865,9 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 goal: data.userGoals || '',
                 email: data.userEmail || ''
             };
+            console.log('[Import] Profile created:', profile);
             localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+            console.log('[Import] Profile saved to localStorage');
 
             // Import experiences
             const newExperiences = data.experiences.map(exp => ({
@@ -25107,10 +25071,16 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             }
 
             // Show success message
+            console.log('[Import] All data imported successfully, showing alert...');
             const mode = importMode ? 'OVERWRITE' : 'UPDATE';
             alert(`Successfully imported (${mode} mode):\n- Profile: ${profile.firstName} ${profile.lastName}\n- ${newExperiences.length} experiences\n- ${newStories.length} stories\n- ${newGoals.length} goals\n- ${newPortfolio.length} portfolio projects\n- ${newDiagrams.length} diagrams\n- ${newDocuments.length} documents\n- ${newWhiteboards.length} whiteboards\n- ${newMarkdown.length} markdown docs\n- ${newPlantUML.length} plantuml diagrams\n- ${newCode.length} code snippets\n- ${newMermaid.length} mermaid diagrams\n- ${newPresentations.length} presentations\n- ${newJobOpportunities.length} job opportunities\n\nPage will refresh to update the canvas.`);
 
+            // Set flag to show success toast after reload (for onboarding import flow)
+            console.log('[Import] Setting cleansheet_import_pending flag...');
+            localStorage.setItem('cleansheet_import_pending', 'true');
+
             // Refresh page to update all badge numbers and UI
+            console.log('[Import] Reloading page...');
             window.location.reload();
         }
 
@@ -25687,27 +25657,59 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
         const MAX_RESTORE_ATTEMPTS = 3;
 
         function handleRestoreFromModal(mode) {
-            // Close the data management modal
-            closeDataManagementModal();
+            console.log('[Restore] handleRestoreFromModal called with mode:', mode);
 
-            // Create and trigger file input
-            const fileInput = document.getElementById('jsonFileInput');
-            fileInput.value = ''; // Reset input
+            try {
+                // Close the data management modal
+                closeDataManagementModal();
+                console.log('[Restore] Data management modal closed');
+
+                // Create and trigger file input
+                const fileInput = document.getElementById('jsonFileInput');
+                console.log('[Restore] File input element:', fileInput);
+
+                if (!fileInput) {
+                    console.error('[Restore] File input element not found!');
+                    alert('Error: File input element not found. Please refresh the page and try again.');
+                    return;
+                }
+
+                fileInput.value = ''; // Reset input
+                console.log('[Restore] File input reset, about to click...');
 
             fileInput.onchange = function(e) {
+                console.log('[Restore] File input onchange triggered');
                 const file = e.target.files[0];
-                if (!file) return;
+                if (!file) {
+                    console.log('[Restore] No file selected');
+                    return;
+                }
+                console.log('[Restore] File selected:', file.name);
 
                 const reader = new FileReader();
+
+                reader.onerror = function(error) {
+                    console.error('[Restore] FileReader error:', error);
+                    alert('Error reading file: ' + error);
+                };
+
                 reader.onload = function(event) {
+                    console.log('[Restore] File loaded, parsing JSON...');
                     try {
                         const data = JSON.parse(event.target.result);
+                        console.log('[Restore] JSON parsed successfully');
+                        console.log('[Restore] Data keys:', Object.keys(data));
 
                         // Validate JSON structure
                         if (!data.userFirstName || !data.userLastName || !data.experiences) {
+                            console.error('[Restore] Invalid JSON structure - missing required fields');
+                            console.log('[Restore] Has userFirstName:', !!data.userFirstName);
+                            console.log('[Restore] Has userLastName:', !!data.userLastName);
+                            console.log('[Restore] Has experiences:', !!data.experiences);
                             alert('Invalid JSON format. Please ensure the file contains userFirstName, userLastName, and experiences fields.');
                             return;
                         }
+                        console.log('[Restore] JSON validation passed');
 
                         // Check if backup contains encrypted API keys
                         if (data.apiKeysEncrypted && data.apiKeysEncrypted.encrypted && data.apiKeysEncrypted.providers && data.apiKeysEncrypted.providers.length > 0) {
@@ -25725,21 +25727,34 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
                             // Process import directly based on mode
                             pendingImportData = data;
+                            console.log('[Restore] Set pendingImportData, mode:', mode);
                             if (mode === 'overwrite') {
+                                console.log('[Restore] Calling processImportWithMode(true) for overwrite');
                                 processImportWithMode(true); // true = overwrite
                             } else if (mode === 'update') {
+                                console.log('[Restore] Calling processImportWithMode(false) for update/merge');
                                 processImportWithMode(false); // false = update/merge
                             }
                         }
 
                     } catch (error) {
+                        console.error('[Restore] Error in JSON parsing:', error);
                         alert('Error parsing JSON file: ' + error.message);
                     }
                 };
+
+                console.log('[Restore] Starting to read file...');
                 reader.readAsText(file);
+                console.log('[Restore] readAsText called, waiting for onload...');
             };
 
-            fileInput.click();
+                fileInput.click();
+                console.log('[Restore] File input clicked successfully');
+
+            } catch (error) {
+                console.error('[Restore] Error in handleRestoreFromModal:', error);
+                alert('Error triggering file picker: ' + error.message);
+            }
         }
 
         function showRestorePasswordModal(providers) {
@@ -49690,8 +49705,144 @@ F &= ma \\\\
                             console.log(`Highlighting element for step: ${stepId}`);
                             audioTourManager.playNarration(stepId);
                         }
+
+                        // Special handling for Step 1 (welcome form)
+                        if (stepId === 'welcome') {
+                            setTimeout(() => {
+                                // Hide Driver.js's built-in navigation buttons for this step
+                                const driverPopover = document.querySelector('.driver-popover');
+                                const driverButtons = driverPopover?.querySelector('.driver-popover-footer');
+                                if (driverButtons) {
+                                    driverButtons.style.display = 'none';
+                                }
+
+                                const firstNameInput = document.getElementById('tourFirstName');
+                                const lastNameInput = document.getElementById('tourLastName');
+                                const professionInput = document.getElementById('tourProfession');
+                                const careerGoalInput = document.getElementById('tourCareerGoal');
+                                const skipBtn = document.getElementById('tourSkipBtn');
+                                const nextBtn = document.getElementById('tourNextBtn');
+                                const errorDiv = document.getElementById('tourFormError');
+
+                                // Function to validate form and enable/disable Skip Tour button
+                                const validateForm = () => {
+                                    const firstName = firstNameInput?.value.trim() || '';
+                                    const lastName = lastNameInput?.value.trim() || '';
+
+                                    // Check if both fields have at least one alphanumeric character
+                                    const hasAlphaNumeric = /[a-zA-Z0-9]/.test(firstName) && /[a-zA-Z0-9]/.test(lastName);
+
+                                    if (skipBtn) {
+                                        skipBtn.disabled = !hasAlphaNumeric;
+                                        skipBtn.style.cursor = hasAlphaNumeric ? 'pointer' : 'not-allowed';
+                                        skipBtn.style.opacity = hasAlphaNumeric ? '1' : '0.5';
+                                    }
+                                };
+
+                                // Attach input listeners
+                                if (firstNameInput) firstNameInput.addEventListener('input', validateForm);
+                                if (lastNameInput) lastNameInput.addEventListener('input', validateForm);
+
+                                // Handle Next button click
+                                if (nextBtn) {
+                                    nextBtn.addEventListener('click', () => {
+                                        const firstName = firstNameInput?.value.trim();
+                                        const lastName = lastNameInput?.value.trim();
+                                        const profession = professionInput?.value.trim();
+                                        const careerGoal = careerGoalInput?.value.trim();
+
+                                        if (!firstName || !lastName) {
+                                            // Show error message
+                                            if (errorDiv) {
+                                                errorDiv.style.display = 'block';
+                                            }
+                                            return;
+                                        }
+
+                                        // Hide error if shown
+                                        if (errorDiv) {
+                                            errorDiv.style.display = 'none';
+                                        }
+
+                                        // Save profile data to localStorage
+                                        const profile = {
+                                            firstName: firstName,
+                                            lastName: lastName,
+                                            profession: profession || '',
+                                            goal: careerGoal || ''
+                                        };
+                                        localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+                                        console.log('[Tour] Profile saved:', profile);
+
+                                        // Advance to next step
+                                        this.driver.moveNext();
+                                    });
+                                }
+
+                                // Handle Skip Tour button click
+                                if (skipBtn) {
+                                    skipBtn.addEventListener('click', () => {
+                                        const firstName = firstNameInput?.value.trim();
+                                        const lastName = lastNameInput?.value.trim();
+                                        const profession = professionInput?.value.trim();
+                                        const careerGoal = careerGoalInput?.value.trim();
+
+                                        // Save profile data to localStorage
+                                        const profile = {
+                                            firstName: firstName,
+                                            lastName: lastName,
+                                            profession: profession || '',
+                                            goal: careerGoal || ''
+                                        };
+                                        localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+                                        console.log('[Tour] Profile saved (tour skipped):', profile);
+
+                                        // Close the tour
+                                        this.driver.destroy();
+                                        this.isActive = false;
+                                        this.currentStep = 0;
+                                    });
+                                }
+
+                                // Initial validation
+                                validateForm();
+                            }, 100);
+                        }
                     },
                     onNext: (element) => {
+                        // Validate Step 1 form before allowing progression
+                        if (this.currentStep === 0) {
+                            const firstName = document.getElementById('tourFirstName')?.value.trim();
+                            const lastName = document.getElementById('tourLastName')?.value.trim();
+                            const profession = document.getElementById('tourProfession')?.value.trim();
+                            const careerGoal = document.getElementById('tourCareerGoal')?.value.trim();
+                            const errorDiv = document.getElementById('tourFormError');
+
+                            if (!firstName || !lastName) {
+                                // Show error message
+                                if (errorDiv) {
+                                    errorDiv.style.display = 'block';
+                                }
+                                // Prevent advancement
+                                return false;
+                            }
+
+                            // Save profile data to localStorage
+                            const profile = {
+                                firstName: firstName,
+                                lastName: lastName,
+                                profession: profession || '',
+                                goal: careerGoal || ''
+                            };
+                            localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+                            console.log('[Tour] Profile saved:', profile);
+
+                            // Hide error if shown
+                            if (errorDiv) {
+                                errorDiv.style.display = 'none';
+                            }
+                        }
+
                         // Track step progression
                         this.currentStep = Math.min(this.currentStep + 1, this.tourSteps.length - 1);
                         this.onStepChanged(this.currentStep);
@@ -49719,7 +49870,65 @@ F &= ma \\\\
                         element: '.canvas-modal-header',
                         popover: {
                             title: 'Welcome to Cleansheet Canvas',
-                            description: 'This is your personal workspace for managing job search, professional projects, and career development. Let\'s take a quick tour of the key features!',
+                            description: `
+                                <p style="margin: 0 0 16px 0; font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">
+                                    Let's get started! Please tell us a bit about yourself:
+                                </p>
+                                <form id="tourWelcomeForm" style="display: flex; flex-direction: column; gap: 12px;">
+                                    <!-- Row 1: First Name and Last Name -->
+                                    <div style="display: flex; gap: 12px;">
+                                        <div style="flex: 1;">
+                                            <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                                First Name <span style="color: #dc2626;">*</span>
+                                            </label>
+                                            <input type="text" id="tourFirstName" required
+                                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;"
+                                                placeholder="First name">
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                                Last Name <span style="color: #dc2626;">*</span>
+                                            </label>
+                                            <input type="text" id="tourLastName" required
+                                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;"
+                                                placeholder="Last name">
+                                        </div>
+                                    </div>
+                                    <!-- Row 2: Profession/Role -->
+                                    <div>
+                                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                            Profession/Role <span style="font-size: 11px; font-weight: 400; color: var(--color-neutral-text);">(optional)</span>
+                                        </label>
+                                        <input type="text" id="tourProfession"
+                                            style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;"
+                                            placeholder="e.g., Software Engineer, Marketing Manager">
+                                    </div>
+                                    <!-- Row 3: Career Goal -->
+                                    <div>
+                                        <label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">
+                                            Career Goal <span style="font-size: 11px; font-weight: 400; color: var(--color-neutral-text);">(optional)</span>
+                                        </label>
+                                        <textarea id="tourCareerGoal" rows="3"
+                                            style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;"
+                                            placeholder="What are you hoping to achieve in your career?"></textarea>
+                                    </div>
+                                    <!-- Error Message -->
+                                    <div id="tourFormError" style="display: none; padding: 8px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #dc2626; font-family: var(--font-family-body); font-size: 12px;">
+                                        Please fill in all required fields (marked with *)
+                                    </div>
+                                    <!-- Buttons Row -->
+                                    <div style="display: flex; gap: 12px; margin-top: 8px;">
+                                        <button type="button" id="tourNextBtn"
+                                            style="flex: 1; padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer;">
+                                            Next
+                                        </button>
+                                        <button type="button" id="tourSkipBtn" disabled
+                                            style="flex: 1; padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: not-allowed; opacity: 0.5;">
+                                            Skip Tour
+                                        </button>
+                                    </div>
+                                </form>
+                            `,
                             position: 'bottom'
                         },
                         stepId: 'welcome'
@@ -50494,7 +50703,7 @@ F &= ma \\\\
 
         let tourState = {
             currentStep: 0,
-            totalSteps: 10,
+            totalSteps: 9,
             isActive: false,
             completedOnce: localStorage.getItem('cleansheet_tour_completed') === 'true'
         };
@@ -50504,25 +50713,71 @@ F &= ma \\\\
             {
                 title: 'Welcome to Cleansheet',
                 icon: 'ph-hand-waving',
-                content: 'Your interactive career management workspace. Let\'s take a quick tour to get you started. You can explore example profiles later from the Quick Start button.',
+                content: '<p style="margin: 0 0 16px 0; font-family: var(--font-family-body); font-size: 14px; color: var(--color-dark);">Let\'s get started! Please tell us a bit about yourself:</p><form id="legacyTourWelcomeForm" style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; gap: 12px;"><div style="flex: 1;"><label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">First Name <span style="color: #dc2626;">*</span></label><input type="text" id="legacyTourFirstName" required style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" placeholder="First name"></div><div style="flex: 1;"><label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Last Name <span style="color: #dc2626;">*</span></label><input type="text" id="legacyTourLastName" required style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" placeholder="Last name"></div></div><div><label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Profession/Role <span style="font-size: 11px; font-weight: 400; color: var(--color-neutral-text);">(optional)</span></label><input type="text" id="legacyTourProfession" style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px;" placeholder="e.g., Software Engineer, Marketing Manager"></div><div><label style="display: block; font-family: var(--font-family-ui); font-size: 12px; font-weight: 600; color: var(--color-dark); margin-bottom: 4px;">Career Goal <span style="font-size: 11px; font-weight: 400; color: var(--color-neutral-text);">(optional)</span></label><textarea id="legacyTourCareerGoal" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-body); font-size: 14px; resize: vertical;" placeholder="What are you hoping to achieve in your career?"></textarea></div><div id="legacyTourFormError" style="display: none; padding: 8px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #dc2626; font-family: var(--font-family-body); font-size: 12px;">Please fill in all required fields (marked with *)</div></form>',
                 highlightElement: null,
                 position: 'center',
+                onEnter: () => {
+                    // Attach event listeners for form validation
+                    setTimeout(() => {
+                        const firstNameInput = document.getElementById('legacyTourFirstName');
+                        const lastNameInput = document.getElementById('legacyTourLastName');
+                        const skipBtn = document.getElementById('tourSkipBtn');
+
+                        // Function to validate and enable/disable Skip Tour button
+                        const validateForm = () => {
+                            const firstName = firstNameInput?.value.trim() || '';
+                            const lastName = lastNameInput?.value.trim() || '';
+                            const hasAlphaNumeric = /[a-zA-Z0-9]/.test(firstName) && /[a-zA-Z0-9]/.test(lastName);
+
+                            if (skipBtn) {
+                                skipBtn.disabled = !hasAlphaNumeric;
+                                skipBtn.style.cursor = hasAlphaNumeric ? 'pointer' : 'not-allowed';
+                                skipBtn.style.opacity = hasAlphaNumeric ? '1' : '0.5';
+                            }
+                        };
+
+                        // Attach input listeners
+                        if (firstNameInput) firstNameInput.addEventListener('input', validateForm);
+                        if (lastNameInput) lastNameInput.addEventListener('input', validateForm);
+
+                        // Initial validation (disable skip button)
+                        validateForm();
+                    }, 100);
+                },
                 onNext: () => {
-                    return true;
+                    const firstName = document.getElementById('legacyTourFirstName')?.value.trim();
+                    const lastName = document.getElementById('legacyTourLastName')?.value.trim();
+                    const profession = document.getElementById('legacyTourProfession')?.value.trim();
+                    const careerGoal = document.getElementById('legacyTourCareerGoal')?.value.trim();
+                    const errorDiv = document.getElementById('legacyTourFormError');
+
+                    // Validate required fields
+                    if (!firstName || !lastName) {
+                        if (errorDiv) {
+                            errorDiv.style.display = 'block';
+                        }
+                        return false; // Prevent advancement
+                    }
+
+                    // Hide error if shown
+                    if (errorDiv) {
+                        errorDiv.style.display = 'none';
+                    }
+
+                    // Save profile data to localStorage
+                    const profile = {
+                        firstName: firstName,
+                        lastName: lastName,
+                        profession: profession || '',
+                        goal: careerGoal || ''
+                    };
+                    localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+                    console.log('[Legacy Tour] Profile saved:', profile);
+
+                    return true; // Allow advancement
                 }
             },
-            // Step 2: Quick Start
-            {
-                title: 'Set Up Your Profile',
-                icon: 'ph-lightning',
-                content: 'Click Quick Start to get started. You can browse example profiles to see how Career Canvas works, start building your own profile, or request a professionally crafted Cleansheet profile.',
-                highlightElement: '#rapidOnboardingBtn',
-                position: 'bottom-left',
-                onNext: () => {
-                    return true;
-                }
-            },
-            // Step 3: Career Experience Node
+            // Step 2: Career Experience Node
             {
                 title: 'Explore Your Canvas',
                 icon: 'ph-tree-structure',
@@ -50534,7 +50789,7 @@ F &= ma \\\\
                     return true;
                 }
             },
-            // Step 4: Paths Tab
+            // Step 3: Paths Tab
             {
                 title: 'Career Paths',
                 icon: 'ph-path',
@@ -50545,7 +50800,7 @@ F &= ma \\\\
                     return true;
                 }
             },
-            // Step 5: Industry Tab
+            // Step 4: Industry Tab
 
 
 
@@ -50561,7 +50816,7 @@ F &= ma \\\\
                     return true;
                 }
             },
-            // Step 6: Library Tab
+            // Step 5: Library Tab
             {
                 title: 'Curated Library',
                 icon: 'ph-books',
@@ -50572,18 +50827,7 @@ F &= ma \\\\
                     return true;
                 }
             },
-            // Step 7: Subscription Preview
-            {
-                title: 'Free Preview Access',
-                icon: 'ph-gift',
-                content: 'All features are available for free during the preview period. No credit card or email required! Explore everything Cleansheet has to offer and decide which subscription tier fits your needs later.',
-                highlightElement: '#subscriptionTierBadge',
-                position: 'bottom-right',
-                onNext: () => {
-                    return true;
-                }
-            },
-            // Step 8: Data Management
+            // Step 6: Data Management
             {
                 title: 'Data Management',
                 icon: 'ph-database',
@@ -50611,12 +50855,12 @@ F &= ma \\\\
                     return true;
                 }
             },
-            // Step 9: Install App
+            // Step 7: Install App
             {
                 title: 'Install as Desktop App',
                 icon: 'ph-download-simple',
                 content: 'Career Canvas can be installed as an app on Windows and MacOS. Get quick access from your desktop, work offline, and enjoy a native app experience without the browser toolbar.',
-                highlightElement: '.profile-dropdown-item:nth-child(6)',
+                highlightElement: '.profile-dropdown-item:nth-child(4)',
                 position: 'bottom-right',
                 onEnter: () => {
                     // Auto-open profile dropdown
@@ -50626,7 +50870,7 @@ F &= ma \\\\
 
                         // Re-highlight the Install App menu item specifically
                         setTimeout(() => {
-                            highlightElement('.profile-dropdown-item:nth-child(6)', 'bottom-right');
+                            highlightElement('.profile-dropdown-item:nth-child(4)', 'bottom-right');
                         }, 50);
                     }
                 },
@@ -50639,7 +50883,50 @@ F &= ma \\\\
                     return true;
                 }
             },
-            // Step 10: Finish
+            // Step 8: AI Assistant Setup
+            {
+                title: 'AI Career Assistant',
+                icon: 'ph-robot',
+                content: 'Your AI Career Assistant helps you brainstorm goals, review resumes, practice interviews, and get career advice. Click "Set Up Now" to configure your preferred AI provider (OpenAI, Anthropic, or Gemini).',
+                highlightElement: null,
+                position: 'right',
+                onEnter: () => {
+                    // Open left panel if collapsed
+                    const body = document.getElementById('canvasBody');
+
+                    if (body && body.classList.contains('left-collapsed')) {
+                        // Panel is collapsed, open it
+                        toggleLeftPanel();
+
+                        // Wait for panel animation to complete (CSS transition is typically 0.3s)
+                        setTimeout(() => {
+                            // Now highlight the Set Up Now button
+                            const setupButton = document.querySelector('#chatEmptyState button[onclick="openLLMSettingsModal()"]');
+                            if (setupButton) {
+                                highlightElement('#chatEmptyState button[onclick="openLLMSettingsModal()"]', 'right');
+                            } else {
+                                console.warn('[Tour] Set Up Now button not found');
+                                positionTourCard('center');
+                            }
+                        }, 500);
+                    } else {
+                        // Panel already open, highlight immediately
+                        setTimeout(() => {
+                            const setupButton = document.querySelector('#chatEmptyState button[onclick="openLLMSettingsModal()"]');
+                            if (setupButton) {
+                                highlightElement('#chatEmptyState button[onclick="openLLMSettingsModal()"]', 'right');
+                            } else {
+                                console.warn('[Tour] Set Up Now button not found');
+                                positionTourCard('center');
+                            }
+                        }, 100);
+                    }
+                },
+                onNext: () => {
+                    return true;
+                }
+            },
+            // Step 9: Finish
             {
                 title: 'Finish',
                 icon: 'ph-check-circle',
@@ -50957,6 +51244,26 @@ F &= ma \\\\
         }
 
         function skipTour() {
+            // If on Step 1, save profile data before skipping
+            if (tourState.currentStep === 0) {
+                const firstName = document.getElementById('legacyTourFirstName')?.value.trim();
+                const lastName = document.getElementById('legacyTourLastName')?.value.trim();
+                const profession = document.getElementById('legacyTourProfession')?.value.trim();
+                const careerGoal = document.getElementById('legacyTourCareerGoal')?.value.trim();
+
+                // Save profile if both names are filled
+                if (firstName && lastName) {
+                    const profile = {
+                        firstName: firstName,
+                        lastName: lastName,
+                        profession: profession || '',
+                        goal: careerGoal || ''
+                    };
+                    localStorage.setItem('cleansheet_profile', JSON.stringify(profile));
+                    console.log('[Legacy Tour] Profile saved (tour skipped from Step 1):', profile);
+                }
+            }
+
             // Mark tour as completed (dismissed) so it doesn't show again
             localStorage.setItem('cleansheet_tour_completed', 'true');
             tourState.completedOnce = true;
@@ -50973,6 +51280,10 @@ F &= ma \\\\
                     }
                 });
             }
+
+            // Refresh canvas to update profile display
+            initializeProfile();
+            refreshMindmap();
 
             closeTour();
         }
@@ -50992,6 +51303,10 @@ F &= ma \\\\
                     }
                 });
             }
+
+            // Refresh canvas to update profile display
+            initializeProfile();
+            refreshMindmap();
 
             closeTour();
         }
@@ -51050,12 +51365,23 @@ F &= ma \\\\
                 });
             }
 
-            // Reset tour state and start from beginning
+            // Check if we should start at a different step (for example profiles)
+            const startStep = localStorage.getItem('cleansheet_tour_start_step');
+            const initialStep = startStep ? parseInt(startStep, 10) : 0;
+
+            // Clear the start step flag after reading it
+            if (startStep) {
+                localStorage.removeItem('cleansheet_tour_start_step');
+                console.log('[Tour] Starting tour at step', initialStep, '(example profile)');
+            } else {
+                console.log('[Tour] Tour manually restarted from beginning');
+            }
+
+            // Reset tour state and start from specified step
             tourState.completedOnce = false;
-            tourState.currentStep = 0;
+            tourState.currentStep = initialStep;
             tourState.isActive = true;
-            console.log('[Tour] Tour manually restarted');
-            showTourStep(0);
+            showTourStep(initialStep);
         }
 
         // Auto-open Canvas Tour on page load - simple version
@@ -51070,14 +51396,32 @@ F &= ma \\\\
             // Apply viewport settings based on subscription tier
             applyViewportForTier();
 
-            openCanvasModal();
-
-            // Check if this is first load (no saved profile) - if so, load Marcus Thompson example
-            const hasExistingProfile = localStorage.getItem('cleansheet_currentPersona');
-            if (!hasExistingProfile) {
-                console.log('[Init] First load detected - loading Marcus Thompson example profile');
-                loadExampleProfile('career-changer');
+            // Show simple onboarding modal FIRST (if needed)
+            if (typeof SimpleOnboardingModal !== 'undefined') {
+                const onboarding = new SimpleOnboardingModal();
+                if (onboarding.shouldShow()) {
+                    console.log('[Init] Showing onboarding modal');
+                    onboarding.show();
+                    // Don't open Canvas yet - wait for user choice
+                    return;
+                }
             }
+
+            // Check if import just completed (flag set by onboarding modal)
+            if (localStorage.getItem('cleansheet_import_pending') === 'true') {
+                localStorage.removeItem('cleansheet_import_pending');
+                console.log('[Import] Import completed, will show success toast after Canvas opens');
+
+                // Show success toast after Canvas is fully loaded
+                setTimeout(() => {
+                    if (typeof CleansheetCore !== 'undefined' && CleansheetCore.utils && CleansheetCore.utils.showToast) {
+                        CleansheetCore.utils.showToast('Profile imported successfully!', 'success', 3000);
+                    }
+                }, 800);
+            }
+
+            // If onboarding not needed, open Canvas normally
+            openCanvasModal();
 
             // Initialize profile display
             initializeProfile();
