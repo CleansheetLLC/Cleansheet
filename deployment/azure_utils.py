@@ -1,0 +1,429 @@
+"""
+Azure CLI wrapper utilities for Cleansheet deployment.
+
+Provides Python interfaces to Azure CLI commands for storage operations.
+"""
+
+import os
+import sys
+import subprocess
+import json
+import mimetypes
+import platform
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
+from rich.console import Console
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    BarColumn,
+    TimeRemainingColumn,
+    TaskProgressColumn
+)
+
+console = Console()
+
+# Determine Azure CLI command based on platform
+AZ_CMD = 'az.cmd' if platform.system() == 'Windows' else 'az'
+
+
+class AzureDeployment:
+    """Handles Azure Blob Storage deployment operations."""
+
+    def __init__(self, config: Dict[str, Any], verbose: bool = False, dry_run: bool = False):
+        """
+        Initialize Azure deployment.
+
+        Args:
+            config: Configuration dictionary from ConfigManager
+            verbose: Enable verbose output
+            dry_run: Show what would be done without making changes
+        """
+        self.config = config
+        self.verbose = verbose
+        self.dry_run = dry_run
+
+        self.storage_account = config['storage_account']
+        self.container_name = config['container_name']
+        self.resource_group = config['resource_group']
+        self.repo_path = Path(config['repo_path'])
+        self.exclude_patterns = config.get('exclude_patterns', [])
+
+        # Initialize mimetypes
+        mimetypes.init()
+
+    def _run_az_command(self, args: List[str], capture_output: bool = True,
+                       check: bool = True) -> subprocess.CompletedProcess:
+        """
+        Run Azure CLI command.
+
+        Args:
+            args: Command arguments (without 'az' prefix)
+            capture_output: Capture stdout/stderr
+            check: Raise exception on non-zero return code
+
+        Returns:
+            CompletedProcess instance
+
+        Raises:
+            subprocess.CalledProcessError: If command fails and check=True
+        """
+        cmd = [AZ_CMD] + args
+
+        if self.verbose:
+            console.print(f"[dim]Running: {' '.join(cmd)}[/dim]")
+
+        if self.dry_run:
+            console.print(f"[yellow]DRY RUN:[/yellow] {' '.join(cmd)}")
+            # Return fake successful result for dry run
+            return subprocess.CompletedProcess(
+                cmd, 0, stdout=b'{}', stderr=b''
+            )
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=capture_output,
+                check=check,
+                text=False,  # Get bytes, decode manually
+                shell=False  # Don't use shell on Windows for security
+            )
+            return result
+        except FileNotFoundError as e:
+            # Command not found in PATH
+            if self.verbose:
+                console.print(f"[red]Command not found:[/red] {cmd[0]}")
+                console.print(f"[dim]Make sure Azure CLI is installed and in your PATH[/dim]")
+            raise
+        except subprocess.CalledProcessError as e:
+            console.print(f"[red]Command failed:[/red] {' '.join(cmd)}")
+            if e.stderr:
+                console.print(f"[red]{e.stderr.decode('utf-8', errors='ignore')}[/red]")
+            raise
+
+    def check_prerequisites(self) -> None:
+        """
+        Check prerequisites for deployment.
+
+        Verifies:
+        - Azure CLI is installed
+        - User is logged in to Azure
+        - Repository directory exists
+        """
+        console.print("[bold]Checking Prerequisites[/bold]\n")
+
+        # Check Azure CLI
+        try:
+            result = self._run_az_command(['--version'])
+            version_line = result.stdout.decode('utf-8').split('\n')[0]
+            console.print(f"[green][OK][/green] Azure CLI installed: {version_line}")
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            console.print("[red][X][/red] Azure CLI not installed or not in PATH")
+            console.print("Install from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli")
+            if self.verbose:
+                console.print(f"[dim]Error: {e}[/dim]")
+            sys.exit(1)
+
+        # Check Azure login
+        try:
+            result = self._run_az_command(['account', 'show', '--query', 'name', '-o', 'tsv'])
+            account_name = result.stdout.decode('utf-8').strip()
+            console.print(f"[green][OK][/green] Logged in to Azure: {account_name}")
+        except subprocess.CalledProcessError:
+            console.print("[red][X][/red] Not logged in to Azure")
+            console.print("Run: [bold]az login[/bold]")
+            sys.exit(1)
+
+        # Check repository directory
+        if not self.repo_path.exists():
+            console.print(f"[red][X][/red] Repository directory not found: {self.repo_path}")
+            sys.exit(1)
+        console.print(f"[green][OK][/green] Repository directory: {self.repo_path}")
+
+        console.print("\n[green][OK][/green] All prerequisites met!\n")
+
+    def verify_storage_account(self) -> str:
+        """
+        Verify storage account exists and get account key.
+
+        Returns:
+            Storage account key
+
+        Raises:
+            SystemExit: If storage account doesn't exist
+        """
+        console.print("[bold]Verifying Storage Account[/bold]\n")
+
+        # Check if storage account exists
+        try:
+            self._run_az_command([
+                'storage', 'account', 'show',
+                '--name', self.storage_account,
+                '--resource-group', self.resource_group
+            ])
+            console.print(f"[green][OK][/green] Storage account verified: {self.storage_account}")
+        except subprocess.CalledProcessError:
+            console.print(f"[red][X][/red] Storage account '{self.storage_account}' not found")
+            console.print(f"Create one with: az storage account create --name {self.storage_account} "
+                        f"--resource-group {self.resource_group} --location eastus --sku Standard_LRS")
+            sys.exit(1)
+
+        # Get storage account key
+        result = self._run_az_command([
+            'storage', 'account', 'keys', 'list',
+            '--resource-group', self.resource_group,
+            '--account-name', self.storage_account,
+            '--query', '[0].value',
+            '-o', 'tsv'
+        ])
+        account_key = result.stdout.decode('utf-8').strip()
+
+        # Check if container exists
+        result = self._run_az_command([
+            'storage', 'container', 'exists',
+            '--account-name', self.storage_account,
+            '--account-key', account_key,
+            '--name', self.container_name,
+            '--query', 'exists',
+            '-o', 'tsv'
+        ])
+
+        exists = result.stdout.decode('utf-8').strip().lower() == 'true'
+
+        if not exists:
+            console.print(f"[yellow]Container '{self.container_name}' does not exist. Creating...[/yellow]")
+            self._run_az_command([
+                'storage', 'container', 'create',
+                '--account-name', self.storage_account,
+                '--account-key', account_key,
+                '--name', self.container_name,
+                '--public-access', 'blob'
+            ])
+            console.print(f"[green][OK][/green] Container created: {self.container_name}")
+        else:
+            console.print(f"[green][OK][/green] Container verified: {self.container_name}")
+
+        console.print()
+        return account_key
+
+    def deploy_full(self) -> None:
+        """
+        Full deployment with incremental sync.
+
+        Syncs all files from repository to Azure Blob Storage,
+        uploading only changed files.
+        """
+        # Check prerequisites
+        self.check_prerequisites()
+
+        # Verify storage account and get key
+        account_key = self.verify_storage_account()
+
+        # Build exclude parameters
+        exclude_params = []
+        for pattern in self.exclude_patterns:
+            exclude_params.extend(['--exclude-path', pattern])
+
+        console.print("[bold]Syncing Files to Azure Blob Storage[/bold]\n")
+        console.print(f"Source: {self.repo_path}")
+        console.print(f"Destination: {self.storage_account}/{self.container_name}")
+        console.print(f"Excluding: {len(self.exclude_patterns)} patterns\n")
+
+        if not self.dry_run:
+            console.print("Starting incremental sync (only changed files)...\n")
+
+        # Run sync command
+        try:
+            cmd = [
+                'storage', 'blob', 'sync',
+                '--account-name', self.storage_account,
+                '--account-key', account_key,
+                '--container', self.container_name,
+                '--source', str(self.repo_path)
+            ]
+            cmd.extend(exclude_params)
+            cmd.extend(['--delete-destination', 'false'])
+
+            result = self._run_az_command(cmd, capture_output=True)
+
+            if not self.dry_run:
+                output = result.stdout.decode('utf-8', errors='ignore')
+                uploaded = output.count('Uploading')
+                skipped = output.count('Skipping')
+
+                console.print(f"[green][OK][/green] Sync complete!")
+                console.print(f"Files uploaded: {uploaded}")
+                console.print(f"Files skipped (unchanged): {skipped}")
+
+        except subprocess.CalledProcessError as e:
+            console.print("[red][X][/red] Sync failed")
+            raise
+
+        # Display website URL
+        self._show_website_url()
+
+    def deploy_quick(self, target: str) -> None:
+        """
+        Quick deployment for single file or directory.
+
+        Args:
+            target: File or directory path relative to repo_path
+        """
+        # Check prerequisites
+        self.check_prerequisites()
+
+        # Verify storage account and get key
+        account_key = self.verify_storage_account()
+
+        # Resolve target path
+        target_path = self.repo_path / target
+
+        if not target_path.exists():
+            console.print(f"[red][X][/red] Target not found: {target_path}")
+            sys.exit(1)
+
+        console.print(f"[bold]Uploading:[/bold] {target}\n")
+
+        if target_path.is_file():
+            self._upload_file(target_path, target, account_key)
+        elif target_path.is_dir():
+            self._upload_directory(target_path, target, account_key)
+
+        # Display URL
+        self._show_file_url(target)
+
+    def _upload_file(self, file_path: Path, blob_name: str, account_key: str) -> None:
+        """
+        Upload a single file to Azure Blob Storage.
+
+        Args:
+            file_path: Local file path
+            blob_name: Blob name in container
+            account_key: Storage account key
+        """
+        # Determine content type
+        content_type = self._get_content_type(file_path)
+
+        console.print(f"Uploading {blob_name}...")
+
+        try:
+            self._run_az_command([
+                'storage', 'blob', 'upload',
+                '--account-name', self.storage_account,
+                '--account-key', account_key,
+                '--container-name', self.container_name,
+                '--name', blob_name,
+                '--file', str(file_path),
+                '--content-type', content_type,
+                '--content-cache-control', 'public, max-age=3600',
+                '--overwrite', 'true',
+                '--no-progress'
+            ])
+
+            if not self.dry_run:
+                file_size_kb = file_path.stat().st_size / 1024
+                console.print(f"[green][OK][/green] Uploaded: {blob_name} ({file_size_kb:.1f} KB)")
+
+        except subprocess.CalledProcessError:
+            console.print(f"[red][X][/red] Failed to upload: {blob_name}")
+            raise
+
+    def _upload_directory(self, dir_path: Path, blob_prefix: str, account_key: str) -> None:
+        """
+        Upload a directory to Azure Blob Storage.
+
+        Args:
+            dir_path: Local directory path
+            blob_prefix: Blob prefix in container
+            account_key: Storage account key
+        """
+        console.print(f"Uploading directory: {blob_prefix}...")
+
+        try:
+            self._run_az_command([
+                'storage', 'blob', 'upload-batch',
+                '--account-name', self.storage_account,
+                '--account-key', account_key,
+                '--destination', self.container_name,
+                '--source', str(dir_path),
+                '--pattern', '*',
+                '--overwrite', 'true',
+                '--no-progress'
+            ])
+
+            if not self.dry_run:
+                console.print(f"[green][OK][/green] Uploaded directory: {blob_prefix}")
+
+        except subprocess.CalledProcessError:
+            console.print(f"[red][X][/red] Failed to upload directory: {blob_prefix}")
+            raise
+
+    def _get_content_type(self, file_path: Path) -> str:
+        """
+        Determine content type for a file.
+
+        Args:
+            file_path: File path
+
+        Returns:
+            Content type string
+        """
+        content_type_map = {
+            '.html': 'text/html; charset=utf-8',
+            '.css': 'text/css; charset=utf-8',
+            '.js': 'application/javascript; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.svg': 'image/svg+xml',
+            '.gif': 'image/gif',
+            '.webp': 'image/webp',
+            '.woff': 'font/woff',
+            '.woff2': 'font/woff2',
+            '.ttf': 'font/ttf',
+            '.eot': 'application/vnd.ms-fontobject',
+        }
+
+        ext = file_path.suffix.lower()
+        return content_type_map.get(ext, 'application/octet-stream')
+
+    def _show_website_url(self) -> None:
+        """Display the website URL after deployment."""
+        # Get blob endpoint
+        result = self._run_az_command([
+            'storage', 'account', 'show',
+            '--name', self.storage_account,
+            '--resource-group', self.resource_group,
+            '--query', 'primaryEndpoints.blob',
+            '-o', 'tsv'
+        ])
+
+        blob_endpoint = result.stdout.decode('utf-8').strip()
+        container_url = f"{blob_endpoint}{self.container_name}"
+
+        console.print("\n[bold]Deployment URLs[/bold]")
+        console.print(f"Container: {container_url}")
+        console.print(f"Index: {container_url}/index.html")
+
+    def _show_file_url(self, target: str) -> None:
+        """
+        Display the URL for a specific file.
+
+        Args:
+            target: Target file path
+        """
+        # Get blob endpoint
+        result = self._run_az_command([
+            'storage', 'account', 'show',
+            '--name', self.storage_account,
+            '--resource-group', self.resource_group,
+            '--query', 'primaryEndpoints.blob',
+            '-o', 'tsv'
+        ])
+
+        blob_endpoint = result.stdout.decode('utf-8').strip()
+        file_url = f"{blob_endpoint}{self.container_name}/{target}"
+
+        console.print(f"\n[bold]URL:[/bold] {file_url}")
