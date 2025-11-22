@@ -9842,6 +9842,46 @@ Your content here...
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <!-- Rating Buttons Container (Phase 3b) -->
                     <div id="modalRatingButtons_markdownEditor" class="rating-buttons"></div>
+
+                    <!-- Download Button with Dropdown -->
+                    <div style="position: relative; display: inline-block;">
+                        <button id="downloadMarkdownBtn" onclick="toggleMarkdownDownloadMenu(event)"
+                                style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 6px; padding: 8px 12px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'"
+                                onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+                            <i class="ph ph-download"></i>
+                            Download
+                            <i class="ph ph-caret-down" style="font-size: 10px;"></i>
+                        </button>
+
+                        <div id="markdownDownloadMenu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; z-index: 11000;">
+                            <button onclick="downloadMarkdownAsMd()"
+                                    style="width: 100%; padding: 10px 12px; text-align: left; border: none; background: none; cursor: pointer; font-family: var(--font-family-ui); font-size: 13px; display: flex; align-items: center; gap: 8px; color: var(--color-dark); transition: background 0.2s;"
+                                    onmouseover="this.style.background='#f5f5f7'"
+                                    onmouseout="this.style.background='none'">
+                                <i class="ph ph-file-text" style="font-size: 16px;"></i> Markdown (.md)
+                            </button>
+                            <button onclick="downloadMarkdownAsHtml()"
+                                    style="width: 100%; padding: 10px 12px; text-align: left; border: none; background: none; cursor: pointer; font-family: var(--font-family-ui); font-size: 13px; display: flex; align-items: center; gap: 8px; color: var(--color-dark); transition: background 0.2s;"
+                                    onmouseover="this.style.background='#f5f5f7'"
+                                    onmouseout="this.style.background='none'">
+                                <i class="ph ph-file-html" style="font-size: 16px;"></i> HTML
+                            </button>
+                            <button onclick="downloadMarkdownAsPdf()"
+                                    style="width: 100%; padding: 10px 12px; text-align: left; border: none; background: none; cursor: pointer; font-family: var(--font-family-ui); font-size: 13px; display: flex; align-items: center; gap: 8px; color: var(--color-dark); transition: background 0.2s;"
+                                    onmouseover="this.style.background='#f5f5f7'"
+                                    onmouseout="this.style.background='none'">
+                                <i class="ph ph-file-pdf" style="font-size: 16px;"></i> PDF
+                            </button>
+                            <button onclick="downloadMarkdownAsDocx()"
+                                    style="width: 100%; padding: 10px 12px; text-align: left; border: none; background: none; cursor: pointer; font-family: var(--font-family-ui); font-size: 13px; display: flex; align-items: center; gap: 8px; color: var(--color-dark); transition: background 0.2s;"
+                                    onmouseover="this.style.background='#f5f5f7'"
+                                    onmouseout="this.style.background='none'">
+                                <i class="ph ph-file-doc" style="font-size: 16px;"></i> Word (.docx)
+                            </button>
+                        </div>
+                    </div>
+
                     <button class="monaco-theme-toggle" onclick="CleansheetCore.monaco.toggleTheme()" aria-label="Toggle dark mode">
                         <i class="ph ph-moon"></i>
                     </button>
@@ -30660,6 +30700,386 @@ Complete the code at the cursor position. Provide only the next line or logical 
             }
 
             console.log('[Markdown] ✅ Editor closed');
+        }
+
+        // ============================================
+        // Markdown Download Functions (Issue #90)
+        // ============================================
+
+        // Toggle download dropdown menu
+        function toggleMarkdownDownloadMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('markdownDownloadMenu');
+            const isVisible = menu.style.display === 'block';
+            menu.style.display = isVisible ? 'none' : 'block';
+            console.log('[Markdown Download] Menu toggled:', !isVisible);
+        }
+
+        // Close download menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('markdownDownloadMenu');
+            const btn = document.getElementById('downloadMarkdownBtn');
+            if (menu && btn && !menu.contains(event.target) && !btn.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Helper function to get current markdown content and name
+        function getCurrentMarkdownAsset() {
+            if (!currentEditingMarkdownId || !monacoMarkdownEditor) {
+                console.error('[Markdown Download] No active markdown document');
+                return null;
+            }
+
+            const stored = localStorage.getItem(`markdown_${currentPersona}`);
+            const markdownDocs = stored ? JSON.parse(stored) : [];
+            const markdownDoc = markdownDocs.find(m => m.id === currentEditingMarkdownId);
+
+            if (!markdownDoc) {
+                console.error('[Markdown Download] Document not found');
+                return null;
+            }
+
+            return {
+                name: markdownDoc.name || 'Untitled',
+                content: monacoMarkdownEditor.getValue()
+            };
+        }
+
+        // Helper function to trigger file download
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Helper function to sanitize filename
+        function sanitizeFilename(filename) {
+            return filename.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        }
+
+        // Download as Markdown (.md)
+        function downloadMarkdownAsMd() {
+            const asset = getCurrentMarkdownAsset();
+            if (!asset) return;
+
+            const blob = new Blob([asset.content], { type: 'text/markdown;charset=utf-8' });
+            const filename = `${sanitizeFilename(asset.name)}.md`;
+            downloadFile(blob, filename);
+
+            document.getElementById('markdownDownloadMenu').style.display = 'none';
+            console.log('[Markdown Download] Downloaded as .md:', filename);
+            if (typeof showToast === 'function') {
+                showToast(`Downloaded ${filename}`, 'success');
+            }
+        }
+
+        // Download as HTML
+        function downloadMarkdownAsHtml() {
+            const asset = getCurrentMarkdownAsset();
+            if (!asset) return;
+
+            // Convert markdown to HTML using marked.js
+            const htmlContent = marked.parse(asset.content);
+
+            // Create standalone HTML with inline CSS
+            const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${asset.name}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&family=Questrial&display=swap');
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Questrial', sans-serif;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        h1 { font-size: 32px; border-bottom: 2px solid #0066CC; padding-bottom: 8px; }
+        h2 { font-size: 28px; }
+        h3 { font-size: 24px; }
+        h4 { font-size: 20px; }
+
+        p { margin-bottom: 16px; }
+
+        a {
+            color: #0066CC;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background: #f5f5f7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #1a1a1a;
+            color: #f5f5f7;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        blockquote {
+            border-left: 4px solid #0066CC;
+            margin: 16px 0;
+            padding: 8px 16px;
+            background: #f5f5f7;
+            font-style: italic;
+        }
+
+        ul, ol {
+            margin: 16px 0;
+            padding-left: 32px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        th, td {
+            border: 1px solid #e5e5e7;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f7;
+            font-weight: 600;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e5e5e7;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+    ${htmlContent}
+</body>
+</html>`;
+
+            const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+            const filename = `${sanitizeFilename(asset.name)}.html`;
+            downloadFile(blob, filename);
+
+            document.getElementById('markdownDownloadMenu').style.display = 'none';
+            console.log('[Markdown Download] Downloaded as HTML:', filename);
+            if (typeof showToast === 'function') {
+                showToast(`Downloaded ${filename}`, 'success');
+            }
+        }
+
+        // Download as PDF (using browser print dialog)
+        function downloadMarkdownAsPdf() {
+            const asset = getCurrentMarkdownAsset();
+            if (!asset) return;
+
+            // Convert markdown to HTML
+            const htmlContent = marked.parse(asset.content);
+
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${asset.name}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&family=Questrial&display=swap');
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Questrial', sans-serif;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+            page-break-after: avoid;
+        }
+
+        h1 { font-size: 28px; border-bottom: 2px solid #0066CC; padding-bottom: 8px; }
+        h2 { font-size: 24px; }
+        h3 { font-size: 20px; }
+
+        p { margin-bottom: 12px; }
+
+        code {
+            background: #f5f5f7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #f5f5f7;
+            border: 1px solid #e5e5e7;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            page-break-inside: avoid;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        blockquote {
+            border-left: 4px solid #0066CC;
+            margin: 12px 0;
+            padding: 8px 16px;
+            background: #f5f5f7;
+            page-break-inside: avoid;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid #e5e5e7;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f7;
+            font-weight: 600;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            page-break-inside: avoid;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    ${htmlContent}
+    <script>
+        window.onload = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 100);
+        };
+    <\/script>
+</body>
+</html>
+            `);
+            printWindow.document.close();
+
+            document.getElementById('markdownDownloadMenu').style.display = 'none';
+            console.log('[Markdown Download] Opening print dialog for PDF');
+            if (typeof showToast === 'function') {
+                showToast('Opening print dialog - Save as PDF', 'info');
+            }
+        }
+
+        // Download as DOCX (using docx.js - requires library)
+        function downloadMarkdownAsDocx() {
+            const asset = getCurrentMarkdownAsset();
+            if (!asset) return;
+
+            // For now, show a message that DOCX export requires additional setup
+            // In a full implementation, you would use a library like docx.js or html-docx-js
+            console.warn('[Markdown Download] DOCX export requires docx.js library');
+
+            if (typeof showToast === 'function') {
+                showToast('DOCX export coming soon! Use "Download as HTML" for now.', 'info');
+            }
+
+            document.getElementById('markdownDownloadMenu').style.display = 'none';
+
+            // Placeholder implementation - would need docx.js library
+            // Example: https://github.com/dolanmiu/docx
+            /*
+            const doc = new docx.Document({
+                sections: [{
+                    properties: {},
+                    children: [
+                        new docx.Paragraph({
+                            text: asset.content,
+                            heading: docx.HeadingLevel.TITLE,
+                        }),
+                    ],
+                }],
+            });
+
+            docx.Packer.toBlob(doc).then(blob => {
+                const filename = `${sanitizeFilename(asset.name)}.docx`;
+                downloadFile(blob, filename);
+            });
+            */
         }
 
         function startMarkdownAutoSave() {
