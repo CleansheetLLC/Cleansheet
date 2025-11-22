@@ -11576,16 +11576,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             <table id="providerConfigTable" style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
                                 <thead>
                                     <tr style="background: #f5f5f7; border-bottom: 2px solid var(--color-neutral-border);">
-                                        <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 20%;">
+                                        <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 35%;">
                                             Provider
                                         </th>
-                                        <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 30%;">
+                                        <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 45%;">
                                             API Key
                                         </th>
-                                        <th style="padding: 12px 16px; text-align: left; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 35%;">
-                                            Model
-                                        </th>
-                                        <th style="padding: 12px 16px; text-align: center; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 15%;">
+                                        <th style="padding: 12px 16px; text-align: center; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; color: var(--color-dark); width: 20%;">
                                             Actions
                                         </th>
                                     </tr>
@@ -17649,11 +17646,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 'gpt-4o-mini': '4o-mini',
                 'gpt-4-turbo': '4-Turbo',
                 'gpt-3.5-turbo': '3.5',
-                // Claude 4.x models
-                'claude-sonnet-4-5-20250929': '4.5 Sonnet',
-                'claude-haiku-4-5-20251001': '4.5 Haiku',
-                'claude-opus-4-1-20250805': '4.1 Opus',
-                // Claude 3.x models
+                // Claude models
                 'claude-3-5-sonnet-20241022': '3.5 Sonnet',
                 'claude-3-5-haiku-20241022': '3.5 Haiku',
                 'claude-3-opus-20240229': '3 Opus',
@@ -18025,7 +18018,20 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     console.log('[LLM] OpenAI configuration loaded and decrypted successfully, model:', model);
                 } else if (activeProvider === 'anthropic' && config.anthropic?.apiKey) {
                     const decryptedApiKey = await CleansheetCrypto.decrypt(config.anthropic.apiKey);
-                    const model = providerConfig?.model || config.anthropic.model || 'claude-3-5-sonnet-20241022';
+                    let model = providerConfig?.model || config.anthropic.model || 'claude-3-5-sonnet-20241022';
+
+                    // Fix invalid model names (old Claude 4.x models that don't exist)
+                    const invalidModels = ['claude-sonnet-4-5-20250929', 'claude-haiku-4-5-20251001', 'claude-opus-4-1-20250805'];
+                    if (invalidModels.includes(model)) {
+                        console.warn('[LLM] Invalid model detected:', model, '- using claude-3-5-sonnet-20241022 instead');
+                        model = 'claude-3-5-sonnet-20241022';
+                        // Update stored config
+                        if (config.anthropic) {
+                            config.anthropic.model = model;
+                            localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
+                        }
+                    }
+
                     currentProvider = new LLMProviders.AnthropicProvider(
                         decryptedApiKey,
                         { model: model }
@@ -18255,7 +18261,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         const PROVIDER_METADATA = {
             openai: {
                 name: 'OpenAI',
-                icon: 'ph-openai-logo',
+                icon: 'ph-brain',
                 apiKeyPrefix: 'sk-',
                 getKeyLink: 'https://platform.openai.com/api-keys',
                 models: [
@@ -18272,13 +18278,13 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 apiKeyPrefix: 'sk-ant-',
                 getKeyLink: 'https://console.anthropic.com/settings/keys',
                 models: [
-                    { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet 4.5 (Latest)', cost: 'Best Overall' },
-                    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', cost: 'Fast & Efficient' },
-                    { id: 'claude-opus-4-1-20250805', name: 'Claude Opus 4.1', cost: 'Most Capable' },
-                    { id: 'claude-3-5-haiku-20241022', name: 'Claude Haiku 3.5 (Legacy)', cost: 'Legacy' },
-                    { id: 'claude-3-haiku-20240307', name: 'Claude Haiku 3 (Legacy)', cost: 'Legacy' }
+                    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet (Latest)', cost: '$3/$15 per 1M tokens' },
+                    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku (Fast)', cost: '$0.80/$4 per 1M tokens' },
+                    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus (Most Capable)', cost: '$15/$75 per 1M tokens' },
+                    { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', cost: '$3/$15 per 1M tokens' },
+                    { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', cost: '$0.25/$1.25 per 1M tokens' }
                 ],
-                defaultModel: 'claude-sonnet-4-5-20250929'
+                defaultModel: 'claude-3-5-sonnet-20241022'
             },
             gemini: {
                 name: 'Google Gemini',
@@ -18362,28 +18368,9 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                             </button>`
                         }
                     </td>
-                    <td style="padding: 16px;">
-                        ${hasKey ?
-                            `<select id="model_${providerId}" onchange="updateProviderModel('${providerId}')"
-                                     style="width: 100%; padding: 8px; font-family: var(--font-family-body); font-size: 13px; border: 1px solid var(--color-neutral-border); border-radius: 6px; background: white; cursor: pointer;">
-                                ${metadata.models.map(model =>
-                                    `<option value="${model.id}" ${providerConfig?.model === model.id ? 'selected' : ''}>
-                                        ${model.name} - ${model.cost}
-                                    </option>`
-                                ).join('')}
-                            </select>` :
-                            `<span style="font-family: var(--font-family-body); font-size: 12px; color: var(--color-neutral-text); font-style: italic;">No key configured</span>`
-                        }
-                    </td>
                     <td style="padding: 16px; text-align: center;">
                         ${hasKey ?
                             `<div style="display: flex; gap: 6px; justify-content: center;">
-                                <button onclick="copyApiKey('${providerId}')" title="Copy API Key"
-                                        style="padding: 6px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; transition: all 0.2s;"
-                                        onmouseover="this.style.background='#e3f2fd'; this.style.borderColor='var(--color-primary-blue)';"
-                                        onmouseout="this.style.background='white'; this.style.borderColor='var(--color-neutral-border)';">
-                                    <i class="ph ph-copy" style="font-size: 16px; color: var(--color-neutral-text);"></i>
-                                </button>
                                 <button onclick="testProviderConnection('${providerId}')" title="Test Connection"
                                         style="padding: 6px; background: white; border: 1px solid var(--color-neutral-border); border-radius: 6px; cursor: pointer; transition: all 0.2s;"
                                         onmouseover="this.style.background='#e3f2fd'; this.style.borderColor='var(--color-primary-blue)';"
@@ -18510,36 +18497,6 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }
         }
 
-        async function updateProviderModel(providerId) {
-            const newModel = document.getElementById(`model_${providerId}`).value;
-            const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
-
-            if (config[providerId]) {
-                config[providerId].model = newModel;
-                localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
-
-                // If this is the active provider, update currentProvider
-                if (config.activeProvider === providerId) {
-                    try {
-                        const decryptedKey = await CleansheetCrypto.decrypt(config[providerId].apiKey);
-
-                        if (providerId === 'openai') {
-                            currentProvider = new LLMProviders.OpenAIProvider(decryptedKey, { model: newModel });
-                        } else if (providerId === 'anthropic') {
-                            currentProvider = new LLMProviders.AnthropicProvider(decryptedKey, { model: newModel });
-                        } else if (providerId === 'gemini') {
-                            currentProvider = new LLMProviders.GeminiProvider(decryptedKey, { model: newModel });
-                        }
-
-                        updateProviderBadge();
-                    } catch (error) {
-                        console.error('[LLM] Failed to update provider model:', error);
-                    }
-                }
-
-                showToast('Model updated', 'success');
-            }
-        }
 
         async function copyApiKey(providerId) {
             try {
@@ -18558,7 +18515,21 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             try {
                 const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
                 const decryptedKey = await CleansheetCrypto.decrypt(config[providerId].apiKey);
-                const model = config[providerId].model;
+                let model = config[providerId].model;
+
+                // Fix invalid model names (old Claude 4.x models that don't exist)
+                const invalidModels = [
+                    'claude-sonnet-4-5-20250929',
+                    'claude-haiku-4-5-20251001',
+                    'claude-opus-4-1-20250805'
+                ];
+                if (providerId === 'anthropic' && invalidModels.includes(model)) {
+                    console.warn('[LLM] Invalid model detected:', model, '- using default instead');
+                    model = PROVIDER_METADATA[providerId].defaultModel;
+                    // Update stored config
+                    config[providerId].model = model;
+                    localStorage.setItem('llm_config_encrypted', JSON.stringify(config));
+                }
 
                 showToast('Testing connection...', 'info');
 
@@ -18748,11 +18719,11 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     name: 'Anthropic',
                     icon: 'ph-cube',
                     models: [
-                        { id: 'claude-sonnet-4-5-20250929', name: '4.5 Sonnet', cost: '$$', color: '#10b981' },
-                        { id: 'claude-haiku-4-5-20251001', name: '4.5 Haiku', cost: '$', color: '#22c55e' },
-                        { id: 'claude-opus-4-1-20250805', name: '4.1 Opus', cost: '$$$', color: '#f59e0b' },
                         { id: 'claude-3-5-sonnet-20241022', name: '3.5 Sonnet', cost: '$$', color: '#10b981' },
-                        { id: 'claude-3-5-haiku-20241022', name: '3.5 Haiku', cost: '$', color: '#22c55e' }
+                        { id: 'claude-3-5-haiku-20241022', name: '3.5 Haiku', cost: '$', color: '#22c55e' },
+                        { id: 'claude-3-opus-20240229', name: '3 Opus', cost: '$$$', color: '#f59e0b' },
+                        { id: 'claude-3-sonnet-20240229', name: '3 Sonnet', cost: '$$', color: '#3b82f6' },
+                        { id: 'claude-3-haiku-20240307', name: '3 Haiku', cost: '$', color: '#22c55e' }
                     ]
                 });
             }
@@ -18879,11 +18850,11 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     'gpt-4o-mini': 'GPT-4o Mini',
                     'o1-preview': 'O1 Preview',
                     'o1-mini': 'O1 Mini',
-                    'claude-sonnet-4-5-20250929': '4.5 Sonnet',
-                    'claude-haiku-4-5-20251001': '4.5 Haiku',
-                    'claude-opus-4-1-20250805': '4.1 Opus',
                     'claude-3-5-sonnet-20241022': '3.5 Sonnet',
                     'claude-3-5-haiku-20241022': '3.5 Haiku',
+                    'claude-3-opus-20240229': '3 Opus',
+                    'claude-3-sonnet-20240229': '3 Sonnet',
+                    'claude-3-haiku-20240307': '3 Haiku',
                     'gemini-2.0-flash-exp': 'Gemini 2.0 Flash',
                     'gemini-exp-1206': 'Gemini Exp 1206',
                     'gemini-1.5-pro-latest': 'Gemini 1.5 Pro',
