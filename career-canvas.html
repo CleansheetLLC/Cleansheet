@@ -17866,6 +17866,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             // Clear existing chips
             chipsList.innerHTML = '';
 
+            // Check if suggested questions are enabled
+            const suggestedQuestionsEnabled = localStorage.getItem('suggested_questions_enabled') !== 'false';
+            if (!suggestedQuestionsEnabled) {
+                console.log('[Suggestions] Suggested questions disabled in settings');
+                container.style.display = 'none';
+                return;
+            }
+
             // If no suggestions, hide container
             if (!suggestions || suggestions.length === 0) {
                 container.style.display = 'none';
@@ -18648,6 +18656,21 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             localStorage.setItem('suggested_questions_enabled', enabled.toString());
 
             console.log('[Suggested Questions]', enabled ? 'Enabled' : 'Disabled');
+
+            // Immediately update UI - hide or show suggestions based on new setting
+            const container = document.getElementById('suggestionChipsContainer');
+            if (container) {
+                if (enabled) {
+                    // If enabled, check if there are suggestions to show
+                    const chipsList = document.getElementById('suggestionChipsList');
+                    if (chipsList && chipsList.children.length > 0) {
+                        container.style.display = 'block';
+                    }
+                } else {
+                    // If disabled, hide immediately
+                    container.style.display = 'none';
+                }
+            }
 
             if (typeof showToast === 'function') {
                 showToast(
