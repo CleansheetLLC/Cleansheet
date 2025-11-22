@@ -327,16 +327,33 @@ Cleansheet is developed by a solo technical founder actively working in cloud ar
 ## Acknowledgments
 
 ### Open Source Dependencies
-- **D3.js** - Data visualization library (ISC License)
-- **wordcloud2.js** - HTML5 canvas word cloud library by @timdream (MIT License)
-- **Phosphor Icons** - Icon library (MIT License)
-- **Google Fonts** - Questrial and Barlow typefaces (Open Font License)
-- **Quill** - Modern rich text editor framework (BSD 3-Clause License)
-- **Monaco Editor** - Code editor by Microsoft (MIT License)
-- **KaTeX** - Fast math typesetting library (MIT License)
-- **Reveal.js** - HTML presentation framework (MIT License)
-- **draw.io** - Diagramming and whiteboarding tool (Apache License 2.0)
-- **Playwright** - End-to-end testing framework by Microsoft (Apache License 2.0)
+
+**Visualization & Diagrams**
+- **[D3.js](https://d3js.org/)** - Data visualization library (ISC License)
+- **[D3-Sankey](https://github.com/d3/d3-sankey)** - Network flow diagram plugin (ISC License)
+- **[Mermaid.js](https://mermaid.js.org/)** - Diagram rendering from text definitions (MIT License)
+- **[wordcloud2.js](https://github.com/timdream/wordcloud2.js)** - HTML5 canvas word cloud library by @timdream (MIT License)
+
+**Rich Text & Document Editing**
+- **[Quill](https://quilljs.com/)** - Modern rich text editor framework (BSD 3-Clause License)
+- **[Monaco Editor](https://microsoft.github.io/monaco-editor/)** - Code editor by Microsoft (MIT License)
+- **[Marked.js](https://marked.js.org/)** - Fast markdown parser and compiler (MIT License)
+- **[DOMPurify](https://github.com/cure53/DOMPurify)** - XSS sanitizer for HTML (Apache License 2.0 / MPL 2.0)
+- **[html-docx-js](https://github.com/evidenceprime/html-docx-js)** - HTML to Word document conversion (MIT License)
+
+**Presentations & Math**
+- **[Reveal.js](https://revealjs.com/)** - HTML presentation framework (MIT License)
+- **[KaTeX](https://katex.org/)** - Fast math typesetting library (MIT License)
+
+**Design & Icons**
+- **[Phosphor Icons](https://phosphoricons.com/)** - Flexible icon library with 6,000+ icons (MIT License)
+- **[Google Fonts](https://fonts.google.com/)** - Questrial and Barlow typefaces (Open Font License)
+
+**Infrastructure & Tools**
+- **[draw.io](https://www.drawio.com/)** - Diagramming and whiteboarding tool (Apache License 2.0)
+- **[MSAL Browser](https://github.com/AzureAD/microsoft-authentication-library-for-js)** - Microsoft Authentication Library for JavaScript (MIT License)
+- **[Pako](https://github.com/nodeca/pako)** - High-speed zlib compression library (MIT License)
+- **[Playwright](https://playwright.dev/)** - End-to-end testing framework by Microsoft (Apache License 2.0)
 
 ### Inspiration
 - **DugganUSA** - Build and security approach
