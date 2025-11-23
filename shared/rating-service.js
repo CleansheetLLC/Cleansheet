@@ -276,6 +276,76 @@ class RatingService {
             });
         });
     }
+
+    /**
+     * Submit NPS score
+     * @param {number} score - NPS score (0-10)
+     * @param {object} metadata - Session context
+     * @returns {Promise<boolean>} Success status
+     */
+    async submitNPS(score, metadata = {}) {
+        const sessionId = this.getOrCreateSessionId();
+        const objectId = `nps_${sessionId}`;
+
+        return await this.submitRating({
+            objectType: 'nps',
+            objectId: objectId,
+            rating: score.toString(),
+            metadata: {
+                score: score,
+                npsCategory: this.categorizeNPS(score),
+                ...metadata
+            }
+        });
+    }
+
+    /**
+     * Categorize NPS score
+     * @param {number} score - NPS score (0-10)
+     * @returns {string} Category: 'detractor', 'passive', or 'promoter'
+     */
+    categorizeNPS(score) {
+        if (score <= 6) return 'detractor';
+        if (score <= 8) return 'passive';
+        return 'promoter';
+    }
+
+    /**
+     * Get or create session ID for NPS tracking
+     * @returns {string} Unique session ID
+     */
+    getOrCreateSessionId() {
+        const key = 'cleansheet_nps_session_id';
+        let sessionId = localStorage.getItem(key);
+
+        if (!sessionId) {
+            sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+            localStorage.setItem(key, sessionId);
+        }
+
+        return sessionId;
+    }
+
+    /**
+     * Check if NPS survey should be shown
+     * @returns {boolean} True if survey should appear
+     */
+    shouldShowNPS() {
+        // Never show if user dismissed permanently
+        if (localStorage.getItem('nps_never_show') === 'true') {
+            return false;
+        }
+
+        // Never show if already submitted
+        const sessionId = this.getOrCreateSessionId();
+        if (this.hasVoted('nps', `nps_${sessionId}`)) {
+            return false;
+        }
+
+        // Check session count threshold
+        const sessionCount = parseInt(localStorage.getItem('canvas_session_count') || '0');
+        return sessionCount >= 3;
+    }
 }
 
 // Create global instance

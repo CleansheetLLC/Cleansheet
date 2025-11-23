@@ -11715,6 +11715,39 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             </div>
         </div>
 
+        <!-- NPS Survey Card -->
+        <div id="npsCard" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 400px; max-width: calc(100vw - 40px); background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 9999; padding: 20px; animation: slideInUp 0.3s ease;">
+            <button onclick="closeNPS()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; color: var(--color-neutral-text); transition: color 0.2s;" onmouseover="this.style.color='var(--color-dark)'" onmouseout="this.style.color='var(--color-neutral-text)'">
+                <i class="ph ph-x" style="font-size: 20px;"></i>
+            </button>
+
+            <h3 style="margin: 0 0 8px 0; font-family: var(--font-family-ui); font-size: 16px; font-weight: 600; color: var(--color-dark); padding-right: 30px;">
+                How likely are you to recommend Cleansheet?
+            </h3>
+
+            <p style="margin: 0 0 16px 0; font-family: var(--font-family-body); font-size: 13px; color: var(--color-neutral-text); line-height: 1.5;">
+                Help us improve by sharing your experience.
+            </p>
+
+            <div id="npsScale" style="display: flex; gap: 4px; margin-bottom: 12px; justify-content: space-between;">
+                <!-- 0-10 buttons generated via JavaScript -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); margin-bottom: 16px;">
+                <span>Not likely</span>
+                <span>Very likely</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button onclick="postponeNPS()" style="padding: 8px 16px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background='white'">
+                    Maybe later
+                </button>
+                <button onclick="neverShowNPS()" style="padding: 8px 16px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f5f5f7'" onmouseout="this.style.background='white'">
+                    Don't ask again
+                </button>
+            </div>
+        </div>
+
         <!-- Add API Key Modal -->
         <div class="modal" id="addKeyModal" style="display: none; z-index: 10001;">
             <div class="modal-overlay" onclick="closeAddKeyModal()"></div>
@@ -17749,6 +17782,212 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }
         }
 
+        // ============================================
+        // NPS Survey Functions
+        // ============================================
+
+        // Initialize NPS survey
+        function initializeNPS() {
+            console.log('[NPS] initializeNPS() called');
+
+            // Debug: Check why shouldShowNPS might return false
+            const neverShow = localStorage.getItem('nps_never_show');
+            const sessionId = ratingService.getOrCreateSessionId();
+            const hasVoted = ratingService.hasVoted('nps', `nps_${sessionId}`);
+            const sessionCount = parseInt(localStorage.getItem('canvas_session_count') || '0');
+
+            console.log('[NPS] Eligibility check:', {
+                neverShow: neverShow,
+                hasVoted: hasVoted,
+                sessionCount: sessionCount,
+                needsSessionCount: 3,
+                eligible: sessionCount >= 3 && neverShow !== 'true' && !hasVoted
+            });
+
+            if (!ratingService.shouldShowNPS()) {
+                console.log('[NPS] Survey conditions not met - not showing');
+                return;
+            }
+
+            // Show after 2 minutes on Canvas
+            console.log('[NPS] ✅ Scheduling survey to appear in 2 minutes');
+            setTimeout(() => {
+                showNPSSurvey();
+            }, 120000); // 2 minutes
+        }
+
+        // Initialize NPS survey immediately (for testing)
+        function initializeNPSNow() {
+            console.log('[NPS] Showing survey immediately (test mode)');
+            showNPSSurvey();
+        }
+
+        // Render NPS scale buttons (0-10)
+        function renderNPSScale() {
+            const container = document.getElementById('npsScale');
+            if (!container) return;
+
+            let html = '';
+
+            for (let i = 0; i <= 10; i++) {
+                html += `
+                    <button onclick="submitNPSScore(${i})"
+                            class="nps-score-btn"
+                            style="flex: 1; min-width: 0; padding: 10px 2px; background: white; border: 2px solid var(--color-neutral-border); border-radius: 6px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; color: var(--color-dark); cursor: pointer; transition: all 0.2s; text-align: center;"
+                            onmouseover="this.style.background='var(--color-primary-blue)'; this.style.borderColor='var(--color-primary-blue)'; this.style.color='white';"
+                            onmouseout="this.style.background='white'; this.style.borderColor='var(--color-neutral-border)'; this.style.color='var(--color-dark)';">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Show NPS survey card
+        function showNPSSurvey() {
+            console.log('[NPS] Displaying survey card');
+            renderNPSScale();
+            const card = document.getElementById('npsCard');
+            if (card) {
+                card.style.display = 'block';
+            }
+        }
+
+        // Submit NPS score
+        async function submitNPSScore(score) {
+            console.log('[NPS] Submitting score:', score);
+
+            try {
+                // Collect session metadata
+                const metadata = {
+                    tier: localStorage.getItem('subscription_tier') || localStorage.getItem('cleansheet_tier') || 'member',
+                    sessionCount: parseInt(localStorage.getItem('canvas_session_count') || '0'),
+                    daysActive: calculateDaysActive(),
+                    featuresUsed: getUsedFeatures(),
+                    promptType: 'floating',
+                    timeOnCanvas: Math.floor((Date.now() - parseInt(sessionStorage.getItem('canvas_start_time') || Date.now())) / 1000)
+                };
+
+                console.log('[NPS] Metadata:', metadata);
+
+                await ratingService.submitNPS(score, metadata);
+
+                // Hide survey
+                const card = document.getElementById('npsCard');
+                if (card) {
+                    card.style.display = 'none';
+                }
+
+                // Show thank you toast
+                if (typeof showToast === 'function') {
+                    showToast('Thank you for your feedback!', 'success');
+                }
+
+                console.log('[NPS] Score submitted successfully');
+
+            } catch (error) {
+                console.error('[NPS] Submission failed:', error);
+
+                // Still hide survey and show success
+                const card = document.getElementById('npsCard');
+                if (card) {
+                    card.style.display = 'none';
+                }
+
+                if (typeof showToast === 'function') {
+                    showToast('Thank you for your feedback!', 'success');
+                }
+            }
+        }
+
+        // Close NPS survey
+        function closeNPS() {
+            console.log('[NPS] User closed survey');
+            const card = document.getElementById('npsCard');
+            if (card) {
+                card.style.display = 'none';
+            }
+        }
+
+        // Postpone NPS survey (will show again in future session)
+        function postponeNPS() {
+            console.log('[NPS] User postponed survey');
+            closeNPS();
+        }
+
+        // Never show NPS survey again
+        function neverShowNPS() {
+            console.log('[NPS] User opted out of NPS permanently');
+            localStorage.setItem('nps_never_show', 'true');
+            closeNPS();
+        }
+
+        // Helper: Calculate days active
+        function calculateDaysActive() {
+            const firstVisit = localStorage.getItem('cleansheet_first_visit');
+            if (!firstVisit) {
+                // Set first visit if not exists
+                localStorage.setItem('cleansheet_first_visit', Date.now().toString());
+                return 0;
+            }
+
+            const daysSince = Math.floor((Date.now() - parseInt(firstVisit)) / (1000 * 60 * 60 * 24));
+            return daysSince;
+        }
+
+        // Helper: Get used features
+        function getUsedFeatures() {
+            const features = [];
+
+            // Check for experiences (legacy key)
+            if (localStorage.getItem('cleansheet_experiences')) {
+                features.push('experiences');
+            }
+
+            // Check for goals (persona-specific keys)
+            const personas = ['default', 'retail-manager', 'research-chemist', 'new-graduate', 'data-analyst', 'career-changer', 'seeker', 'member'];
+            if (personas.some(p => localStorage.getItem(`userGoals_${p}`))) {
+                features.push('goals');
+            }
+
+            // Check for stories/interview prep (persona-specific keys)
+            if (personas.some(p => localStorage.getItem(`userStories_${p}`)) ||
+                localStorage.getItem('cleansheet_stories') ||
+                localStorage.getItem('behavioralStories') ||
+                localStorage.getItem('userStories')) {
+                features.push('stories');
+            }
+
+            // Check for portfolio/projects (persona-specific keys)
+            if (personas.some(p => localStorage.getItem(`userPortfolio_${p}`)) ||
+                localStorage.getItem('cleansheet_projects')) {
+                features.push('portfolio');
+            }
+
+            // Check for AI assistant (any conversation history)
+            const hasAIHistory = Object.keys(localStorage).some(key =>
+                key.startsWith('ai_conversation_history_')
+            );
+            if (hasAIHistory) {
+                features.push('ai_assistant');
+            }
+
+            // Check for jobs/opportunities (persona-specific keys)
+            if (personas.some(p => localStorage.getItem(`jobOpportunities_${p}`)) ||
+                localStorage.getItem('cleansheet_jobs')) {
+                features.push('jobs');
+            }
+
+            // Check for documents (persona-specific keys)
+            if (personas.some(p => localStorage.getItem(`user_documents_${p}`)) ||
+                localStorage.getItem('cleansheet_documents')) {
+                features.push('documents');
+            }
+
+            return features;
+        }
+
         // Update provider badge with cost-based color coding
         function updateProviderBadge() {
             const badge = document.getElementById('providerModelBadge');
@@ -21744,6 +21983,7 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
         }
 
         function openCanvasModal() {
+            console.log('[Canvas] openCanvasModal() called - NPS code version 2.0');
             document.getElementById('canvasModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
@@ -21759,6 +21999,19 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 initializeLLM();
             } catch (error) {
                 console.error('[LLM Init] Error initializing LLM:', error);
+            }
+
+            // Track Canvas session for NPS
+            const sessionCount = parseInt(localStorage.getItem('canvas_session_count') || '0');
+            localStorage.setItem('canvas_session_count', (sessionCount + 1).toString());
+            sessionStorage.setItem('canvas_start_time', Date.now().toString());
+            console.log('[Canvas Init] Session count:', sessionCount + 1);
+
+            // Initialize NPS survey (will show after 2 minutes if conditions met)
+            try {
+                initializeNPS();
+            } catch (error) {
+                console.error('[NPS Init] Error initializing NPS:', error);
             }
 
             // FIXED: Load all user data and counts BEFORE initializing mindmap
