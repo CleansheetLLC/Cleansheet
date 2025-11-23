@@ -86,6 +86,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
     <!-- Cleansheet Core Utilities -->
     <script src="shared/cleansheet-core.js"></script>
 
+    <!-- Corpus Library Data for AI Recommendations (Issue #95) -->
+    <script src="shared/library-data.js"></script>
+
     <!-- Contextual Suggestion System -->
     <script src="shared/context-analyzer.js"></script>
     <script src="shared/suggestion-engine.js"></script>
@@ -17988,6 +17991,271 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             return features;
         }
 
+        // ============================================
+        // Corpus-Aware AI Functions (Issue #95)
+        // ============================================
+
+        /**
+         * Build compressed corpus context for AI system prompt
+         * Includes article titles, tags, and career paths from library-data.js
+         * @returns {string} Formatted corpus context for system prompt
+         */
+        function buildCorpusContext() {
+            // Check if LIBRARY_DATA is available
+            if (typeof LIBRARY_DATA === 'undefined') {
+                console.warn('[Corpus] LIBRARY_DATA not available');
+                return '';
+            }
+
+            // LIBRARY_DATA is an array of articles, not an object
+            const articles = Array.isArray(LIBRARY_DATA) ? LIBRARY_DATA : (LIBRARY_DATA.articles || []);
+            const totalArticles = articles.length;
+
+            if (totalArticles === 0) {
+                return '';
+            }
+
+            // Extract unique tags and career paths from all articles
+            const allTags = new Set();
+            const allCareerPaths = new Set();
+
+            articles.forEach(article => {
+                if (article.tags) {
+                    article.tags.forEach(tag => allTags.add(tag));
+                }
+                if (article.careerPaths) {
+                    article.careerPaths.forEach(path => allCareerPaths.add(path));
+                }
+            });
+
+            const uniqueTags = Array.from(allTags).sort();
+            const uniqueCareerPaths = Array.from(allCareerPaths).sort();
+
+            // Build comprehensive article list organized by career path
+            const articlesByCareerPath = {};
+            uniqueCareerPaths.forEach(path => {
+                articlesByCareerPath[path] = articles
+                    .filter(a => a.careerPaths && a.careerPaths.includes(path))
+                    .map(a => `"${a.title}" (${a.readingTime || '10 min'})`)
+                    .sort();
+            });
+
+            // Format career path sections (compact format for token efficiency)
+            const careerPathSections = uniqueCareerPaths
+                .map(path => {
+                    const pathArticles = articlesByCareerPath[path];
+                    if (pathArticles.length === 0) return '';
+
+                    return `${path} (${pathArticles.length} articles):\n${pathArticles.map(a => `  • ${a}`).join('\n')}`;
+                })
+                .filter(section => section.length > 0)
+                .join('\n\n');
+
+            // Build article list by primary tags for articles not in career paths
+            const articlesByTag = {};
+            uniqueTags.forEach(tag => {
+                articlesByTag[tag] = articles
+                    .filter(a => a.tags && a.tags.includes(tag))
+                    .map(a => `"${a.title}" (${a.readingTime || '10 min'})`)
+                    .sort();
+            });
+
+            // Format tag sections (limit to top 10 most populated tags for token efficiency)
+            const tagSections = uniqueTags
+                .map(tag => ({
+                    tag: tag,
+                    count: articlesByTag[tag].length,
+                    articles: articlesByTag[tag]
+                }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10) // Top 10 tags
+                .map(item => {
+                    return `${item.tag} (${item.count} articles):\n${item.articles.slice(0, 5).map(a => `  • ${a}`).join('\n')}${item.count > 5 ? `\n  • ...and ${item.count - 5} more` : ''}`;
+                })
+                .join('\n\n');
+
+            return `
+CLEANSHEET CORPUS LIBRARY:
+You have access to a curated library of ${totalArticles} career development articles covering technical skills, leadership, and career advancement.
+
+COMPLETE ARTICLE CATALOG BY CAREER PATH:
+
+${careerPathSections}
+
+ARTICLES BY TOPIC (Top 10 Categories):
+
+${tagSections}
+
+ARTICLE RECOMMENDATION GUIDELINES:
+1. Suggest relevant articles based on user's Canvas content (experiences, goals, stories, questions)
+2. Match articles to user's experience level and career path
+3. Recommend 2-4 articles maximum per response (avoid overwhelming)
+4. Provide article title, estimated read time, and brief relevance explanation
+5. Always balance Cleansheet articles with external resources (certifications, courses, books)
+6. When user asks about a specific topic, search through ALL career paths and tags above
+
+RECOMMENDATION FORMAT:
+📚 Recommended Reading from Cleansheet:
+• "[Exact Article Title]" ([read time]) - [Why it's relevant to user]
+
+🔗 External Resources:
+• [Resource name] - [What it offers]
+
+💡 Next Steps:
+[Actionable items based on conversation]
+
+To recommend an article, reference it by its exact title as shown above. Users can access all Cleansheet articles through the corpus library.
+`;
+        }
+
+        /**
+         * Gather user's Canvas context for AI personalization
+         * @returns {object} User context including experiences, goals, stories, jobs
+         */
+        function gatherUserContext() {
+            // Get recent chat questions for context
+            const recentQuestions = conversationHistory
+                .filter(msg => msg.role === 'user')
+                .slice(-5)
+                .map(msg => msg.content);
+
+            // Calculate experience level based on years and roles
+            let experienceLevel = 'Not specified';
+            if (userExperiences && userExperiences.length > 0) {
+                const totalYears = userExperiences.reduce((sum, exp) => {
+                    // Estimate years from dates if available
+                    return sum + 1; // Simplified - each role counts as ~1 year
+                }, 0);
+
+                if (totalYears === 0) experienceLevel = 'New Graduate / Entry Level';
+                else if (totalYears < 3) experienceLevel = 'Early Career (0-3 years)';
+                else if (totalYears < 7) experienceLevel = 'Mid-Career (3-7 years)';
+                else if (totalYears < 15) experienceLevel = 'Experienced (7-15 years)';
+                else experienceLevel = 'Senior / Executive (15+ years)';
+            }
+
+            return {
+                persona: currentPersona || 'default',
+                experienceLevel: experienceLevel,
+                experiences: userExperiences || [],
+                goals: userGoals || [],
+                stories: (function() {
+                    try {
+                        const storiesKey = `userStories_${currentPersona}`;
+                        const stored = localStorage.getItem(storiesKey);
+                        return stored ? JSON.parse(stored) : [];
+                    } catch (e) {
+                        return [];
+                    }
+                })(),
+                jobs: userJobs || [],
+                recentQuestions: recentQuestions
+            };
+        }
+
+        /**
+         * Format user context as readable text for AI system prompt
+         * @param {object} userContext User context object from gatherUserContext()
+         * @returns {string} Formatted user context
+         */
+        function formatUserContext(userContext) {
+            const parts = [];
+
+            parts.push(`Current Persona: ${userContext.persona}`);
+            parts.push(`Experience Level: ${userContext.experienceLevel}`);
+
+            if (userContext.experiences && userContext.experiences.length > 0) {
+                parts.push('\nSkills & Experience:');
+                userContext.experiences.slice(0, 5).forEach(exp => {
+                    parts.push(`• ${exp.title || 'Role'} at ${exp.company || 'Company'}`);
+                });
+                if (userContext.experiences.length > 5) {
+                    parts.push(`• ...and ${userContext.experiences.length - 5} more roles`);
+                }
+            } else {
+                parts.push('\nSkills & Experience: None added yet');
+            }
+
+            if (userContext.goals && userContext.goals.length > 0) {
+                parts.push('\nCurrent Goals:');
+                userContext.goals.slice(0, 3).forEach(goal => {
+                    const category = goal.category || 'Goal';
+                    parts.push(`• ${goal.title} (${category})`);
+                });
+            } else {
+                parts.push('\nCurrent Goals: None added yet');
+            }
+
+            if (userContext.stories && userContext.stories.length > 0) {
+                parts.push('\nRecent Stories (Interview Prep):');
+                userContext.stories.slice(0, 3).forEach(story => {
+                    parts.push(`• ${story.title || story.situation || 'Untitled Story'}`);
+                });
+            }
+
+            if (userContext.jobs && userContext.jobs.length > 0) {
+                const activeJobs = userContext.jobs.filter(j =>
+                    j.status !== 'rejected' && j.status !== 'not-interested'
+                ).length;
+                parts.push(`\nJob Search: ${activeJobs} active opportunities tracked`);
+            }
+
+            if (userContext.recentQuestions && userContext.recentQuestions.length > 0) {
+                parts.push('\nRecent Questions:');
+                userContext.recentQuestions.forEach(q => {
+                    // Truncate long questions
+                    const truncated = q.length > 80 ? q.substring(0, 77) + '...' : q;
+                    parts.push(`• ${truncated}`);
+                });
+            }
+
+            return parts.join('\n');
+        }
+
+        /**
+         * Build enhanced system prompt with corpus context and user context
+         * @returns {string} Complete system prompt for AI
+         */
+        function buildEnhancedSystemPrompt() {
+            const userContext = gatherUserContext();
+            const corpusContext = buildCorpusContext();
+            const formattedUserContext = formatUserContext(userContext);
+
+            // Debug logging to verify corpus context is being generated
+            console.log('[Corpus Debug] corpusContext length:', corpusContext.length);
+            console.log('[Corpus Debug] corpusContext preview:', corpusContext.substring(0, 500));
+
+            return `You are an AI Career Assistant for Cleansheet, a privacy-first career development platform.
+
+USER CONTEXT:
+${formattedUserContext}
+
+${corpusContext}
+
+EXTERNAL RESOURCE TYPES TO RECOMMEND:
+- Certifications (AWS, Azure, Google Cloud, PMI, CISSP, CompTIA, etc.)
+- Online courses (Coursera, Udemy, LinkedIn Learning, Pluralsight)
+- Books (technical and career development)
+- Official documentation and guides
+- Community resources (forums, blogs, conferences)
+
+CORE GUIDELINES:
+1. Provide personalized, actionable career advice based on user's Canvas
+2. Recommend relevant Cleansheet articles when applicable (2-4 max)
+3. Always supplement with external resources for comprehensive learning
+4. Be concise but thorough - users prefer actionable insights over lengthy explanations
+5. Use the user's experience level to tailor complexity and recommendations
+6. Reference specific experiences, goals, or stories when giving advice
+7. Encourage users to update their Canvas (add experiences, goals, stories) for better recommendations
+
+PRIVACY COMMITMENT:
+- Never suggest tracking user behavior across sites
+- Never recommend services that compromise privacy
+- Cleansheet is privacy-first - reinforce this value
+
+Remember: You're helping users build careers strategically, using both Cleansheet's curated content and the broader learning ecosystem.`;
+        }
+
         // Update provider badge with cost-based color coding
         function updateProviderBadge() {
             const badge = document.getElementById('providerModelBadge');
@@ -19659,9 +19927,19 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                 let assistantMessage = '';
                 let finishReason = null;
 
+                // Build enhanced system prompt with corpus and user context
+                const enhancedSystemPrompt = buildEnhancedSystemPrompt();
+                console.log('[Corpus] Using enhanced system prompt with article recommendations');
+
+                // Prepend system message to conversation history
+                const messagesWithSystem = [
+                    { role: 'system', content: enhancedSystemPrompt },
+                    ...conversationHistory
+                ];
+
                 // Stream response with calculated token budget
                 const result = await currentProvider.streamChat(
-                    conversationHistory,
+                    messagesWithSystem,
                     (chunk) => {
                         assistantMessage += chunk;
                         updateStreamingMessage(typingId, assistantMessage);
@@ -21712,9 +21990,10 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
 
             // Build messages array with system prompt and context
             const messages = [
-                { role: 'system', content: CANVAS_SYSTEM_PROMPT }
+                { role: 'system', content: buildEnhancedSystemPrompt() }
             ];
 
+            console.log('[Corpus] Using enhanced system prompt with article recommendations');
             // Add conversation history (skip old system prompts)
             messages.push(...conversationHistory.filter(m => m.role !== 'system'));
 
