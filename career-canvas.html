@@ -7701,10 +7701,6 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                         <i class="ph ph-download-simple"></i>
                                         <span>Install App</span>
                                     </button>
-                                    <button class="profile-dropdown-item" onclick="openSupportModal()">
-                                        <i class="ph ph-lifebuoy"></i>
-                                        <span>Support</span>
-                                    </button>
                                     <button class="profile-dropdown-item" onclick="openErasureRequestModal()">
                                         <i class="ph ph-trash"></i>
                                         <span>Erasure Request</span>
@@ -11662,6 +11658,58 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     <button onclick="closeLLMSettingsModal()"
                             style="padding: 10px 20px; background: var(--color-primary-blue); color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
                         Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clear Chat History Confirmation Modal -->
+        <div class="modal" id="clearChatModal" style="display: none; z-index: 10001;">
+            <div class="modal-overlay" onclick="closeClearChatModal()"></div>
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header" style="background: #dc2626; color: white;">
+                    <h2 style="margin: 0; font-family: var(--font-family-ui); font-size: 18px; font-weight: 600; color: white;">
+                        <i class="ph ph-warning" style="margin-right: 8px; color: white;"></i>
+                        Clear Conversation History
+                    </h2>
+                    <button class="modal-close" onclick="closeClearChatModal()" style="color: white;">
+                        <i class="ph ph-x" style="color: white;"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="font-family: var(--font-family-body); font-size: 14px; color: var(--color-neutral-text); line-height: 1.6; margin: 0 0 20px 0;">
+                        Are you sure you want to clear your entire conversation history? This action cannot be undone.
+                    </p>
+
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <p style="font-family: var(--font-family-body); font-size: 13px; color: #991b1b; line-height: 1.5; margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 6px;"></i>
+                            <strong>Tip:</strong> You can download your conversation history before clearing it.
+                        </p>
+                    </div>
+
+                    <button onclick="exportChatHistory()"
+                            style="width: 100%; padding: 12px 20px; background: white; color: var(--color-primary-blue); border: 2px solid var(--color-primary-blue); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px;"
+                            onmouseover="this.style.background='#e3f2fd';"
+                            onmouseout="this.style.background='white';">
+                        <i class="ph ph-download-simple" style="font-size: 18px;"></i>
+                        Download Conversation History
+                    </button>
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--color-neutral-border); display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeClearChatModal()"
+                            style="padding: 10px 20px; background: white; color: var(--color-neutral-text); border: 1px solid var(--color-neutral-border); border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.background='#f5f5f7';"
+                            onmouseout="this.style.background='white';">
+                        Cancel
+                    </button>
+                    <button onclick="confirmClearChatHistory()"
+                            style="padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; font-family: var(--font-family-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                            onmouseover="this.style.background='#b91c1c';"
+                            onmouseout="this.style.background='#dc2626';">
+                        Clear History
                     </button>
                 </div>
             </div>
@@ -17576,8 +17624,99 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             return userMessages.slice(-count);
         }
 
-        // Clear chat history and UI
+        // Open clear chat history confirmation modal
         function clearChatHistory() {
+            openClearChatModal();
+        }
+
+        // Open clear chat modal
+        function openClearChatModal() {
+            const modal = document.getElementById('clearChatModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        // Close clear chat modal
+        function closeClearChatModal() {
+            const modal = document.getElementById('clearChatModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Export chat history as markdown
+        function exportChatHistory() {
+            if (conversationHistory.length === 0) {
+                if (typeof showToast === 'function') {
+                    showToast('No conversation history to export', 'info');
+                }
+                return;
+            }
+
+            try {
+                // Build markdown content
+                let markdown = `# AI Career Assistant Conversation\n\n`;
+                markdown += `**Exported:** ${new Date().toLocaleString()}\n`;
+                markdown += `**Total Messages:** ${conversationHistory.length}\n\n`;
+                markdown += `---\n\n`;
+
+                // Add each message with its metadata
+                conversationHistory.forEach((msg, index) => {
+                    if (msg.role === 'user') {
+                        markdown += `## You\n\n`;
+                        if (msg.timestamp) {
+                            const timestamp = new Date(msg.timestamp).toLocaleString();
+                            markdown += `*${timestamp}*\n\n`;
+                        }
+                        markdown += `${msg.content}\n\n`;
+                    } else if (msg.role === 'assistant') {
+                        markdown += `## AI Assistant\n\n`;
+                        // Add timestamp and model info for assistant messages
+                        const metaParts = [];
+                        if (msg.timestamp) {
+                            metaParts.push(new Date(msg.timestamp).toLocaleString());
+                        }
+                        if (msg.provider && msg.model) {
+                            metaParts.push(`${msg.provider}: ${msg.model}`);
+                        }
+                        if (metaParts.length > 0) {
+                            markdown += `*${metaParts.join(' • ')}*\n\n`;
+                        }
+                        markdown += `${msg.content}\n\n`;
+                    }
+
+                    if (index < conversationHistory.length - 1) {
+                        markdown += `---\n\n`;
+                    }
+                });
+
+                // Create blob and download
+                const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                a.download = `ai-conversation-${timestamp}.md`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                console.log('[LLM] Conversation history exported as markdown');
+                if (typeof showToast === 'function') {
+                    showToast('Conversation history downloaded', 'success');
+                }
+            } catch (error) {
+                console.error('[LLM] Error exporting conversation history:', error);
+                if (typeof showToast === 'function') {
+                    showToast('Failed to export conversation history', 'error');
+                }
+            }
+        }
+
+        // Confirm and clear chat history
+        function confirmClearChatHistory() {
             // Clear conversation history array
             conversationHistory = [];
 
@@ -17600,6 +17739,14 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }
 
             console.log('[LLM] Chat history cleared from memory and localStorage');
+
+            // Close the modal
+            closeClearChatModal();
+
+            // Show success message
+            if (typeof showToast === 'function') {
+                showToast('Conversation history cleared', 'success');
+            }
         }
 
         // Update provider badge with cost-based color coding
@@ -17736,8 +17883,8 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
         }
 
         // Initialize provider (used for reinitialization after model change)
-        function initializeLLMProvider() {
-            loadLLMConfig();
+        async function initializeLLMProvider() {
+            await loadLLMConfig();
         }
 
         // Initialize LLM system on canvas open
@@ -18824,7 +18971,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             console.log('[Model Selector] Populated with', providers.length, 'providers');
         }
 
-        function selectSessionModel(providerName, modelId) {
+        async function selectSessionModel(providerName, modelId) {
             console.log('[Model Selector] Switching to', providerName, modelId);
 
             // Store session override
@@ -18835,7 +18982,7 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             }));
 
             // Reinitialize provider with new model
-            initializeLLMProvider();
+            await initializeLLMProvider();
 
             // Update badge to show temporary override
             updateProviderBadge();
@@ -19256,8 +19403,15 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
             console.log('[Chat] Adding message to UI:', message);
             addMessageToUI('user', message);
 
-            // Add to conversation history
-            conversationHistory.push({ role: 'user', content: message });
+            // Add to conversation history with timestamp
+            conversationHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: new Date().toISOString()
+            });
+
+            // Save conversation history to localStorage
+            saveConversationHistory();
 
             // Show typing indicator
             const typingId = addTypingIndicator();
@@ -19291,8 +19445,30 @@ Notes: Add speaker notes here..." style="flex: 1; padding: 16px; border: none; f
                     trackLLMUsage(providerName, null, 'truncation');
                 }
 
-                // Add complete message to conversation history
-                conversationHistory.push({ role: 'assistant', content: assistantMessage });
+                // Add complete message to conversation history with metadata
+                const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
+
+                // Check for session model override
+                let provider = config.activeProvider || 'unknown';
+                let model = config[provider]?.model || 'unknown';
+
+                const sessionOverride = sessionStorage.getItem('session_model_override');
+                if (sessionOverride) {
+                    const override = JSON.parse(sessionOverride);
+                    provider = override.provider;
+                    model = override.model;
+                }
+
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: assistantMessage,
+                    timestamp: new Date().toISOString(),
+                    provider: provider,
+                    model: model
+                });
+
+                // Save conversation history to localStorage
+                saveConversationHistory();
 
                 // Track usage with actual provider name
                 const providerName = currentProvider.getName().toLowerCase();
@@ -21306,8 +21482,12 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
             // Add current user message with context
             messages.push({ role: 'user', content: `${contextMessage}\n\n${message}` });
 
-            // Update conversation history (without system prompt)
-            conversationHistory.push({ role: 'user', content: message });
+            // Update conversation history (without system prompt) with timestamp
+            conversationHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: new Date().toISOString()
+            });
 
             // Save conversation history to localStorage
             saveConversationHistory();
@@ -21330,8 +21510,27 @@ ${JSON.stringify(careerGuidanceData, null, 2)}
                 // Remove typing indicator
                 removeTypingIndicator(typingId);
 
-                // Add complete message to conversation history
-                conversationHistory.push({ role: 'assistant', content: assistantMessage });
+                // Add complete message to conversation history with metadata
+                const config = JSON.parse(localStorage.getItem('llm_config_encrypted') || '{}');
+
+                // Check for session model override
+                let provider = config.activeProvider || 'unknown';
+                let model = config[provider]?.model || 'unknown';
+
+                const sessionOverride = sessionStorage.getItem('session_model_override');
+                if (sessionOverride) {
+                    const override = JSON.parse(sessionOverride);
+                    provider = override.provider;
+                    model = override.model;
+                }
+
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: assistantMessage,
+                    timestamp: new Date().toISOString(),
+                    provider: provider,
+                    model: model
+                });
 
                 // Save conversation history to localStorage
                 saveConversationHistory();
