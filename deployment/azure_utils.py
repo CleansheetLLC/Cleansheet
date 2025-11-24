@@ -10,6 +10,9 @@ import subprocess
 import json
 import mimetypes
 import platform
+import tempfile
+import shutil
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from rich.console import Console
@@ -26,6 +29,52 @@ console = Console()
 
 # Determine Azure CLI command based on platform
 AZ_CMD = 'az.cmd' if platform.system() == 'Windows' else 'az'
+
+
+def is_wsl() -> bool:
+    """
+    Check if running in WSL (Windows Subsystem for Linux).
+
+    Returns:
+        True if running in WSL, False otherwise
+    """
+    try:
+        with open('/proc/version', 'r') as f:
+            return 'microsoft' in f.read().lower()
+    except:
+        return False
+
+
+def wsl_path_to_windows(path: Path) -> str:
+    """
+    Convert WSL path to Windows path for azcopy.exe compatibility.
+
+    Examples:
+        /mnt/c/Users/... -> C:\\Users\\...
+        /mnt/d/Data/... -> D:\\Data\\...
+
+    Args:
+        path: Path object (WSL format)
+
+    Returns:
+        Windows-formatted path string
+    """
+    path_str = str(path)
+
+    # Check if it's a WSL mount point
+    if path_str.startswith('/mnt/'):
+        # Extract drive letter and remaining path
+        parts = path_str[5:].split('/', 1)
+        if len(parts) >= 1:
+            drive_letter = parts[0].upper()
+            remaining_path = parts[1] if len(parts) > 1 else ''
+
+            # Convert to Windows path
+            windows_path = f"{drive_letter}:\\" + remaining_path.replace('/', '\\')
+            return windows_path
+
+    # Not a WSL mount point, return as-is
+    return path_str
 
 
 class AzureDeployment:
@@ -233,6 +282,13 @@ class AzureDeployment:
         if not self.dry_run:
             console.print("Starting incremental sync (only changed files)...\n")
 
+        # Convert path for azcopy if running in WSL
+        source_path = str(self.repo_path)
+        if is_wsl():
+            source_path = wsl_path_to_windows(self.repo_path)
+            if self.verbose:
+                console.print(f"[dim]WSL detected: Converting path to {source_path}[/dim]")
+
         # Run sync command
         try:
             cmd = [
@@ -240,7 +296,7 @@ class AzureDeployment:
                 '--account-name', self.storage_account,
                 '--account-key', account_key,
                 '--container', self.container_name,
-                '--source', str(self.repo_path)
+                '--source', source_path
             ]
             cmd.extend(exclude_params)
             cmd.extend(['--delete-destination', 'false'])
@@ -305,16 +361,41 @@ class AzureDeployment:
         # Determine content type
         content_type = self._get_content_type(file_path)
 
-        console.print(f"Uploading {blob_name}...")
+        # Check if this is career-canvas.html and inject timestamp
+        temp_file = None
+        upload_path = file_path
+
+        if blob_name == 'career-canvas.html':
+            try:
+                # Generate timestamp from file modification time
+                timestamp = self._format_file_timestamp(file_path)
+
+                # Inject timestamp into HTML
+                temp_file = self._inject_timestamp_to_html(file_path, timestamp)
+                upload_path = temp_file
+
+                console.print(f"Uploading {blob_name} with timestamp {timestamp}...")
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not inject timestamp: {e}[/yellow]")
+                console.print(f"Uploading {blob_name} without timestamp...")
+        else:
+            console.print(f"Uploading {blob_name}...")
 
         try:
+            # Convert path for Azure CLI if running in WSL
+            file_arg = str(upload_path)
+            if is_wsl():
+                file_arg = wsl_path_to_windows(upload_path)
+                if self.verbose and temp_file:
+                    console.print(f"[dim]WSL detected: Converting temp file path to {file_arg}[/dim]")
+
             self._run_az_command([
                 'storage', 'blob', 'upload',
                 '--account-name', self.storage_account,
                 '--account-key', account_key,
                 '--container-name', self.container_name,
                 '--name', blob_name,
-                '--file', str(file_path),
+                '--file', file_arg,
                 '--content-type', content_type,
                 '--content-cache-control', 'public, max-age=3600',
                 '--overwrite', 'true',
@@ -322,12 +403,22 @@ class AzureDeployment:
             ])
 
             if not self.dry_run:
-                file_size_kb = file_path.stat().st_size / 1024
+                file_size_kb = upload_path.stat().st_size / 1024
                 console.print(f"[green][OK][/green] Uploaded: {blob_name} ({file_size_kb:.1f} KB)")
 
         except subprocess.CalledProcessError:
             console.print(f"[red][X][/red] Failed to upload: {blob_name}")
             raise
+        finally:
+            # Clean up temporary file if it was created
+            if temp_file and temp_file.exists():
+                try:
+                    temp_file.unlink()
+                    if self.verbose:
+                        console.print(f"[dim]Cleaned up temporary file[/dim]")
+                except Exception as e:
+                    if self.verbose:
+                        console.print(f"[yellow]Warning: Could not delete temp file: {e}[/yellow]")
 
     def _upload_directory(self, dir_path: Path, blob_prefix: str, account_key: str) -> None:
         """
@@ -388,6 +479,80 @@ class AzureDeployment:
 
         ext = file_path.suffix.lower()
         return content_type_map.get(ext, 'application/octet-stream')
+
+    def _format_file_timestamp(self, file_path: Path) -> str:
+        """
+        Get file modification timestamp in YYMMDD.hhmm format (UTC).
+
+        Args:
+            file_path: File path
+
+        Returns:
+            Formatted timestamp string (e.g., "251124.1430")
+        """
+        # Get file modification time
+        mtime = file_path.stat().st_mtime
+
+        # Convert to UTC datetime
+        dt_utc = datetime.utcfromtimestamp(mtime)
+
+        # Format as YYMMDD.hhmm
+        timestamp = dt_utc.strftime("%y%m%d.%H%M")
+
+        return timestamp
+
+    def _inject_timestamp_to_html(self, file_path: Path, timestamp: str) -> Path:
+        """
+        Inject timestamp into HTML file before copyright notice.
+
+        Args:
+            file_path: Original HTML file path
+            timestamp: Formatted timestamp string
+
+        Returns:
+            Path to temporary file with injected timestamp
+        """
+        # Read original file
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Create timestamp HTML element
+        timestamp_html = f'''                <!-- Build Timestamp -->
+                <div style="position: absolute; bottom: 8px; left: 16px; font-family: var(--font-family-body); font-size: 11px; color: var(--color-neutral-text); font-weight: 500; opacity: 0.7; z-index: 5;">
+                    {timestamp}
+                </div>
+
+                '''
+
+        # Find copyright notice and inject timestamp before it
+        copyright_marker = '                <!-- Copyright Notice -->'
+
+        if copyright_marker in content:
+            content = content.replace(copyright_marker, timestamp_html + copyright_marker)
+
+            if self.verbose:
+                console.print(f"[dim]Injected timestamp: {timestamp}[/dim]")
+        else:
+            console.print("[yellow]Warning: Copyright marker not found in HTML, skipping timestamp injection[/yellow]")
+
+        # Create temporary file in Windows-accessible location when running in WSL
+        if is_wsl():
+            # Use repo directory for temp file (Windows accessible)
+            temp_dir = self.repo_path
+            temp_file_path = temp_dir / f'.tmp_career_canvas_{timestamp}.html'
+
+            with open(temp_file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            return temp_file_path
+        else:
+            # Use system temp directory
+            temp_file = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8',
+                                                    suffix='.html', delete=False)
+            temp_file.write(content)
+            temp_file.close()
+
+            return Path(temp_file.name)
 
     def _show_website_url(self) -> None:
         """Display the website URL after deployment."""
