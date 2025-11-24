@@ -1,48 +1,6 @@
 ---
 name: ip-documentarian
-description: |
-  Use this agent when the user is developing new technical innovations, architectural patterns, or novel system designs that should be documented as intellectual property. This agent should be invoked proactively when:
-
-  - Code changes introduce novel technical approaches or architectural innovations
-  - New algorithms, data structures, or system designs are implemented
-  - Integration patterns or workflow optimizations are created
-  - Performance improvements or technical breakthroughs are achieved
-  - The user mentions terms like "innovation", "new approach", "novel solution", or "IP"
-
-  Examples:
-
-  <example>
-  Context: User just implemented a new D3.js visualization technique with adaptive node sizing.
-
-  user: "I've finished implementing the adaptive node sizing algorithm for the Canvas tree visualization. It dynamically adjusts based on content depth and sibling relationships."
-
-  assistant: "Excellent work! This adaptive sizing approach sounds innovative. Let me use the ip-documentarian agent to evaluate whether this should be documented as intellectual property and create a white paper if warranted."
-
-  <uses Task tool to invoke ip-documentarian agent>
-  </example>
-
-  <example>
-  Context: User is discussing a new privacy-preserving analytics approach.
-
-  user: "I'm thinking about implementing a client-side aggregation layer that anonymizes data before it ever reaches the server. Users would have full control over what gets shared."
-
-  assistant: "That's a novel privacy architecture! Let me engage the ip-documentarian agent to help you document this innovation and create a comprehensive white paper that captures the technical approach and competitive advantages."
-
-  <uses Task tool to invoke ip-documentarian agent>
-  </example>
-
-  <example>
-  Context: Regular code review after implementing standard CRUD operations.
-
-  user: "I've added basic create, read, update, delete functions to the data service."
-
-  assistant: "Great! Let me review the implementation for code quality."
-
-  <commentary>
-  This is standard functionality, not an innovation requiring IP documentation. Proceed with normal code review without invoking ip-documentarian.
-  </commentary>
-  </example>
-
+description: Use this agent when the user is developing new technical innovations, architectural patterns, or novel system designs that should be documented as intellectual property. This agent should be invoked proactively when:\n\n- Code changes introduce novel technical approaches or architectural innovations\n- New algorithms, data structures, or system designs are implemented\n- Integration patterns or workflow optimizations are created\n- Performance improvements or technical breakthroughs are achieved\n- The user mentions terms like "innovation", "new approach", "novel solution", or "IP"\n\nExamples:\n\n<example>\nContext: User just implemented a new D3.js visualization technique with adaptive node sizing.\n\nuser: "I've finished implementing the adaptive node sizing algorithm for the Canvas tree visualization. It dynamically adjusts based on content depth and sibling relationships."\n\nassistant: "Excellent work! This adaptive sizing approach sounds innovative. Let me use the ip-documentarian agent to evaluate whether this should be documented as intellectual property and create a white paper if warranted."\n\n<uses Task tool to invoke ip-documentarian agent>\n</example>\n\n<example>\nContext: User is discussing a new privacy-preserving analytics approach.\n\nuser: "I'm thinking about implementing a client-side aggregation layer that anonymizes data before it ever reaches the server. Users would have full control over what gets shared."\n\nassistant: "That's a novel privacy architecture! Let me engage the ip-documentarian agent to help you document this innovation and create a comprehensive white paper that captures the technical approach and competitive advantages."\n\n<uses Task tool to invoke ip-documentarian agent>\n</example>\n\n<example>\nContext: Regular code review after implementing standard CRUD operations.\n\nuser: "I've added basic create, read, update, delete functions to the data service."\n\nassistant: "Great! Let me review the implementation for code quality."\n\n<commentary>\nThis is standard functionality, not an innovation requiring IP documentation. Proceed with normal code review without invoking ip-documentarian.\n</commentary>\n</example>
 tools: all
 model: sonnet
 ---
