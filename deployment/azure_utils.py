@@ -258,10 +258,10 @@ class AzureDeployment:
 
     def deploy_full(self) -> None:
         """
-        Full deployment with incremental sync.
+        Full deployment using azcopy directly.
 
-        Syncs all files from repository to Azure Blob Storage,
-        uploading only changed files.
+        Uploads all files from repository to Azure Blob Storage using azcopy copy.
+        Uses azcopy directly to avoid az storage blob sync bugs.
         """
         # Check prerequisites
         self.check_prerequisites()
@@ -269,18 +269,13 @@ class AzureDeployment:
         # Verify storage account and get key
         account_key = self.verify_storage_account()
 
-        # Build exclude parameters
-        exclude_params = []
-        for pattern in self.exclude_patterns:
-            exclude_params.extend(['--exclude-path', pattern])
-
-        console.print("[bold]Syncing Files to Azure Blob Storage[/bold]\n")
+        console.print("[bold]Uploading Files to Azure Blob Storage[/bold]\n")
         console.print(f"Source: {self.repo_path}")
         console.print(f"Destination: {self.storage_account}/{self.container_name}")
         console.print(f"Excluding: {len(self.exclude_patterns)} patterns\n")
 
         if not self.dry_run:
-            console.print("Starting incremental sync (only changed files)...\n")
+            console.print("Starting upload...\n")
 
         # Convert path for azcopy if running in WSL
         source_path = str(self.repo_path)
@@ -289,35 +284,112 @@ class AzureDeployment:
             if self.verbose:
                 console.print(f"[dim]WSL detected: Converting path to {source_path}[/dim]")
 
-        # Run sync command
+        # Ensure source path ends with /* for recursive copy
+        if not source_path.endswith('\\*') and not source_path.endswith('/*'):
+            source_path = source_path.rstrip('\\/') + '/*'
+
+        # Generate SAS token for azcopy
+        sas_token = self._generate_sas_token(account_key)
+
+        # Build destination URL with SAS
+        dest_url = f"https://{self.storage_account}.blob.core.windows.net/{self.container_name}?{sas_token}"
+
+        # Run azcopy copy command
         try:
+            # Build exclude patterns - semicolon separated for azcopy
+            exclude_pattern = ';'.join(self.exclude_patterns)
+
+            # Determine azcopy command - in WSL, use the Windows version
+            azcopy_cmd = 'azcopy'
+            if is_wsl():
+                # Use the azcopy.exe from Azure CLI installation
+                azcopy_windows_path = Path('/mnt/c/Users') / os.environ.get('USER', 'PaulGaljan') / '.azure/bin/azcopy.exe'
+                if not azcopy_windows_path.exists():
+                    # Try with the username from the repo path
+                    parts = str(self.repo_path).split('/')
+                    if 'Users' in parts:
+                        user_idx = parts.index('Users') + 1
+                        if user_idx < len(parts):
+                            username = parts[user_idx]
+                            azcopy_windows_path = Path(f'/mnt/c/Users/{username}/.azure/bin/azcopy.exe')
+                if azcopy_windows_path.exists():
+                    azcopy_cmd = str(azcopy_windows_path)
+                    if self.verbose:
+                        console.print(f"[dim]Using azcopy at: {azcopy_cmd}[/dim]")
+
             cmd = [
-                'storage', 'blob', 'sync',
-                '--account-name', self.storage_account,
-                '--account-key', account_key,
-                '--container', self.container_name,
-                '--source', source_path
+                azcopy_cmd, 'copy',
+                source_path,
+                dest_url,
+                '--recursive=true',
+                '--overwrite=true',
+                f'--exclude-pattern={exclude_pattern}'
             ]
-            cmd.extend(exclude_params)
-            cmd.extend(['--delete-destination', 'false'])
 
-            result = self._run_az_command(cmd, capture_output=True)
+            if self.verbose:
+                console.print(f"[dim]Running: azcopy copy ... (patterns hidden)[/dim]")
 
-            if not self.dry_run:
-                output = result.stdout.decode('utf-8', errors='ignore')
-                uploaded = output.count('Uploading')
-                skipped = output.count('Skipping')
+            if self.dry_run:
+                # Mask the SAS token for dry run display
+                display_cmd = cmd.copy()
+                display_cmd[2] = f"https://{self.storage_account}.blob.core.windows.net/{self.container_name}?[SAS_TOKEN]"
+                console.print(f"[yellow]DRY RUN:[/yellow] azcopy copy {source_path} [DEST_URL] --recursive=true --overwrite=true --exclude-pattern=...")
+            else:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
 
-                console.print(f"[green][OK][/green] Sync complete!")
-                console.print(f"Files uploaded: {uploaded}")
-                console.print(f"Files skipped (unchanged): {skipped}")
+                # Parse output for statistics
+                output = result.stdout + result.stderr
+                if self.verbose:
+                    console.print(f"[dim]{output}[/dim]")
+
+                console.print(f"[green][OK][/green] Upload complete!")
 
         except subprocess.CalledProcessError as e:
-            console.print("[red][X][/red] Sync failed")
+            console.print("[red][X][/red] Upload failed")
+            if e.stderr:
+                console.print(f"[red]{e.stderr}[/red]")
+            raise
+        except FileNotFoundError:
+            console.print("[red][X][/red] azcopy not found in PATH")
+            console.print("Install azcopy or ensure it's in your PATH")
             raise
 
         # Display website URL
         self._show_website_url()
+
+    def _generate_sas_token(self, account_key: str) -> str:
+        """
+        Generate a SAS token for the storage account.
+
+        Args:
+            account_key: Storage account key
+
+        Returns:
+            SAS token string
+        """
+        from datetime import datetime, timedelta
+
+        # Calculate expiry time (1 hour from now)
+        expiry = (datetime.utcnow() + timedelta(hours=1)).strftime('%Y-%m-%dT%H:%MZ')
+
+        # Generate SAS token using az cli
+        result = self._run_az_command([
+            'storage', 'account', 'generate-sas',
+            '--account-name', self.storage_account,
+            '--account-key', account_key,
+            '--services', 'b',
+            '--resource-types', 'co',
+            '--permissions', 'rwdlac',
+            '--expiry', expiry,
+            '-o', 'tsv'
+        ])
+
+        return result.stdout.decode('utf-8').strip()
 
     def deploy_quick(self, target: str) -> None:
         """

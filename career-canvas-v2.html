@@ -728,6 +728,95 @@
             color: var(--color-neutral-text);
         }
 
+        /* ===========================================
+           LEFT NAV VIEW (Alternative to D3)
+           =========================================== */
+
+        /* Hide left nav by default */
+        .leftnav-view {
+            display: none;
+        }
+
+        /* When leftnav mode is active */
+        .canvas-body.leftnav-mode #canvas-mindmap {
+            display: none;
+        }
+
+        .canvas-body.leftnav-mode .leftnav-view {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .leftnav-sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--color-neutral-background);
+            border-right: 1px solid var(--color-neutral-border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .leftnav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            text-align: left;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .leftnav-item:hover {
+            background: white;
+            color: var(--color-dark);
+        }
+
+        .leftnav-item.active {
+            background: white;
+            color: var(--color-primary-blue);
+            border-left-color: var(--color-primary-blue);
+            font-weight: 600;
+        }
+
+        .leftnav-item i {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .leftnav-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .leftnav-content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .leftnav-content-header h2 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0;
+        }
+
         /* Mobile-only elements (hidden on desktop) */
         .mobile-only {
             display: none;
@@ -847,6 +936,11 @@
 
             /* Hide D3 mindmap on phone */
             #canvas-mindmap {
+                display: none;
+            }
+
+            /* Hide leftnav view on phone - mobile nav grid takes over */
+            .canvas-body.leftnav-mode .leftnav-view {
                 display: none;
             }
 
@@ -990,6 +1084,18 @@
                                         <button class="viewmode-btn" data-persona="data-analyst" onclick="setPersona('data-analyst')">Data Analyst</button>
                                     </div>
                                 </div>
+                                <div class="profile-dropdown-divider"></div>
+                                <div class="profile-dropdown-section">
+                                    <div class="profile-dropdown-label">Layout</div>
+                                    <div class="viewmode-selector" id="layoutSelectorDropdown">
+                                        <button class="viewmode-btn active" data-layout="mindmap" onclick="setLayoutMode('mindmap')">
+                                            <i class="ph ph-tree-structure"></i> Mindmap
+                                        </button>
+                                        <button class="viewmode-btn" data-layout="leftnav" onclick="setLayoutMode('leftnav')">
+                                            <i class="ph ph-sidebar"></i> Left Nav
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="profile-dropdown-divider mobile-only"></div>
                                 <div class="profile-dropdown-section mobile-only">
                                     <div class="profile-dropdown-label">Widgets</div>
@@ -1051,6 +1157,24 @@
 
             <!-- D3 Mindmap Container -->
             <div id="canvas-mindmap"></div>
+
+            <!-- Left Nav View (Alternative to D3) -->
+            <div class="leftnav-view" id="leftnavView">
+                <nav class="leftnav-sidebar" id="leftnavSidebar">
+                    <!-- Nav items populated dynamically -->
+                </nav>
+                <main class="leftnav-content" id="leftnavContent">
+                    <div class="leftnav-content-header">
+                        <h2 id="leftnavTitle">Career Experience</h2>
+                        <button class="btn-primary">
+                            <i class="ph ph-plus"></i> Add New
+                        </button>
+                    </div>
+                    <div class="card-grid" id="leftnavGrid">
+                        <!-- Content loaded dynamically -->
+                    </div>
+                </main>
+            </div>
 
             <!-- Mobile Button Navigation (phone only) -->
             <div class="mobile-nav-grid" id="mobileNavGrid">
@@ -1213,6 +1337,15 @@
             // Update mobile navigation grid
             renderMobileNavGrid();
 
+            // Update left nav if in leftnav mode
+            if (currentLayoutMode === 'leftnav') {
+                renderLeftNav();
+                const defaultItem = getDefaultLeftnavItem();
+                if (defaultItem) {
+                    selectLeftnavItem(defaultItem.label);
+                }
+            }
+
             console.log('[career-canvas-v2] View mode set to:', mode);
         }
 
@@ -1250,6 +1383,106 @@
             });
 
             console.log('[career-canvas-v2] Active menu set to:', menu);
+        }
+
+        // ===========================================
+        // LAYOUT MODE (Mindmap vs Left Nav)
+        // ===========================================
+
+        // Track current layout mode
+        let currentLayoutMode = 'mindmap';
+        let currentLeftnavItem = null;
+
+        function setLayoutMode(mode) {
+            currentLayoutMode = mode;
+            const canvasBody = document.getElementById('canvasBody');
+
+            // Update button states
+            document.querySelectorAll('#layoutSelectorDropdown .viewmode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.layout === mode);
+            });
+
+            if (mode === 'leftnav') {
+                canvasBody.classList.add('leftnav-mode');
+                renderLeftNav();
+                // Set default to Career Experience (for seeker) or first item
+                const defaultItem = getDefaultLeftnavItem();
+                if (defaultItem) {
+                    selectLeftnavItem(defaultItem.label);
+                }
+            } else {
+                canvasBody.classList.remove('leftnav-mode');
+            }
+
+            // Persist preference
+            try {
+                localStorage.setItem('cleansheet_layoutMode', mode);
+            } catch (e) {
+                console.warn('[career-canvas-v2] Could not persist layout mode');
+            }
+
+            console.log('[career-canvas-v2] Layout mode set to:', mode);
+        }
+
+        function getDefaultLeftnavItem() {
+            const mode = canvasState.currentViewMode || 'seeker';
+            const items = mobileNavConfig[mode] || mobileNavConfig.seeker;
+
+            // Default to Career Experience for seeker mode, otherwise first item
+            if (mode === 'seeker') {
+                return items.find(item => item.label === 'Career Experience') || items[0];
+            }
+            return items[0];
+        }
+
+        function renderLeftNav() {
+            const sidebar = document.getElementById('leftnavSidebar');
+            if (!sidebar) return;
+
+            const mode = canvasState.currentViewMode || 'seeker';
+            const items = mobileNavConfig[mode] || mobileNavConfig.seeker;
+
+            sidebar.innerHTML = items.map(item => `
+                <button class="leftnav-item" data-label="${item.label}" onclick="selectLeftnavItem('${item.label}')">
+                    <i class="ph ${item.icon}"></i>
+                    <span>${item.label}</span>
+                </button>
+            `).join('');
+
+            console.log('[career-canvas-v2] Left nav rendered for mode:', mode);
+        }
+
+        function selectLeftnavItem(label) {
+            currentLeftnavItem = label;
+
+            // Update active state in sidebar
+            document.querySelectorAll('.leftnav-item').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.label === label);
+            });
+
+            // Update content header
+            const titleEl = document.getElementById('leftnavTitle');
+            if (titleEl) {
+                titleEl.textContent = label;
+            }
+
+            // Load content for this item (placeholder for now)
+            loadLeftnavContent(label);
+
+            console.log('[career-canvas-v2] Left nav item selected:', label);
+        }
+
+        function loadLeftnavContent(label) {
+            const grid = document.getElementById('leftnavGrid');
+            if (!grid) return;
+
+            // For now, show empty state - this would be populated from data service
+            grid.innerHTML = `
+                <div class="empty-state" style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted); grid-column: 1 / -1;">
+                    <i class="ph ph-folder-open" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                    <p>No items yet. Click "Add New" to create your first item.</p>
+                </div>
+            `;
         }
 
         // ===========================================
@@ -1458,6 +1691,16 @@
 
             // Initialize mobile navigation grid
             renderMobileNavGrid();
+
+            // Load persisted layout preference
+            try {
+                const savedLayout = localStorage.getItem('cleansheet_layoutMode');
+                if (savedLayout === 'leftnav') {
+                    setLayoutMode('leftnav');
+                }
+            } catch (e) {
+                console.warn('[career-canvas-v2] Could not load layout preference');
+            }
 
             console.log('[career-canvas-v2] Initialization complete');
         });
