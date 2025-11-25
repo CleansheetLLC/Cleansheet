@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Canvas V2</title>
+    <link rel="icon" type="image/png" href="assets/high-resolution-logo-files/white-on-transparent.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300&family=Questrial&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        /* ===========================================
+           DESIGN SYSTEM TOKENS
+           =========================================== */
+        :root {
+            /* Brand Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-dark: #1a1a1a;
+            --color-highlight: #11304f;
+
+            /* Neutral Colors */
+            --color-neutral-text: #333333;
+            --color-neutral-text-light: #666666;
+            --color-neutral-text-muted: #999999;
+            --color-neutral-background: #f5f5f7;
+            --color-neutral-background-secondary: #f8f8f8;
+            --color-neutral-border: #e5e5e7;
+            --color-neutral-white: #ffffff;
+
+            /* Status Colors */
+            --color-success: #16a34a;
+            --color-warning: #f59e0b;
+            --color-error: #dc2626;
+
+            /* Typography */
+            --font-family-ui: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --spacing-xxxl: 32px;
+        }
+
+        /* ===========================================
+           BASE RESET
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            font-weight: 300;
+            background: var(--color-neutral-background);
+            color: var(--color-neutral-text);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-ui);
+        }
+
+        /* ===========================================
+           CANVAS LAYOUT
+           =========================================== */
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===========================================
+           HEADER
+           =========================================== */
+        .canvas-header {
+            padding: 12px 32px;
+            border-bottom: 2px solid var(--color-neutral-border);
+            background: var(--color-dark);
+            flex-shrink: 0;
+        }
+
+        /* Main Menu */
+        .main-menu {
+            display: flex;
+            gap: 4px;
+        }
+
+        .main-menu-item {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .main-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .main-menu-item.active {
+            background: rgba(0, 102, 204, 0.3);
+            color: white;
+        }
+
+        .main-menu-item i {
+            font-size: 16px;
+        }
+
+        /* Profile Avatar */
+        .profile-circle {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--color-highlight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .profile-avatar:hover {
+            background: rgba(0, 102, 204, 0.4);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 52px;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+        }
+
+        .profile-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-neutral-border);
+        }
+
+        .profile-dropdown-name {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0 0 4px 0;
+        }
+
+        .profile-dropdown-role {
+            font-family: var(--font-family-body);
+            font-size: 12px;
+            color: var(--color-neutral-text-light);
+            margin: 0;
+        }
+
+        .profile-dropdown-menu {
+            padding: 8px 0;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            color: var(--color-neutral-text);
+            cursor: pointer;
+            transition: all 0.15s;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .profile-dropdown-item i {
+            font-size: 18px;
+            color: var(--color-primary-blue);
+        }
+
+        .profile-dropdown-divider {
+            height: 1px;
+            background: var(--color-neutral-border);
+            margin: 8px 0;
+        }
+
+        .profile-dropdown-section {
+            padding: 12px 16px;
+        }
+
+        .profile-dropdown-label {
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-neutral-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .viewmode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .viewmode-btn {
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: var(--color-neutral-text);
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .viewmode-btn:hover {
+            background: var(--color-neutral-background);
+        }
+
+        .viewmode-btn.active {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        /* ===========================================
+           CANVAS BODY - FULL WIDTH FOR D3
+           =========================================== */
+        .canvas-body {
+            flex: 1;
+            padding: 24px;
+            overflow: hidden;
+            background: var(--color-neutral-background);
+            min-height: 0;
+            position: relative;
+        }
+
+        /* ===========================================
+           D3 MINDMAP CONTAINER
+           =========================================== */
+        #canvas-mindmap {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+            transition: margin-left 0.4s ease;
+        }
+
+        .widgets-slideout.active ~ #canvas-mindmap {
+            margin-left: 30%;
+        }
+
+        #canvas-mindmap svg {
+            display: block;
+            min-width: 100%;
+            min-height: 100%;
+        }
+
+        /* ===========================================
+           LEFT SLIDEOUT PANEL (Calendar & AI Widgets)
+           =========================================== */
+        .widgets-slideout {
+            position: absolute;
+            top: 0;
+            left: -30%;
+            width: 30%;
+            height: 100%;
+            background: var(--color-neutral-background);
+            box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            transition: left 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .widgets-slideout.active {
+            left: 0;
+        }
+
+        /* Panel Toggle Button (left side) */
+        .panel-toggle {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            padding: 12px 8px;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            color: var(--color-dark);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .widgets-slideout.active + .panel-toggle,
+        .widgets-slideout.active ~ .panel-toggle {
+            left: 30%;
+        }
+
+        .panel-toggle:hover {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
+
+        /* ===========================================
+           WIDGETS
+           =========================================== */
+        .widget {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--color-neutral-border);
+        }
+
+        .widget-header h3 {
+            font-family: var(--font-family-ui);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .widget-header h3 i {
+            font-size: 18px;
+        }
+
+        /* Calendar Widget */
+        .calendar-widget {
+            flex-shrink: 0;
+            max-height: 280px;
+        }
+
+        .calendar-events {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .calendar-event {
+            padding: 10px 12px;
+            background: var(--color-neutral-background);
+            border-radius: 6px;
+            border-left: 3px solid var(--color-primary-blue);
+        }
+
+        .event-time {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--color-primary-blue);
+            margin-bottom: 3px;
+        }
+
+        .event-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 2px;
+        }
+
+        .event-details {
+            font-size: 10px;
+            color: var(--color-neutral-text-light);
+        }
+
+        /* AI Assistant Widget */
+        .ai-assistant-widget {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 450px;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-message {
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .ai-message.assistant {
+            background: var(--color-neutral-background);
+            color: var(--color-dark);
+            align-self: flex-start;
+            max-width: 85%;
+        }
+
+        .ai-message.user {
+            background: var(--color-primary-blue);
+            color: white;
+            align-self: flex-end;
+            max-width: 85%;
+        }
+
+        .ai-input-area {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-neutral-border);
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid var(--color-neutral-border);
+            border-radius: 8px;
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .ai-input:focus {
+            border-color: var(--color-primary-blue);
+        }
+
+        .ai-send-btn {
+            padding: 10px 16px;
+            background: var(--color-primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-send-btn:hover {
+            background: var(--color-accent-blue);
+        }
+
+        /* ===========================================
+           SLIDEOUT PANELS (60% WIDTH)
+           =========================================== */
+        .slideout {
+            position: absolute;
+            top: 0;
+            right: -60%;
+            width: 60%;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: right 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slideout.active {
+            right: 0;
+        }
+
+        .slideout-header {
+            padding: 24px;
+            background: var(--color-dark);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-neutral-border);
+            flex-shrink: 0;
+        }
+
+        .slideout-header h2 {
+            font-family: var(--font-family-ui);
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .slideout-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .slideout-close:hover {
+            opacity: 0.7;
+        }
+
+        .slideout-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--color-neutral-background);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===========================================
+           BUTTONS
+           =========================================== */
+        .btn-primary {
+            padding: 8px 16px;
+            background: var(--color-primary-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-blue);
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            background: white;
+            color: var(--color-neutral-text);
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 6px;
+            font-family: var(--font-family-ui);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-neutral-background);
+            border-color: var(--color-primary-blue);
+        }
+
+        .sync-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 2px solid var(--color-primary-blue);
+            color: var(--color-primary-blue);
+            font-family: var(--font-family-ui);
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-btn:hover {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        /* ===========================================
+           CONTENT CARDS
+           =========================================== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            padding: 20px;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-icon i {
+            font-size: 24px;
+            color: var(--color-primary-blue);
+        }
+
+        .card-title {
+            font-family: var(--font-family-ui);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 4px;
+        }
+
+        .card-description {
+            font-family: var(--font-family-body);
+            font-size: 13px;
+            color: var(--color-neutral-text);
+            line-height: 1.5;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            padding: 4px 8px;
+            background: var(--color-neutral-background);
+            border-radius: 4px;
+            font-family: var(--font-family-body);
+            font-size: 11px;
+            color: var(--color-neutral-text);
+        }
+
+        /* Mobile-only elements (hidden on desktop) */
+        .mobile-only {
+            display: none;
+        }
+
+        /* Mobile Navigation Grid (hidden on desktop/tablet) */
+        .mobile-nav-grid {
+            display: none;
+        }
+
+        /* ===========================================
+           RESPONSIVE - TABLET (768px)
+           =========================================== */
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: block;
+            }
+            .canvas-header {
+                padding: 8px 16px;
+            }
+
+            .main-menu {
+                gap: 2px;
+            }
+
+            .main-menu-item {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .main-menu-item span {
+                display: none;
+            }
+
+            .main-menu-item i {
+                font-size: 20px;
+            }
+
+            .profile-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .canvas-body {
+                padding: 12px;
+            }
+
+            /* Hide left slideout panel and toggle on tablet/mobile */
+            .widgets-slideout {
+                display: none;
+            }
+
+            .panel-toggle {
+                display: none;
+            }
+
+            /* D3 map takes full width */
+            #canvas-mindmap {
+                margin-left: 0 !important;
+            }
+
+            /* Right slideouts become full-width */
+            .slideout {
+                width: 100%;
+                right: -100%;
+            }
+
+            .slideout-header {
+                padding: 16px;
+            }
+
+            .slideout-header h2 {
+                font-size: 18px;
+            }
+
+            .slideout-body {
+                padding: 16px;
+            }
+        }
+
+        /* ===========================================
+           RESPONSIVE - PHONE (480px)
+           =========================================== */
+        @media (max-width: 480px) {
+            .canvas-header {
+                padding: 6px 12px;
+            }
+
+            .main-menu {
+                gap: 0;
+            }
+
+            .main-menu-item {
+                padding: 8px;
+                border-radius: 4px;
+            }
+
+            .main-menu-item i {
+                font-size: 18px;
+            }
+
+            .profile-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+
+            .profile-dropdown {
+                right: -12px;
+                min-width: 240px;
+            }
+
+            .canvas-body {
+                padding: 12px;
+            }
+
+            /* Hide D3 mindmap on phone */
+            #canvas-mindmap {
+                display: none;
+            }
+
+            /* Show mobile button navigation grid */
+            .mobile-nav-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                width: 100%;
+                height: 100%;
+                padding: 8px;
+                overflow-y: auto;
+                background: white;
+                border-radius: 12px;
+            }
+
+            .mobile-nav-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 20px 12px;
+                background: var(--color-neutral-background);
+                border: 1px solid var(--color-neutral-border);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-height: 100px;
+            }
+
+            .mobile-nav-btn:hover,
+            .mobile-nav-btn:active {
+                background: #e3f2fd;
+                border-color: var(--color-primary-blue);
+            }
+
+            .mobile-nav-btn i {
+                font-size: 32px;
+                color: var(--color-primary-blue);
+            }
+
+            .mobile-nav-btn span {
+                font-family: var(--font-family-ui);
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--color-dark);
+                text-align: center;
+            }
+
+            .mobile-nav-btn .nav-count {
+                font-family: var(--font-family-body);
+                font-size: 11px;
+                font-weight: 400;
+                color: var(--color-neutral-text);
+            }
+
+            .slideout-header {
+                padding: 12px;
+            }
+
+            .slideout-header h2 {
+                font-size: 16px;
+            }
+
+            .slideout-body {
+                padding: 12px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <!-- Header -->
+        <div class="canvas-header">
+            <!-- Main Menu -->
+            <nav class="main-menu">
+                <button class="main-menu-item active" data-menu="home" onclick="setActiveMenu('home')">
+                    <i class="ph ph-house"></i>
+                    <span>Home</span>
+                </button>
+                <button class="main-menu-item" id="jobSearchMenuItem" data-menu="jobs" onclick="setActiveMenu('jobs')">
+                    <i class="ph ph-briefcase"></i>
+                    <span>Job Search</span>
+                </button>
+                <button class="main-menu-item" id="libraryMenuItem" data-menu="library" onclick="setActiveMenu('library')">
+                    <i class="ph ph-book-open"></i>
+                    <span>Library</span>
+                </button>
+                <button class="main-menu-item" id="projectsMenuItem" data-menu="projects" onclick="setActiveMenu('projects')" style="display: none;">
+                    <i class="ph ph-folder-open"></i>
+                    <span>Projects</span>
+                </button>
+
+                <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                    <!-- Profile Circle -->
+                    <div class="profile-circle">
+                        <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileDropdown()">
+                            <span id="profileInitials">AM</span>
+                        </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="profile-dropdown-name" id="profileName">Alex Martinez</div>
+                                <div class="profile-dropdown-role" id="profileRole">Retail Manager</div>
+                            </div>
+                            <div class="profile-dropdown-menu">
+                                <button class="profile-dropdown-item" onclick="openProfileSettings()">
+                                    <i class="ph ph-user-circle"></i>
+                                    <span>Profile</span>
+                                </button>
+                                <button class="profile-dropdown-item" onclick="openSettings()">
+                                    <i class="ph ph-gear"></i>
+                                    <span>Settings</span>
+                                </button>
+                                <div class="profile-dropdown-divider"></div>
+                                <div class="profile-dropdown-section">
+                                    <div class="profile-dropdown-label">View Mode</div>
+                                    <div class="viewmode-selector" id="viewModeSelectorDropdown">
+                                        <button class="viewmode-btn active" data-view="seeker" onclick="setViewMode('seeker')">Job Seeker</button>
+                                        <button class="viewmode-btn" data-view="learner" onclick="setViewMode('learner')">Learner</button>
+                                        <button class="viewmode-btn" data-view="professional" onclick="setViewMode('professional')">Professional</button>
+                                        <button class="viewmode-btn" data-view="personal" onclick="setViewMode('personal')">Personal</button>
+                                    </div>
+                                </div>
+                                <div class="profile-dropdown-divider"></div>
+                                <div class="profile-dropdown-section">
+                                    <div class="profile-dropdown-label">Persona</div>
+                                    <div class="viewmode-selector" id="personaSelectorDropdown">
+                                        <button class="viewmode-btn active" data-persona="retail-manager" onclick="setPersona('retail-manager')">Retail Manager</button>
+                                        <button class="viewmode-btn" data-persona="chemist" onclick="setPersona('chemist')">Research Chemist</button>
+                                        <button class="viewmode-btn" data-persona="new-graduate" onclick="setPersona('new-graduate')">New Graduate</button>
+                                        <button class="viewmode-btn" data-persona="data-analyst" onclick="setPersona('data-analyst')">Data Analyst</button>
+                                    </div>
+                                </div>
+                                <div class="profile-dropdown-divider mobile-only"></div>
+                                <div class="profile-dropdown-section mobile-only">
+                                    <div class="profile-dropdown-label">Widgets</div>
+                                    <div class="viewmode-selector">
+                                        <button class="viewmode-btn" onclick="openCalendarWidget()">
+                                            <i class="ph ph-calendar"></i> Calendar
+                                        </button>
+                                        <button class="viewmode-btn" onclick="openAIWidget()">
+                                            <i class="ph ph-chats-circle"></i> AI Assistant
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Canvas Body -->
+        <div class="canvas-body" id="canvasBody">
+            <!-- Left Slideout Panel (Widgets) -->
+            <div class="widgets-slideout" id="widgetsSlideout">
+                <!-- Calendar Widget -->
+                <div class="widget calendar-widget">
+                    <div class="widget-header">
+                        <h3><i class="ph ph-calendar"></i> Upcoming Events</h3>
+                        <button class="sync-btn" onclick="syncCalendar()">
+                            <i class="ph ph-arrows-clockwise"></i>
+                            Sync
+                        </button>
+                    </div>
+                    <div class="calendar-events" id="calendarEvents">
+                        <!-- Events will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- AI Assistant Widget -->
+                <div class="widget ai-assistant-widget">
+                    <div class="widget-header">
+                        <h3><i class="ph ph-chats-circle"></i> Cleansheet AI</h3>
+                    </div>
+                    <div class="ai-chat-messages" id="aiMessages">
+                        <!-- Chat messages will be loaded dynamically -->
+                    </div>
+                    <div class="ai-input-area">
+                        <input type="text" class="ai-input" id="aiInput" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter') sendAIMessage()">
+                        <button class="ai-send-btn" onclick="sendAIMessage()">
+                            <i class="ph ph-paper-plane-tilt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Toggle Button -->
+            <button class="panel-toggle" onclick="toggleWidgetsPanel()">
+                <i class="ph ph-caret-right" id="panelToggleIcon"></i>
+            </button>
+
+            <!-- D3 Mindmap Container -->
+            <div id="canvas-mindmap"></div>
+
+            <!-- Mobile Button Navigation (phone only) -->
+            <div class="mobile-nav-grid" id="mobileNavGrid">
+                <!-- Buttons populated dynamically based on view mode -->
+            </div>
+        </div>
+
+        <!-- Slideout Containers -->
+        <div class="slideout" id="documentsSlideout">
+            <div class="slideout-header">
+                <h2>Documents</h2>
+                <button class="slideout-close" onclick="closeSlideout('documentsSlideout')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="slideout-body">
+                <button class="btn-primary" style="margin-bottom: 16px;">
+                    <i class="ph ph-plus"></i> New Document
+                </button>
+                <div class="card-grid" id="documentsGrid">
+                    <!-- Documents will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="slideout" id="diagramsSlideout">
+            <div class="slideout-header">
+                <h2>Diagrams</h2>
+                <button class="slideout-close" onclick="closeSlideout('diagramsSlideout')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="slideout-body">
+                <button class="btn-primary" style="margin-bottom: 16px;">
+                    <i class="ph ph-plus"></i> New Diagram
+                </button>
+                <div class="card-grid" id="diagramsGrid">
+                    <!-- Diagrams will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="slideout" id="storiesSlideout">
+            <div class="slideout-header">
+                <h2>Behavioral Stories</h2>
+                <button class="slideout-close" onclick="closeSlideout('storiesSlideout')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="slideout-body">
+                <button class="btn-primary" style="margin-bottom: 16px;">
+                    <i class="ph ph-plus"></i> New Story
+                </button>
+                <div class="card-grid" id="storiesGrid">
+                    <!-- Stories will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Widget Slideout (mobile) -->
+        <div class="slideout" id="calendarSlideout">
+            <div class="slideout-header">
+                <h2><i class="ph ph-calendar"></i> Calendar</h2>
+                <button class="slideout-close" onclick="closeSlideout('calendarSlideout')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="slideout-body">
+                <div class="widget calendar-widget" style="box-shadow: none;">
+                    <div class="widget-header">
+                        <h3>Upcoming Events</h3>
+                        <button class="sync-btn" onclick="syncCalendar()">
+                            <i class="ph ph-arrows-clockwise"></i>
+                            Sync
+                        </button>
+                    </div>
+                    <div class="calendar-events" id="calendarEventsMobile">
+                        <!-- Events will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Slideout (mobile) -->
+        <div class="slideout" id="aiSlideout">
+            <div class="slideout-header">
+                <h2><i class="ph ph-chats-circle"></i> AI Assistant</h2>
+                <button class="slideout-close" onclick="closeSlideout('aiSlideout')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="slideout-body" style="padding: 0;">
+                <div class="widget ai-assistant-widget" style="box-shadow: none; height: 100%; border-radius: 0;">
+                    <div class="ai-chat-messages" id="aiMessagesMobile" style="flex: 1; padding: 16px;">
+                        <!-- Chat messages will be loaded dynamically -->
+                    </div>
+                    <div class="ai-input-area" style="padding: 16px; border-top: 1px solid var(--color-neutral-border);">
+                        <input type="text" class="ai-input" id="aiInputMobile" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter') sendAIMessageMobile()">
+                        <button class="ai-send-btn" onclick="sendAIMessageMobile()">
+                            <i class="ph ph-paper-plane-tilt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Scripts (load first) -->
+    <script src="shared/cleansheet-core.js"></script>
+    <script src="shared/data-service.js"></script>
+    <script src="shared/feature-flags.js"></script>
+
+    <!-- Canvas Modules (load second) -->
+    <script src="shared/canvas-state.js"></script>
+    <script src="shared/canvas-d3-tree.js"></script>
+    <script src="shared/canvas-slideouts.js"></script>
+
+    <!-- Existing Extracted Modules -->
+    <script src="shared/example-profiles.js"></script>
+    <script src="shared/career-guidance-data.js"></script>
+
+    <!-- Inline initialization (temporary - will move to modules) -->
+    <script>
+        // ===========================================
+        // UI FUNCTIONS (modules provide state & data)
+        // ===========================================
+
+        function setViewMode(mode) {
+            canvasState.currentViewMode = mode;
+
+            // Update button states in dropdown
+            document.querySelectorAll('#viewModeSelectorDropdown .viewmode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === mode);
+            });
+
+            // Update menu visibility based on mode
+            const jobSearchItem = document.getElementById('jobSearchMenuItem');
+            const libraryItem = document.getElementById('libraryMenuItem');
+            const projectsItem = document.getElementById('projectsMenuItem');
+
+            if (mode === 'seeker') {
+                jobSearchItem.style.display = 'flex';
+                libraryItem.style.display = 'flex';
+                projectsItem.style.display = 'none';
+            } else if (mode === 'professional') {
+                jobSearchItem.style.display = 'none';
+                libraryItem.style.display = 'none';
+                projectsItem.style.display = 'flex';
+            } else if (mode === 'learner' || mode === 'personal') {
+                jobSearchItem.style.display = 'none';
+                libraryItem.style.display = 'flex';
+                projectsItem.style.display = 'none';
+            }
+
+            // Redraw D3 tree if function exists
+            if (typeof initializeD3Tree === 'function') {
+                initializeD3Tree(canvasState.currentPersona);
+            }
+
+            // Update mobile navigation grid
+            renderMobileNavGrid();
+
+            console.log('[career-canvas-v2] View mode set to:', mode);
+        }
+
+        function setPersona(persona) {
+            canvasState.currentPersona = persona;
+            canvasState.expandedNodeId = null;
+
+            // Update button states in dropdown
+            document.querySelectorAll('#personaSelectorDropdown .viewmode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.persona === persona);
+            });
+
+            // Update profile info
+            const info = personaInfo[persona];
+            if (info) {
+                document.getElementById('profileInitials').textContent = info.initials;
+                document.getElementById('profileName').textContent = info.name;
+                document.getElementById('profileRole').textContent = info.role;
+            }
+
+            // Redraw D3 tree if function exists
+            if (typeof initializeD3Tree === 'function') {
+                initializeD3Tree(persona);
+            }
+
+            console.log('[career-canvas-v2] Persona set to:', persona);
+        }
+
+        function setActiveMenu(menu) {
+            canvasState.activeMenu = menu;
+
+            // Update button states
+            document.querySelectorAll('.main-menu-item').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.menu === menu);
+            });
+
+            console.log('[career-canvas-v2] Active menu set to:', menu);
+        }
+
+        // ===========================================
+        // UI FUNCTIONS
+        // ===========================================
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function toggleWidgetsPanel() {
+            const slideout = document.getElementById('widgetsSlideout');
+            const icon = document.getElementById('panelToggleIcon');
+
+            slideout.classList.toggle('active');
+
+            if (slideout.classList.contains('active')) {
+                icon.className = 'ph ph-caret-left';
+            } else {
+                icon.className = 'ph ph-caret-right';
+            }
+        }
+
+        // Slideout functions provided by canvas-slideouts.js module
+
+        // Placeholder functions
+        function openProfileSettings() {
+            console.log('[career-canvas-v2] Open profile settings');
+            toggleProfileDropdown();
+        }
+
+        function openSettings() {
+            console.log('[career-canvas-v2] Open settings');
+            toggleProfileDropdown();
+        }
+
+        function syncCalendar() {
+            console.log('[career-canvas-v2] Sync calendar');
+        }
+
+        // ===========================================
+        // MOBILE WIDGET FUNCTIONS
+        // ===========================================
+
+        function openCalendarWidget() {
+            toggleProfileDropdown(); // Close dropdown
+            openSlideout('calendarSlideout');
+        }
+
+        function openAIWidget() {
+            toggleProfileDropdown(); // Close dropdown
+            openSlideout('aiSlideout');
+        }
+
+        function sendAIMessageMobile() {
+            const input = document.getElementById('aiInputMobile');
+            const message = input.value.trim();
+
+            if (message) {
+                const messagesContainer = document.getElementById('aiMessagesMobile');
+
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'ai-message user';
+                userMsg.textContent = message;
+                messagesContainer.appendChild(userMsg);
+
+                // Clear input
+                input.value = '';
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // TODO: Integrate with LLM provider
+                console.log('[career-canvas-v2] Mobile AI message sent:', message);
+            }
+        }
+
+        // Check if device is mobile/tablet
+        function isMobileViewport() {
+            return window.innerWidth <= 768;
+        }
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+
+            if (message) {
+                const messagesContainer = document.getElementById('aiMessages');
+
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'ai-message user';
+                userMsg.textContent = message;
+                messagesContainer.appendChild(userMsg);
+
+                // Clear input
+                input.value = '';
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // TODO: Integrate with LLM provider
+                console.log('[career-canvas-v2] AI message sent:', message);
+            }
+        }
+
+        // ===========================================
+        // MOBILE NAVIGATION CONFIG
+        // ===========================================
+
+        // Mobile nav config - aligned with D3 tree nodes and nodeIconMap
+        const mobileNavConfig = {
+            seeker: [
+                { icon: 'ph-briefcase', label: 'Job Opportunities', slideout: 'jobsSlideout' },
+                { icon: 'ph-file-text', label: 'Documents', slideout: 'documentsSlideout' },
+                { icon: 'ph-suitcase', label: 'Career Experience', slideout: 'experienceSlideout' },
+                { icon: 'ph-target', label: 'Goals', slideout: 'goalsSlideout' },
+                { icon: 'ph-folder-open', label: 'Portfolio', slideout: 'portfolioSlideout' },
+                { icon: 'ph-chats-circle', label: 'Interview Prep', slideout: 'interviewSlideout' }
+            ],
+            learner: [
+                { icon: 'ph-book-open', label: 'Learning', slideout: 'learningSlideout' },
+                { icon: 'ph-lightning', label: 'Skills', slideout: 'skillsSlideout' },
+                { icon: 'ph-target', label: 'Goals', slideout: 'goalsSlideout' },
+                { icon: 'ph-certificate', label: 'Certifications', slideout: 'certificationsSlideout' }
+            ],
+            professional: [
+                { icon: 'ph-file-text', label: 'Documents', slideout: 'documentsSlideout' },
+                { icon: 'ph-table', label: 'Tables', slideout: 'tablesSlideout' },
+                { icon: 'ph-clipboard-text', label: 'Forms', slideout: 'formsSlideout' },
+                { icon: 'ph-chart-bar', label: 'Reports', slideout: 'reportsSlideout' },
+                { icon: 'ph-note-blank', label: 'Templates', slideout: 'templatesSlideout' },
+                { icon: 'ph-flow-arrow', label: 'Pipelines', slideout: 'pipelinesSlideout' },
+                { icon: 'ph-git-branch', label: 'Workflows', slideout: 'workflowsSlideout' }
+            ],
+            personal: [
+                { icon: 'ph-cooking-pot', label: 'Recipes', slideout: 'recipesSlideout' },
+                { icon: 'ph-currency-dollar', label: 'Finance', slideout: 'financeSlideout' },
+                { icon: 'ph-shopping-cart', label: 'Shopping', slideout: 'shoppingSlideout' }
+            ]
+        };
+
+        function renderMobileNavGrid() {
+            const grid = document.getElementById('mobileNavGrid');
+            if (!grid) return;
+
+            const mode = canvasState.currentViewMode || 'seeker';
+            const buttons = mobileNavConfig[mode] || mobileNavConfig.seeker;
+
+            grid.innerHTML = buttons.map(btn => `
+                <button class="mobile-nav-btn" onclick="openMobileNav('${btn.label}')">
+                    <i class="ph ${btn.icon}"></i>
+                    <span>${btn.label}</span>
+                </button>
+            `).join('');
+
+            console.log('[career-canvas-v2] Mobile nav grid rendered for mode:', mode);
+        }
+
+        function openMobileNav(nodeName) {
+            // Use handleNodeClick which creates slideouts dynamically if needed
+            if (typeof handleNodeClick === 'function') {
+                handleNodeClick(nodeName, null);
+            } else {
+                console.warn('[career-canvas-v2] handleNodeClick not available');
+            }
+        }
+
+        // ===========================================
+        // INITIALIZATION
+        // ===========================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[career-canvas-v2] Initializing...');
+
+            // Set initial persona info
+            setPersona(canvasState.currentPersona);
+
+            // Close profile dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const profileCircle = document.querySelector('.profile-circle');
+                const dropdown = document.getElementById('profileDropdown');
+
+                if (profileCircle && !profileCircle.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Initialize D3 tree if module is loaded
+            if (typeof initializeD3Tree === 'function') {
+                initializeD3Tree(canvasState.currentPersona);
+            } else {
+                console.warn('[career-canvas-v2] D3 tree module not loaded');
+                // Show placeholder
+                document.getElementById('canvas-mindmap').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--color-neutral-text-muted);">
+                        <div style="text-align: center;">
+                            <i class="ph ph-tree-structure" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                            <p>D3 Tree Module Loading...</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Initialize mobile navigation grid
+            renderMobileNavGrid();
+
+            console.log('[career-canvas-v2] Initialization complete');
+        });
+    </script>
+</body>
+</html>
