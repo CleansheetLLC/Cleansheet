@@ -58,12 +58,219 @@ const nodeIconMap = {
     // Learner mode
     'Learning': 'ph-book-open',
     'Skills': 'ph-lightning',
-    'Certifications': 'ph-certificate',
-    // Personal mode
-    'Recipes': 'ph-cooking-pot',
-    'Finance': 'ph-currency-dollar',
-    'Shopping': 'ph-shopping-cart'
+    'Certifications': 'ph-certificate'
 };
+
+// ===========================================
+// FEATURE FLAG NODE DEFINITIONS
+// ===========================================
+
+/**
+ * All possible tree nodes with their feature flag requirements
+ * This replaces the hardcoded view mode branches
+ */
+const allTreeNodes = {
+    // Job Seeker nodes
+    'Job Opportunities': {
+        feature: 'job-search',
+        icon: 'ph-briefcase',
+        count: 5,
+        children: [
+            { name: 'Senior Developer - TechCorp' },
+            { name: 'Cloud Architect - Amazon' },
+            { name: 'Engineering Manager - Startup' },
+            { name: 'Tech Lead - FinanceApp' },
+            { name: 'Solutions Architect - Consulting' }
+        ]
+    },
+    'Documents (Seeker)': {
+        feature: 'documents-seeker',
+        icon: 'ph-file-text',
+        displayName: 'Documents',
+        count: 8,
+        children: [
+            { name: 'Resume - Technical Focus' },
+            { name: 'Resume - Leadership Focus' },
+            { name: 'Cover Letter - TechCorp' },
+            { name: 'Cover Letter - Amazon' }
+        ]
+    },
+    'Career Experience': {
+        feature: 'career-experience',
+        icon: 'ph-suitcase',
+        count: 12,
+        children: [
+            { name: 'Current Role - 3 years' },
+            { name: 'Previous Role - 2 years' },
+            { name: 'Education - BS Computer Science' }
+        ]
+    },
+    'Portfolio': {
+        feature: 'portfolio',
+        icon: 'ph-folder-open',
+        count: 6,
+        children: [
+            { name: 'GitHub Projects' },
+            { name: 'Case Studies' },
+            { name: 'Blog Posts' }
+        ]
+    },
+    'Interview Prep': {
+        feature: 'interview-prep',
+        icon: 'ph-chats-circle',
+        count: 15,
+        children: [
+            { name: 'Behavioral Stories (STAR format)' },
+            { name: 'Technical Questions' },
+            { name: 'System Design Notes' }
+        ]
+    },
+    'Goals (Seeker)': {
+        feature: 'goals-seeker',
+        icon: 'ph-target',
+        displayName: 'Goals',
+        count: 3,
+        children: [
+            { name: 'Short-term: New role in 6 months' },
+            { name: 'Mid-term: Management track' },
+            { name: 'Long-term: CTO or VP Engineering' }
+        ]
+    },
+
+    // Learner nodes
+    'Learning': {
+        feature: 'learning',
+        icon: 'ph-book-open',
+        count: 8,
+        children: [
+            { name: 'Active Courses' },
+            { name: 'Completed Courses' },
+            { name: 'Bookmarked Articles' }
+        ]
+    },
+    'Skills': {
+        feature: 'skills',
+        icon: 'ph-lightning',
+        count: 15,
+        children: [
+            { name: 'Technical Skills' },
+            { name: 'Soft Skills' },
+            { name: 'Leadership' }
+        ]
+    },
+    'Certifications': {
+        feature: 'certifications',
+        icon: 'ph-certificate',
+        count: 3,
+        children: [
+            { name: 'AWS Solutions Architect' },
+            { name: 'PMP (In Progress)' }
+        ]
+    },
+    'Goals (Learner)': {
+        feature: 'goals-learner',
+        icon: 'ph-target',
+        displayName: 'Goals',
+        count: 4,
+        children: [
+            { name: 'Q4 Learning Goals' },
+            { name: 'Certification Plan' }
+        ]
+    },
+
+    // Professional nodes
+    'Documents': {
+        feature: 'documents-manager',
+        icon: 'ph-file-text',
+        count: 12,
+        children: [
+            { name: 'Project Proposal Q4' },
+            { name: 'Technical Specification' },
+            { name: 'Meeting Notes Archive' }
+        ]
+    },
+    'Tables': {
+        feature: 'tables-editor',
+        icon: 'ph-table',
+        count: 5,
+        children: [
+            { name: 'Contacts' },
+            { name: 'Project Tracker' },
+            { name: 'Inventory' }
+        ]
+    },
+    'Forms': {
+        feature: 'forms-manager',
+        icon: 'ph-clipboard-text',
+        count: 3,
+        children: [
+            { name: 'Expense Report' },
+            { name: 'Time Sheet' }
+        ]
+    },
+    'Reports': {
+        feature: 'reports-analytics',
+        icon: 'ph-chart-bar',
+        count: 4,
+        children: [
+            { name: 'Monthly Dashboard' },
+            { name: 'Q3 Analysis' }
+        ]
+    },
+    'Templates': {
+        feature: 'templates',
+        icon: 'ph-note-blank',
+        count: 6,
+        children: [
+            { name: 'Email Templates' },
+            { name: 'Meeting Agendas' }
+        ]
+    },
+    'Pipelines': {
+        feature: 'pipelines',
+        icon: 'ph-flow-arrow',
+        count: 2,
+        children: [
+            { name: 'Content Pipeline' },
+            { name: 'Analytics Pipeline' }
+        ]
+    },
+    'Workflows': {
+        feature: 'workflows',
+        icon: 'ph-git-branch',
+        count: 3,
+        children: [
+            { name: 'Approval Workflow' },
+            { name: 'Onboarding' }
+        ]
+    }
+};
+
+/**
+ * Get enabled tree nodes for a given view mode using feature flags
+ * @param {string} viewMode - Current view mode (member, learner, seeker, professional)
+ * @returns {Array} Array of enabled node objects
+ */
+function getEnabledNodesForViewMode(viewMode) {
+    const enabledNodes = [];
+
+    Object.entries(allTreeNodes).forEach(([nodeName, nodeConfig]) => {
+        // Check if this feature is enabled for the current view mode
+        const isEnabled = typeof FeatureFlags !== 'undefined'
+            ? FeatureFlags.isEnabled(nodeConfig.feature, viewMode)
+            : false;
+
+        if (isEnabled) {
+            enabledNodes.push({
+                name: nodeConfig.displayName || nodeName,
+                count: nodeConfig.count,
+                children: nodeConfig.children ? [...nodeConfig.children] : []
+            });
+        }
+    });
+
+    return enabledNodes;
+}
 
 // ===========================================
 // GLOBAL STATE
@@ -79,130 +286,22 @@ let d3TreeNodeIdCounter = 0;
 
 /**
  * Get tree data for a persona based on current view mode
+ * Uses FeatureFlags to determine which nodes to show
  * @param {string} personaId
  * @returns {Object}
  */
 function getTreeDataForPersona(personaId) {
-    const viewMode = typeof canvasState !== 'undefined' ? canvasState.currentViewMode : 'seeker';
+    const viewMode = typeof canvasState !== 'undefined' ? canvasState.currentViewMode : 'member';
     const info = typeof personaInfo !== 'undefined' ? personaInfo[personaId] : { name: personaId };
 
-    // Base tree structure
-    const baseData = {
+    // Get enabled nodes from feature flags
+    const enabledNodes = getEnabledNodesForViewMode(viewMode);
+
+    // Build tree structure
+    return {
         name: info.name + "'s Canvas",
-        children: []
+        children: enabledNodes
     };
-
-    // Add children based on view mode
-    if (viewMode === 'seeker') {
-        baseData.children = [
-            { name: 'Job Opportunities', count: 5, children: [
-                { name: 'Senior Developer - TechCorp' },
-                { name: 'Cloud Architect - Amazon' },
-                { name: 'Engineering Manager - Startup' },
-                { name: 'Tech Lead - FinanceApp' },
-                { name: 'Solutions Architect - Consulting' }
-            ]},
-            { name: 'Documents', count: 8, children: [
-                { name: 'Resume - Technical Focus' },
-                { name: 'Resume - Leadership Focus' },
-                { name: 'Cover Letter - TechCorp' },
-                { name: 'Cover Letter - Amazon' }
-            ]},
-            { name: 'Career Experience', count: 12, children: [
-                { name: 'Current Role - 3 years' },
-                { name: 'Previous Role - 2 years' },
-                { name: 'Education - BS Computer Science' }
-            ]},
-            { name: 'Goals', count: 3, children: [
-                { name: 'Short-term: New role in 6 months' },
-                { name: 'Mid-term: Management track' },
-                { name: 'Long-term: CTO or VP Engineering' }
-            ]},
-            { name: 'Portfolio', count: 6, children: [
-                { name: 'GitHub Projects' },
-                { name: 'Case Studies' },
-                { name: 'Blog Posts' }
-            ]},
-            { name: 'Interview Prep', count: 15, children: [
-                { name: 'Behavioral Stories (STAR format)' },
-                { name: 'Technical Questions' },
-                { name: 'System Design Notes' }
-            ]}
-        ];
-    } else if (viewMode === 'professional') {
-        baseData.children = [
-            { name: 'Documents', count: 12, children: [
-                { name: 'Project Proposal Q4' },
-                { name: 'Technical Specification' },
-                { name: 'Meeting Notes Archive' }
-            ]},
-            { name: 'Tables', count: 5, children: [
-                { name: 'Contacts' },
-                { name: 'Project Tracker' },
-                { name: 'Inventory' }
-            ]},
-            { name: 'Forms', count: 3, children: [
-                { name: 'Expense Report' },
-                { name: 'Time Sheet' }
-            ]},
-            { name: 'Reports', count: 4, children: [
-                { name: 'Monthly Dashboard' },
-                { name: 'Q3 Analysis' }
-            ]},
-            { name: 'Templates', count: 6, children: [
-                { name: 'Email Templates' },
-                { name: 'Meeting Agendas' }
-            ]},
-            { name: 'Pipelines', count: 2, children: [
-                { name: 'Content Pipeline' },
-                { name: 'Analytics Pipeline' }
-            ]},
-            { name: 'Workflows', count: 3, children: [
-                { name: 'Approval Workflow' },
-                { name: 'Onboarding' }
-            ]}
-        ];
-    } else if (viewMode === 'learner') {
-        baseData.children = [
-            { name: 'Learning', count: 8, children: [
-                { name: 'Active Courses' },
-                { name: 'Completed Courses' },
-                { name: 'Bookmarked Articles' }
-            ]},
-            { name: 'Skills', count: 15, children: [
-                { name: 'Technical Skills' },
-                { name: 'Soft Skills' },
-                { name: 'Leadership' }
-            ]},
-            { name: 'Goals', count: 4, children: [
-                { name: 'Q4 Learning Goals' },
-                { name: 'Certification Plan' }
-            ]},
-            { name: 'Certifications', count: 3, children: [
-                { name: 'AWS Solutions Architect' },
-                { name: 'PMP (In Progress)' }
-            ]}
-        ];
-    } else if (viewMode === 'personal') {
-        baseData.children = [
-            { name: 'Recipes', count: 25, children: [
-                { name: 'Quick Meals' },
-                { name: 'Special Occasions' },
-                { name: 'Meal Plans' }
-            ]},
-            { name: 'Finance', count: 5, children: [
-                { name: 'Checking Account' },
-                { name: 'Savings' },
-                { name: 'Investments' }
-            ]},
-            { name: 'Shopping', count: 3, children: [
-                { name: 'Grocery List' },
-                { name: 'Wish List' }
-            ]}
-        ];
-    }
-
-    return baseData;
 }
 
 // ===========================================

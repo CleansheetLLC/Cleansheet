@@ -176,6 +176,97 @@ const FeatureFlags = {
             roles: ['admin'],
             description: 'Edit feature flags at runtime',
             environments: ['development']
+        },
+
+        // ===========================================
+        // Canvas View Mode Features
+        // These control which nodes/menu items appear per view mode
+        // ===========================================
+
+        // Member View Mode Features (subset of Job Seeker)
+        'career-experience': {
+            enabled: true,
+            roles: ['member', 'job-seeker'],
+            description: 'Career history and experience tracking',
+            environments: ['development', 'staging', 'production']
+        },
+        'interview-prep': {
+            enabled: true,
+            roles: ['member', 'job-seeker'],
+            description: 'Interview preparation and STAR stories',
+            environments: ['development', 'staging', 'production']
+        },
+
+        // Job Seeker (seeker) View Mode Features (extends Member)
+        'documents-seeker': {
+            enabled: true,
+            roles: ['learner', 'job-seeker'],
+            description: 'Resume and cover letter management for job seekers',
+            environments: ['development', 'staging', 'production']
+        },
+        'portfolio': {
+            enabled: true,
+            roles: ['job-seeker'],
+            description: 'Portfolio and work samples',
+            environments: ['development', 'staging', 'production']
+        },
+        'goals-seeker': {
+            enabled: true,
+            roles: ['job-seeker'],
+            description: 'Career goals for job seekers',
+            environments: ['development', 'staging', 'production']
+        },
+
+        // Learner View Mode Features
+        'learning': {
+            enabled: true,
+            roles: ['learner'],
+            description: 'Learning resources and courses',
+            environments: ['development', 'staging', 'production']
+        },
+        'skills': {
+            enabled: true,
+            roles: ['learner'],
+            description: 'Skills tracking and development',
+            environments: ['development', 'staging', 'production']
+        },
+        'certifications': {
+            enabled: true,
+            roles: ['learner'],
+            description: 'Certification tracking',
+            environments: ['development', 'staging', 'production']
+        },
+        'goals-learner': {
+            enabled: true,
+            roles: ['learner'],
+            description: 'Learning goals',
+            environments: ['development', 'staging', 'production']
+        },
+
+        // Professional View Mode Features (some already exist, adding missing)
+        'forms-manager': {
+            enabled: true,
+            roles: ['professional'],
+            description: 'Form creation and management',
+            environments: ['development', 'staging', 'production']
+        },
+        'templates': {
+            enabled: true,
+            roles: ['professional'],
+            description: 'Document and workflow templates',
+            environments: ['development', 'staging', 'production']
+        },
+        'pipelines': {
+            enabled: true,
+            roles: ['professional'],
+            description: 'Data and content pipelines',
+            environments: ['development', 'staging', 'production']
+        },
+        'workflows': {
+            enabled: true,
+            roles: ['professional'],
+            description: 'Workflow management',
+            environments: ['development', 'staging', 'production']
         }
     },
 
@@ -184,6 +275,21 @@ const FeatureFlags = {
 
     // User overrides (for testing/demos)
     userOverrides: {},
+
+    // Role aliases to normalize View Mode values to feature flag roles
+    // View Mode uses 'seeker' but feature flags use 'job-seeker'
+    roleAliases: {
+        'seeker': 'job-seeker'
+    },
+
+    /**
+     * Normalize role name from View Mode to feature flag role
+     * @param {string} role - Role from View Mode or other source
+     * @returns {string} - Normalized role name for feature flag lookup
+     */
+    normalizeRole(role) {
+        return this.roleAliases[role] || role;
+    },
 
     /**
      * Initialize feature flags system
@@ -239,9 +345,12 @@ const FeatureFlags = {
             return false;
         }
 
-        // Check role access
-        if (userRole && feature.roles && !feature.roles.includes(userRole)) {
-            return false;
+        // Check role access (normalize role name first)
+        if (userRole) {
+            const normalizedRole = this.normalizeRole(userRole);
+            if (feature.roles && !feature.roles.includes(normalizedRole)) {
+                return false;
+            }
         }
 
         return true;

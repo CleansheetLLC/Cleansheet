@@ -15,8 +15,8 @@ const canvasState = {
     // Current persona (determines data displayed)
     currentPersona: 'retail-manager',
 
-    // View mode: 'seeker' | 'learner' | 'professional' | 'personal'
-    currentViewMode: 'seeker',
+    // View mode: 'member' | 'learner' | 'seeker' | 'professional'
+    currentViewMode: 'member',
 
     // Currently expanded node ID in D3 tree (only one at a time)
     expandedNodeId: null,

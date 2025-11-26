@@ -1305,10 +1305,10 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                                 <div class="profile-dropdown-section">
                                     <div class="profile-dropdown-label">View Mode</div>
                                     <div class="viewmode-selector" id="viewModeSelectorDropdown">
-                                        <button class="viewmode-btn active" data-view="seeker" onclick="setViewMode('seeker')">Job Seeker</button>
+                                        <button class="viewmode-btn active" data-view="member" onclick="setViewMode('member')">Member</button>
                                         <button class="viewmode-btn" data-view="learner" onclick="setViewMode('learner')">Learner</button>
+                                        <button class="viewmode-btn" data-view="seeker" onclick="setViewMode('seeker')">Job Seeker</button>
                                         <button class="viewmode-btn" data-view="professional" onclick="setViewMode('professional')">Professional</button>
-                                        <button class="viewmode-btn" data-view="personal" onclick="setViewMode('personal')">Personal</button>
                                     </div>
                                 </div>
                                 <div class="profile-dropdown-divider"></div>
@@ -1651,24 +1651,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 btn.classList.toggle('active', btn.dataset.view === mode);
             });
 
-            // Update menu visibility based on mode
-            const jobSearchItem = document.getElementById('jobSearchMenuItem');
-            const libraryItem = document.getElementById('libraryMenuItem');
-            const projectsItem = document.getElementById('projectsMenuItem');
-
-            if (mode === 'seeker') {
-                jobSearchItem.style.display = 'flex';
-                libraryItem.style.display = 'flex';
-                projectsItem.style.display = 'none';
-            } else if (mode === 'professional') {
-                jobSearchItem.style.display = 'none';
-                libraryItem.style.display = 'none';
-                projectsItem.style.display = 'flex';
-            } else if (mode === 'learner' || mode === 'personal') {
-                jobSearchItem.style.display = 'none';
-                libraryItem.style.display = 'flex';
-                projectsItem.style.display = 'none';
-            }
+            // Apply feature-based menu visibility
+            applyMenuFeatureVisibility(mode);
 
             // Redraw D3 tree if function exists
             if (typeof initializeD3Tree === 'function') {
@@ -1691,6 +1675,29 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             trackEvent('ViewModeChanged', { viewMode: mode });
 
             console.log('[career-canvas-v2] View mode set to:', mode);
+        }
+
+        /**
+         * Apply feature flag-driven visibility to header menu items
+         * @param {string} role - Current view mode/role
+         */
+        function applyMenuFeatureVisibility(role) {
+            // Map menu item IDs to their corresponding feature flags
+            const menuFeatureMap = {
+                'jobSearchMenuItem': 'job-search',
+                'libraryMenuItem': 'library',
+                'projectsMenuItem': 'projects-dashboard'
+            };
+
+            Object.entries(menuFeatureMap).forEach(([elementId, featureKey]) => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    const isEnabled = typeof FeatureFlags !== 'undefined'
+                        ? FeatureFlags.isEnabled(featureKey, role)
+                        : false;
+                    element.style.display = isEnabled ? 'flex' : 'none';
+                }
+            });
         }
 
         function setPersona(persona) {
@@ -1752,7 +1759,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             if (mode === 'leftnav') {
                 canvasBody.classList.add('leftnav-mode');
                 renderLeftNav();
-                // Set default to Career Experience (for seeker) or first item
+                // Set default to Career Experience (for member/seeker) or first item
                 const defaultItem = getDefaultLeftnavItem();
                 if (defaultItem) {
                     selectLeftnavItem(defaultItem.label);
@@ -1775,11 +1782,11 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         function getDefaultLeftnavItem() {
-            const mode = canvasState.currentViewMode || 'seeker';
-            const items = mobileNavConfig[mode] || mobileNavConfig.seeker;
+            const mode = canvasState.currentViewMode || 'member';
+            const items = getMobileNavItems(mode);
 
-            // Default to Career Experience for seeker mode, otherwise first item
-            if (mode === 'seeker') {
+            // Default to Career Experience for member/seeker mode, otherwise first item
+            if (mode === 'member' || mode === 'seeker') {
                 return items.find(item => item.label === 'Career Experience') || items[0];
             }
             return items[0];
@@ -1789,8 +1796,8 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             const sidebar = document.getElementById('leftnavSidebar');
             if (!sidebar) return;
 
-            const mode = canvasState.currentViewMode || 'seeker';
-            const items = mobileNavConfig[mode] || mobileNavConfig.seeker;
+            const mode = canvasState.currentViewMode || 'member';
+            const items = getMobileNavItems(mode);
 
             sidebar.innerHTML = items.map(item => `
                 <button class="leftnav-item" data-label="${item.label}" onclick="selectLeftnavItem('${item.label}')">
@@ -1799,7 +1806,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </button>
             `).join('');
 
-            console.log('[career-canvas-v2] Left nav rendered for mode:', mode);
+            console.log('[career-canvas-v2] Left nav rendered for mode:', mode, '- items:', items.length);
         }
 
         function selectLeftnavItem(label) {
@@ -2010,44 +2017,58 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         // MOBILE NAVIGATION CONFIG
         // ===========================================
 
-        // Mobile nav config - aligned with D3 tree nodes and nodeIconMap
-        const mobileNavConfig = {
-            seeker: [
-                { icon: 'ph-briefcase', label: 'Job Opportunities', slideout: 'jobsSlideout' },
-                { icon: 'ph-file-text', label: 'Documents', slideout: 'documentsSlideout' },
-                { icon: 'ph-suitcase', label: 'Career Experience', slideout: 'experienceSlideout' },
-                { icon: 'ph-target', label: 'Goals', slideout: 'goalsSlideout' },
-                { icon: 'ph-folder-open', label: 'Portfolio', slideout: 'portfolioSlideout' },
-                { icon: 'ph-chats-circle', label: 'Interview Prep', slideout: 'interviewSlideout' }
-            ],
-            learner: [
-                { icon: 'ph-book-open', label: 'Learning', slideout: 'learningSlideout' },
-                { icon: 'ph-lightning', label: 'Skills', slideout: 'skillsSlideout' },
-                { icon: 'ph-target', label: 'Goals', slideout: 'goalsSlideout' },
-                { icon: 'ph-certificate', label: 'Certifications', slideout: 'certificationsSlideout' }
-            ],
-            professional: [
-                { icon: 'ph-file-text', label: 'Documents', slideout: 'documentsSlideout' },
-                { icon: 'ph-table', label: 'Tables', slideout: 'tablesSlideout' },
-                { icon: 'ph-clipboard-text', label: 'Forms', slideout: 'formsSlideout' },
-                { icon: 'ph-chart-bar', label: 'Reports', slideout: 'reportsSlideout' },
-                { icon: 'ph-note-blank', label: 'Templates', slideout: 'templatesSlideout' },
-                { icon: 'ph-flow-arrow', label: 'Pipelines', slideout: 'pipelinesSlideout' },
-                { icon: 'ph-git-branch', label: 'Workflows', slideout: 'workflowsSlideout' }
-            ],
-            personal: [
-                { icon: 'ph-cooking-pot', label: 'Recipes', slideout: 'recipesSlideout' },
-                { icon: 'ph-currency-dollar', label: 'Finance', slideout: 'financeSlideout' },
-                { icon: 'ph-shopping-cart', label: 'Shopping', slideout: 'shoppingSlideout' }
-            ]
-        };
+        /**
+         * All possible mobile nav items with their feature flag requirements
+         * This replaces the hardcoded per-mode arrays
+         */
+        const allMobileNavItems = [
+            // Job Seeker items
+            { icon: 'ph-briefcase', label: 'Job Opportunities', slideout: 'jobsSlideout', feature: 'job-search' },
+            { icon: 'ph-file-text', label: 'Documents', slideout: 'documentsSlideout', feature: 'documents-seeker' },
+            { icon: 'ph-suitcase', label: 'Career Experience', slideout: 'experienceSlideout', feature: 'career-experience' },
+            { icon: 'ph-folder-open', label: 'Portfolio', slideout: 'portfolioSlideout', feature: 'portfolio' },
+            { icon: 'ph-chats-circle', label: 'Interview Prep', slideout: 'interviewSlideout', feature: 'interview-prep' },
+            { icon: 'ph-target', label: 'Goals', slideout: 'goalsSlideout', feature: 'goals-seeker', displayLabel: 'Goals' },
+
+            // Learner items
+            { icon: 'ph-book-open', label: 'Learning', slideout: 'learningSlideout', feature: 'learning' },
+            { icon: 'ph-lightning', label: 'Skills', slideout: 'skillsSlideout', feature: 'skills' },
+            { icon: 'ph-certificate', label: 'Certifications', slideout: 'certificationsSlideout', feature: 'certifications' },
+            { icon: 'ph-target', label: 'Goals (Learner)', slideout: 'goalsSlideout', feature: 'goals-learner', displayLabel: 'Goals' },
+
+            // Professional items
+            { icon: 'ph-file-text', label: 'Documents', slideout: 'documentsSlideout', feature: 'documents-manager' },
+            { icon: 'ph-table', label: 'Tables', slideout: 'tablesSlideout', feature: 'tables-editor' },
+            { icon: 'ph-clipboard-text', label: 'Forms', slideout: 'formsSlideout', feature: 'forms-manager' },
+            { icon: 'ph-chart-bar', label: 'Reports', slideout: 'reportsSlideout', feature: 'reports-analytics' },
+            { icon: 'ph-note-blank', label: 'Templates', slideout: 'templatesSlideout', feature: 'templates' },
+            { icon: 'ph-flow-arrow', label: 'Pipelines', slideout: 'pipelinesSlideout', feature: 'pipelines' },
+            { icon: 'ph-git-branch', label: 'Workflows', slideout: 'workflowsSlideout', feature: 'workflows' }
+        ];
+
+        /**
+         * Get enabled mobile nav items for a view mode using feature flags
+         * @param {string} viewMode - Current view mode
+         * @returns {Array} Array of enabled nav items
+         */
+        function getMobileNavItems(viewMode) {
+            return allMobileNavItems.filter(item => {
+                const isEnabled = typeof FeatureFlags !== 'undefined'
+                    ? FeatureFlags.isEnabled(item.feature, viewMode)
+                    : false;
+                return isEnabled;
+            }).map(item => ({
+                ...item,
+                label: item.displayLabel || item.label
+            }));
+        }
 
         function renderMobileNavGrid() {
             const grid = document.getElementById('mobileNavGrid');
             if (!grid) return;
 
-            const mode = canvasState.currentViewMode || 'seeker';
-            const buttons = mobileNavConfig[mode] || mobileNavConfig.seeker;
+            const mode = canvasState.currentViewMode || 'member';
+            const buttons = getMobileNavItems(mode);
 
             grid.innerHTML = buttons.map(btn => `
                 <button class="mobile-nav-btn" onclick="openMobileNav('${btn.label}')">
@@ -2056,7 +2077,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 </button>
             `).join('');
 
-            console.log('[career-canvas-v2] Mobile nav grid rendered for mode:', mode);
+            console.log('[career-canvas-v2] Mobile nav grid rendered for mode:', mode, '- items:', buttons.length);
         }
 
         function openMobileNav(nodeName) {
