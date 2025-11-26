@@ -398,6 +398,10 @@ function updateD3Tree(source, svg, g, linkGroup, nodeGroup, width, height) {
     nodeEnter.on('click', function(event, d) {
         event.stopPropagation();
 
+        // Close any open dropdowns (e.g., profile menu)
+        const profileDropdown = document.getElementById('profileDropdown');
+        if (profileDropdown) profileDropdown.classList.remove('active');
+
         // Check if mobile viewport (768px or less)
         const isMobile = window.innerWidth <= 768;
 
