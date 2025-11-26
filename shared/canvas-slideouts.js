@@ -246,27 +246,67 @@ function createSlideout(slideoutId, title) {
         return;
     }
 
+    // Get saved view preference or default to 'card'
+    const savedView = typeof ViewPreferences !== 'undefined'
+        ? ViewPreferences.getView(slideoutId)
+        : 'card';
+    const isCardActive = savedView === 'card';
+    const isTableActive = savedView === 'table';
+
     const slideout = document.createElement('div');
     slideout.id = slideoutId;
     slideout.className = 'slideout';
     slideout.innerHTML = `
         <div class="slideout-header">
             <h2>${escapeHtml(title)}</h2>
-            <button class="slideout-close" onclick="closeSlideout('${slideoutId}')">
-                <i class="ph ph-x"></i>
-            </button>
+            <div class="slideout-header-actions">
+                <div class="view-toggle" role="group" aria-label="View options">
+                    <button class="view-toggle-btn ${isCardActive ? 'active' : ''}"
+                            data-view="card"
+                            aria-label="Card view"
+                            onclick="setSlideoutView('${slideoutId}', 'card')">
+                        <i class="ph ph-squares-four"></i>
+                    </button>
+                    <button class="view-toggle-btn ${isTableActive ? 'active' : ''}"
+                            data-view="table"
+                            aria-label="Table view"
+                            onclick="setSlideoutView('${slideoutId}', 'table')">
+                        <i class="ph ph-table"></i>
+                    </button>
+                </div>
+                <button class="slideout-close" onclick="closeSlideout('${slideoutId}')">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
         </div>
-        <div class="slideout-body">
-            <button class="btn-primary" style="margin-bottom: 16px;">
+        <div class="slideout-body" data-view="${savedView}">
+            <button class="btn-primary" style="margin-bottom: 16px; align-self: flex-start;">
                 <i class="ph ph-plus"></i> Add New
             </button>
-            <div class="card-grid" id="${slideoutId}Grid">
-                <!-- Content will be loaded here -->
-                <div class="empty-state" style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted);">
+            <div class="content-grid card-grid" id="${slideoutId}Grid">
+                <!-- Card content will be loaded here -->
+                <div class="empty-state" style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted); grid-column: 1 / -1;">
                     <i class="ph ph-folder-open" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
                     <p>No items yet. Click "Add New" to create your first item.</p>
                 </div>
             </div>
+            <table class="content-table" id="${slideoutId}Table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="empty-row">
+                        <td colspan="3">
+                            <i class="ph ph-folder-open"></i>
+                            <p>No items yet. Click "Add New" to create your first item.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     `;
 
@@ -274,7 +314,7 @@ function createSlideout(slideoutId, title) {
     const container = document.querySelector('.canvas-container') || document.body;
     container.appendChild(slideout);
 
-    console.log('[canvas-slideouts] Created slideout:', slideoutId);
+    console.log('[canvas-slideouts] Created slideout:', slideoutId, 'with view:', savedView);
 }
 
 /**
@@ -350,6 +390,117 @@ function defaultCardRenderer(item) {
 }
 
 // ===========================================
+// VIEW SWITCHING
+// ===========================================
+
+/**
+ * Set the view mode for a slideout (card or table)
+ * @param {string} slideoutId - The slideout DOM ID
+ * @param {string} viewType - 'card' or 'table'
+ */
+function setSlideoutView(slideoutId, viewType) {
+    const slideout = document.getElementById(slideoutId);
+    if (!slideout) {
+        console.warn('[canvas-slideouts] Slideout not found for view change:', slideoutId);
+        return;
+    }
+
+    // Update view preference (persists to localStorage)
+    if (typeof ViewPreferences !== 'undefined') {
+        ViewPreferences.setView(slideoutId, viewType);
+    }
+
+    // Update data-view attribute on slideout body
+    const body = slideout.querySelector('.slideout-body');
+    if (body) {
+        body.setAttribute('data-view', viewType);
+    }
+
+    // Update toggle button states
+    const toggleBtns = slideout.querySelectorAll('.view-toggle-btn');
+    toggleBtns.forEach(btn => {
+        const isActive = btn.dataset.view === viewType;
+        btn.classList.toggle('active', isActive);
+    });
+
+    console.log('[canvas-slideouts] Set view for', slideoutId, 'to', viewType);
+}
+
+/**
+ * Apply saved view preference to an existing slideout
+ * Call this when opening a slideout to ensure it shows the saved view
+ * @param {string} slideoutId - The slideout DOM ID
+ */
+function applySlideoutView(slideoutId) {
+    const savedView = typeof ViewPreferences !== 'undefined'
+        ? ViewPreferences.getView(slideoutId)
+        : 'card';
+
+    setSlideoutView(slideoutId, savedView);
+}
+
+/**
+ * Render table content for a slideout
+ * @param {string} slideoutId - The slideout DOM ID
+ * @param {Array} items - Array of items to render
+ * @param {Array} columns - Optional column definitions (uses ViewPreferences if not provided)
+ */
+function renderSlideoutTable(slideoutId, items, columns) {
+    const table = document.getElementById(slideoutId + 'Table');
+    if (!table) {
+        console.warn('[canvas-slideouts] Table not found:', slideoutId + 'Table');
+        return;
+    }
+
+    // Get column config from ViewPreferences or use provided/default
+    const cols = columns || (typeof ViewPreferences !== 'undefined'
+        ? ViewPreferences.getTableColumns(slideoutId)
+        : [
+            { key: 'title', label: 'Name', width: 'auto' },
+            { key: 'description', label: 'Description', width: 'auto' },
+            { key: 'lastModified', label: 'Modified', width: '120px' }
+        ]);
+
+    // Build table header
+    const headerHtml = cols.map(col =>
+        `<th style="width: ${col.width || 'auto'}">${escapeHtml(col.label)}</th>`
+    ).join('');
+
+    // Build table body
+    let bodyHtml;
+    if (!items || items.length === 0) {
+        bodyHtml = `
+            <tr class="empty-row">
+                <td colspan="${cols.length}">
+                    <i class="ph ph-folder-open"></i>
+                    <p>No items yet. Click "Add New" to create your first item.</p>
+                </td>
+            </tr>
+        `;
+    } else {
+        bodyHtml = items.map(item => {
+            const cells = cols.map(col => {
+                let value = item[col.key] || '';
+
+                // Truncate if specified
+                if (col.truncate && value.length > col.truncate) {
+                    value = value.substring(0, col.truncate) + '...';
+                }
+
+                return `<td>${escapeHtml(String(value))}</td>`;
+            }).join('');
+
+            return `<tr data-id="${item.id || ''}">${cells}</tr>`;
+        }).join('');
+    }
+
+    table.innerHTML = `
+        <thead><tr>${headerHtml}</tr></thead>
+        <tbody>${bodyHtml}</tbody>
+    `;
+}
+
+// ===========================================
 // KEYBOARD HANDLING
 // ===========================================
 
@@ -393,6 +544,9 @@ if (typeof module !== 'undefined' && module.exports) {
         handleNodeClick,
         createSlideout,
         loadSlideoutContent,
-        defaultCardRenderer
+        defaultCardRenderer,
+        setSlideoutView,
+        applySlideoutView,
+        renderSlideoutTable
     };
 }

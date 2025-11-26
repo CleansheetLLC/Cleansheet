@@ -842,6 +842,162 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         }
 
         /* ===========================================
+           VIEW TOGGLE (Card/Table)
+           =========================================== */
+        .slideout-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .view-toggle-btn {
+            padding: 6px 10px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .view-toggle-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .view-toggle-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .view-toggle-btn i {
+            font-size: 16px;
+        }
+
+        /* ===========================================
+           VIEW MODE CONTAINERS
+           =========================================== */
+        /* Card view (default) */
+        .slideout-body[data-view="card"] .content-grid,
+        .slideout-body:not([data-view]) .content-grid {
+            display: grid;
+        }
+
+        .slideout-body[data-view="card"] .content-table,
+        .slideout-body:not([data-view]) .content-table {
+            display: none;
+        }
+
+        /* Table view */
+        .slideout-body[data-view="table"] .content-grid {
+            display: none;
+        }
+
+        .slideout-body[data-view="table"] .content-table {
+            display: table;
+        }
+
+        /* ===========================================
+           TABLE STYLING
+           =========================================== */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-table thead {
+            background: var(--color-neutral-background);
+        }
+
+        .content-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-family: var(--font-family-ui);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-neutral-text);
+            border-bottom: 2px solid var(--color-neutral-border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content-table td {
+            padding: 14px 16px;
+            font-family: var(--font-family-body);
+            font-size: 14px;
+            color: var(--color-neutral-text);
+            border-bottom: 1px solid var(--color-neutral-border);
+            vertical-align: middle;
+        }
+
+        .content-table tbody tr {
+            transition: background 0.15s;
+        }
+
+        .content-table tbody tr:hover {
+            background: var(--color-neutral-background-secondary);
+        }
+
+        .content-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Table action buttons */
+        .table-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .table-action-btn {
+            padding: 6px;
+            background: white;
+            border: 1px solid var(--color-neutral-border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-action-btn:hover {
+            border-color: var(--color-primary-blue);
+            background: #e3f2fd;
+        }
+
+        .table-action-btn i {
+            font-size: 14px;
+            color: var(--color-neutral-text);
+        }
+
+        /* Empty table state */
+        .content-table .empty-row td {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--color-neutral-text-muted);
+        }
+
+        .content-table .empty-row i {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* ===========================================
            RESPONSIVE - TABLET (768px)
            =========================================== */
         @media (max-width: 768px) {
@@ -885,6 +1041,20 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             }
 
             .panel-toggle {
+                display: none;
+            }
+
+            /* Hide view toggle on mobile - force card view */
+            .view-toggle {
+                display: none;
+            }
+
+            /* Force card view on mobile (tables don't work well) */
+            .slideout-body[data-view="table"] .content-grid {
+                display: grid;
+            }
+
+            .slideout-body[data-view="table"] .content-table {
                 display: none;
             }
 
@@ -1200,51 +1370,129 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
         <div class="slideout" id="documentsSlideout">
             <div class="slideout-header">
                 <h2>Documents</h2>
-                <button class="slideout-close" onclick="closeSlideout('documentsSlideout')">
-                    <i class="ph ph-x"></i>
-                </button>
-            </div>
-            <div class="slideout-body">
-                <button class="btn-primary" style="margin-bottom: 16px;">
-                    <i class="ph ph-plus"></i> New Document
-                </button>
-                <div class="card-grid" id="documentsGrid">
-                    <!-- Documents will be rendered here -->
+                <div class="slideout-header-actions">
+                    <div class="view-toggle" role="group" aria-label="View options">
+                        <button class="view-toggle-btn active" data-view="card" aria-label="Card view" onclick="setSlideoutView('documentsSlideout', 'card')">
+                            <i class="ph ph-squares-four"></i>
+                        </button>
+                        <button class="view-toggle-btn" data-view="table" aria-label="Table view" onclick="setSlideoutView('documentsSlideout', 'table')">
+                            <i class="ph ph-table"></i>
+                        </button>
+                    </div>
+                    <button class="slideout-close" onclick="closeSlideout('documentsSlideout')">
+                        <i class="ph ph-x"></i>
+                    </button>
                 </div>
+            </div>
+            <div class="slideout-body" data-view="card">
+                <button class="btn-primary" style="margin-bottom: 16px; align-self: flex-start;">
+                    <i class="ph ph-plus"></i> Add New
+                </button>
+                <div class="content-grid card-grid" id="documentsGrid">
+                    <div class="empty-state" style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted); grid-column: 1 / -1;">
+                        <i class="ph ph-folder-open" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                        <p>No items yet. Click "Add New" to create your first item.</p>
+                    </div>
+                </div>
+                <table class="content-table" id="documentsTable">
+                    <thead>
+                        <tr><th>Document</th><th>Type</th><th>Modified</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="3">
+                                <i class="ph ph-folder-open"></i>
+                                <p>No items yet. Click "Add New" to create your first item.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <div class="slideout" id="diagramsSlideout">
             <div class="slideout-header">
                 <h2>Diagrams</h2>
-                <button class="slideout-close" onclick="closeSlideout('diagramsSlideout')">
-                    <i class="ph ph-x"></i>
-                </button>
-            </div>
-            <div class="slideout-body">
-                <button class="btn-primary" style="margin-bottom: 16px;">
-                    <i class="ph ph-plus"></i> New Diagram
-                </button>
-                <div class="card-grid" id="diagramsGrid">
-                    <!-- Diagrams will be rendered here -->
+                <div class="slideout-header-actions">
+                    <div class="view-toggle" role="group" aria-label="View options">
+                        <button class="view-toggle-btn active" data-view="card" aria-label="Card view" onclick="setSlideoutView('diagramsSlideout', 'card')">
+                            <i class="ph ph-squares-four"></i>
+                        </button>
+                        <button class="view-toggle-btn" data-view="table" aria-label="Table view" onclick="setSlideoutView('diagramsSlideout', 'table')">
+                            <i class="ph ph-table"></i>
+                        </button>
+                    </div>
+                    <button class="slideout-close" onclick="closeSlideout('diagramsSlideout')">
+                        <i class="ph ph-x"></i>
+                    </button>
                 </div>
+            </div>
+            <div class="slideout-body" data-view="card">
+                <button class="btn-primary" style="margin-bottom: 16px; align-self: flex-start;">
+                    <i class="ph ph-plus"></i> Add New
+                </button>
+                <div class="content-grid card-grid" id="diagramsGrid">
+                    <div class="empty-state" style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted); grid-column: 1 / -1;">
+                        <i class="ph ph-folder-open" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                        <p>No items yet. Click "Add New" to create your first item.</p>
+                    </div>
+                </div>
+                <table class="content-table" id="diagramsTable">
+                    <thead>
+                        <tr><th>Diagram</th><th>Type</th><th>Modified</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="3">
+                                <i class="ph ph-folder-open"></i>
+                                <p>No items yet. Click "Add New" to create your first item.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <div class="slideout" id="storiesSlideout">
             <div class="slideout-header">
                 <h2>Behavioral Stories</h2>
-                <button class="slideout-close" onclick="closeSlideout('storiesSlideout')">
-                    <i class="ph ph-x"></i>
-                </button>
-            </div>
-            <div class="slideout-body">
-                <button class="btn-primary" style="margin-bottom: 16px;">
-                    <i class="ph ph-plus"></i> New Story
-                </button>
-                <div class="card-grid" id="storiesGrid">
-                    <!-- Stories will be rendered here -->
+                <div class="slideout-header-actions">
+                    <div class="view-toggle" role="group" aria-label="View options">
+                        <button class="view-toggle-btn active" data-view="card" aria-label="Card view" onclick="setSlideoutView('storiesSlideout', 'card')">
+                            <i class="ph ph-squares-four"></i>
+                        </button>
+                        <button class="view-toggle-btn" data-view="table" aria-label="Table view" onclick="setSlideoutView('storiesSlideout', 'table')">
+                            <i class="ph ph-table"></i>
+                        </button>
+                    </div>
+                    <button class="slideout-close" onclick="closeSlideout('storiesSlideout')">
+                        <i class="ph ph-x"></i>
+                    </button>
                 </div>
+            </div>
+            <div class="slideout-body" data-view="card">
+                <button class="btn-primary" style="margin-bottom: 16px; align-self: flex-start;">
+                    <i class="ph ph-plus"></i> Add New
+                </button>
+                <div class="content-grid card-grid" id="storiesGrid">
+                    <div class="empty-state" style="text-align: center; padding: 40px; color: var(--color-neutral-text-muted); grid-column: 1 / -1;">
+                        <i class="ph ph-folder-open" style="font-size: 48px; display: block; margin-bottom: 12px;"></i>
+                        <p>No items yet. Click "Add New" to create your first item.</p>
+                    </div>
+                </div>
+                <table class="content-table" id="storiesTable">
+                    <thead>
+                        <tr><th>Story</th><th>Situation</th><th>Modified</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="3">
+                                <i class="ph ph-folder-open"></i>
+                                <p>No items yet. Click "Add New" to create your first item.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -1303,6 +1551,7 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
 
     <!-- Canvas Modules (load second) -->
     <script src="shared/canvas-state.js"></script>
+    <script src="shared/canvas-view-preferences.js"></script>
     <script src="shared/canvas-d3-tree.js"></script>
     <script src="shared/canvas-slideouts.js"></script>
 
@@ -1757,6 +2006,18 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 }
             } catch (e) {
                 console.warn('[career-canvas-v2] Could not load layout preference');
+            }
+
+            // Apply saved view preferences to inline slideouts
+            if (typeof ViewPreferences !== 'undefined') {
+                const inlineSlideouts = ['documentsSlideout', 'diagramsSlideout', 'storiesSlideout'];
+                inlineSlideouts.forEach(slideoutId => {
+                    const savedView = ViewPreferences.getView(slideoutId);
+                    if (savedView !== 'card') {
+                        // Only apply if not default (card)
+                        applySlideoutView(slideoutId);
+                    }
+                });
             }
 
             console.log('[career-canvas-v2] Initialization complete');
