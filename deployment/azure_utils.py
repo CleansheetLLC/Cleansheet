@@ -258,10 +258,10 @@ class AzureDeployment:
 
     def deploy_full(self) -> None:
         """
-        Full deployment using azcopy directly.
+        Full deployment with incremental sync using azcopy directly.
 
-        Uploads all files from repository to Azure Blob Storage using azcopy copy.
-        Uses azcopy directly to avoid az storage blob sync bugs.
+        Syncs all files from repository to Azure Blob Storage,
+        uploading only changed files.
         """
         # Check prerequisites
         self.check_prerequisites()
@@ -269,24 +269,16 @@ class AzureDeployment:
         # Verify storage account and get key
         account_key = self.verify_storage_account()
 
-        console.print("[bold]Uploading Files to Azure Blob Storage[/bold]\n")
+        # Build exclude pattern string - semicolon separated for azcopy
+        exclude_pattern = ';'.join(self.exclude_patterns)
+
+        console.print("[bold]Syncing Files to Azure Blob Storage[/bold]\n")
         console.print(f"Source: {self.repo_path}")
         console.print(f"Destination: {self.storage_account}/{self.container_name}")
         console.print(f"Excluding: {len(self.exclude_patterns)} patterns\n")
 
         if not self.dry_run:
-            console.print("Starting upload...\n")
-
-        # Convert path for azcopy if running in WSL
-        source_path = str(self.repo_path)
-        if is_wsl():
-            source_path = wsl_path_to_windows(self.repo_path)
-            if self.verbose:
-                console.print(f"[dim]WSL detected: Converting path to {source_path}[/dim]")
-
-        # Ensure source path ends with /* for recursive copy
-        if not source_path.endswith('\\*') and not source_path.endswith('/*'):
-            source_path = source_path.rstrip('\\/') + '/*'
+            console.print("Starting incremental sync (only changed files)...\n")
 
         # Generate SAS token for azcopy
         sas_token = self._generate_sas_token(account_key)
@@ -294,73 +286,127 @@ class AzureDeployment:
         # Build destination URL with SAS
         dest_url = f"https://{self.storage_account}.blob.core.windows.net/{self.container_name}?{sas_token}"
 
-        # Run azcopy copy command
+        # Find azcopy - prefer Linux native version
+        azcopy_cmd = self._find_azcopy()
+
+        if self.verbose:
+            console.print(f"[dim]Using azcopy: {azcopy_cmd}[/dim]")
+
+        # Determine source path - convert to Windows path if using Windows azcopy
+        source_path = str(self.repo_path)
+        if azcopy_cmd.endswith('.exe') and is_wsl():
+            source_path = wsl_path_to_windows(self.repo_path)
+            if self.verbose:
+                console.print(f"[dim]Using Windows path: {source_path}[/dim]")
+
+        # Run azcopy sync command
         try:
-            # Build exclude patterns - semicolon separated for azcopy
-            exclude_pattern = ';'.join(self.exclude_patterns)
-
-            # Determine azcopy command - in WSL, use the Windows version
-            azcopy_cmd = 'azcopy'
-            if is_wsl():
-                # Use the azcopy.exe from Azure CLI installation
-                azcopy_windows_path = Path('/mnt/c/Users') / os.environ.get('USER', 'PaulGaljan') / '.azure/bin/azcopy.exe'
-                if not azcopy_windows_path.exists():
-                    # Try with the username from the repo path
-                    parts = str(self.repo_path).split('/')
-                    if 'Users' in parts:
-                        user_idx = parts.index('Users') + 1
-                        if user_idx < len(parts):
-                            username = parts[user_idx]
-                            azcopy_windows_path = Path(f'/mnt/c/Users/{username}/.azure/bin/azcopy.exe')
-                if azcopy_windows_path.exists():
-                    azcopy_cmd = str(azcopy_windows_path)
-                    if self.verbose:
-                        console.print(f"[dim]Using azcopy at: {azcopy_cmd}[/dim]")
-
             cmd = [
-                azcopy_cmd, 'copy',
+                azcopy_cmd, 'sync',
                 source_path,
                 dest_url,
+                '--from-to=LocalBlob',
                 '--recursive=true',
-                '--overwrite=true',
-                f'--exclude-pattern={exclude_pattern}'
+                f'--exclude-pattern={exclude_pattern}',
+                '--delete-destination=false'
             ]
 
             if self.verbose:
-                console.print(f"[dim]Running: azcopy copy ... (patterns hidden)[/dim]")
+                console.print(f"[dim]Running: azcopy sync [SOURCE] [DEST_URL] --recursive=true --exclude-pattern=... --delete-destination=false[/dim]")
 
             if self.dry_run:
-                # Mask the SAS token for dry run display
-                display_cmd = cmd.copy()
-                display_cmd[2] = f"https://{self.storage_account}.blob.core.windows.net/{self.container_name}?[SAS_TOKEN]"
-                console.print(f"[yellow]DRY RUN:[/yellow] azcopy copy {source_path} [DEST_URL] --recursive=true --overwrite=true --exclude-pattern=...")
+                console.print(f"[yellow]DRY RUN:[/yellow] azcopy sync {self.repo_path} [DEST_URL] --recursive=true --exclude-pattern=... --delete-destination=false")
             else:
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
                     text=True,
-                    check=True
+                    check=False  # Don't raise on partial failures
                 )
 
-                # Parse output for statistics
-                output = result.stdout + result.stderr
+                # Parse azcopy output for statistics
+                output = result.stdout + (result.stderr or '')
+
+                # Extract summary statistics from output
+                done_count = 0
+                failed_count = 0
+                total_count = 0
+
+                # Look for summary line like "119 Done, 3 Failed, 0 Pending, 122 Total"
+                import re
+                summary_match = re.search(r'(\d+)\s+Done,\s+(\d+)\s+Failed,\s+\d+\s+Pending,\s+(\d+)\s+Total', output)
+                if summary_match:
+                    done_count = int(summary_match.group(1))
+                    failed_count = int(summary_match.group(2))
+                    total_count = int(summary_match.group(3))
+
+                if failed_count == 0:
+                    console.print(f"[green][OK][/green] Sync complete! ({done_count} files uploaded)")
+                elif done_count > 0:
+                    console.print(f"[yellow][PARTIAL][/yellow] Sync completed with some failures")
+                    console.print(f"Files uploaded: {done_count}")
+                    console.print(f"Files failed: {failed_count}")
+                    if failed_count <= 5:
+                        console.print("[dim]Minor failures are often due to locked files or symlinks[/dim]")
+                else:
+                    console.print("[red][X][/red] Sync failed")
+                    if self.verbose:
+                        console.print(f"[dim]{output}[/dim]")
+                    raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
+
                 if self.verbose:
                     console.print(f"[dim]{output}[/dim]")
 
-                console.print(f"[green][OK][/green] Upload complete!")
-
         except subprocess.CalledProcessError as e:
-            console.print("[red][X][/red] Upload failed")
+            console.print("[red][X][/red] Sync failed")
+            if e.stdout:
+                console.print(f"[dim]stdout: {e.stdout}[/dim]")
             if e.stderr:
-                console.print(f"[red]{e.stderr}[/red]")
+                console.print(f"[red]stderr: {e.stderr}[/red]")
             raise
         except FileNotFoundError:
-            console.print("[red][X][/red] azcopy not found in PATH")
-            console.print("Install azcopy or ensure it's in your PATH")
+            console.print("[red][X][/red] azcopy not found")
+            console.print("Install azcopy: https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10")
             raise
 
         # Display website URL
         self._show_website_url()
+
+    def _find_azcopy(self) -> str:
+        """
+        Find azcopy executable.
+
+        In WSL, prefers Windows azcopy.exe for proper network access.
+        Otherwise checks Linux native locations.
+
+        Returns:
+            Path to azcopy executable
+        """
+        import shutil
+
+        # In WSL, prefer Windows azcopy for proper network/DNS access
+        if is_wsl():
+            # Try Windows Azure CLI path from WSL
+            parts = str(self.repo_path).split('/')
+            if 'Users' in parts:
+                user_idx = parts.index('Users') + 1
+                if user_idx < len(parts):
+                    username = parts[user_idx]
+                    azure_azcopy = Path(f'/mnt/c/Users/{username}/.azure/bin/azcopy.exe')
+                    if azure_azcopy.exists():
+                        return str(azure_azcopy)
+
+        # Check for Linux native azcopy in home directory
+        home_azcopy = Path.home() / 'azcopy'
+        if home_azcopy.exists():
+            return str(home_azcopy)
+
+        # Check PATH
+        azcopy_in_path = shutil.which('azcopy')
+        if azcopy_in_path:
+            return azcopy_in_path
+
+        return 'azcopy'  # Hope it's in PATH
 
     def _generate_sas_token(self, account_key: str) -> str:
         """
