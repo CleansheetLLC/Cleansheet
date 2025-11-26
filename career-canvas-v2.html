@@ -884,10 +884,43 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             font-size: 16px;
         }
 
+        /* Light theme view toggle (for leftnav with white background) */
+        .view-toggle-light {
+            background: var(--color-neutral-background);
+            border: 1px solid var(--color-neutral-border);
+        }
+
+        .view-toggle-light .view-toggle-btn {
+            color: var(--color-neutral-text-muted);
+        }
+
+        .view-toggle-light .view-toggle-btn:hover {
+            color: var(--color-neutral-text);
+            background: white;
+        }
+
+        .view-toggle-light .view-toggle-btn.active {
+            background: var(--color-primary-blue);
+            color: white;
+        }
+
+        /* Leftnav header actions */
+        .leftnav-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Leftnav body container for view switching */
+        .leftnav-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+
         /* ===========================================
            VIEW MODE CONTAINERS
            =========================================== */
-        /* Card view (default) */
+        /* Card view (default) - slideout */
         .slideout-body[data-view="card"] .content-grid,
         .slideout-body:not([data-view]) .content-grid {
             display: grid;
@@ -898,12 +931,32 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
             display: none;
         }
 
-        /* Table view */
+        /* Table view - slideout */
         .slideout-body[data-view="table"] .content-grid {
             display: none;
         }
 
         .slideout-body[data-view="table"] .content-table {
+            display: table;
+        }
+
+        /* Card view (default) - leftnav */
+        .leftnav-body[data-view="card"] .content-grid,
+        .leftnav-body:not([data-view]) .content-grid {
+            display: grid;
+        }
+
+        .leftnav-body[data-view="card"] .content-table,
+        .leftnav-body:not([data-view]) .content-table {
+            display: none;
+        }
+
+        /* Table view - leftnav */
+        .leftnav-body[data-view="table"] .content-grid {
+            display: none;
+        }
+
+        .leftnav-body[data-view="table"] .content-table {
             display: table;
         }
 
@@ -1350,12 +1403,37 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                 <main class="leftnav-content" id="leftnavContent">
                     <div class="leftnav-content-header">
                         <h2 id="leftnavTitle">Career Experience</h2>
-                        <button class="btn-primary">
-                            <i class="ph ph-plus"></i> Add New
-                        </button>
+                        <div class="leftnav-header-actions">
+                            <div class="view-toggle view-toggle-light" id="leftnavViewToggle" role="group" aria-label="View options">
+                                <button class="view-toggle-btn active" data-view="card" aria-label="Card view" onclick="setLeftnavView('card')">
+                                    <i class="ph ph-squares-four"></i>
+                                </button>
+                                <button class="view-toggle-btn" data-view="table" aria-label="Table view" onclick="setLeftnavView('table')">
+                                    <i class="ph ph-table"></i>
+                                </button>
+                            </div>
+                            <button class="btn-primary">
+                                <i class="ph ph-plus"></i> Add New
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-grid" id="leftnavGrid">
-                        <!-- Content loaded dynamically -->
+                    <div class="leftnav-body" id="leftnavBody" data-view="card">
+                        <div class="content-grid card-grid" id="leftnavGrid">
+                            <!-- Card content loaded dynamically -->
+                        </div>
+                        <table class="content-table" id="leftnavTable">
+                            <thead>
+                                <tr><th>Name</th><th>Description</th><th>Modified</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr class="empty-row">
+                                    <td colspan="3">
+                                        <i class="ph ph-folder-open"></i>
+                                        <p>No items yet. Click "Add New" to create your first item.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </main>
             </div>
@@ -1755,6 +1833,71 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                     <p>No items yet. Click "Add New" to create your first item.</p>
                 </div>
             `;
+
+            // Apply saved view preference
+            applyLeftnavView();
+        }
+
+        /**
+         * Set and persist view type for the leftnav content area
+         * @param {string} viewType - 'card' or 'table'
+         */
+        function setLeftnavView(viewType) {
+            const body = document.getElementById('leftnavBody');
+            const toggle = document.getElementById('leftnavViewToggle');
+            if (!body) return;
+
+            // Get current leftnav item for preference key
+            const activeNav = document.querySelector('.leftnav-item.active');
+            const preferenceKey = activeNav ? `leftnav_${activeNav.dataset.label || 'default'}` : 'leftnav_default';
+
+            // Update view preference (persists to localStorage)
+            if (typeof ViewPreferences !== 'undefined') {
+                ViewPreferences.setView(preferenceKey, viewType);
+            }
+
+            // Update data-view attribute
+            body.setAttribute('data-view', viewType);
+
+            // Update toggle button states
+            if (toggle) {
+                toggle.querySelectorAll('.view-toggle-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.view === viewType);
+                });
+            }
+
+            // Track view change
+            trackEvent('LeftnavViewChanged', { viewType: viewType, section: preferenceKey });
+
+            console.log('[career-canvas-v2] Leftnav view set to:', viewType, 'for', preferenceKey);
+        }
+
+        /**
+         * Apply saved view preference for current leftnav section
+         */
+        function applyLeftnavView() {
+            const activeNav = document.querySelector('.leftnav-item.active');
+            const preferenceKey = activeNav ? `leftnav_${activeNav.dataset.label || 'default'}` : 'leftnav_default';
+
+            // Get saved preference or default to 'card'
+            let viewType = 'card';
+            if (typeof ViewPreferences !== 'undefined') {
+                viewType = ViewPreferences.getView(preferenceKey);
+            }
+
+            // Apply without persisting (just update UI)
+            const body = document.getElementById('leftnavBody');
+            const toggle = document.getElementById('leftnavViewToggle');
+
+            if (body) {
+                body.setAttribute('data-view', viewType);
+            }
+
+            if (toggle) {
+                toggle.querySelectorAll('.view-toggle-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.view === viewType);
+                });
+            }
         }
 
         // ===========================================
@@ -2018,6 +2161,9 @@ connectionString: "InstrumentationKey=104926d6-679a-4baa-919e-665bea6facac;Inges
                         applySlideoutView(slideoutId);
                     }
                 });
+
+                // Apply saved leftnav view preference
+                applyLeftnavView();
             }
 
             console.log('[career-canvas-v2] Initialization complete');
