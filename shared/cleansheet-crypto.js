@@ -317,6 +317,51 @@ const CleansheetCrypto = {
     },
 
     /**
+     * Check if a key can be derived (user identifier exists)
+     * This verifies that encryption/decryption operations will work
+     * @returns {boolean} True if a user identifier is available for key derivation
+     */
+    hasKey() {
+        try {
+            const identifier = this.getUserIdentifier();
+            // getUserIdentifier always returns something (generates device ID if needed)
+            // but we check if it's a meaningful identifier
+            return identifier && identifier.length > 0;
+        } catch (error) {
+            console.error('[CleansheetCrypto] hasKey check failed:', error);
+            return false;
+        }
+    },
+
+    /**
+     * Check if crypto operations are available and working
+     * Performs a quick self-test to verify encryption/decryption
+     * @returns {Promise<boolean>} True if crypto is ready
+     */
+    async isReady() {
+        try {
+            // Check Web Crypto API availability
+            if (typeof crypto === 'undefined' || !crypto.subtle) {
+                return false;
+            }
+
+            // Check if we have a user identifier
+            if (!this.hasKey()) {
+                return false;
+            }
+
+            // Quick self-test
+            const testData = 'crypto-ready-test';
+            const encrypted = await this.encrypt(testData);
+            const decrypted = await this.decrypt(encrypted);
+            return decrypted === testData;
+        } catch (error) {
+            console.error('[CleansheetCrypto] isReady check failed:', error);
+            return false;
+        }
+    },
+
+    /**
      * Test encryption/decryption functionality
      * @returns {Promise<boolean>} True if test passes
      */
